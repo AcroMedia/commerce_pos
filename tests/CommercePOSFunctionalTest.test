@@ -1,0 +1,171 @@
+<?php
+
+class CommercePOSBaseTest extends CommerceBaseTestCase {
+  public $storeCashier;
+  public $storeCustomer;
+  public $product;
+
+  function setUp($extra_modules = array()) {
+    array_unshift($extra_modules, 'commerce_pos');
+    $modules = $this->setUpHelper('ui', $extra_modules);
+    parent::setUp($modules);
+
+    $this->storeCashier = $this->createCashier();
+    $this->storeCustomer = $this->createStoreCustomer();
+  }
+
+  function createCashier() {
+    return $this->createUserWithPermissionHelper('cashier');
+  }
+
+  function permissionBuilder($sets) {
+    if (is_string($sets)) {
+      $sets = array($sets);
+    }
+
+    $store_cashier = array(
+      'use pos'
+    );
+
+    $final_permissions = array();
+    foreach ($sets as $set) {
+      switch ($set) {
+        case 'cashier':
+          $parent_perms = parent::permissionBuilder('store admin');
+          $final_permissions = array_unique(array_merge($parent_perms, $store_cashier));
+          break;
+        case 'customer service':
+          $parent_perms = parent::permissionBuilder('store admin');
+          $final_permissions = array_unique(array_merge($parent_perms, $store_cashier));
+          break;
+        case 'admin':
+          $parent_perms = parent::permissionBuilder('site admin');
+          $final_permissions = array_unique(array_merge($parent_perms, $store_cashier));
+      }
+    }
+    // Filter perms by enabled modules:
+    $possible_perms = array_keys(module_invoke_all('permission'));
+    $final_permissions = array_intersect($final_permissions, $possible_perms);
+
+
+    return $final_permissions;
+  }
+}
+
+class CommercePOSFunctionalTest extends CommercePOSBaseTest {
+  public $product;
+
+  /** @var POS_State */
+  public $state;
+  /** @var POS_Controller */
+  public $controller;
+  /** @var POS_Command_Registry */
+  public $registry;
+  /** @var POS_Interface */
+  public $interface;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Functional Tests',
+      'description' => 'Test basic interface interactions.',
+      'group' => 'POS',
+    );
+  }
+
+  function setUp() {
+    parent::setUp();
+    $this->drupalLogin($this->storeCashier);
+
+    $this->state = new POS_State();
+    $this->registry = POS_Command_Registry::create();
+    $this->controller = new POS_Controller($this->state, $this->registry);
+    $this->product = $this->createDummyProduct('testprod', 'Test Product', 5);
+  }
+
+  /*
+   * As a cashier I need to be able to pull up an existing order in the POS screen.
+   */
+  function testLoadOrder() {
+    $order = $this->createDummyOrder();
+    $this->controller->executeCommand('OR' . $order->order_id);
+    $this->assertEqual($this->state->getOrder()->order_id, $order->order_id, 'Order was loaded onto POS.');
+  }
+
+  /**
+   * As a cashier I need to be able to create a new order for a customer.
+   */
+  function testNewOrder() {
+    $this->assertNull($this->state->getOrder()->order_id, 'New POS order is unsaved before adding product.');
+    // This should trigger the new order to be saved.
+    $this->controller->executeCommand($this->product->sku);
+    $this->assertNotNull($this->state->getOrder()->order_id, 'New order was created.');
+  }
+
+  /**
+   * As a cashier I need to be able to change the customer for a current order.
+   */
+  function testChangeUser() {
+    $order = $this->createDummyOrder(); // Leaves $order->uid = 1
+    $this->state->setOrder($order);
+
+    $this->assertNotEqual($this->storeCustomer->uid, 1, 'Store customer is not set to UID 1');
+    $this->controller->executeCommand('US' . $this->storeCustomer->uid);
+    $this->assertEqual($this->state->getOrder()->uid, $this->storeCustomer->uid, 'Order user is set to customer after changing.');
+
+    $this->controller->executeCommand('US0');
+    $this->assertEqual($this->state->getOrder()->uid, 0, 'Order user can be reset to anonymous.');
+  }
+
+  /**
+   * As a cashier I need to be able to add a product to an order by scanning it.
+   */
+  function testAddProduct() {
+    $order = $this->createDummyOrder();
+    $this->state->setOrder($order);
+    $this->controller->executeCommand($this->product->sku);
+
+    $item_found = FALSE;
+    foreach ($this->state->getOrder()->commerce_line_items[LANGUAGE_NONE] as $item) {
+      $line_item = commerce_line_item_load($item['line_item_id']);
+      if ($line_item->commerce_product[LANGUAGE_NONE][0]['product_id'] == $this->product->product_id) {
+        $item_found = TRUE;
+        $this->assertEqual($line_item->quantity, 1, 'The correct quantity of the line item was added to the order.');
+      }
+    }
+    $this->assert($item_found, 'Order object reflects that a line item was added.');
+  }
+
+  /**
+   *   As a cashier I need to be able to ring up a quantity of a given item.
+   */
+  function testAddProductMultiple() {
+    $order = $this->createDummyOrder();
+    $this->state->setOrder($order);
+    $this->controller->executeCommand('51*' . $this->product->sku);
+
+    $item_found = FALSE;
+    foreach ($this->state->getOrder()->commerce_line_items[LANGUAGE_NONE] as $item) {
+      $line_item = commerce_line_item_load($item['line_item_id']);
+      if ($line_item->commerce_product[LANGUAGE_NONE][0]['product_id'] == $this->product->product_id) {
+        $item_found = TRUE;
+        $this->assertEqual($line_item->quantity, 51, 'The correct quantity of the line item was added to the order.');
+      }
+    }
+    $this->assert($item_found, 'Order object reflects that a line item was added.');
+  }
+
+  /**
+   *   As a cashier, I need to be able to remove an item from an order (void) before payment has been collected.
+   */
+  function testVoidLineItem() {
+    $order = $this->createDummyOrder(1, array(
+      $this->product->product_id => 1
+    ));
+    $this->state->setOrder($order);
+    $this->controller->executeCommand($this->product->sku);
+    $this->assertEqual(count($this->state->getOrder()->commerce_line_items[LANGUAGE_NONE]), 2, 'There are two line items on the order before voiding one.');
+
+    $this->controller->executeCommand('VOID1');
+    $this->assertEqual(count($this->state->getOrder()->commerce_line_items[LANGUAGE_NONE]), 1, 'There is one line items on the order after voiding one.');
+  }
+}

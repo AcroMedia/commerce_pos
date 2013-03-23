@@ -1,0 +1,38 @@
+.pos-receipt {
+
+}
+
+/* BASIC TABLE STYLES */
+.pos-receipt table {
+    width: 100%;
+}
+
+.pos-receipt td,
+.pos-receipt th {
+    text-align: left;
+}
+
+.pos-receipt .receipt-hide {
+    display: none;
+}
+
+.pos-receipt .receipt-header,
+.pos-receipt .receipt-footer {
+    text-align: center;
+}
+
+.pos-receipt .receipt-header {
+    margin-bottom: 1em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid black;
+}
+
+.pos-receipt .receipt-footer {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid black;
+}
+
+.pos-receipt table.commerce-pos-order {
+    margin: 1em 0;
+}

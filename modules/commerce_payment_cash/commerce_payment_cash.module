@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * @file
+ * Provides an example payment method for Drupal Commerce for testing and
+ *   development.
+ */
+
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_payment_cash_commerce_payment_method_info() {
+  $payment_methods = array();
+
+  $payment_methods['cash'] = array(
+    'base' => 'commerce_payment_cash',
+    'title' => t('Cash'),
+    'checkout' => FALSE, // @todo: Depends on http://drupal.org/node/1934554
+    'description' => t('A cash payment method.'),
+    'active' => TRUE,
+  );
+
+  return $payment_methods;
+}
+
+/**
+ * Payment method callback: submit form submission.
+ */
+function commerce_payment_cash_submit_form_submit($payment_method, $pane_form, $pane_values, $order, $charge) {
+  $balance = commerce_payment_order_balance($order);
+
+  $transaction = commerce_payment_transaction_new('cash', $order->order_id);
+  $transaction->instance_id = $payment_method['instance_id'];
+  $transaction->amount = $charge['amount'];
+  $transaction->currency_code = $charge['currency_code'];
+  $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+  commerce_payment_transaction_save($transaction);
+
+  // Handle overpayments (change):
+  if ($charge['amount'] > $balance['amount']) {
+    $change_transaction = commerce_payment_transaction_new('cash', $order->order_id);
+    $change_transaction->instance_id = $payment_method['instance_id'];
+    $change_transaction->amount = $balance['amount'] - $charge['amount'];
+    $change_transaction->currency_code = $charge['currency_code'];
+    $change_transaction->message = 'Change for transaction %id';
+    $change_transaction->message_variables = array('%id' => $transaction->transaction_id);
+    $change_transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+    commerce_payment_transaction_save($change_transaction);
+  }
+}

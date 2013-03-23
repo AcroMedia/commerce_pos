@@ -1,0 +1,23 @@
+
+.view-id-pos_tender_report h4 {
+    border-bottom:1px solid black;
+}
+
+.attachment .view-id-pos_tender_report .view-header {
+    border-bottom-width:0;
+}
+
+.view-id-pos_tender_report table {
+    width:100%;
+    border-width:0;
+}
+
+.view-id-pos_tender_report td,
+.view-id-pos_tender_report th {
+    text-align: left;
+}
+
+.view-id-pos_tender_report .views-field-amount,
+.view-id-pos_tender_report .total {
+    text-align: right;
+}

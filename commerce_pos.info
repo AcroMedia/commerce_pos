@@ -1,0 +1,42 @@
+name = Point of Sale
+description = Provides a Point of Sale interface for Drupal Commerce
+core = 7.x
+package = Commerce
+
+dependencies[] = commerce_order
+dependencies[] = commerce_customer
+dependencies[] = commerce_payment
+dependencies[] = ctools
+dependencies[] = views
+dependencies[] = libraries
+
+files[] = classes/POS_Command.php
+files[] = classes/POS_Command_Modal.php
+files[] = classes/POS_Command_Registry.php
+files[] = classes/POS_Controller.php
+files[] = classes/POS_Interface.php
+files[] = classes/POS_Pane.php
+files[] = classes/POS_State.php
+
+
+files[] = classes/commands/POSCommand_AddProduct.php
+files[] = classes/commands/POSCommand_Clear.php
+files[] = classes/commands/POSCommand_LoadOrder.php
+files[] = classes/commands/POSCommand_Payment.php
+files[] = classes/commands/POSCommand_PriceCheck.php
+files[] = classes/commands/POSCommand_Reprint.php
+files[] = classes/commands/POSCommand_SetUser.php
+files[] = classes/commands/POSCommand_Void.php
+
+files[] = classes/panes/POSPane_Alerts.php
+files[] = classes/panes/POSPane_Commands.php
+files[] = classes/panes/POSPane_Input.php
+files[] = classes/panes/POSPane_Order.php
+
+files[] = tests/CommercePOSComponentTest.test
+files[] = tests/CommercePOSFunctionalTest.test
+files[] = tests/CommercePOSInterfaceTest.test
+
+files[] = views/commerce_pos_handler_field_pos_command.inc
+
+configure = admin/commerce/config/pos

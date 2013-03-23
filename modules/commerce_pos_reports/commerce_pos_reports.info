@@ -1,0 +1,7 @@
+name = Point of Sale Reports
+description = Provides day-end reporting for POS payments.
+package = Commerce
+dependencies[] = commerce_pos
+core = 7.x
+
+files[] = classes/commands/POSCommand_ViewsReport.php

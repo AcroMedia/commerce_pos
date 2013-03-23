@@ -1,0 +1,52 @@
+<?php
+
+function commerce_pos_reports_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_pos_reports') . '/views',
+  );
+}
+
+function commerce_pos_reports_commerce_pos_commands() {
+  $commands = array();
+  $commands['manager_report'] = array(
+    'title' => 'Manager Report',
+    'handler' => 'POSCommand_ViewsReport',
+    'handler_options' => array(
+      'view_name' => 'pos_tender_report',
+      'display_id' => 'manager',
+    ),
+    'input_pattern' => 'MG',
+  );
+  $commands['tender_report'] = array(
+    'title' => 'Tender Report',
+    'handler' => 'POSCommand_ViewsReport',
+    'handler_options' => array(
+      'view_name' => 'pos_tender_report',
+      'display_id' => 'tender',
+    ),
+    'input_pattern' => 'TD',
+  );
+  return $commands;
+}
+
+function commerce_pos_reports_menu() {
+  $items = array();
+  $items['admin/commerce/pos/reports'] = array(
+    'title' => 'Reports',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('use pos'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'system.admin.inc',
+    'file path' => drupal_get_path('module', 'system'),
+  );
+  return $items;
+}
+
+function commerce_pos_reports_preprocess_views_view(&$variables) {
+  /** @var $view view */
+  $view = $variables['view'];
+  if($view->name == 'pos_tender_report') {
+    drupal_add_css(drupal_get_path('module', 'commerce_pos_reports') . '/commerce_pos_reports.css', array('media' => 'print'));
+  }
+}
