@@ -11,10 +11,12 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
   }
 
   function setUp() {
-    // Ensure our classes can be loaded.
-    foreach (file_scan_directory(__DIR__ . '/../classes', '/.*\.php/') as $file) {
-      require_once $file->uri;
-    }
+    require_once __DIR__ .'/../classes/POS_State.php';
+    require_once __DIR__ .'/../classes/POS_Command.php';
+    require_once __DIR__ .'/../classes/POS_Controller.php';
+    require_once __DIR__ .'/../classes/POS_Command_Registry.php';
+    require_once __DIR__ .'/../classes/commands/POSCommand_Clear.php';
+
     $modules = array('commerce_pos');
     parent::setUp($modules);
   }
@@ -36,20 +38,14 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
 
     $state->reset();
     $this->assertFalse($state->getPrintRender(), 'reset() resets the print status.');
-    try {
-      $state->getOrder();
-      $this->fail('reset() clears the current order.');
-    } catch (Exception $e) {
-      $this->pass('reset() clears the current order.');
-    }
-
-
+    $this->assertFalse($state->hasOrder(), 'reset() clears the current order.');
   }
 
   function testCommandRegistry() {
     $commands = array(
       'clear' => new POSCommand_Clear('Clear', 'clear', 'CL'),
-      'order' => new POSCommand_LoadOrder('Order', 'order', 'OR%s'),
+      // Pretend that this clear command is an order command.
+      'order' => new POSCommand_Clear('Order', 'order', 'OR%s'),
     );
 
     $registry = new POS_Command_Registry($commands);
@@ -71,12 +67,7 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
 
     $controller = new POS_Controller($state, $registry);
     $controller->executeCommand('CL');
-    try {
-      $state->getOrder();
-      $this->fail('Controller accepts input and executes commands on the current state.');
-    } catch (Exception $e) {
-      $this->pass('Controller accepts input and executes commands on the current state.');
-    }
+    $this->assertFalse($state->hasOrder(), 'Controller accepts input and executes commands on the current state.');
 
     try {
       $controller->executeCommand('garbage_input');
@@ -85,6 +76,5 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     catch(InvalidArgumentException $e) {
       $this->pass('Controller throws an exception for invalid input.');
     }
-
   }
 }
