@@ -27,7 +27,7 @@ class POS_Command_Registry {
         }
       }
     }
-    return new static($commands);
+    return new self($commands);
   }
 
   /**

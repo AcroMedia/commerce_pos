@@ -33,7 +33,7 @@ class POS_Interface {
         }
       }
 
-      self::$instance = new static($state, $registry, $panes);
+      self::$instance = new self($state, $registry, $panes);
     }
     return self::$instance;
   }

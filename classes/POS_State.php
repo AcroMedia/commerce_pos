@@ -25,7 +25,7 @@ class POS_State {
       return $_SESSION['pos_state'];
     }
     elseif ($create) {
-      return $_SESSION['pos_state'] = new static;
+      return $_SESSION['pos_state'] = new self;
     }
     return FALSE;
   }
