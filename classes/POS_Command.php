@@ -107,18 +107,22 @@ abstract class POS_Command {
       }
       $text = !empty($text) ? $text : $this->name;
 
-      return l($text, 'admin/commerce/pos', drupal_array_merge_deep(array(
-        'attributes' => array(
-          'class' => array('pos-button'),
-          'data-pos-input' => $pattern,
-          'id' => 'pos-button-' . $this->id,
-          'data-pos-submit' => 'true',
-        ),
-        'query' => array(
-          'command' => $pattern,
-          'token' => $token,
-        )
-      ), $options));
+      return theme('link__pos_button', array(
+        'text' => $text,
+        'path' => 'admin/commerce/pos',
+        'options' => drupal_array_merge_deep(array(
+          'attributes' => array(
+            'class' => array('pos-button', 'pos-button-' . $this->id),
+            'data-pos-input' => $pattern,
+            'data-pos-submit' => 'true',
+          ),
+          'query' => array(
+            'command' => $pattern,
+            'token' => $token,
+          ),
+          'html' => FALSE,
+        ), $options)
+      ));
     }
     return FALSE;
   }

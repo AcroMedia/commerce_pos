@@ -6,7 +6,17 @@ abstract class POS_Command_Modal extends POS_Command {
     ctools_include('ajax');
     ctools_include('modal');
     ctools_modal_add_js();
-    return ctools_modal_text_button($this->name, $this->getModalUrl(), '', 'pos-button');
+
+    return theme('link__pos_button__modal', array(
+      'text' => $this->name,
+      'path' => $this->getModalUrl(),
+      'options' => array(
+        'attributes' => array(
+          'class' => array('pos-button', 'ctools-use-modal'),
+        ),
+        'html' => FALSE,
+      )
+    ));
   }
 
   function getModalUrl() {
