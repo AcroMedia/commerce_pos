@@ -285,13 +285,15 @@ function commerce_pos_views_default_views() {
 }
 
 function commerce_pos_views_default_views_alter(&$views) {
-  $display = $views['commerce_orders']->display['default'];
+  if(isset($views['commerce_orders'])) {
+    $display = $views['commerce_orders']->display['default'];
 
-  /* Field: POS: Load POS Order */
-  $display->display_options['fields']['pos_load_order']['id'] = 'pos_load_order';
-  $display->display_options['fields']['pos_load_order']['table'] = 'commerce_order';
-  $display->display_options['fields']['pos_load_order']['field'] = 'pos_load_order';
-  $display->display_options['fields']['pos_load_order']['label'] = 'POS';
-  $display->display_options['fields']['pos_load_order']['element_label_colon'] = FALSE;
-  $display->display_options['fields']['pos_load_order']['text'] = 'View on POS';
+    /* Field: POS: Load POS Order */
+    $display->display_options['fields']['pos_load_order']['id'] = 'pos_load_order';
+    $display->display_options['fields']['pos_load_order']['table'] = 'commerce_order';
+    $display->display_options['fields']['pos_load_order']['field'] = 'pos_load_order';
+    $display->display_options['fields']['pos_load_order']['label'] = 'POS';
+    $display->display_options['fields']['pos_load_order']['element_label_colon'] = FALSE;
+    $display->display_options['fields']['pos_load_order']['text'] = 'View on POS';
+  }
 }
