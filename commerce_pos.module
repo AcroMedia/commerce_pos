@@ -35,6 +35,7 @@ function commerce_pos_menu() {
     'page callback' => 'commerce_pos_modal_command_window_page',
     'page arguments' => array(3, 4),
     'file' => 'commerce_pos.pages.inc',
+    'type' => MENU_CALLBACK,
   );
   $items['admin/commerce/config/pos'] = array(
     'title' => 'Point of Sale',

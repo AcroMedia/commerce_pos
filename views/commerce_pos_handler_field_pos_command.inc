@@ -5,7 +5,10 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
 
 
   function init($view, $options) {
-    $this->command = $this->definition['command'];
+    $registry = POS_Command_Registry::create();
+    if($command = $registry->getCommand($this->definition['command'])) {
+      $this->command = $command;
+    }
     return parent::init($view, $options);
   }
 
@@ -26,12 +29,14 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
   }
 
   function render($values) {
-    $value = $this->get_value($values);
-    return $this->command->getButton($this->options['text'], $value, array(
-      'attributes' => array(
-        'class' => array('ctools-close-modal')
-      )
-    ));
+    if($this->command) {
+      $value = $this->get_value($values);
+      return $this->command->getButton($this->options['text'], $value, array(
+        'attributes' => array(
+          'class' => array('ctools-close-modal')
+        )
+      ));
+    }
   }
 
 }
