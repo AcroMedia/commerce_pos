@@ -22,7 +22,7 @@ function drush_commerce_pos_post_pm_enable() {
       $path .= '/sites/all/libraries/jqprint';
     }
 
-    if (is_dir($path) && file_exists($path) . '/' . JQPRINT_FILENAME) {
+    if (is_dir($path) && file_exists($path . '/' . JQPRINT_FILENAME)) {
       drush_log('jqprint already present. No download required.', 'ok');
     }
     else {
