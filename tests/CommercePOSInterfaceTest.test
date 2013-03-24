@@ -105,10 +105,13 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
   function testButtonGeneration() {
     $command = new POSCommand_Clear('Clear', 'clear', 'ABC%s');
     $this->assertFalse($command->getButton(), 'Calling getButton with no input returns false.');
-    $button = $command->getButton(NULL, 'test');
+    $button = $command->getButton(NULL, 'test', array('query' => array('token' => 'token')));
     $this->drupalSetContent($button);
-    $this->assertRaw('data-pos-input="ABCtest"', 'Data input is set properly.');
-    $this->assertRaw('admin/commerce/pos?command=ABCtest', 'Link href is set properly.');
+    $links = $this->xpath('//a[contains(@data-pos-input, :input)]', array(':input' => 'ABCtest'));
+    $this->assert(!empty($links[0]), 'Data input is set properly');
+
+    $link_dest = url('admin/commerce/pos', array('query' => array('command' => 'ABCtest', 'token' => 'token')));
+    $this->assertLinkByHref($link_dest);
     $this->assertRaw('>Clear<', 'Button text defaults to the command name.');
 
     $button_name = $this->randomName();
@@ -123,6 +126,5 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
 
     $this->drupalSetContent($command->getButton('&some more', 'input'));
     $this->assertRaw('>&amp;some more<', 'Button text is escaped once and only once.');
-
   }
 }

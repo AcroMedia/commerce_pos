@@ -26,8 +26,7 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     $order = new stdClass();
     $order->title = $this->randomName(10);
     $state->setOrder($order);
-    $retrieved_order = $state->getOrder();
-    $this->assertEqual($order->title, $retrieved_order->title, 'Order can be persisted.');
+    $this->assertEqual($order, $state->getOrder(), 'Order can be persisted.');
 
     // Test the should print
     $this->assertFalse($state->getPrintRender(), 'Should print is set to FALSE by default.');
@@ -53,6 +52,11 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     $this->assertIdentical($command, $commands['clear'], 'Command can be determined based on input.');
     $command = $registry->determineActiveCommand('OR55');
     $this->assertIdentical($command, $commands['order'], 'Order command can be determined based on input.');
+
+    $invalid_patterns = array('GARBAGE', 'cl', 'OR');
+    foreach($invalid_patterns as $pattern) {
+      $this->assertFalse($registry->determineActiveCommand($pattern), 'No active command for ' . $pattern);
+    }
   }
 
   function testController() {
@@ -66,8 +70,9 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     ));
 
     $controller = new POS_Controller($state, $registry);
+    $this->assertTrue($state->hasOrder(), 'State has order before executing clear command.');
     $controller->executeCommand('CL');
-    $this->assertFalse($state->hasOrder(), 'Controller accepts input and executes commands on the current state.');
+    $this->assertFalse($state->hasOrder(), 'Executing the clear command on the controller clears the order from the state.');
 
     try {
       $controller->executeCommand('garbage_input');
