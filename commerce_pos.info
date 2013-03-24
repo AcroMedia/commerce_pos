@@ -4,9 +4,8 @@ core = 7.x
 package = Commerce
 
 dependencies[] = commerce_order
-dependencies[] = commerce_customer
 dependencies[] = commerce_payment
-dependencies[] = ctools
+dependencies[] = commerce_product
 dependencies[] = views
 dependencies[] = libraries
 
