@@ -12,25 +12,28 @@ function commerce_pos_requirements($phase) {
   // Ensure translations don't break during installation.
   $t = get_t();
 
-  $path = module_invoke('libraries', 'get_path', 'jqprint');
-  $installed = $path && file_exists($path . '/' . JQPRINT_FILENAME);
+  if($phase == 'runtime') {
+    $path = module_invoke('libraries', 'get_path', 'jqprint');
+    $installed = $path && file_exists($path . '/' . JQPRINT_FILENAME);
 
-  $requirements['pos_jqprint'] = array(
-    'title' => $t('jQuery Print Library'),
-    'value' => $installed ? $t('Installed') : $t('Not installed'),
-    'severity' => $installed ? REQUIREMENT_OK : REQUIREMENT_WARNING,
-  );
-  if(!$installed) {
-    if(!$path) {
-      $path = 'sites/all/libraries/jqprint';
+    $requirements['pos_jqprint'] = array(
+      'title' => $t('jQuery Print Library'),
+      'value' => $installed ? $t('Installed') : $t('Not installed'),
+      'severity' => $installed ? REQUIREMENT_OK : REQUIREMENT_WARNING,
+    );
+    if(!$installed) {
+      if(!$path) {
+        $path = 'sites/all/libraries/jqprint';
+      }
+      $message = $t('The jqprint jQuery plugin is required in order to print receipts from the POS interface.  Please download the plugin from !link and move the plugin file (%script) to %path', array(
+        '!link' => $phase == 'runtime' ? l(JQPRINT_DOWNLOAD, JQPRINT_DOWNLOAD) : JQPRINT_DOWNLOAD,
+        '%script' => JQPRINT_FILENAME,
+        '%path' => $path . '/' . JQPRINT_FILENAME,
+      ));
+      $requirements['pos_jqprint']['description'] = $message;
     }
-    $message = $t('The jqprint jQuery plugin is required in order to print receipts from the POS interface.  Please download the plugin from !link and move the plugin file (%script) to %path', array(
-      '!link' => $phase == 'runtime' ? l(JQPRINT_DOWNLOAD, JQPRINT_DOWNLOAD) : JQPRINT_DOWNLOAD,
-      '%script' => JQPRINT_FILENAME,
-      '%path' => $path . '/' . JQPRINT_FILENAME,
-    ));
-    $requirements['pos_jqprint']['description'] = $message;
   }
+
 
   return $requirements;
 }
