@@ -33,6 +33,7 @@ function template_preprocess_pos_receipt(&$variables) {
   $variables['receipt_date'] = format_date(REQUEST_TIME);
   drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-receipt.css', array('media' => 'print'));
 
-  $order_pane = new POSPane_Order('order', 'Order', array('interactive' => FALSE));
-  $variables['receipt_body'] = $order_pane->build($state, $registry);
+  $order_pane = new POSPane_Order('order', 'Order');
+  // Using an empty registry ensures we won't have buttons on our receipt.
+  $variables['receipt_body'] = $order_pane->build($state, new POS_Command_Registry(array()));
 }

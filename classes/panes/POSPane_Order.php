@@ -2,9 +2,6 @@
 
 
 class POSPane_Order extends POS_Pane {
-  protected $config = array(
-    'interactive' => TRUE,
-  );
 
   function build(POS_State $state, POS_Command_Registry $registry, $js = FALSE) {
     $order = $state->getOrder();
@@ -37,6 +34,7 @@ class POSPane_Order extends POS_Pane {
         $void_col_used = TRUE;
         $row[] = $command->getButton(NULL, $line_item->line_item_id->raw());
       }
+
 
       $rows[] = array(
         'data' => $row,
