@@ -16,7 +16,7 @@ function drush_commerce_pos_post_pm_enable() {
   if (in_array('commerce_pos', $extensions) && !drush_get_option('skip')) {
     $path = drush_get_context('DRUSH_DRUPAL_ROOT');
     if($library_path = module_invoke('libraries', 'get_path', 'jqprint')) {
-      $path.= $library_path;
+      $path.= '/'  . $library_path;
     }
     else {
       $path .= '/sites/all/libraries/jqprint';
@@ -26,15 +26,17 @@ function drush_commerce_pos_post_pm_enable() {
       drush_log('jqprint already present. No download required.', 'ok');
     }
     else {
-      $request = drupal_http_request(JQPRINT_DOWNLOAD);
-      if($request->code == 200 && !empty($request->data)) {
-        $folder_path = drush_tempdir();
-        $filename = pathinfo(JQPRINT_DOWNLOAD, PATHINFO_FILENAME);
-        file_put_contents("$folder_path/$filename", $request->data);
-        drush_tarball_extract("$folder_path/$filename", $folder_path);
-        if(drush_move_dir($folder_path .'/jquery.jqprint-master', $path, TRUE)) {
-          drush_log('jqprint jquery plugin downloaded to ' . $path, 'ok');
-          return;
+      if(file_prepare_directory(dirname($path), FILE_CREATE_DIRECTORY|FILE_MODIFY_PERMISSIONS)) {
+        $request = drupal_http_request(JQPRINT_DOWNLOAD);
+        if($request->code == 200 && !empty($request->data)) {
+          $folder_path = drush_tempdir();
+          $filename = pathinfo(JQPRINT_DOWNLOAD, PATHINFO_FILENAME);
+          file_put_contents("$folder_path/$filename", $request->data);
+          drush_tarball_extract("$folder_path/$filename", $folder_path);
+          if(drush_move_dir($folder_path .'/jquery.jqprint-master', $path, TRUE)) {
+            drush_log('jqprint jquery plugin downloaded to ' . $path, 'ok');
+            return;
+          }
         }
       }
       $message = dt('jQuery jqprint plugin download failed.  Please download the plugin from !link and move the plugin file (!script) to @path', array(
