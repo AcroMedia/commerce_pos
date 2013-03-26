@@ -83,7 +83,7 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
     $output = $this->buildPane($pane);
     $this->drupalSetContent(drupal_render($output));
     $this->assertText('Order: ' . $order->order_id, 'Order ID displayed matches the order on the POS.');
-    $this->assertText('Customer: ' . $order->uid, 'Customer ID displayed matches the order on the POS.');
+    $this->assertText('Customer: ' . format_username(user_load($order->uid)), 'Customer name displayed matches the order on the POS.');
 
     foreach ($order->commerce_line_items[LANGUAGE_NONE] as $item) {
       $this->assertNoRaw('data-pos-input="VOID' . $item['line_item_id'] . '"', 'Void button was not found.');
