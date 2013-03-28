@@ -31,11 +31,10 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
   function render($values) {
     if($this->command) {
       $value = $this->get_value($values);
-      return $this->command->getButton($this->options['text'], $value, array(
-        'attributes' => array(
-          'class' => array('ctools-close-modal')
-        )
-      ));
+      drupal_add_library('system', 'jquery.bbq');
+      drupal_add_js(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.js');
+      drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.css');
+      return $this->command->getButton($this->options['text'], $value);
     }
   }
 

@@ -149,7 +149,8 @@ function commerce_pos_views_default_views() {
   $handler->display->display_options['fields']['pos_set_user']['id'] = 'pos_set_user';
   $handler->display->display_options['fields']['pos_set_user']['table'] = 'users';
   $handler->display->display_options['fields']['pos_set_user']['field'] = 'pos_set_user';
-  $handler->display->display_options['fields']['pos_set_user']['label'] = 'Select';
+  $handler->display->display_options['fields']['pos_set_user']['label'] = '';
+  $handler->display->display_options['fields']['pos_set_user']['text'] = 'Select Customer';
   /* Field: User: Name */
   $handler->display->display_options['fields']['name']['id'] = 'name';
   $handler->display->display_options['fields']['name']['table'] = 'users';

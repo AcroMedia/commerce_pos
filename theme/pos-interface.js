@@ -43,36 +43,49 @@
 
     Drupal.behaviors.POS = {
         attach: function (context, settings) {
-            var $input,
-                $button;
             $('form.pos-input-form', context).once('ajax-pos', function() {
-                $button = $('input[type="submit"]', this);
-                $input = $('input[name="input"]', this);
+                var $button = $('input[type="submit"]', this);
+                var $input = $('input[name="input"]', this);
                 Drupal.POS.instance = new Drupal.POS($button, $input, settings.posCaptureFocus || false);
             });
-            if(Drupal.POS.instance) {
-                $('.pos-button', context).once('pos-button').addClass('overlay-exclude').click(function (e) {
+
+            $('.pos-button', context).once('pos-button', function() {
+                var $button = $(this);
+                var pattern;
+                if(Drupal.POS.instance) $button.addClass('overlay-exclude');
+
+                $button.click(function(e) {
                     if(Drupal.POS.instance) {
                         if (pattern = $(this).data('pos-input')) {
                             Drupal.POS.instance.replacePattern(pattern);
                             if ($(this).data('pos-submit')) {
                                 Drupal.POS.instance.submit();
                             }
-                        }
-                        e.preventDefault();
-                    }
-                    var pattern, input;
-                    if (pattern = $(this).data('pos-input')) {
-                        var $form = $('#pos-pane-input form');
-                        input = $('input[name="input"]', $form);
-                        input.val(pattern.replace('%s', input.val()));
-                        if ($(this).data('pos-submit')) {
-                            $('input[type="submit"]', $form).trigger('click');
+                            if(typeof Drupal.CTools.Modal != 'undefined') {
+                                Drupal.CTools.Modal.dismiss();
+                            }
                         }
                         e.preventDefault();
                     }
                 });
-            }
+
+                if($button.hasClass('pos-button-add_product')) {
+                    var original_input = $button.attr('data-pos-input');
+                    var $qty = $('<input type="text" class="quantity" size="2" title = "' + Drupal.t('Enter a quantity') + '" value="1" />');
+                    $button.append($qty).addClass('has-quantity');
+                    $qty
+                        .click(function(e) {
+                            // Do not activate link:
+                            e.preventDefault();
+                            e.stopPropagation();
+                        })
+                        .change(function(e) {
+                            var command = $qty.val() + '*' + original_input;
+                            $button.querystring('href', {command: command});
+                            $button.data('pos-input', command);
+                        });
+                }
+            });
 
             $('.pos-print', context).once('jq-print', function () {
                 $(this).jqprint();

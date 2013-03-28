@@ -118,6 +118,9 @@ class POS_Interface {
           drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.js',
         ),
         'css' => array(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.css'),
+        'library' => array(
+          array('system', 'jquery.bbq')
+        )
       ),
       $prebuild ? $prebuild : $pane->build($this->state, $this->registry, $js),
     );

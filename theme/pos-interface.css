@@ -4,6 +4,17 @@ a.pos-button {
     display:inline-block;
     padding:.5em;
 }
+a.pos-button.has-quantity {
+    padding:0 0 0 .5em;
+}
+a.pos-button input.quantity {
+    margin-left:.5em;
+    font-size:1em;
+    padding:.5em .25em;
+    border-left:1px solid #CCC;
+    text-align: center;
+}
+
 a.pos-button:hover {
     cursor: pointer;
     border-color:#999;
