@@ -9,24 +9,28 @@ dependencies[] = commerce_product_reference
 dependencies[] = views
 dependencies[] = libraries
 
-files[] = classes/POS_Command.php
-files[] = classes/POS_Command_Modal.php
-files[] = classes/POS_Command_Registry.php
 files[] = classes/POS_Controller.php
 files[] = classes/POS_Interface.php
-files[] = classes/POS_Pane.php
 files[] = classes/POS_State.php
 
+files[] = classes/buttons/POS_Button.php
+files[] = classes/buttons/POS_Button_Command.php
+files[] = classes/buttons/POS_Button_Modal.php
+files[] = classes/buttons/POS_Button_Modal_View.php
+files[] = classes/buttons/POS_Button_Payment.php
+files[] = classes/buttons/POS_Button_Registry.php
 
+files[] = classes/commands/POS_Command.php
+files[] = classes/commands/POS_Command_Registry.php
 files[] = classes/commands/POSCommand_AddProduct.php
 files[] = classes/commands/POSCommand_Clear.php
 files[] = classes/commands/POSCommand_LoadOrder.php
-files[] = classes/commands/POSCommand_Payment.php
 files[] = classes/commands/POSCommand_PriceCheck.php
 files[] = classes/commands/POSCommand_Reprint.php
 files[] = classes/commands/POSCommand_SetUser.php
 files[] = classes/commands/POSCommand_Void.php
 
+files[] = classes/panes/POS_Pane.php
 files[] = classes/panes/POSPane_Alerts.php
 files[] = classes/panes/POSPane_Commands.php
 files[] = classes/panes/POSPane_Input.php

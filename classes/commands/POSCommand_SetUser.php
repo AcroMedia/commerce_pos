@@ -1,7 +1,7 @@
 <?php
 
 
-class POSCommand_SetUser extends POS_Command_Modal {
+class POSCommand_SetUser extends POS_Command {
 
   function access($input, POS_State $state) {
     return commerce_order_access('update', $state->getOrder(), $state->getCashier());
@@ -17,15 +17,5 @@ class POSCommand_SetUser extends POS_Command_Modal {
       commerce_order_save($order);
     }
     $state->setOrder($order);
-  }
-
-  function modalPage($js, POS_State $state) {
-    $output = commerce_embed_view('pos_user_selection', 'default', array(), $_GET['q']);
-    if ($js) {
-      return array(
-        ctools_modal_command_display(drupal_get_title(), $output)
-      );
-    }
-    return $output;
   }
 }

@@ -22,12 +22,12 @@ abstract class POS_Pane {
    * Build the render array representing this pane.
    *
    * @param POS_State $state
-   * @param POS_Command_Registry $registry
+   * @param \POS_Button_Registry|\POS_Command_Registry $registry
    * @param bool $js
    *
    * @return mixed
    */
-  public abstract function build(POS_State $state, POS_Command_Registry $registry, $js = FALSE);
+  public abstract function build(POS_State $state, POS_Button_Registry $registry, $js = FALSE);
 
   /**
    * Retrieve the ID of this pane.

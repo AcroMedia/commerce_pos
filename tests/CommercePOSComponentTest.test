@@ -12,9 +12,9 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
 
   function setUp() {
     require_once __DIR__ .'/../classes/POS_State.php';
-    require_once __DIR__ .'/../classes/POS_Command.php';
+    require_once __DIR__ .'/../classes/commands/POS_Command.php';
     require_once __DIR__ .'/../classes/POS_Controller.php';
-    require_once __DIR__ .'/../classes/POS_Command_Registry.php';
+    require_once __DIR__ .'/../classes/commands/POS_Command_Registry.php';
     require_once __DIR__ .'/../classes/commands/POSCommand_Clear.php';
 
     $modules = array('commerce_pos');

@@ -1,8 +1,26 @@
 <?php
 
-abstract class POS_Command_Modal extends POS_Command {
+abstract class POS_Button_Modal implements POS_Button {
+  protected $config = array();
+  protected $id;
+  protected $name;
 
-  public function getModalButton() {
+  public function __construct($name, $id, array $options = array()) {
+    $this->name = $name;
+    $this->id = $id;
+    $this->config = $options + $this->config;
+  }
+
+  public function getName() {
+    return $this->name;
+  }
+
+  public function getId() {
+    return $this->id;
+  }
+
+  public function render($text = NULL, $input = NULL, $options = array()) {
+    //@todo: Implement.
     ctools_include('ajax');
     ctools_include('modal');
     ctools_modal_add_js();

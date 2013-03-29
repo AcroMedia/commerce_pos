@@ -32,8 +32,8 @@ class POS_Interface {
           }
         }
       }
-
-      self::$instance = new self($state, $registry, $panes);
+      $button_registry = POS_Button_Registry::create($registry);
+      self::$instance = new self($state, $button_registry, $panes);
     }
     return self::$instance;
   }
@@ -45,7 +45,7 @@ class POS_Interface {
    * @param POS_Command_Registry $registry
    * @param POS_Pane[] $panes
    */
-  public function __construct(POS_State $state, POS_Command_Registry $registry, array $panes) {
+  public function __construct(POS_State $state, POS_Button_Registry $registry, array $panes) {
     $this->state = $state;
     $this->registry = $registry;
     $this->setPanes($panes);

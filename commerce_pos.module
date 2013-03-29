@@ -275,19 +275,39 @@ function commerce_pos_commerce_pos_commands() {
     'handler' => 'POSCommand_PriceCheck',
     'input_pattern' => 'CHK%s',
   );
-  foreach (commerce_payment_methods() as $id => $method) {
-    // Only add a command for a method if it allows the payment terminal.
-    if($method['terminal']) {
-      $commands['payment_' . $id] = array(
-        'title' => $method['display_title'],
-        'handler' => 'POSCommand_Payment',
-        'handler_options' => $method,
-        'input_pattern' => NULL,
-      );
-    }
-  }
-
   return $commands;
+}
+
+/**
+ * Implements hook_commerce_pos_buttons().
+ *
+ * @param POS_Command_Registry $registry
+ *
+ * @return array
+ */
+function commerce_pos_commerce_pos_buttons(POS_Command_Registry $registry) {
+  $buttons = array();
+  foreach($registry->getCommands() as $command) {
+    $buttons[$command->getId()] = new POS_Button_Command($command);
+  }
+  foreach(commerce_payment_methods() as $method) {
+    $handler_id = 'payment_' . $method['method_id'];
+    $buttons[$handler_id] = new POS_Button_Payment($method['display_title'], $handler_id, $method);
+  }
+  $buttons['order_modal'] = new POS_Button_Modal_View('Order', 'order_modal', array(
+    'view' => 'pos_order_selection',
+    'display' => 'default',
+  ));
+  $buttons['user_modal'] = new POS_Button_Modal_View('User', 'user_modal', array(
+    'view' => 'pos_user_selection',
+    'display' => 'default',
+  ));
+  $buttons['product_modal'] = new POS_Button_Modal_View('Product', 'product_modal', array(
+    'view' => 'pos_product_selection',
+    'display' => 'default',
+  ));
+
+  return $buttons;
 }
 
 /**

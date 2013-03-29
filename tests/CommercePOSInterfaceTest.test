@@ -1,14 +1,11 @@
 <?php
 
 class CommercePOSInterfaceTest extends CommercePOSBaseTest {
-  public $product;
 
   /** @var POS_State */
   public $state;
-  /** @var POS_Command_Registry */
-  public $registry;
-  /** @var POS_Interface */
-  public $interface;
+  /** @var POS_Button_Registry */
+  public $button_registry;
 
   public static function getInfo() {
     return array(
@@ -23,28 +20,28 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
     $this->drupalLogin($this->storeCashier);
 
     $this->state = new POS_State();
-    $this->registry = new POS_Command_Registry(array(
-      new POSCommand_Clear('Clear', 'clear', 'CL'),
+    $clear_command = new POSCommand_Clear('Clear', 'clear', 'CL');
+    $this->button_registry = new POS_Button_Registry(array(
+      new POS_Button_Command($clear_command),
     ));
-    $this->product = $this->createDummyProduct('testprod', 'Test Product', 5);
-    $this->interface = new POS_Interface($this->state, $this->registry, array());
   }
 
   protected function buildPane(POS_Pane $pane) {
-    return $pane->build($this->state, $this->registry);
+    return $pane->build($this->state, $this->button_registry);
   }
 
   function testPrintReceipt() {
+    $interface = new POS_Interface($this->state, $this->button_registry, array());
     $order = $this->createDummyOrder();
     $this->state->setOrder($order);
-    $this->assertEqual(array(), $this->interface->buildAjax(), 'Ajax build is empty before setting print flag.');
+    $this->assertEqual(array(), $interface->buildAjax(), 'Ajax build is empty before setting print flag.');
     $render = array('#markup' => 1);
     $this->state->setPrintRender($render);
-    $output = $this->interface->buildAjax();
+    $output = $interface->buildAjax();
     $this->assertEqual($output[0]['command'], 'printReceipt', 'Ajax printReceipt command is given after setting print flag.');
 
     $this->state->setPrintRender($render);
-    $output = $this->interface->build();
+    $output = $interface->build();
     $this->assertEqual($output[0]['print'], $render, 'Receipt is printed on page after setting print flag.');
   }
 
@@ -90,9 +87,9 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
     }
 
     // Add the void command to the registry and check that the void button appears.
-    $commands = $this->registry->getCommands();
-    $commands[] = new POSCommand_Void('Void', 'void', 'VOID%s');
-    $this->registry->setCommands($commands);
+    $buttons = $this->button_registry->getButtons();
+    $buttons[] = new POS_Button_Command(new POSCommand_Void('Void', 'void', 'VOID%s'));
+    $this->button_registry->setButtons($buttons);
 
     $output = $this->buildPane($pane);
     $this->drupalSetContent(drupal_render($output));
@@ -103,10 +100,10 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
   }
 
   function testButtonGeneration() {
-    $command = new POSCommand_Clear('Clear', 'clear', 'ABC%s');
-    $this->assertFalse($command->getButton(), 'Calling getButton with no input returns false.');
-    $button = $command->getButton(NULL, 'test', array('query' => array('token' => 'token')));
-    $this->drupalSetContent($button);
+    $button = new POS_Button_Command(new POSCommand_Clear('Clear', 'clear', 'ABC%s'));
+    $this->assertFalse($button->render(), 'Calling render with no input returns false.');
+    $rendered = $button->render(NULL, 'test', array('query' => array('token' => 'token')));
+    $this->drupalSetContent($rendered);
     $links = $this->xpath('//a[contains(@data-pos-input, :input)]', array(':input' => 'ABCtest'));
     $this->assert(!empty($links[0]), 'Data input is set properly');
 
@@ -115,16 +112,16 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
     $this->assertRaw('>Clear<', 'Button text defaults to the command name.');
 
     $button_name = $this->randomName();
-    $button = $command->getButton($button_name, 'test2', array(
+    $rendered = $button->render($button_name, 'test2', array(
       'attributes' => array(
         'class' => 'testClass',
       )
     ));
-    $this->drupalSetContent($button);
+    $this->drupalSetContent($rendered);
     $this->assertRaw('>' . $button_name . '<', 'Button name can be changed by the caller.');
     $this->assertRaw('testClass', 'Button attributes can be added by the caller.');
 
-    $this->drupalSetContent($command->getButton('&some more', 'input'));
+    $this->drupalSetContent($button->render('&some more', 'input'));
     $this->assertRaw('>&amp;some more<', 'Button text is escaped once and only once.');
   }
 }

@@ -35,5 +35,5 @@ function template_preprocess_pos_receipt(&$variables) {
 
   $order_pane = new POSPane_Order('order', 'Order');
   // Using an empty registry ensures we won't have buttons on our receipt.
-  $variables['receipt_body'] = $order_pane->build($state, new POS_Command_Registry(array()));
+  $variables['receipt_body'] = $order_pane->build($state, new POS_Button_Registry());
 }

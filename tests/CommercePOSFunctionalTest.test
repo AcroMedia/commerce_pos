@@ -60,7 +60,7 @@ class CommercePOSFunctionalTest extends CommercePOSBaseTest {
   /** @var POS_Controller */
   public $controller;
   /** @var POS_Command_Registry */
-  public $registry;
+  public $command_registry;
   /** @var POS_Interface */
   public $interface;
 
@@ -77,8 +77,8 @@ class CommercePOSFunctionalTest extends CommercePOSBaseTest {
     $this->drupalLogin($this->storeCashier);
 
     $this->state = new POS_State();
-    $this->registry = POS_Command_Registry::create();
-    $this->controller = new POS_Controller($this->state, $this->registry);
+    $this->command_registry = POS_Command_Registry::create();
+    $this->controller = new POS_Controller($this->state, $this->command_registry);
     $this->product = $this->createDummyProduct('testprod', 'Test Product', 5);
   }
 

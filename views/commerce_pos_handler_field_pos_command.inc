@@ -1,13 +1,13 @@
 <?php
 
 class commerce_pos_handler_field_pos_command extends views_handler_field {
-  protected $command;
+  protected $button;
 
 
   function init($view, $options) {
-    $registry = POS_Command_Registry::create();
-    if($command = $registry->getCommand($this->definition['command'])) {
-      $this->command = $command;
+    $registry = POS_Button_Registry::create(POS_Command_Registry::create());
+    if($button = $registry->getButton($this->definition['command'])) {
+      $this->button = $button;
     }
     return parent::init($view, $options);
   }
@@ -29,12 +29,12 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
   }
 
   function render($values) {
-    if($this->command) {
+    if($this->button) {
       $value = $this->get_value($values);
       drupal_add_library('system', 'jquery.bbq');
       drupal_add_js(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.js');
       drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.css');
-      return $this->command->getButton($this->options['text'], $value);
+      return $this->button->render($this->options['text'], $value);
     }
   }
 

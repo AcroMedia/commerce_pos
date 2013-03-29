@@ -1,7 +1,7 @@
 <?php
 
 
-class POSCommand_LoadOrder extends POS_Command_Modal {
+class POSCommand_LoadOrder extends POS_Command {
 
   function access($order_id, POS_State $state) {
     if ($order_id) {
@@ -20,15 +20,5 @@ class POSCommand_LoadOrder extends POS_Command_Modal {
     else {
       throw new InvalidArgumentException(t('Invalid order ID: %id', array('%id' => $order_id)));
     }
-  }
-
-  function modalPage($js, POS_State $state) {
-    $output = commerce_embed_view('pos_order_selection', 'default', array(), $_GET['q']);
-    if ($js) {
-      return array(
-        ctools_modal_command_display(drupal_get_title(), $output)
-      );
-    }
-    return $output;
   }
 }

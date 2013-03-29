@@ -86,45 +86,12 @@ abstract class POS_Command {
     return preg_match('/^' . $pattern . '$/', $input);
   }
 
-  protected function constructInputFromPattern($input = NULL) {
+  public function constructInputFromPattern($input = NULL) {
     // If the command has no input pattern, or has one, but it requires input and there is none...
     if(!$this->input_pattern || (strpos($this->input_pattern, '%s') !== FALSE && !isset($input))) {
       return FALSE;
     }
     return str_replace('%s', $input, $this->input_pattern);
-  }
-
-  /**
-   * Get an HTML representation of the command, for placement on the interface.
-   *
-   * @return string
-   */
-  public function getButton($text = NULL, $input = NULL, $options = array()) {
-    if($pattern = $this->constructInputFromPattern($input)) {
-      static $token = NULL;
-      if(!$token) {
-        $token = drupal_get_token('pos_command');
-      }
-      $text = !empty($text) ? $text : $this->name;
-
-      return theme('link__pos_button', array(
-        'text' => $text,
-        'path' => 'admin/commerce/pos',
-        'options' => drupal_array_merge_deep(array(
-          'attributes' => array(
-            'class' => array('pos-button', 'pos-button-' . $this->id),
-            'data-pos-input' => $pattern,
-            'data-pos-submit' => 'true',
-          ),
-          'query' => array(
-            'command' => $pattern,
-            'token' => $token,
-          ),
-          'html' => FALSE,
-        ), $options)
-      ));
-    }
-    return FALSE;
   }
 
   /**

@@ -49,24 +49,25 @@ function commerce_pos_pos_page() {
  * @return array|mixed|void
  *  The output, if
  */
-function commerce_pos_modal_command_window_page($js, $command_id) {
+function commerce_pos_modal_command_window_page($js, $button_id) {
   $registry = POS_Command_Registry::create();
+  $button_registry = POS_Button_Registry::create($registry);
   $state = POS_State::get();
 
-  $command = $registry->getCommand($command_id);
-  if ($command && $command instanceof POS_Command_Modal) {
-    if ($command->access('', $state)) {
+  $button = $button_registry->getButton($button_id);
+  if ($button && $button instanceof POS_Button_Modal) {
+    if ($button->access('', $state)) {
       ctools_include('ajax');
       ctools_include('modal');
-      drupal_set_title($command->getName());
+      drupal_set_title($button->getName());
 
       $args = func_get_args();
       $args[1] = $state;
-      $output = call_user_func_array(array($command, 'modalPage'), $args);
+      $output = call_user_func_array(array($button, 'modalPage'), $args);
 
       if ($js) {
         if (!$output) {
-          $interface = POS_Interface::create($state, $registry);
+          $interface = POS_Interface::create($state, $button_registry);
           $output = $interface->buildAjax();
           $output[] = ctools_modal_command_dismiss();
         }

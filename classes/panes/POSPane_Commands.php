@@ -6,17 +6,12 @@ class POSPane_Commands extends POS_Pane {
     'show_keypad' => FALSE,
   );
 
-  function build(POS_State $state, POS_Command_Registry $registry, $js = FALSE) {
+  function build(POS_State $state, POS_Button_Registry $registry, $js = FALSE) {
     $buttons = array();
     $numbers = array();
-    foreach ($registry->getCommands() as $command) {
-      if ($command->access(NULL, $state)) {
-        if($command instanceof POS_Command_Modal) {
-          $buttons[] = $command->getModalButton();
-        }
-        else {
-          $buttons[] = $command->getButton();
-        }
+    foreach ($registry->getButtons() as $button) {
+      if ($button->access(NULL, $state)) {
+        $buttons[] = $button->render();
       }
     }
     if ($this->config['show_keypad']) {

@@ -1,7 +1,7 @@
 <?php
 
 
-class POSCommand_AddProduct extends POS_Command_Modal {
+class POSCommand_AddProduct extends POS_Command {
 
   public function shouldRun($input) {
     list($sku) = $this->reParseInput($input);
@@ -58,15 +58,5 @@ class POSCommand_AddProduct extends POS_Command_Modal {
       $matches[2], // SKU
       $matches[1] ? $matches[1] : 1, // Quantity
     );
-  }
-
-  public function modalPage($js, POS_State $state) {
-    $output = commerce_embed_view('pos_product_selection', 'default', array(), $_GET['q']);
-    if ($js) {
-      return array(
-        ctools_modal_command_display(drupal_get_title(), $output)
-      );
-    }
-    return $output;
   }
 }

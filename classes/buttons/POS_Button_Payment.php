@@ -1,7 +1,8 @@
 <?php
 
 
-class POSCommand_Payment extends POS_Command_Modal {
+
+class POS_Button_Payment extends POS_Button_Modal {
 
   public function access($input, POS_State $state) {
     $order = $state->getOrder();
@@ -34,22 +35,6 @@ class POSCommand_Payment extends POS_Command_Modal {
       }
     }
     return FALSE;
-  }
-
-  /**
-   * This command never actually runs.  It just provides a button to pop
-   * up a modal window.
-   */
-  public function shouldRun() {
-    return FALSE;
-  }
-
-  public function execute($input, POS_State $state) {
-    //No-op.
-  }
-
-  public function getModalUrl() {
-    return 'admin/commerce/pos/nojs/' . $this->id;
   }
 
   public function modalPage($js, POS_State $state) {

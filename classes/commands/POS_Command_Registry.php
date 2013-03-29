@@ -15,19 +15,22 @@ class POS_Command_Registry {
    * @return POS_Command_Registry
    */
   public static function create() {
-    $commands = array();
-    ctools_include('plugins');
-    $plugins = ctools_get_plugins('commerce_pos', 'commands');
-    uasort($plugins, 'ctools_plugin_sort');
-    foreach ($plugins as $id => $plugin) {
-      if ($handler_class = ctools_plugin_get_class($plugin, 'handler')) {
-        $handler = new $handler_class($plugin['title'], $id, $plugin['input_pattern'], $plugin['handler_options']);
-        if ($handler instanceof POS_Command) {
-          $commands[$id] = $handler;
+    if(!self::$instance) {
+      $commands = array();
+      ctools_include('plugins');
+      $plugins = ctools_get_plugins('commerce_pos', 'commands');
+      uasort($plugins, 'ctools_plugin_sort');
+      foreach ($plugins as $id => $plugin) {
+        if ($handler_class = ctools_plugin_get_class($plugin, 'handler')) {
+          $handler = new $handler_class($plugin['title'], $id, $plugin['input_pattern'], $plugin['handler_options']);
+          if ($handler instanceof POS_Command) {
+            $commands[$id] = $handler;
+          }
         }
       }
+      self::$instance = new self($commands);
     }
-    return new self($commands);
+    return self::$instance;
   }
 
   /**
