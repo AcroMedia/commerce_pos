@@ -9,14 +9,14 @@ class POSCommand_ViewsReport extends POS_Command {
 
   function access(POS $pos, $input = '') {
     if($view = $this->getView()) {
-      return $view->access(array($this->config['display_id']), $pos->getCashier());
+      return $view->access(array($this->config['display_id']), $pos->getState()->getCashier());
     }
     drupal_set_message(t('View required for @command not found.', array('@command' => $this->getName())), 'warning');
     return FALSE;
   }
 
   function execute(POS $pos, $input = '') {
-    $pos->setPrintRender(array(
+    $pos->getState()->setPrintRender(array(
       '#markup' => $this->getView()->preview(),
     ));
   }
