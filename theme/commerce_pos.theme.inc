@@ -21,7 +21,7 @@ function template_preprocess_pos_receipt(&$variables) {
   if (module_exists('barcode') && $order_command = $pos->getCommand('load_order')) {
       $variables['receipt_footer']['barcode'] = array(
         '#theme' => 'barcode_image',
-        '#barcode_value' => str_replace('%s', $pos->getState()->getOrder()->order_id, $order_command->getInputPattern()),
+        '#barcode_value' => $order_command->constructInputFromPattern($pos->getState()->getOrder()->order_id),
         '#encoding' => variable_get('commerce_pos_barcode_format', 'EAN-13'),
         '#height' => 50,
         '#image_format' => 'jpg',
