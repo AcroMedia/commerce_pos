@@ -12,6 +12,7 @@ dependencies[] = libraries
 files[] = classes/POS_Controller.php
 files[] = classes/POS_Interface.php
 files[] = classes/POS_State.php
+files[] = classes/POS.php
 
 files[] = classes/buttons/POS_Button.php
 files[] = classes/buttons/POS_Button_Command.php

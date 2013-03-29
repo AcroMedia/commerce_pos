@@ -93,11 +93,9 @@ function pos_input_form($form, $form_state) {
  * Form callback for the main input form.
  */
 function pos_input_form_submit($form, &$form_state) {
-  $state = POS_State::get();
-  $commands = POS_Command_Registry::create();
-  $controller = new POS_Controller($state, $commands);
+  $pos = POS::instance();
   try {
-    $controller->executeCommand($form_state['values']['input']);
+    $pos->executeCommand($form_state['values']['input']);
   }
   catch(InvalidArgumentException $e) {
     form_error($form['input'], $e->getMessage());
@@ -112,8 +110,8 @@ function pos_input_form_submit($form, &$form_state) {
  * Ajax callback for when the main input form is submitted.
  */
 function pos_input_form_ajax($form, $form_state) {
-  $state = POS_State::get();
-  $interface = POS_Interface::create($state, POS_Command_Registry::create());
+  $pos = POS::instance();
+  $interface = POS_Interface::create($pos);
 
   $form['input']['#value'] = NULL;
   return array(
@@ -140,8 +138,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
     'path' => $path . '/theme',
     'file' => 'commerce_pos.theme.inc',
     'variables' => array(
-      'state' => NULL,
-      'registry' => NULL,
+      'pos' => NULL,
     )
   );
   $info['pos_order_info'] = array(
@@ -175,10 +172,7 @@ function commerce_pos_form_commerce_payment_order_transaction_add_form_submit($f
   $form_state['redirect'] = array('admin/commerce/pos');
   //Print a receipt by invoking the RP command.  This allows replacement of
   // the entire receipt printing mechanism by changing this command.
-  $state = POS_State::get();
-  $registry = POS_Command_Registry::create();
-  $controller = new POS_Controller($state, $registry);
-  $controller->executeCommand('RP');
+  POS::instance()->executeCommand('RP');
 }
 
 /**
@@ -285,9 +279,9 @@ function commerce_pos_commerce_pos_commands() {
  *
  * @return array
  */
-function commerce_pos_commerce_pos_buttons(POS_Command_Registry $registry) {
+function commerce_pos_commerce_pos_buttons(POS $pos) {
   $buttons = array();
-  foreach($registry->getCommands() as $command) {
+  foreach($pos->getCommands() as $command) {
     $buttons[$command->getId()] = new POS_Button_Command($command);
   }
   foreach(commerce_payment_methods() as $method) {

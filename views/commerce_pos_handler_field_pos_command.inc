@@ -5,8 +5,9 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
 
 
   function init($view, $options) {
-    $registry = POS_Button_Registry::create(POS_Command_Registry::create());
-    if($button = $registry->getButton($this->definition['command'])) {
+    $pos = POS::instance();
+    $interface = POS_Interface::create($pos);
+    if($button = $interface->getButton($this->definition['command'])) {
       $this->button = $button;
     }
     return parent::init($view, $options);

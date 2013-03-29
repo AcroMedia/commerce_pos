@@ -1,9 +1,9 @@
 <?php
 
 class POS_Interface {
-  protected $state;
-  protected $registry;
-  protected $panes;
+  protected $pos;
+  protected $panes = array();
+  protected $buttons = array();
   protected static $instance;
 
   /**
@@ -11,13 +11,11 @@ class POS_Interface {
    *
    * @param POS_State $state
    *   The current context of the system.
-   * @param POS_Command_Registry $registry
-   *   The registry of available commands
    *
    * @return POS_Interface
    *   The POS Interface, configured with the enabled panes.
    */
-  public function create(POS_State $state, POS_Command_Registry $registry) {
+  public function create(POS $pos) {
     if (!self::$instance) {
       $panes = array();
 
@@ -32,8 +30,11 @@ class POS_Interface {
           }
         }
       }
-      $button_registry = POS_Button_Registry::create($registry);
-      self::$instance = new self($state, $button_registry, $panes);
+
+      $buttons = module_invoke_all('commerce_pos_buttons', $pos);
+      drupal_alter('commerce_pos_buttons', $buttons, $pos);
+
+      self::$instance = new self($pos, $panes, $buttons);
     }
     return self::$instance;
   }
@@ -42,12 +43,12 @@ class POS_Interface {
    * Constructor.
    *
    * @param POS_State $state
-   * @param POS_Command_Registry $registry
    * @param POS_Pane[] $panes
+   * @param POS_Button[] $buttons
    */
-  public function __construct(POS_State $state, POS_Button_Registry $registry, array $panes) {
-    $this->state = $state;
-    $this->registry = $registry;
+  public function __construct(POS $pos, array $panes, array $buttons) {
+    $this->pos = $pos;
+    $this->setButtons($buttons);
     $this->setPanes($panes);
   }
 
@@ -61,7 +62,7 @@ class POS_Interface {
     foreach ($this->panes as $pane) {
       $output[$pane->getId()] = $this->buildPane($pane);
     }
-    if ($render = $this->state->getPrintRender()) {
+    if ($render = $this->pos->getState()->getPrintRender()) {
       $output[] = array(
         '#prefix' => '<div class="element-invisible"><div class="pos-print">',
         '#suffix' => '</div></div>',
@@ -89,7 +90,7 @@ class POS_Interface {
       }
       $commands[] = ajax_command_replace('#' . $output['#pane_id'], drupal_render($output));
     }
-    if ($render = $this->state->getPrintRender()) {
+    if ($render = $this->pos->getState()->getPrintRender()) {
       $commands[] = array(
         'command' => 'printReceipt',
         'content' => drupal_render($render),
@@ -122,32 +123,8 @@ class POS_Interface {
           array('system', 'jquery.bbq')
         )
       ),
-      $prebuild ? $prebuild : $pane->build($this->state, $this->registry, $js),
+      $prebuild ? $prebuild : $pane->build($this->pos->getState(), $this, $js),
     );
-  }
-
-  /**
-   * Get all the panes this interface contains.
-   *
-   * @return array
-   */
-  public function getPanes() {
-    return $this->panes;
-  }
-
-  /**
-   * Get a single pane by ID.
-   *
-   * @param $id
-   *
-   * @return mixed
-   */
-  public function getPane($id) {
-    foreach ($this->panes as $pane) {
-      if ($pane->getId() == $id) {
-        return $pane;
-      }
-    }
   }
 
   /**
@@ -160,6 +137,52 @@ class POS_Interface {
     foreach ($panes as $pane) {
       $this->panes[$pane->getId()] = $pane;
     }
+  }
+
+  /**
+   * Get all the panes this interface contains.
+   *
+   * @return POS_Pane[]
+   */
+  public function getPanes() {
+    return $this->panes;
+  }
+
+  /**
+   * Get a single pane by ID.
+   *
+   * @param $id
+   *
+   * @return POS_Pane|bool
+   */
+  public function getPane($id) {
+    return isset($this->panes[$id]) ? $this->panes[$id] : FALSE;
+  }
+
+  /**
+   * @param POS_Buttons[] $buttons
+   */
+  public function setButtons(array $buttons) {
+    $this->buttons = array();
+    foreach($buttons as $button) {
+      $this->buttons[$button->getId()] = $button;
+    }
+  }
+
+  /**
+   * @return POS_Buttons[]
+   */
+  public function getButtons() {
+    return $this->buttons;
+  }
+
+  /**
+   * @param $id
+   *
+   * @return POS_Button|bool
+   */
+  public function getButton($id) {
+    return isset($this->buttons[$id]) ? $this->buttons[$id] : FALSE;
   }
 }
 

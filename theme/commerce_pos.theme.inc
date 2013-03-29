@@ -2,8 +2,7 @@
 
 
 function template_preprocess_pos_receipt(&$variables) {
-  $state = $variables['state'];
-  $registry = $variables['registry'];
+  $pos = empty($variables['pos']) ? POS::instance() : $variables['pos'];
 
   $header = variable_get('commerce_pos_receipt_header', array('value' => NULL, 'format' => NULL));
   $variables['receipt_header'] = array(
@@ -19,10 +18,10 @@ function template_preprocess_pos_receipt(&$variables) {
     )
   );
 
-  if (module_exists('barcode') && $order_command = $registry->getCommand('load_order')) {
+  if (module_exists('barcode') && $order_command = $pos->getCommand('load_order')) {
       $variables['receipt_footer']['barcode'] = array(
         '#theme' => 'barcode_image',
-        '#barcode_value' => str_replace('%s', $state->getOrder()->order_id, $order_command->getInputPattern()),
+        '#barcode_value' => str_replace('%s', $pos->getState()->getOrder()->order_id, $order_command->getInputPattern()),
         '#encoding' => variable_get('commerce_pos_barcode_format', 'EAN-13'),
         '#height' => 50,
         '#image_format' => 'jpg',
@@ -34,6 +33,6 @@ function template_preprocess_pos_receipt(&$variables) {
   drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-receipt.css', array('media' => 'print'));
 
   $order_pane = new POSPane_Order('order', 'Order');
-  // Using an empty registry ensures we won't have buttons on our receipt.
-  $variables['receipt_body'] = $order_pane->build($state, new POS_Button_Registry());
+  // Using an empty interface ensures we won't have buttons on our receipt.
+  $variables['receipt_body'] = $order_pane->build($pos->getState(), new POS_Interface($pos, array(), array()));
 }

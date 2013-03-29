@@ -9,9 +9,7 @@ class POSCommand_Reprint extends POS_Command {
   function execute($input, POS_State $state) {
     $state->setPrintRender(array(
       '#theme' => 'pos_receipt',
-      '#state' => $state,
-      // @todo: this is pretty sloppy. Is there a better way?
-      '#registry' => POS_Command_Registry::create(),
+      // @todo: Inject POS.
     ));
   }
 }

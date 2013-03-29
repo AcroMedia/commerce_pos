@@ -3,7 +3,7 @@
 
 class POSPane_Order extends POS_Pane {
 
-  function build(POS_State $state, POS_Button_Registry $registry, $js = FALSE) {
+  function build(POS_State $state, POS_Interface $interface, $js = FALSE) {
     $order = $state->getOrder();
     $void_col_used = FALSE;
 
@@ -30,7 +30,7 @@ class POSPane_Order extends POS_Pane {
         )
       );
 
-      if (($button = $registry->getButton('void')) && $button->access($line_item->line_item_id->raw(), $state)) {
+      if (($button = $interface->getButton('void')) && $button->access($line_item->line_item_id->raw(), $state)) {
         $void_col_used = TRUE;
         $row[] = $button->render(NULL, $line_item->line_item_id->raw());
       }

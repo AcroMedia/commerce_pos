@@ -6,10 +6,7 @@
  * This is the main entry point into the POS interface.
  */
 function commerce_pos_pos_page() {
-  // Create a state from the user's session.
-  $state = POS_State::get();
-  // Create a registry of commands.
-  $registry = POS_Command_Registry::create();
+  $pos = POS::instance();
 
   // Attempt to process a command if it has been entered as a $_GET variable.
   if (!empty($_GET['command'])) {
@@ -18,10 +15,8 @@ function commerce_pos_pos_page() {
       drupal_set_message('Invalid token.', 'error');
     }
     else {
-      // Execute the input and redirect back to admin/commerce/pos.
-      $controller = new POS_Controller($state, $registry);
       try {
-        $controller->executeCommand($_GET['command']);
+        $pos->executeCommand($_GET['command']);
       }
       catch(InvalidArgumentException $e) {
         form_set_error('input', $e->getMessage());
@@ -34,7 +29,7 @@ function commerce_pos_pos_page() {
     }
   }
   // Display the interface.
-  return POS_Interface::create($state, $registry)->build();
+  return POS_Interface::create($pos)->build();
 }
 
 /**
@@ -50,24 +45,22 @@ function commerce_pos_pos_page() {
  *  The output, if
  */
 function commerce_pos_modal_command_window_page($js, $button_id) {
-  $registry = POS_Command_Registry::create();
-  $button_registry = POS_Button_Registry::create($registry);
-  $state = POS_State::get();
+  $pos = POS::instance();
+  $interface = POS_Interface::create($pos);
 
-  $button = $button_registry->getButton($button_id);
+  $button = $interface->getButton($button_id);
   if ($button && $button instanceof POS_Button_Modal) {
-    if ($button->access('', $state)) {
+    if ($button->access('', $pos->getState())) {
       ctools_include('ajax');
       ctools_include('modal');
       drupal_set_title($button->getName());
 
       $args = func_get_args();
-      $args[1] = $state;
+      $args[1] = $pos->getState();
       $output = call_user_func_array(array($button, 'modalPage'), $args);
 
       if ($js) {
         if (!$output) {
-          $interface = POS_Interface::create($state, $button_registry);
           $output = $interface->buildAjax();
           $output[] = ctools_modal_command_dismiss();
         }
