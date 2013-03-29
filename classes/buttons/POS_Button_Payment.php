@@ -44,7 +44,7 @@ class POS_Button_Payment extends POS_Button_Modal {
 
     $form_state = array(
       'title' => drupal_get_title(),
-      'build_info' => array('args' => array($pos->getOrder())),
+      'build_info' => array('args' => array($pos->getState()->getOrder())),
       'payment_method' => commerce_payment_method_instance_load($this->instance_id),
       'ajax' => $js,
     );
