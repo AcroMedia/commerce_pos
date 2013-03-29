@@ -214,6 +214,14 @@ function commerce_pos_ctools_plugin_type() {
     'classes' => array('handler'),
     'use hooks' => TRUE,
   );
+  $types['buttons'] = array(
+    'cache' => FALSE,
+    'defaults' => array(
+      'handler_options' => array(),
+    ),
+    'classes' => array('handler'),
+    'use hooks' => TRUE,
+  );
   $types['panes'] = array(
     'load themes' => TRUE,
     'cache' => TRUE,
@@ -274,33 +282,52 @@ function commerce_pos_commerce_pos_commands() {
 
 /**
  * Implements hook_commerce_pos_buttons().
- *
- * @param POS_Command_Registry $registry
- *
- * @return array
  */
-function commerce_pos_commerce_pos_buttons(POS $pos) {
+function commerce_pos_commerce_pos_buttons() {
   $buttons = array();
-  foreach($pos->getCommands() as $command) {
-    $buttons[$command->getId()] = new POS_Button_Command($command);
+  foreach(ctools_get_plugins('commerce_pos', 'commands') as $id => $data) {
+    $buttons[$id] = array(
+      'title' => $data['title'],
+      'handler' => 'POS_Button_Command',
+      'handler_options' => array(
+        'command_id' => $id,
+      )
+    );
   }
   foreach(commerce_payment_methods() as $method) {
-    $handler_id = 'payment_' . $method['method_id'];
-    $buttons[$handler_id] = new POS_Button_Payment($method['display_title'], $handler_id, $method);
+    $id = 'payment_' . $method['method_id'];
+    $buttons[$id] = array(
+      'title' => $method['display_title'],
+      'handler' => 'POS_Button_Payment',
+      'handler_options' => array(
+        'method_id' => $method['method_id'],
+      )
+    );
   }
-  $buttons['order_modal'] = new POS_Button_Modal_View('Order', 'order_modal', array(
-    'view' => 'pos_order_selection',
-    'display' => 'default',
-  ));
-  $buttons['user_modal'] = new POS_Button_Modal_View('User', 'user_modal', array(
-    'view' => 'pos_user_selection',
-    'display' => 'default',
-  ));
-  $buttons['product_modal'] = new POS_Button_Modal_View('Product', 'product_modal', array(
-    'view' => 'pos_product_selection',
-    'display' => 'default',
-  ));
-
+  $buttons['user_modal'] = array(
+    'title' => t('Customer'),
+    'handler' => 'POS_Button_Modal_View',
+    'handler_options' => array(
+      'view' => 'pos_user_selection',
+      'display' => 'default',
+    )
+  );
+  $buttons['product_modal'] = array(
+    'title' => t('Product'),
+    'handler' => 'POS_Button_Modal_View',
+    'handler_options' => array(
+      'view' => 'pos_product_selection',
+      'display' => 'default',
+    )
+  );
+  $buttons['order_modal'] = array(
+    'title' => t('Order'),
+    'handler' => 'POS_Button_Modal_View',
+    'handler_options' => array(
+      'view' => 'pos_order_selection',
+      'display' => 'default',
+    )
+  );
   return $buttons;
 }
 
@@ -337,4 +364,3 @@ function commerce_pos_commerce_pos_panes() {
   );
   return $panes;
 }
-

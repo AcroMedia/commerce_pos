@@ -100,31 +100,29 @@ abstract class POS_Command {
    * Returning false here will cause the command to be unusable, and the
    * button will be hidden as well.
    *
-   * @param $input
+   * @param POS $pos
+   *
+   * @param string $input
    *  Any input that has been entered.  This may or may not actually be set,
    *  depending on the context it is called in.
-   *
-   * @param POS_State $state
-   *  The current state of the POS system.
    *
    * @return bool
    *  TRUE|FALSE
    */
-  public abstract function access($input, POS_State $state);
+  public abstract function access(POS $pos, $input = '');
 
   /**
    * Run this command for a given input.
    *
    * It is expected that all commands will make changes to the POS_State.
    *
-   * @param $input
-   *  The textual input.
+   * @param POS $pos
    *
-   * @param POS_State $state
-   *  The state object currently representing the POS.
+   * @param string $input
+   *  The textual input.
    *
    * @return mixed
    */
-  public abstract function execute($input, POS_State $state);
+  public abstract function execute(POS $pos, $input = '');
 }
 

@@ -8,11 +8,11 @@ abstract class POS_Pane {
   /**
    * Create a new POS_Pane.
    *
-   * @param $id
    * @param $name
+   * @param $id
    * @param array $options
    */
-  public function __construct($id, $name, array $options = array()) {
+  public function __construct($name, $id, array $options = array()) {
     $this->id = $id;
     $this->name = $name;
     $this->config = $options + $this->config;
@@ -21,13 +21,13 @@ abstract class POS_Pane {
   /**
    * Build the render array representing this pane.
    *
-   * @param POS_State $state
+   * @param POS $pos
    * @param POS_Interface $interface
    * @param bool $js
    *
    * @return mixed
    */
-  public abstract function build(POS_State $state, POS_Interface $interface, $js = FALSE);
+  public abstract function build(POS $pos, POS_Interface $interface, $js = FALSE);
 
   /**
    * Retrieve the ID of this pane.

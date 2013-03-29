@@ -9,30 +9,31 @@ class POS_Interface {
   /**
    * This is the main entry point for getting an interface.
    *
-   * @param POS_State $state
-   *   The current context of the system.
+   * @param POS $pos
+   *   The back end of the POS system.
    *
    * @return POS_Interface
-   *   The POS Interface, configured with the enabled panes.
+   *   The POS Interface, configured with the enabled panes and buttons.
    */
   public function create(POS $pos) {
     if (!self::$instance) {
-      $panes = array();
-
       ctools_include('plugins');
+      $panes = $buttons = array();
+
       $plugins = ctools_get_plugins('commerce_pos', 'panes');
       uasort($plugins, 'ctools_plugin_sort');
       foreach ($plugins as $id => $plugin) {
         if ($handler_class = ctools_plugin_get_class($plugin, 'handler')) {
-          $handler = new $handler_class($id, $plugin['name'], $plugin['handler_options']);
-          if ($handler instanceof POS_Pane) {
-            $panes[$id] = $handler;
-          }
+          $panes[$id] = new $handler_class($plugin['title'], $plugin['name'], $plugin['handler_options']);
         }
       }
-
-      $buttons = module_invoke_all('commerce_pos_buttons', $pos);
-      drupal_alter('commerce_pos_buttons', $buttons, $pos);
+      $plugins = ctools_get_plugins('commerce_pos', 'buttons');
+      uasort($plugins, 'ctools_plugin_sort');
+      foreach ($plugins as $id => $plugin) {
+        if ($handler_class = ctools_plugin_get_class($plugin, 'handler')) {
+          $buttons[$id] = new $handler_class($plugin['title'], $plugin['name'], $plugin['handler_options']);
+        }
+      }
 
       self::$instance = new self($pos, $panes, $buttons);
     }
@@ -42,7 +43,7 @@ class POS_Interface {
   /**
    * Constructor.
    *
-   * @param POS_State $state
+   * @param POS $pos
    * @param POS_Pane[] $panes
    * @param POS_Button[] $buttons
    */
@@ -123,7 +124,7 @@ class POS_Interface {
           array('system', 'jquery.bbq')
         )
       ),
-      $prebuild ? $prebuild : $pane->build($this->pos->getState(), $this, $js),
+      $prebuild ? $prebuild : $pane->build($this->pos, $this, $js),
     );
   }
 
@@ -160,7 +161,7 @@ class POS_Interface {
   }
 
   /**
-   * @param POS_Buttons[] $buttons
+   * @param POS_Button[] $buttons
    */
   public function setButtons(array $buttons) {
     $this->buttons = array();
@@ -170,7 +171,7 @@ class POS_Interface {
   }
 
   /**
-   * @return POS_Buttons[]
+   * @return POS_Button[]
    */
   public function getButtons() {
     return $this->buttons;

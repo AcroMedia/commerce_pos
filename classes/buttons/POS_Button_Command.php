@@ -1,49 +1,62 @@
 <?php
-
-
+/**
+ * @file
+ *  This class represents a button that directly invokes a backend command.
+ */
 class POS_Button_Command implements POS_Button {
-  protected $command;
+  protected $name;
+  protected $id;
+  protected $command_id;
 
-  public function __construct(POS_Command $command) {
-    $this->command = $command;
+  public function __construct($name, $id, array $options = array()) {
+    $this->command_id = $options['command_id'];
+    $this->id = $id;
+    $this->name = $name;
   }
 
   public function getId() {
-    return $this->command->getId();
+    return $this->id;
   }
   public function getName() {
-    return $this->command->getName();
+    return $this->name;
   }
 
-  public function render($text = NULL, $input = NULL, $options = array()) {
-    if($pattern = $this->command->constructInputFromPattern($input)) {
-      static $token = NULL;
-      if(!$token) {
-        $token = drupal_get_token('pos_command');
-      }
-      $text = !empty($text) ? $text : $this->getName();
+  public function render(POS $pos, $text = NULL, $input = NULL, $options = array()) {
+    if($command = $pos->getCommand($this->command_id)) {
+      if($pattern = $command->constructInputFromPattern($input)) {
+        static $token = NULL;
+        if(!$token) {
+          $token = drupal_get_token('pos_command');
+        }
+        $text = !empty($text) ? $text : $this->getName();
 
-      return theme('link__pos_button', array(
-        'text' => $text,
-        'path' => 'admin/commerce/pos',
-        'options' => drupal_array_merge_deep(array(
-          'attributes' => array(
-            'class' => array('pos-button', 'pos-button-' . $this->getId()),
-            'data-pos-input' => $pattern,
-            'data-pos-submit' => 'true',
-          ),
-          'query' => array(
-            'command' => $pattern,
-            'token' => $token,
-          ),
-          'html' => FALSE,
-        ), $options)
-      ));
+        return theme('link__pos_button', array(
+          'text' => $text,
+          'path' => 'admin/commerce/pos',
+          'options' => drupal_array_merge_deep(array(
+            'attributes' => array(
+              'class' => array('pos-button', 'pos-button-' . $this->getId()),
+              'data-pos-input' => $pattern,
+              'data-pos-submit' => 'true',
+            ),
+            'query' => array(
+              'command' => $pattern,
+              'token' => $token,
+            ),
+            'html' => FALSE,
+          ), $options)
+        ));
+      }
     }
+
+
     return FALSE;
   }
 
-  public function access($input, POS_State $state) {
-    return $this->command->access($input, $state);
+  public function access(POS $pos, $input) {
+    if($command = $pos->getCommand($this->command_id)) {
+      return $command->access($pos, $input);
+    }
+    return FALSE;
   }
 }

@@ -6,12 +6,12 @@ class POSPane_Commands extends POS_Pane {
     'show_keypad' => FALSE,
   );
 
-  function build(POS_State $state, POS_Interface $interface, $js = FALSE) {
+  function build(POS $pos, POS_Interface $interface, $js = FALSE) {
     $buttons = array();
     $numbers = array();
     foreach ($interface->getButtons() as $button) {
-      if ($button->access(NULL, $state)) {
-        $buttons[] = $button->render();
+      if ($button->access($pos, NULL)) {
+        $buttons[] = $button->render($pos);
       }
     }
     if ($this->config['show_keypad']) {

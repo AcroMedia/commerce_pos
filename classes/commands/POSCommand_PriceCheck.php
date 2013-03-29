@@ -2,17 +2,17 @@
 
 class POSCommand_PriceCheck extends POS_Command {
 
-  function access($input, POS_State $state) {
+  function access(POS $pos, $input = '') {
     if ($input) {
       if ($product = commerce_product_load_by_sku($input)) {
-        return commerce_product_access('view', $product, $state->getCashier());
+        return commerce_product_access('view', $product, $pos->getState()->getCashier());
       }
       throw new InvalidArgumentException('Invalid SKU');
     }
     return TRUE;
   }
 
-  public function execute($input, POS_State $state) {
+  public function execute(POS $pos, $input = '') {
     $product = commerce_product_load_by_sku($input);
 
     if(module_exists('commerce_product_pricing')) {

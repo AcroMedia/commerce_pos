@@ -34,5 +34,5 @@ function template_preprocess_pos_receipt(&$variables) {
 
   $order_pane = new POSPane_Order('order', 'Order');
   // Using an empty interface ensures we won't have buttons on our receipt.
-  $variables['receipt_body'] = $order_pane->build($pos->getState(), new POS_Interface($pos, array(), array()));
+  $variables['receipt_body'] = $order_pane->build($pos, new POS_Interface($pos, array(), array()));
 }

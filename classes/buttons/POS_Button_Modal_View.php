@@ -1,16 +1,19 @@
 <?php
-
+/**
+ * @file
+ *  This class represents a button that pops up a view in a modal window.
+ */
 
 class POS_Button_Modal_View extends POS_Button_Modal {
 
-  public function access($input, POS_State $state) {
+  public function access(POS $pos, $input) {
     if($view = views_get_view($this->config['view'])) {
       return $view->access(array($this->config['display']));
     }
     return FALSE;
   }
 
-  public function modalPage($js, POS_State $state) {
+  public function modalPage(POS $pos, $js) {
     $output = commerce_embed_view($this->config['view'], $this->config['display'], array(), $_GET['q']);
     if ($js) {
       return array(

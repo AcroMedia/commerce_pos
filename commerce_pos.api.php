@@ -67,8 +67,6 @@ function hook_commerce_pos_commands() {
  * following keys available:
  *
  * - title: The default display title for the pane.
- * - input_pattern: The input pattern of this command.
- * @todo: Explain more.
  * - handler: The class name of the handler class (must extend POS_Pane)
  * - handler_options: An array of options to pass to the handler class. The keys
  *    and values of this array will depend on the handler class.
@@ -110,4 +108,36 @@ function hook_commerce_pos_panes() {
     'weight' => 10,
   );
   return $plugins;
+}
+
+/**
+ * Declare POS Buttons.
+ *
+ * This function returns a list of POS buttons provided by a module, with the
+ * following keys available:
+ *
+ * - title: The default display title for the pane.
+ * - handler: The class that will handle this button.
+ * - handler_options: Additional options to pass to the handler.  Options
+ *   depend on the handler that is used.
+ *
+ * For altering button plugins, use CTools plugin alter functions.
+ *  @see hook_ctools_plugin_pre_alter()
+ *  @see hook_ctools_plugin_post_alter().
+ *
+ * For altering button output, you can override theme('link__pos_button')
+ */
+function hook_commerce_pos_buttons() {
+  $buttons = array();
+
+  $buttons['my_view'] = array(
+    'title' => t('My View'),
+    'handler' => 'POS_Button_Modal_View',
+    'handler_options' => array(
+      'view' => 'my_view',
+      'display' => 'my_display',
+    )
+  );
+
+  return $buttons;
 }

@@ -1,15 +1,13 @@
 <?php
 
 class commerce_pos_handler_field_pos_command extends views_handler_field {
-  protected $button;
+  protected $pos;
+  protected $interface;
 
 
   function init($view, $options) {
-    $pos = POS::instance();
-    $interface = POS_Interface::create($pos);
-    if($button = $interface->getButton($this->definition['command'])) {
-      $this->button = $button;
-    }
+    $this->pos = POS::instance();
+    $this->interface = POS_Interface::create($this->pos);
     return parent::init($view, $options);
   }
 
@@ -30,12 +28,14 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
   }
 
   function render($values) {
-    if($this->button) {
+    if($button = $this->interface->getButton($this->definition['command'])) {
       $value = $this->get_value($values);
-      drupal_add_library('system', 'jquery.bbq');
-      drupal_add_js(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.js');
-      drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.css');
-      return $this->button->render($this->options['text'], $value);
+      if($button->access($this->pos, $value)) {
+        drupal_add_library('system', 'jquery.bbq');
+        drupal_add_js(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.js');
+        drupal_add_css(drupal_get_path('module', 'commerce_pos') . '/theme/pos-interface.css');
+        return $button->render($this->pos, $this->options['text'], $value);
+      }
     }
   }
 

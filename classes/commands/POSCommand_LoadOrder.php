@@ -3,22 +3,22 @@
 
 class POSCommand_LoadOrder extends POS_Command {
 
-  function access($order_id, POS_State $state) {
-    if ($order_id) {
-      $order = commerce_order_load($order_id);
-      return commerce_order_access('view', $order, $state->getCashier());
+  function access(POS $pos, $input = '') {
+    if ($input) {
+      $order = commerce_order_load($input);
+      return commerce_order_access('view', $order, $pos->getState()->getCashier());
     }
     else {
       return commerce_order_access('view');
     }
   }
 
-  function execute($order_id, POS_State $state) {
-    if ($order = commerce_order_load($order_id)) {
-      $state->setOrder($order);
+  function execute(POS $pos, $input = '') {
+    if ($order = commerce_order_load($input)) {
+      $pos->getState()->setOrder($order);
     }
     else {
-      throw new InvalidArgumentException(t('Invalid order ID: %id', array('%id' => $order_id)));
+      throw new InvalidArgumentException(t('Invalid order ID: %id', array('%id' => $input)));
     }
   }
 }

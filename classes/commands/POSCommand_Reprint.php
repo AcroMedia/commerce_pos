@@ -2,14 +2,14 @@
 
 class POSCommand_Reprint extends POS_Command {
 
-  function access($input, POS_State $state) {
+  function access(POS $pos, $input = '') {
     return TRUE;
   }
 
-  function execute($input, POS_State $state) {
-    $state->setPrintRender(array(
+  function execute(POS $pos, $input = '') {
+    $pos->getState()->setPrintRender(array(
       '#theme' => 'pos_receipt',
-      // @todo: Inject POS.
+      '#pos' => $pos,
     ));
   }
 }

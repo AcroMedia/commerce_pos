@@ -1,5 +1,8 @@
 <?php
-
+/**
+ * @file
+ *  This class represents any button that opens a modal window.
+ */
 abstract class POS_Button_Modal implements POS_Button {
   protected $config = array();
   protected $id;
@@ -19,7 +22,7 @@ abstract class POS_Button_Modal implements POS_Button {
     return $this->id;
   }
 
-  public function render($text = NULL, $input = NULL, $options = array()) {
+  public function render(POS $pos, $text = NULL, $input = NULL, $options = array()) {
     //@todo: Implement.
     ctools_include('ajax');
     ctools_include('modal');
@@ -41,5 +44,20 @@ abstract class POS_Button_Modal implements POS_Button {
     return 'admin/commerce/pos/nojs/' . $this->id;
   }
 
-  abstract function modalPage($js, POS_State $state);
+  /**
+   * This method is invoked when the user clicks on the button.
+   *
+   * If $js is true, it should return an array of ajax framework commands
+   * that set content to the modal window.
+   *
+   * If $js is false, it should return a render array, or rendered markup.
+   *
+   * @param POS $pos
+   *  The POS object.
+   * @param bool $js
+   *  Indicates whether the page is being viewed in a modal window or separately.
+   *
+   * @return mixed
+   */
+  abstract function modalPage(POS $pos, $js);
 }

@@ -6,7 +6,10 @@ class POS {
   protected $state;
 
   /**
+   * Singleton constructor for this class.
+   *
    * @return POS
+   *  The pos object, configured with command handlers.
    */
   public static function instance() {
     if(!self::$instance) {
@@ -85,8 +88,8 @@ class POS {
   public function executeCommand($input) {
     if($command = $this->determineActiveCommand($input)) {
       $input = $command->deconstructInputFromPattern($input);
-      if($command->access($input, $this->state)) {
-        return $command->execute($input, $this->state);
+      if($command->access($this, $input)) {
+        return $command->execute($this, $input);
       }
       throw new InvalidArgumentException('Access Denied');
     }

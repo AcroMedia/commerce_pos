@@ -8,11 +8,11 @@ class POSCommand_AddProduct extends POS_Command {
     return (bool) commerce_product_load_by_sku($sku);
   }
 
-  public function access($input, POS_State $state) {
-    return commerce_order_access('update', $state->getOrder(), $state->getCashier());
+  public function access(POS $pos, $input = '') {
+    return commerce_order_access('update', $pos->getState()->getOrder(), $pos->getState()->getCashier());
   }
 
-  function execute($input, POS_State $state) {
+  function execute(POS $pos, $input = '') {
     list($sku, $quant) = $this->reParseInput($input);
     /**
      * Most of this was grabbed from commerce_cart_add_to_cart_form_submit().
@@ -20,7 +20,7 @@ class POSCommand_AddProduct extends POS_Command {
      */
 
     if ($product = commerce_product_load_by_sku($sku)) {
-      $order = $state->getOrder();
+      $order = $pos->getState()->getOrder();
       // We must have an order ID to create line items.
       if (!$order->order_id) {
         commerce_order_save($order);
@@ -35,14 +35,13 @@ class POSCommand_AddProduct extends POS_Command {
       if (!is_null($line_item_wrapper->commerce_unit_price->value())) {
         commerce_line_item_save($line_item);
 
-        $order = $state->getOrder();
         $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
         // Add it to the order's line item reference value.
         $order_wrapper->commerce_line_items[] = $line_item_wrapper->value();
         // Save the updated order.
         commerce_order_save($order);
-        $state->setOrder($order);
+        $pos->getState()->setOrder($order);
         drupal_set_message(t('Added @name to order.', array('@name' => $product->title)));
         return;
       }

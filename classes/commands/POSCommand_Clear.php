@@ -2,11 +2,11 @@
 
 class POSCommand_Clear extends POS_Command {
 
-  function execute($input, POS_State $state) {
-    $state->reset();
+  function execute(POS $pos, $input = '') {
+    $pos->getState()->reset();
   }
 
-  function access($input, POS_State $state) {
+  function access(POS $pos, $input = '') {
     return TRUE;
   }
 }

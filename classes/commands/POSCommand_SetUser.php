@@ -3,19 +3,19 @@
 
 class POSCommand_SetUser extends POS_Command {
 
-  function access($input, POS_State $state) {
-    return commerce_order_access('update', $state->getOrder(), $state->getCashier());
+  function access(POS $pos, $input = '') {
+    return commerce_order_access('update', $pos->getState()->getOrder(), $pos->getState()->getCashier());
   }
 
-  function execute($uid, POS_State $state) {
-    if (!$uid === 0 && !$account = user_load($uid)) {
+  function execute(POS $pos, $input = '') {
+    if (!$input === 0 && !$account = user_load($input)) {
       throw new InvalidArgumentException('Invalid user.');
     }
-    $order = $state->getOrder();
-    $order->uid = $uid;
+    $order = $pos->getState()->getOrder();
+    $order->uid = $input;
     if (empty($order->isNew)) {
       commerce_order_save($order);
     }
-    $state->setOrder($order);
+    $pos->getState()->setOrder($order);
   }
 }

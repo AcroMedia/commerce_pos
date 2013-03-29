@@ -9,7 +9,6 @@ dependencies[] = commerce_product_reference
 dependencies[] = views
 dependencies[] = libraries
 
-files[] = classes/POS_Controller.php
 files[] = classes/POS_Interface.php
 files[] = classes/POS_State.php
 files[] = classes/POS.php
@@ -19,10 +18,8 @@ files[] = classes/buttons/POS_Button_Command.php
 files[] = classes/buttons/POS_Button_Modal.php
 files[] = classes/buttons/POS_Button_Modal_View.php
 files[] = classes/buttons/POS_Button_Payment.php
-files[] = classes/buttons/POS_Button_Registry.php
 
 files[] = classes/commands/POS_Command.php
-files[] = classes/commands/POS_Command_Registry.php
 files[] = classes/commands/POSCommand_AddProduct.php
 files[] = classes/commands/POSCommand_Clear.php
 files[] = classes/commands/POSCommand_LoadOrder.php

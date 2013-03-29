@@ -50,13 +50,14 @@ function commerce_pos_modal_command_window_page($js, $button_id) {
 
   $button = $interface->getButton($button_id);
   if ($button && $button instanceof POS_Button_Modal) {
-    if ($button->access('', $pos->getState())) {
+    if ($button->access($pos, NULL)) {
       ctools_include('ajax');
       ctools_include('modal');
       drupal_set_title($button->getName());
 
       $args = func_get_args();
-      $args[1] = $pos->getState();
+      unset($args[1]);
+      array_unshift($args, $pos);
       $output = call_user_func_array(array($button, 'modalPage'), $args);
 
       if ($js) {

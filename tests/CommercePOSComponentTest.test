@@ -12,9 +12,8 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
 
   function setUp() {
     require_once __DIR__ .'/../classes/POS_State.php';
+    require_once __DIR__ .'/../classes/POS.php';
     require_once __DIR__ .'/../classes/commands/POS_Command.php';
-    require_once __DIR__ .'/../classes/POS_Controller.php';
-    require_once __DIR__ .'/../classes/commands/POS_Command_Registry.php';
     require_once __DIR__ .'/../classes/commands/POSCommand_Clear.php';
 
     $modules = array('commerce_pos');
@@ -40,46 +39,38 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     $this->assertFalse($state->hasOrder(), 'reset() clears the current order.');
   }
 
-  function testCommandRegistry() {
-    $commands = array(
-      'clear' => new POSCommand_Clear('Clear', 'clear', 'CL'),
-      // Pretend that this clear command is an order command.
-      'order' => new POSCommand_Clear('Order', 'order', 'OR%s'),
-    );
+  function testCommandPatterns() {
+    $command1 = new POSCommand_Clear('Clear', 'clear', 'CL');
+    $this->assertTrue($command1->shouldRun('CL'));
+    $this->assertFalse($command1->shouldRun('cl'));
+    $this->assertFalse($command1->shouldRun('CLEAR'));
 
-    $registry = new POS_Command_Registry($commands);
-    $command = $registry->determineActiveCommand('CL');
-    $this->assertIdentical($command, $commands['clear'], 'Command can be determined based on input.');
-    $command = $registry->determineActiveCommand('OR55');
-    $this->assertIdentical($command, $commands['order'], 'Order command can be determined based on input.');
-
-    $invalid_patterns = array('GARBAGE', 'cl', 'OR');
-    foreach($invalid_patterns as $pattern) {
-      $this->assertFalse($registry->determineActiveCommand($pattern), 'No active command for ' . $pattern);
-    }
+    $command2 = new POSCommand_Clear('Order', 'order', 'OR%s');
+    $this->assertTrue($command2->shouldRun('OR55'));
+    $this->assertFalse($command2->shouldRun('OR'));
   }
 
-  function testController() {
+  function testPOS() {
     $state = new POS_State();
+    $commands = array(
+      'clear' => new POSCommand_Clear('Clear', 'clear', 'CL')
+    );
+    $pos = new POS($state, $commands);
+
     $dummy_order = new stdClass();
     $dummy_order->property = 'test';
     $state->setOrder($dummy_order);
 
-    $registry = new POS_Command_Registry(array(
-      new POSCommand_Clear('Clear', 'clear', 'CL')
-    ));
-
-    $controller = new POS_Controller($state, $registry);
     $this->assertTrue($state->hasOrder(), 'State has order before executing clear command.');
-    $controller->executeCommand('CL');
+    $pos->executeCommand('CL');
     $this->assertFalse($state->hasOrder(), 'Executing the clear command on the controller clears the order from the state.');
 
     try {
-      $controller->executeCommand('garbage_input');
-      $this->fail('Controller throws an exception for invalid input.');
+      $pos->executeCommand('garbage_input');
+      $this->fail('POS throws an exception for invalid input.');
     }
     catch(InvalidArgumentException $e) {
-      $this->pass('Controller throws an exception for invalid input.');
+      $this->pass('POS throws an exception for invalid input.');
     }
   }
 }

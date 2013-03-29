@@ -1,24 +1,26 @@
 <?php
-
-
+/**
+ * @file
+ *  This class represents a button that pops up a payment form in a modal window.
+ */
 
 class POS_Button_Payment extends POS_Button_Modal {
 
-  public function access($input, POS_State $state) {
-    $order = $state->getOrder();
+  public function access(POS $pos, $input) {
+    $order = $pos->getState()->getOrder();
 
     // We can't take payment for an order without an ID.
-    if (empty($state->getOrder()->order_id)) {
+    if (empty($order->order_id)) {
       return FALSE;
     }
 
     // Exit early if the user has no access to create transactions.
-    if (!commerce_payment_transaction_order_access('create', $state->getOrder(), $state->getCashier())) {
+    if (!commerce_payment_transaction_order_access('create', $order, $pos->getState()->getCashier())) {
       return FALSE;
     }
 
     // Exit early if the order has no balance.
-    $total = commerce_payment_order_balance($state->getOrder());
+    $total = commerce_payment_order_balance($order);
     if (!$total || $total['amount'] <= 0) {
       return FALSE;
     }
@@ -37,12 +39,12 @@ class POS_Button_Payment extends POS_Button_Modal {
     return FALSE;
   }
 
-  public function modalPage($js, POS_State $state) {
+  public function modalPage(POS $pos, $js) {
     module_load_include('forms.inc', 'commerce_payment', 'includes/commerce_payment');
 
     $form_state = array(
       'title' => drupal_get_title(),
-      'build_info' => array('args' => array($state->getOrder())),
+      'build_info' => array('args' => array($pos->getOrder())),
       'payment_method' => commerce_payment_method_instance_load($this->instance_id),
       'ajax' => $js,
     );

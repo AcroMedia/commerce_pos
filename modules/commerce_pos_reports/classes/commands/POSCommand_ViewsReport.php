@@ -7,16 +7,16 @@ class POSCommand_ViewsReport extends POS_Command {
   );
   protected $_view = NULL;
 
-  function access($input, POS_State $state) {
+  function access(POS $pos, $input = '') {
     if($view = $this->getView()) {
-      return $view->access(array($this->config['display_id']), $state->getCashier());
+      return $view->access(array($this->config['display_id']), $pos->getCashier());
     }
     drupal_set_message(t('View required for @command not found.', array('@command' => $this->getName())), 'warning');
     return FALSE;
   }
 
-  function execute($input, POS_State $state) {
-    $state->setPrintRender(array(
+  function execute(POS $pos, $input = '') {
+    $pos->setPrintRender(array(
       '#markup' => $this->getView()->preview(),
     ));
   }

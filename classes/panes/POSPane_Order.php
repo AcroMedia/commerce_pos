@@ -3,8 +3,8 @@
 
 class POSPane_Order extends POS_Pane {
 
-  function build(POS_State $state, POS_Interface $interface, $js = FALSE) {
-    $order = $state->getOrder();
+  function build(POS $pos, POS_Interface $interface, $js = FALSE) {
+    $order = $pos->getState()->getOrder();
     $void_col_used = FALSE;
 
     $rows = array();
@@ -30,9 +30,9 @@ class POSPane_Order extends POS_Pane {
         )
       );
 
-      if (($button = $interface->getButton('void')) && $button->access($line_item->line_item_id->raw(), $state)) {
+      if (($button = $interface->getButton('void')) && $button->access($pos, $line_item->line_item_id->raw(), $pos)) {
         $void_col_used = TRUE;
-        $row[] = $button->render(NULL, $line_item->line_item_id->raw());
+        $row[] = $button->render($pos, NULL, $line_item->line_item_id->raw());
       }
 
 
@@ -47,7 +47,7 @@ class POSPane_Order extends POS_Pane {
     $transaction_statuses = commerce_payment_transaction_statuses();
     $totals = array();
     foreach ($payments as $payment) {
-      if (commerce_payment_transaction_access('view', $payment, $state->getCashier())) {
+      if (commerce_payment_transaction_access('view', $payment, $pos->getState()->getCashier())) {
         $row = array(
           commerce_payment_method_get_title('title', $payment->payment_method),
           '',
