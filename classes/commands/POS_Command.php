@@ -62,36 +62,50 @@ abstract class POS_Command {
    * This takes a string like "OR1" (load order 1)
    * and turns it into 1, which can then be passed to execute().
    *
-   * @param $input
+   * @param string $input
    *
-   * @return mixed
+   * @return string|bool
+   *  Returns bool FALSE if the input doesn't match the pattern.
+   *  Returns an argument if input matches and one is present.
+   *  Returns an empty string if input matches and no argument is present.
    */
-  public function deconstructInputFromPattern($input) {
-    $pattern = str_replace('%s', '(\S+)', $this->input_pattern);
-    preg_match('/^' . $pattern . '$/', $input, $matches);
-    return isset($matches[1]) ? $matches[1] : '';
+  public function parseInput($input) {
+    if($this->matchesInput($input, $matches)) {
+      return isset($matches['arg']) ? $matches['arg'] : '';
+    }
+    return FALSE;
   }
 
   /**
    * Check whether this command wants to act on a given input.
    *
-   * @param $input
+   * @param string $input
    *  The textual input to check.
+   * @param array $matches
    *
    * @return bool
-   *  A boolean indicator of whether the current command should act on the given input.
+   *  A boolean flag of whether the input pattern for this command matches the input.
    */
-  public function shouldRun($input) {
-    $pattern = str_replace('%s', '\S+', $this->input_pattern);
-    return preg_match('/^' . $pattern . '$/', $input);
+  public function matchesInput($input, &$matches = array()) {
+    $pattern = str_replace('%s', '(?P<arg>\S+)', $this->input_pattern);
+    return preg_match('/^' . $pattern . '$/', $input, $matches);
   }
 
-  public function constructInputFromPattern($input = NULL) {
+  /**
+   * Create an input for this command.
+   *
+   * @param string $argument
+   *  An argument to pass to the command when this input is invoked.
+   *  The nature, format, and presence of this argument depend on the command.
+   *
+   * @return bool|string
+   */
+  public function createInput($argument = NULL) {
     // If the command has no input pattern, or has one, but it requires input and there is none...
-    if(!$this->input_pattern || (strpos($this->input_pattern, '%s') !== FALSE && !isset($input))) {
+    if(!$this->input_pattern || (strpos($this->input_pattern, '%s') !== FALSE && !isset($argument))) {
       return FALSE;
     }
-    return str_replace('%s', $input, $this->input_pattern);
+    return sprintf($this->input_pattern, $argument);
   }
 
   /**

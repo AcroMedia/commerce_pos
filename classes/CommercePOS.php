@@ -69,7 +69,7 @@ class CommercePOS {
    */
   public function determineActiveCommand($input) {
     foreach ($this->commands as $command) {
-      if ($command->shouldRun($input)) {
+      if ($command->matchesInput($input)) {
         return $command;
       }
     }
@@ -87,7 +87,7 @@ class CommercePOS {
    */
   public function executeCommand($input) {
     if($command = $this->determineActiveCommand($input)) {
-      $input = $command->deconstructInputFromPattern($input);
+      $input = $command->parseInput($input);
       if($command->access($this, $input)) {
         return $command->execute($this, $input);
       }

@@ -23,7 +23,7 @@ class POS_Button_Command implements POS_Button {
 
   public function render(CommercePOS $pos, $text = NULL, $input = NULL, $options = array()) {
     if($command = $pos->getCommand($this->command_id)) {
-      if($pattern = $command->constructInputFromPattern($input)) {
+      if($pattern = $command->createInput($input)) {
         static $token = NULL;
         if(!$token) {
           $token = drupal_get_token('pos_command');
