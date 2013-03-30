@@ -6,14 +6,14 @@
 
 class POS_Button_Modal_View extends POS_Button_Modal {
 
-  public function access(POS $pos, $input) {
+  public function access(CommercePOS $pos, $input) {
     if($view = views_get_view($this->config['view'])) {
       return $view->access(array($this->config['display']));
     }
     return FALSE;
   }
 
-  public function modalPage(POS $pos, $js) {
+  public function modalPage(CommercePOS $pos, $js) {
     $output = commerce_embed_view($this->config['view'], $this->config['display'], array(), $_GET['q']);
     if ($js) {
       return array(

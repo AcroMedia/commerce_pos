@@ -9,13 +9,13 @@ class POS_Interface {
   /**
    * This is the main entry point for getting an interface.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *   The back end of the POS system.
    *
    * @return POS_Interface
    *   The POS Interface, configured with the enabled panes and buttons.
    */
-  public function create(POS $pos) {
+  public function instance(CommercePOS $pos) {
     if (!self::$instance) {
       ctools_include('plugins');
       $panes = $buttons = array();
@@ -43,11 +43,11 @@ class POS_Interface {
   /**
    * Constructor.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    * @param POS_Pane[] $panes
    * @param POS_Button[] $buttons
    */
-  public function __construct(POS $pos, array $panes, array $buttons) {
+  public function __construct(CommercePOS $pos, array $panes, array $buttons) {
     $this->pos = $pos;
     $this->setButtons($buttons);
     $this->setPanes($panes);

@@ -6,7 +6,7 @@
 
 class POS_Button_Payment extends POS_Button_Modal {
 
-  public function access(POS $pos, $input) {
+  public function access(CommercePOS $pos, $input) {
     $order = $pos->getState()->getOrder();
 
     // We can't take payment for an order without an ID.
@@ -39,7 +39,7 @@ class POS_Button_Payment extends POS_Button_Modal {
     return FALSE;
   }
 
-  public function modalPage(POS $pos, $js) {
+  public function modalPage(CommercePOS $pos, $js) {
     module_load_include('forms.inc', 'commerce_payment', 'includes/commerce_payment');
 
     $form_state = array(

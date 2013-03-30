@@ -100,7 +100,7 @@ abstract class POS_Command {
    * Returning false here will cause the command to be unusable, and the
    * button will be hidden as well.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *
    * @param string $input
    *  Any input that has been entered.  This may or may not actually be set,
@@ -109,20 +109,20 @@ abstract class POS_Command {
    * @return bool
    *  TRUE|FALSE
    */
-  public abstract function access(POS $pos, $input = '');
+  public abstract function access(CommercePOS $pos, $input = '');
 
   /**
    * Run this command for a given input.
    *
    * It is expected that all commands will make changes to the POS_State.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *
    * @param string $input
    *  The textual input.
    *
    * @return mixed
    */
-  public abstract function execute(POS $pos, $input = '');
+  public abstract function execute(CommercePOS $pos, $input = '');
 }
 

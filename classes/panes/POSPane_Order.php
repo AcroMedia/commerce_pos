@@ -3,7 +3,7 @@
 
 class POSPane_Order extends POS_Pane {
 
-  function build(POS $pos, POS_Interface $interface, $js = FALSE) {
+  function build(CommercePOS $pos, POS_Interface $interface, $js = FALSE) {
     $order = $pos->getState()->getOrder();
     $void_col_used = FALSE;
 

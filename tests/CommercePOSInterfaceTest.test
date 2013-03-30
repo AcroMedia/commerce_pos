@@ -4,7 +4,7 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
 
   /** @var POS_State */
   public $state;
-  /** @var POS */
+  /** @var CommercePOS */
   public $pos;
   /** @var POS_Interface */
   public $interface;
@@ -23,7 +23,7 @@ class CommercePOSInterfaceTest extends CommercePOSBaseTest {
 
     $clear_command = new POSCommand_Clear('Clear', 'clear', 'CL');
     $this->state = new POS_State();
-    $this->pos = new POS($this->state, array($clear_command));
+    $this->pos = new CommercePOS($this->state, array($clear_command));
     $this->interface = new POS_Interface($this->pos, array(), array(
       new POS_Button_Command('Clear', 'clear', array('command_id' => 'clear')),
     ));

@@ -8,11 +8,11 @@ class POSCommand_AddProduct extends POS_Command {
     return (bool) commerce_product_load_by_sku($sku);
   }
 
-  public function access(POS $pos, $input = '') {
+  public function access(CommercePOS $pos, $input = '') {
     return commerce_order_access('update', $pos->getState()->getOrder(), $pos->getState()->getCashier());
   }
 
-  function execute(POS $pos, $input = '') {
+  function execute(CommercePOS $pos, $input = '') {
     list($sku, $quant) = $this->reParseInput($input);
     /**
      * Most of this was grabbed from commerce_cart_add_to_cart_form_submit().

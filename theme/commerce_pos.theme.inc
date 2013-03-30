@@ -2,7 +2,7 @@
 
 
 function template_preprocess_pos_receipt(&$variables) {
-  $pos = empty($variables['pos']) ? POS::instance() : $variables['pos'];
+  $pos = empty($variables['pos']) ? CommercePOS::instance() : $variables['pos'];
 
   $header = variable_get('commerce_pos_receipt_header', array('value' => NULL, 'format' => NULL));
   $variables['receipt_header'] = array(

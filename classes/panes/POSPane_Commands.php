@@ -6,7 +6,7 @@ class POSPane_Commands extends POS_Pane {
     'show_keypad' => FALSE,
   );
 
-  function build(POS $pos, POS_Interface $interface, $js = FALSE) {
+  function build(CommercePOS $pos, POS_Interface $interface, $js = FALSE) {
     $buttons = array();
     $numbers = array();
     foreach ($interface->getButtons() as $button) {

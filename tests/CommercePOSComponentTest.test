@@ -55,7 +55,7 @@ class CommercePOSComponentTest extends DrupalUnitTestCase {
     $commands = array(
       'clear' => new POSCommand_Clear('Clear', 'clear', 'CL')
     );
-    $pos = new POS($state, $commands);
+    $pos = new CommercePOS($state, $commands);
 
     $dummy_order = new stdClass();
     $dummy_order->property = 'test';

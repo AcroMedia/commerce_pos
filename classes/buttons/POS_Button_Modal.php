@@ -22,7 +22,7 @@ abstract class POS_Button_Modal implements POS_Button {
     return $this->id;
   }
 
-  public function render(POS $pos, $text = NULL, $input = NULL, $options = array()) {
+  public function render(CommercePOS $pos, $text = NULL, $input = NULL, $options = array()) {
     //@todo: Implement.
     ctools_include('ajax');
     ctools_include('modal');
@@ -52,12 +52,12 @@ abstract class POS_Button_Modal implements POS_Button {
    *
    * If $js is false, it should return a render array, or rendered markup.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *  The POS object.
    * @param bool $js
    *  Indicates whether the page is being viewed in a modal window or separately.
    *
    * @return mixed
    */
-  abstract function modalPage(POS $pos, $js);
+  abstract function modalPage(CommercePOS $pos, $js);
 }

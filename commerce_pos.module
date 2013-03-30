@@ -93,7 +93,7 @@ function pos_input_form($form, $form_state) {
  * Form callback for the main input form.
  */
 function pos_input_form_submit($form, &$form_state) {
-  $pos = POS::instance();
+  $pos = CommercePOS::instance();
   try {
     $pos->executeCommand($form_state['values']['input']);
   }
@@ -110,8 +110,8 @@ function pos_input_form_submit($form, &$form_state) {
  * Ajax callback for when the main input form is submitted.
  */
 function pos_input_form_ajax($form, $form_state) {
-  $pos = POS::instance();
-  $interface = POS_Interface::create($pos);
+  $pos = CommercePOS::instance();
+  $interface = POS_Interface::instance($pos);
 
   $form['input']['#value'] = NULL;
   return array(
@@ -172,7 +172,7 @@ function commerce_pos_form_commerce_payment_order_transaction_add_form_submit($f
   $form_state['redirect'] = array('admin/commerce/pos');
   //Print a receipt by invoking the RP command.  This allows replacement of
   // the entire receipt printing mechanism by changing this command.
-  POS::instance()->executeCommand('RP');
+  CommercePOS::instance()->executeCommand('RP');
 }
 
 /**

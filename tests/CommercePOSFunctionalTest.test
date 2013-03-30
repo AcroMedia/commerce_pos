@@ -57,7 +57,7 @@ class CommercePOSFunctionalTest extends CommercePOSBaseTest {
 
   /** @var POS_State */
   public $state;
-  /** @var POS */
+  /** @var CommercePOS */
   public $pos;
 
   public static function getInfo() {
@@ -73,7 +73,7 @@ class CommercePOSFunctionalTest extends CommercePOSBaseTest {
     $this->drupalLogin($this->storeCashier);
 
     $this->state = new POS_State();
-    $this->pos = new POS($this->state, array(
+    $this->pos = new CommercePOS($this->state, array(
       new POSCommand_LoadOrder('Order', 'load_order', 'OR%s'),
       new POSCommand_Clear('Clear', 'clear', 'CL'),
       new POSCommand_SetUser('User', 'set_user', 'US%s'),

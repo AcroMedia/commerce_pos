@@ -30,7 +30,7 @@ interface POS_Button {
   /**
    * Render this button.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *  The POS object.
    * @param null $text
    *  The link text (defaults to the command name if not specified).
@@ -44,12 +44,12 @@ interface POS_Button {
    * @return string
    *  Returns a string of markup representing the button.
    */
-  public function render(POS $pos, $text = NULL, $input = NULL, $options = array());
+  public function render(CommercePOS $pos, $text = NULL, $input = NULL, $options = array());
 
   /**
    * Check whether the button should be displayed in this context.
    *
-   * @param POS $pos
+   * @param CommercePOS $pos
    *  The POS object - contains the state, and all backend commands.
    * @param $input
    *  Input to check for.  (ex: for the order command, $input is order id, so we will
@@ -57,5 +57,5 @@ interface POS_Button {
    *
    * @return bool
    */
-  public function access(POS $pos, $input);
+  public function access(CommercePOS $pos, $input);
 }

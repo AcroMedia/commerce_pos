@@ -21,7 +21,7 @@ class POS_Button_Command implements POS_Button {
     return $this->name;
   }
 
-  public function render(POS $pos, $text = NULL, $input = NULL, $options = array()) {
+  public function render(CommercePOS $pos, $text = NULL, $input = NULL, $options = array()) {
     if($command = $pos->getCommand($this->command_id)) {
       if($pattern = $command->constructInputFromPattern($input)) {
         static $token = NULL;
@@ -53,7 +53,7 @@ class POS_Button_Command implements POS_Button {
     return FALSE;
   }
 
-  public function access(POS $pos, $input) {
+  public function access(CommercePOS $pos, $input) {
     if($command = $pos->getCommand($this->command_id)) {
       return $command->access($pos, $input);
     }

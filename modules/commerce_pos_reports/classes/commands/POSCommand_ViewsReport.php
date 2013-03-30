@@ -7,7 +7,7 @@ class POSCommand_ViewsReport extends POS_Command {
   );
   protected $_view = NULL;
 
-  function access(POS $pos, $input = '') {
+  function access(CommercePOS $pos, $input = '') {
     if($view = $this->getView()) {
       return $view->access(array($this->config['display_id']), $pos->getState()->getCashier());
     }
@@ -15,7 +15,7 @@ class POSCommand_ViewsReport extends POS_Command {
     return FALSE;
   }
 
-  function execute(POS $pos, $input = '') {
+  function execute(CommercePOS $pos, $input = '') {
     $pos->getState()->setPrintRender(array(
       '#markup' => $this->getView()->preview(),
     ));

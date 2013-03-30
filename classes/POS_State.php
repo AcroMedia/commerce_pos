@@ -1,11 +1,7 @@
 <?php
-/**
- * @file
- * Contains the POS_State class.
- */
-
 /*
- * @class Represents the current status of the POS system, including order and
+ * @file
+ *  Represents the current status of the POS system, including order and
  *  messaging.
  */
 class POS_State {

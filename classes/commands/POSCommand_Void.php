@@ -3,7 +3,7 @@
 
 class POSCommand_Void extends POS_Command {
 
-  function access(POS $pos, $input = '') {
+  function access(CommercePOS $pos, $input = '') {
     if (!$input) {
       return FALSE;
     }
@@ -12,7 +12,7 @@ class POSCommand_Void extends POS_Command {
     }
   }
 
-  function execute(POS $pos, $input = '') {
+  function execute(CommercePOS $pos, $input = '') {
     $order = $pos->getState()->getOrder();
 
     // Ensure that the line item is actually on the current order before deleting.

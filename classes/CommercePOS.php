@@ -1,6 +1,6 @@
 <?php
 
-class POS {
+class CommercePOS {
   protected static $instance;
   protected $commands = array();
   protected $state;
@@ -8,7 +8,7 @@ class POS {
   /**
    * Singleton constructor for this class.
    *
-   * @return POS
+   * @return CommercePOS
    *  The pos object, configured with command handlers.
    */
   public static function instance() {

@@ -2,7 +2,7 @@
 
 class POSCommand_PriceCheck extends POS_Command {
 
-  function access(POS $pos, $input = '') {
+  function access(CommercePOS $pos, $input = '') {
     if ($input) {
       if ($product = commerce_product_load_by_sku($input)) {
         return commerce_product_access('view', $product, $pos->getState()->getCashier());
@@ -12,7 +12,7 @@ class POSCommand_PriceCheck extends POS_Command {
     return TRUE;
   }
 
-  public function execute(POS $pos, $input = '') {
+  public function execute(CommercePOS $pos, $input = '') {
     $product = commerce_product_load_by_sku($input);
 
     if(module_exists('commerce_product_pricing')) {

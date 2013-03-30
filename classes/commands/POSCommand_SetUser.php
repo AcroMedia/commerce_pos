@@ -3,11 +3,11 @@
 
 class POSCommand_SetUser extends POS_Command {
 
-  function access(POS $pos, $input = '') {
+  function access(CommercePOS $pos, $input = '') {
     return commerce_order_access('update', $pos->getState()->getOrder(), $pos->getState()->getCashier());
   }
 
-  function execute(POS $pos, $input = '') {
+  function execute(CommercePOS $pos, $input = '') {
     if (!$input === 0 && !$account = user_load($input)) {
       throw new InvalidArgumentException('Invalid user.');
     }

@@ -3,10 +3,10 @@
 /**
  * Menu callback for admin/commerce/pos.
  *
- * This is the main entry point into the POS interface.
+ * This is the main entry point into the CommercePOS interface.
  */
 function commerce_pos_pos_page() {
-  $pos = POS::instance();
+  $pos = CommercePOS::instance();
 
   // Attempt to process a command if it has been entered as a $_GET variable.
   if (!empty($_GET['command'])) {
@@ -29,7 +29,7 @@ function commerce_pos_pos_page() {
     }
   }
   // Display the interface.
-  return POS_Interface::create($pos)->build();
+  return POS_Interface::instance($pos)->build();
 }
 
 /**
@@ -45,8 +45,8 @@ function commerce_pos_pos_page() {
  *  The output, if
  */
 function commerce_pos_modal_command_window_page($js, $button_id) {
-  $pos = POS::instance();
-  $interface = POS_Interface::create($pos);
+  $pos = CommercePOS::instance();
+  $interface = POS_Interface::instance($pos);
 
   $button = $interface->getButton($button_id);
   if ($button && $button instanceof POS_Button_Modal) {
