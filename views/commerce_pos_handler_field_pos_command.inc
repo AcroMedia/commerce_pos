@@ -18,6 +18,10 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
     return $options;
   }
 
+  function allow_advanced_render() {
+    return FALSE;
+  }
+
   function options_form(&$form, &$form_state) {
     $form['text'] = array(
       '#type' => 'textfield',
