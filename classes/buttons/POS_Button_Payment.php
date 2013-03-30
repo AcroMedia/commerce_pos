@@ -25,18 +25,8 @@ class POS_Button_Payment extends POS_Button_Modal {
       return FALSE;
     }
 
-    // Finally, ensure that the stated payment method is applicable for this order.
-    if (empty($order->payment_methods)) {
-      $order->payment_methods = array();
-      rules_invoke_all('commerce_payment_methods', $order);
-    }
-    foreach ($order->payment_methods as $instance_id => $method_info) {
-      if ($method_info['method_id'] == $this->config['method_id']) {
-        $this->instance_id = $instance_id;
-        return TRUE;
-      }
-    }
-    return FALSE;
+    // Check whether this method is allowed on this order.
+    return (bool) $this->getInstanceId($order);
   }
 
   public function modalPage(CommercePOS $pos, $js) {
@@ -45,7 +35,7 @@ class POS_Button_Payment extends POS_Button_Modal {
     $form_state = array(
       'title' => drupal_get_title(),
       'build_info' => array('args' => array($pos->getState()->getOrder())),
-      'payment_method' => commerce_payment_method_instance_load($this->instance_id),
+      'payment_method' => commerce_payment_method_instance_load($this->getInstanceID($pos->getState()->getOrder())),
       'ajax' => $js,
     );
 
@@ -56,5 +46,19 @@ class POS_Button_Payment extends POS_Button_Modal {
     $output = ctools_modal_form_wrapper('commerce_payment_order_transaction_add_form', $form_state);
 
     return $output && !$form_state['executed'] ? $output : FALSE;
+  }
+
+  protected function getInstanceID($order) {
+    // Finally, ensure that the stated payment method is applicable for this order.
+    if (empty($order->payment_methods)) {
+      $order->payment_methods = array();
+      rules_invoke_all('commerce_payment_methods', $order);
+    }
+    foreach ($order->payment_methods as $instance_id => $method_info) {
+      if ($method_info['method_id'] == $this->config['method_id']) {
+        return $instance_id;
+      }
+    }
+    return FALSE;
   }
 }
