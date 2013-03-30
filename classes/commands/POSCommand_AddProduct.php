@@ -4,8 +4,11 @@
 class POSCommand_AddProduct extends POS_Command {
 
   public function matchesInput($input) {
-    list($sku) = $this->reParseInput($input);
-    return (bool) commerce_product_load_by_sku($sku);
+    if($arg = parent::parseInput($input)) {
+      list($sku) = $this->reParseInput($arg);
+      return (bool) commerce_product_load_by_sku($sku);
+    }
+    return FALSE;
   }
 
   public function access(CommercePOS $pos, $input = '') {

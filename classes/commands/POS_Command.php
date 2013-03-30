@@ -70,7 +70,8 @@ abstract class POS_Command {
    *  Returns an empty string if input matches and no argument is present.
    */
   public function parseInput($input) {
-    if($this->matchesInput($input, $matches)) {
+    $pattern = str_replace('%s', '(?P<arg>\S+)', $this->input_pattern);
+    if(preg_match('/^' . $pattern . '$/', $input, $matches)) {
       return isset($matches['arg']) ? $matches['arg'] : '';
     }
     return FALSE;
@@ -81,14 +82,13 @@ abstract class POS_Command {
    *
    * @param string $input
    *  The textual input to check.
-   * @param array $matches
    *
    * @return bool
    *  A boolean flag of whether the input pattern for this command matches the input.
    */
-  public function matchesInput($input, &$matches = array()) {
-    $pattern = str_replace('%s', '(?P<arg>\S+)', $this->input_pattern);
-    return preg_match('/^' . $pattern . '$/', $input, $matches);
+  public function matchesInput($input) {
+    $pattern = str_replace('%s', '\S+', $this->input_pattern);
+    return preg_match('/^' . $pattern . '$/', $input);
   }
 
   /**
