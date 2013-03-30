@@ -25,9 +25,15 @@ function commerce_pos_menu() {
   $items = array();
   $items['admin/commerce/pos'] = array(
     'title' => 'Point of Sale',
+    'description' => 'Manage point of sale orders and configuration.',
     'access arguments' => array('use pos'),
     'page callback' => 'commerce_pos_pos_page',
     'file' => 'commerce_pos.pages.inc',
+  );
+  $items['admin/commerce/pos/interface'] = array(
+    'title' => 'Point of Sale',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => '-10',
   );
   $items['admin/commerce/pos/%ctools_js/%'] = array(
     'title' => 'Modal Command',
@@ -37,12 +43,13 @@ function commerce_pos_menu() {
     'file' => 'commerce_pos.pages.inc',
     'type' => MENU_CALLBACK,
   );
-  $items['admin/commerce/config/pos'] = array(
-    'title' => 'Point of Sale',
+  $items['admin/commerce/pos/config'] = array(
+    'title' => 'Configuration',
     'access arguments' => array('administer pos'),
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_configuration_form'),
     'file' => 'commerce_pos.pages.inc',
+    'type' => MENU_LOCAL_TASK,
   );
   return $items;
 }
