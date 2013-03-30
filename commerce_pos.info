@@ -34,9 +34,9 @@ files[] = classes/panes/POSPane_Commands.php
 files[] = classes/panes/POSPane_Input.php
 files[] = classes/panes/POSPane_Order.php
 
-files[] = tests/CommercePOSComponentTest.test
 files[] = tests/CommercePOSFunctionalTest.test
 files[] = tests/CommercePOSInterfaceTest.test
+files[] = tests/CommercePOSUnitTest.test
 
 files[] = views/commerce_pos_handler_field_pos_command.inc
 
