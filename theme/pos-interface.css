@@ -41,8 +41,12 @@ a.pos-button:hover {
     float:left;
 }
 
+#pos-pane-commands .numbers {
+    margin-right:1%;
+}
+
 #pos-pane-commands .numbers .pos-button {
-    width: 31%;
+    width: 25%;
     margin-left: 2%;
     float: right;
 }

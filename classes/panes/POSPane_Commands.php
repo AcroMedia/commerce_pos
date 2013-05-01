@@ -16,9 +16,21 @@ class POSPane_Commands extends POS_Pane {
     }
     if ($this->config['show_keypad']) {
       foreach (range(9, 0) as $i) {
-        $numbers[] = '<span class="pos-button" data-pos-input="%s' . $i . '" data-pos-submit="false">' . $i . '</span>';
+        $numbers[] = l($i, 'admin/commerce/pos', array(
+          'attributes' => array(
+            'data-pos-submit' => 'false',
+            'data-pos-input' => '%s' . $i,
+            'class' => array('pos-button'),
+          )
+        ));
       }
-      $numbers[] = '<span class="pos-button" data-pos-input="%s*" data-pos-submit="false">*</span>';
+      $numbers[] = l('*', 'admin/commerce/pos', array(
+        'attributes' => array(
+          'data-pos-submit' => 'false',
+          'data-pos-input' => '%s*',
+          'class' => array('pos-button'),
+        )
+      ));
     }
 
     return array(
