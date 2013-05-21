@@ -36,7 +36,7 @@
             this.$input.val(value);
         },
         replacePattern: function(pattern) {
-            this.$input.val(pattern.replace('%s', this.$input.val()));
+            this.$input.val(pattern.toString().replace('%s', this.$input.val()));
         }
     }
     Drupal.POS.captureFocus = false;
