@@ -15,7 +15,7 @@ class POS_Interface {
    * @return POS_Interface
    *   The POS Interface, configured with the enabled panes and buttons.
    */
-  public function instance(CommercePOS $pos) {
+  public static function instance(CommercePOS $pos) {
     if (!self::$instance) {
       ctools_include('plugins');
       $panes = $buttons = array();
