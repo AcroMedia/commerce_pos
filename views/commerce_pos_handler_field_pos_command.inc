@@ -5,7 +5,7 @@ class commerce_pos_handler_field_pos_command extends views_handler_field {
   protected $interface;
 
 
-  function init($view, $options) {
+  function init(&$view, &$options) {
     $this->pos = CommercePOS::instance();
     $this->interface = POS_Interface::instance($this->pos);
     return parent::init($view, $options);

@@ -68,8 +68,8 @@ class CommercePOSFunctionalTest extends CommercePOSBaseTest {
     );
   }
 
-  function setUp() {
-    parent::setUp();
+  function setUp($extra_modules = array()) {
+    parent::setUp($extra_modules);
     $this->drupalLogin($this->storeCashier);
 
     $this->state = new POS_State();
