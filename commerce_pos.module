@@ -82,7 +82,7 @@ function pos_input_form($form, $form_state) {
   );
   $form['submit'] = array(
     '#type' => 'submit',
-    '#value' => 'Submit',
+    '#value' => t('Submit'),
     '#ajax' => array(
       'callback' => 'pos_input_form_ajax',
       // Bind to click instead of mousedown.  @see http://drupal.org/node/216059
