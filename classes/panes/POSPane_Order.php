@@ -96,7 +96,7 @@ class POSPane_Order extends POS_Pane {
         '#order' => $order,
       ),
       'table' => array(
-        '#theme' => 'table',
+        '#theme' => 'table__pos_line_items',
         '#rows' => $rows,
         '#header' => $headers,
         '#empty' => 'No Items in order.',
