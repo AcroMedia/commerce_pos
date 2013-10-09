@@ -27,6 +27,9 @@ class POSCommand_AddProduct extends POS_Command {
       // We must have an order ID to create line items.
       if (!$order->order_id) {
         commerce_order_save($order);
+        // We need to manually set the order here, since
+        // commerce_pos_order_is_on_pos() doesn't know about our order yet.
+        $pos->getState()->setOrder($order);
       }
       $line_item = commerce_product_line_item_new($product, $quant, $order->order_id);
       drupal_alter('commerce_product_calculate_sell_price_line_item', $line_item);
@@ -44,7 +47,6 @@ class POSCommand_AddProduct extends POS_Command {
         $order_wrapper->commerce_line_items[] = $line_item_wrapper->value();
         // Save the updated order.
         commerce_order_save($order);
-        $pos->getState()->setOrder($order);
         drupal_set_message(t('Added @name to order.', array('@name' => $product->title)));
         return;
       }
