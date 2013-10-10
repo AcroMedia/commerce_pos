@@ -8,8 +8,7 @@ function commerce_pos_default_rules_configuration() {
   $rule->label = t('Update order status on full payment of POS orders');
   $rule->active = TRUE;
   $rule
-    ->event('commerce_payment_order_paid_in_full')
-    ->condition('rules_condition_order_is_on_pos', array('order:select' => 'commerce-order'))
+    ->event('commerce_pos_order_paid')
     ->action('commerce_order_update_status', array(
       'commerce_order:select' => 'commerce-order',
       'order_status' => 'pos_completed',

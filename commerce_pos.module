@@ -71,6 +71,17 @@ function commerce_pos_permission() {
 }
 
 /**
+ * Implements hook_commerce_payment_order_paid_in_full().
+ *
+ * Fire our custom rules event for order completion.
+ */
+function commerce_pos_commerce_payment_order_paid_in_full($order, $transaction) {
+  if (commerce_pos_order_is_on_pos($order)) {
+    rules_invoke_event('commerce_pos_order_paid', $order, $transaction);
+  }
+}
+
+/**
  * Form callback for the main input form.
  */
 function pos_input_form($form, $form_state) {
