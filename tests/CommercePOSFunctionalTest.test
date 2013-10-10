@@ -4,6 +4,7 @@ class CommercePOSBaseTest extends CommerceBaseTestCase {
   public $storeCashier;
   public $storeCustomer;
   public $product;
+  public $profile = 'minimal';
 
   function setUp($extra_modules = array()) {
     array_unshift($extra_modules, 'commerce_pos');
