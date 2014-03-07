@@ -229,7 +229,6 @@ function commerce_pos_ctools_plugin_type() {
     'defaults' => array(
       'handler_options' => array(),
     ),
-    'classes' => array('handler'),
     'use hooks' => TRUE,
   );
   $types['buttons'] = array(
@@ -237,7 +236,6 @@ function commerce_pos_ctools_plugin_type() {
     'defaults' => array(
       'handler_options' => array(),
     ),
-    'classes' => array('handler'),
     'use hooks' => TRUE,
   );
   $types['panes'] = array(
@@ -246,7 +244,6 @@ function commerce_pos_ctools_plugin_type() {
     'defaults' => array(
       'handler_options' => array(),
     ),
-    'classes' => array('handler'),
     'use hooks' => TRUE,
   );
   return $types;
