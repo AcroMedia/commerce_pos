@@ -310,14 +310,16 @@ function commerce_pos_commerce_pos_buttons() {
     );
   }
   foreach(commerce_payment_methods() as $method) {
-    $id = 'payment_' . $method['method_id'];
-    $buttons[$id] = array(
-      'title' => $method['display_title'],
-      'handler' => 'POS_Button_Payment',
-      'handler_options' => array(
-        'method_id' => $method['method_id'],
-      )
-    );
+    if (!empty($method['terminal'])) {
+      $id = 'payment_' . $method['method_id'];
+      $buttons[$id] = array(
+        'title' => $method['display_title'],
+        'handler' => 'POS_Button_Payment',
+        'handler_options' => array(
+          'method_id' => $method['method_id'],
+        )
+      );
+    }
   }
   $buttons['user_modal'] = array(
     'title' => t('Customer'),
