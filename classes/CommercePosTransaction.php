@@ -148,6 +148,9 @@ class CommercePosTransaction {
       $order = $this->createNewOrder();
       $order->data['last_cart_refresh'] = REQUEST_TIME;
     }
+    else {
+      $order = $this->order;
+    }
 
     // Set the incoming line item's order_id.
     $line_item->order_id = $order->order_id;

@@ -10,7 +10,6 @@
  */
 function commerce_pos_sale($form, &$form_state) {
   global $user;
-  $order_wrapper = FALSE;
 
   commerce_pos_sale_ajax_check($form, $form_state);
 
@@ -23,8 +22,10 @@ function commerce_pos_sale($form, &$form_state) {
 
     $form_state['transaction'] = $transaction;
     $order = $form_state['transaction']->getOrder();
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
   }
+
+  $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
 
   $form['#attached']['library'][] = array(
     'system',
