@@ -1,0 +1,9 @@
+name = Commerce POS
+description = Provides Point of Sale for Drupal Commerce.
+core = 7.x
+package = Commerce Contrib
+
+dependencies[] = commerce_order
+dependencies[] = commerce_product
+
+configure = admin/commerce/config/pos

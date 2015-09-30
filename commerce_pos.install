@@ -1,0 +1,54 @@
+<?php
+
+/**
+ * @file
+ * Schema and install hooks for commerce_pos.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_schema() {
+  $schema['commerce_pos_transaction'] = array(
+    'description' => 'The base table for POS transactions',
+    'fields' => array(
+      'transaction_id' => array(
+        'description' => 'The primary identifier for a transaction.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'uid' => array(
+        'description' => 'The user ID that this transaction belongs to, generally the employee logged into the POS.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'order_id' => array(
+        'description' => 'The order ID for this transaction.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'type' => array(
+        'description' => 'The type for this transaction. E.g. sale or return',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'indexes' => array(
+      'transaction_order_id' => array('order_id'),
+      'transaction_uid' => array('uid'),
+    ),
+    'unique keys' => array(
+      'order_id_uid' => array('order_id', 'uid'),
+    ),
+    'primary key' => array('transaction_id'),
+  );
+
+  return $schema;
+}
