@@ -262,7 +262,7 @@ class CommercePosTransaction {
       throw new Exception(t('Cannot create order for transaction, the transaction has not been saved yet!'));
     }
     else {
-      $order = commerce_order_new($this->uid, 'commerce_pos_creating');
+      $order = commerce_order_new($this->uid, 'commerce_pos_in_progress');
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
       // Create new default billing profile.
@@ -290,6 +290,7 @@ class CommercePosTransaction {
    * Updates the quantity of a line item in the transactions' order.
    */
   function updateLineItemQuantity($line_item_id, $qty, $method = 'replace') {
+    $this->getOrder();
     if (!empty($this->order)) {
       $line_item = commerce_line_item_load($line_item_id);
       $existing_qty = $line_item->quantity;
@@ -317,7 +318,8 @@ class CommercePosTransaction {
   /**
    * Removes a line item from the transaction order.
    */
-  function deleteLineItem($line_item_id) {
+  public function deleteLineItem($line_item_id) {
+    $this->getOrder();
     if (!empty($this->order)) {
       $order_wrapper = entity_metadata_wrapper('commerce_order', $this->order);
 
@@ -338,6 +340,39 @@ class CommercePosTransaction {
   }
 
   /**
+   * Marks the transaction order's status as parked.
+   */
+  public function park() {
+    $this->getOrder();
+    if (!empty($this->order)) {
+      $this->order->status = 'commerce_pos_parked';
+      commerce_order_save($this->order);
+    }
+  }
+
+  /**
+   * Switches the transaction order's status back from parked to being created.
+   */
+  public function unpark() {
+    $this->getOrder();
+    if (!empty($this->order)) {
+      $this->order->status = 'commerce_pos_in_progress';
+      commerce_order_save($this->order);
+    }
+  }
+
+  /**
+   * Voids a transaction.
+   */
+  public function void() {
+    $this->getOrder();
+    if (!empty($this->order)) {
+      $this->order->status = 'commerce_pos_voided';
+      commerce_order_save($this->order);
+    }
+  }
+
+  /**
    * Loads the transaction from the database.
    */
   protected function load() {
@@ -348,6 +383,7 @@ class CommercePosTransaction {
           'order_id',
           'type',
         ))
+        ->condition('transaction_id', $this->transactionId)
         ->execute()
         ->fetchAssoc();
 

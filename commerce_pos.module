@@ -116,7 +116,8 @@ function commerce_pos_permission() {
  * Implements hook_theme().
  */
 function commerce_pos_theme($existing, $type, $theme, $path) {
-  return array();
+  return array(
+  );
 }
 
 /**
@@ -145,15 +146,21 @@ function commerce_pos_commerce_order_state_info() {
 function commerce_pos_commerce_order_status_info() {
   $order_statuses = array();
 
-  $order_statuses['commerce_pos_creating'] = array(
-    'name' => 'commerce_pos_creating',
-    'title' => t('POS - Creating'),
+  $order_statuses['commerce_pos_in_progress'] = array(
+    'name' => 'commerce_pos_in_progress',
+    'title' => t('POS - In Progress'),
     'state' => 'commerce_pos',
   );
 
   $order_statuses['commerce_pos_parked'] = array(
     'name' => 'commerce_pos_parked',
     'title' => t('POS - Parked'),
+    'state' => 'commerce_pos',
+  );
+
+  $order_statuses['commerce_pos_voided'] = array(
+    'name' => 'commerce_pos_voided',
+    'title' => t('POS - Voided'),
     'state' => 'commerce_pos',
   );
 

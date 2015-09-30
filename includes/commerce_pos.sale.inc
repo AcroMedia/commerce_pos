@@ -21,8 +21,10 @@ function commerce_pos_sale($form, &$form_state) {
     }
 
     $form_state['transaction'] = $transaction;
-    $order = $form_state['transaction']->getOrder();
-    $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
+
+    if ($order = $form_state['transaction']->getOrder()) {
+      $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
+    }
   }
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
@@ -62,12 +64,14 @@ function commerce_pos_sale($form, &$form_state) {
 
   $wrapper['product_sku'] = array(
     '#type' => 'textfield',
-    '#title' => t('Product SKU'),
+    '#title' => NULL,
     '#ajax' => $wrapper_ajax,
     '#attributes' => array(
       'class' => array('commerce-pos-product-sku-input'),
     ),
     '#element_key' => 'product-sku',
+    '#prefix' => '<div class="element-invisible">',
+    '#suffix' => '</div>',
   );
 
   if (!empty($order_wrapper)) {
@@ -127,6 +131,7 @@ function commerce_pos_sale($form, &$form_state) {
         '#type' => 'textfield',
         '#default_value' => $unit_price['amount'] / 100,
         '#size' => 10,
+        '#ajax' => $wrapper_ajax,
       );
 
       $line_item_total = $line_item_wrapper->commerce_total->value();
@@ -146,12 +151,12 @@ function commerce_pos_sale($form, &$form_state) {
     }
   }
 
-  $form['transaction_options'] = array(
+  $form['wrapper']['transaction_options'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
   );
 
-  if (!empty($order_wrapper->commerce_line_items->value())) {
+  if ($order_wrapper && !empty($order_wrapper->commerce_line_items->value())) {
     $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos');
     $transaction_options = &$form['transaction_options'];
 
@@ -175,6 +180,8 @@ function commerce_pos_sale($form, &$form_state) {
       '#attributes' => array(
         'class' => array('commerce-pos-transaction-btn'),
       ),
+      '#ajax' => $wrapper_ajax,
+      '#element_key' => 'park',
     );
 
     $transaction_options['void'] = array(
@@ -196,9 +203,53 @@ function commerce_pos_sale($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => t('Customer'),
       '#autocomplete_path' => 'pos/user/autocomplete',
-
     );
+
+    $has_active_transaction = TRUE;
   }
+  else {
+    $has_active_transaction = FALSE;
+  }
+
+  // Parked transactions
+  if ($parked_transactions = CommercePos::getParkedTransactions(CommercePos::TRANSACTION_TYPE_SALE, $user->uid)) {
+    $form['parked_transactions'] = array(
+      '#type' => 'container',
+      '#tree' => TRUE,
+    );
+
+    $description = format_plural(count($parked_transactions), '1 Transaction Parked', '@count Transactions Parked') . ' - ';
+
+    $form['wrapper']['parked_transactions']['description'] = array(
+      '#markup' => $description,
+    );
+
+    foreach ($parked_transactions as $transaction_id) {
+      if (count($parked_transactions) == 1) {
+        $button_text = t('Retrieve');
+      }
+      else {
+        $button_text = t('Retrieve Transaction #@id', array(
+          '@id' => $transaction_id,
+        ));
+      }
+
+      $form['wrapper']['parked_transactions'][$transaction_id] = array(
+        '#type' => 'button',
+        '#value' => $button_text,
+        '#attributes' => array(
+          'class' => array('commerce-pos-btn-retrieve-transaction'),
+        ),
+        '#ajax' => $wrapper_ajax,
+        '#name' => 'retrieve-parked-transaction-' . $transaction_id,
+        '#transaction_id' => $transaction_id,
+        '#disabled' => $has_active_transaction,
+        '#element_key' => 'retrieve-parked-transaction',
+      );
+    }
+  }
+
+  $js_settings['hasActiveTransaction'] = $has_active_transaction;
 
   $form['#attached']['js'][] = array(
     'type' => 'setting',
@@ -239,29 +290,51 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
     /* @var CommercePosTransaction $transaction */
     $transaction = $form_state['transaction'];
 
+    $form_state['order_updated'] = TRUE;
+
     switch ($triggering_element['#element_key']) {
       case 'product-sku':
-        if (!empty($form_state['values']['product_sku']) && $product = commerce_product_load_by_sku($form_state['values']['product_sku'])) {
+        if (!empty($form_state['values']['product_sku'])) {
+          $product_sku = $form_state['values']['product_sku'];
+        }
+        elseif (!empty($form_state['input']['product_sku'])) {
+          $product_sku = $form_state['input']['product_sku'];
+        }
+        else {
+          $product_sku = FALSE;
+        }
+
+        if (!empty($product_sku) && $product = commerce_product_load_by_sku($product_sku)) {
           $transaction->addProduct($product);
-          $form_state['order_updated'] = TRUE;
         }
         break;
 
       case 'line-item-qty':
         $line_item_id = $triggering_element['#line_item_id'];
         $transaction->updateLineItemQuantity($line_item_id, $form_state['values']['line_items'][$line_item_id]['qty']);
-        $form_state['order_updated'] = TRUE;
         break;
 
       case 'line-item-add-qty':
         $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], 1, 'update');
-        $form_state['order_updated'] = TRUE;
         break;
 
       case 'line-item-remove-qty':
         $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], -1, 'update');
-        $form_state['order_updated'] = TRUE;
         break;
+
+      case 'park-transaction':
+        $transaction->park();
+        break;
+
+      case 'retrieve-parked-transaction':
+        $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
+        $parked_transaction->unpark();
+        $transaction->void();
+        break;
+
+      default:
+        // If we didn't reach any of the above, it means we don't need to reload the order.
+        $form_state['order_updated'] = FALSE;
     }
   }
 }

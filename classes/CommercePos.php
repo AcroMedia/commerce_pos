@@ -33,8 +33,8 @@ class CommercePos {
       $current_transactions[$uid][$type] = FALSE;
       $active_transactions = self::getAllActiveTransactions($uid, $reset);
 
-      if (isset($active_transactions[$type]['commerce_pos_creating'])) {
-        $transaction_id = $active_transactions[$type]['commerce_pos_creating'][0];
+      if (isset($active_transactions[$type]['commerce_pos_in_progress'])) {
+        $transaction_id = $active_transactions[$type]['commerce_pos_in_progress'][0];
         $current_transactions[$uid][$type] = new CommercePosTransaction($transaction_id);
       }
     }
@@ -80,6 +80,17 @@ class CommercePos {
   }
 
   /**
+   * Retrieves a list of all "parked" transactions for a user.
+   */
+  public static function getParkedTransactions($type, $uid) {
+    $transactions = self::getAllActiveTransactions($uid);
+
+    dpm($transactions, '$transactions');
+
+    return !empty($transactions[$type]['commerce_pos_parked']) ? $transactions[$type]['commerce_pos_parked'] : array();
+  }
+
+  /**
    * Retrieves a list of all POS transactions for a user that are either parked
    * or are currently being created.
    *
@@ -112,7 +123,7 @@ class CommercePos {
 
       $query->condition(db_or()
         ->condition('o.status', array(
-          'commerce_pos_creating',
+          'commerce_pos_in_progress',
           'commerce_pos_parked',
         ), 'IN')
         ->condition('t.order_id', 0));
@@ -123,7 +134,7 @@ class CommercePos {
 
       foreach ($result as $row) {
         if (empty($row->status)) {
-          $row->status = 'commerce_pos_creating';
+          $row->status = 'commerce_pos_in_progress';
         }
 
         $transactions[$uid][$row->type][$row->status][] = $row->transaction_id;
