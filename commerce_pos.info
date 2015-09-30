@@ -6,4 +6,7 @@ package = Commerce Contrib
 dependencies[] = commerce_order
 dependencies[] = commerce_product
 
+files[] = classes/CommercePos.php
+files[] = classes/CommercePosTransaction.php
+
 configure = admin/commerce/config/pos

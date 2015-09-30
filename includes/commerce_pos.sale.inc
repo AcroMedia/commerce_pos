@@ -9,10 +9,20 @@
  * Callback for the main POS sale form.
  */
 function commerce_pos_sale($form, &$form_state) {
+  global $user;
+  $order = FALSE;
+
   commerce_pos_sale_ajax_check($form, $form_state);
 
-  if (!empty($form_state['order_updated']) || !isset($form_state['order'])) {
-    $form_state['order'] = commerce_pos_get_transaction_order(commerce_pos_TRANSACTION_TYPE_SALE);
+  if (!empty($form_state['order_updated'] || !isset($form_state['transaction']))) {
+    $transaction = CommercePos::getCurrentTransaction(CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
+
+    if (empty($transaction)) {
+      $transaction = CommercePos::createNewTransaction(CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
+    }
+
+    $form_state['transaction'] = $transaction;
+    $order = $form_state['transaction']->getOrder();
   }
 
   $form['#attached']['library'][] = array(
@@ -58,8 +68,8 @@ function commerce_pos_sale($form, &$form_state) {
     '#element_key' => 'product-sku',
   );
 
-  if (!empty($form_state['order'])) {
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $form_state['order']);
+  if (!empty($order)) {
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
     $wrapper['line_items'] = array(
       '#tree' => TRUE,
@@ -141,8 +151,8 @@ function commerce_pos_sale($form, &$form_state) {
     '#tree' => TRUE,
   );
 
-  if (!empty($form_state['order'])) {
-    $order_total = field_view_field('commerce_order', $form_state['order'], 'commerce_order_total', 'commerce_pos');
+  if (!empty($order)) {
+    $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos');
     $transaction_options = &$form['transaction_options'];
 
     $transaction_options['order_total'] = array(
@@ -226,27 +236,30 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
   if (!empty($form_state['triggering_element']['#element_key'])) {
     $triggering_element = $form_state['triggering_element'];
 
+    /* @var CommercePosTransaction $transaction */
+    $transaction = $form_state['transaction'];
+
     switch ($triggering_element['#element_key']) {
       case 'product-sku':
         if (!empty($form_state['values']['product_sku']) && $product = commerce_product_load_by_sku($form_state['values']['product_sku'])) {
-          commerce_pos_transaction_add_product(commerce_pos_TRANSACTION_TYPE_SALE, $product);
+          $transaction->addProduct($product);
           $form_state['order_updated'] = TRUE;
         }
         break;
 
       case 'line-item-qty':
         $line_item_id = $triggering_element['#line_item_id'];
-        commerce_pos_transaction_update_quantity(commerce_pos_TRANSACTION_TYPE_SALE, $line_item_id, $form_state['values']['line_items'][$line_item_id]['qty']);
+        $transaction->updateLineItemQuantity($line_item_id, $form_state['values']['line_items'][$line_item_id]['qty']);
         $form_state['order_updated'] = TRUE;
         break;
 
       case 'line-item-add-qty':
-        commerce_pos_transaction_update_quantity(commerce_pos_TRANSACTION_TYPE_SALE, $triggering_element['#line_item_id'], 1, 'add');
+        $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], 1, 'update');
         $form_state['order_updated'] = TRUE;
         break;
 
       case 'line-item-remove-qty':
-        commerce_pos_transaction_update_quantity(commerce_pos_TRANSACTION_TYPE_SALE, $triggering_element['#line_item_id'], 1, 'subtract');
+        $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], -1, 'update');
         $form_state['order_updated'] = TRUE;
         break;
     }
@@ -258,12 +271,11 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
  */
 function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
   if (!empty($form_state['triggering_element']['#line_item_id'])) {
-    commerce_pos_transaction_delete_line_item(commerce_pos_TRANSACTION_TYPE_SALE, $form_state['triggering_element']['#line_item_id']);
+    $form_state['transaction']->deleteLineItem($form_state['triggering_element']['#line_item_id']);
     $form_state['order_updated'] = TRUE;
     $form_state['rebuild'] = TRUE;
   }
 }
-
 
 /**
  * AJAX callback for returning the sale form's wrapper.
