@@ -10,7 +10,7 @@
  */
 function commerce_pos_sale($form, &$form_state) {
   global $user;
-  $order = FALSE;
+  $order_wrapper = FALSE;
 
   commerce_pos_sale_ajax_check($form, $form_state);
 
@@ -23,6 +23,7 @@ function commerce_pos_sale($form, &$form_state) {
 
     $form_state['transaction'] = $transaction;
     $order = $form_state['transaction']->getOrder();
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
   }
 
   $form['#attached']['library'][] = array(
@@ -68,9 +69,7 @@ function commerce_pos_sale($form, &$form_state) {
     '#element_key' => 'product-sku',
   );
 
-  if (!empty($order)) {
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-
+  if (!empty($order_wrapper)) {
     $wrapper['line_items'] = array(
       '#tree' => TRUE,
       '#type' => 'container',
@@ -151,7 +150,7 @@ function commerce_pos_sale($form, &$form_state) {
     '#tree' => TRUE,
   );
 
-  if (!empty($order)) {
+  if (!empty($order_wrapper->commerce_line_items->value())) {
     $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos');
     $transaction_options = &$form['transaction_options'];
 
