@@ -349,6 +349,12 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
 function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
   if (!empty($form_state['triggering_element']['#line_item_id'])) {
     $form_state['transaction']->deleteLineItem($form_state['triggering_element']['#line_item_id']);
+
+    if (empty($form_state['transaction']->getLineItems())) {
+      $form_state['transaction']->void();
+      unset($form_state['transaction']);
+    }
+
     $form_state['order_updated'] = TRUE;
     $form_state['rebuild'] = TRUE;
   }

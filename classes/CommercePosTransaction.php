@@ -342,6 +342,19 @@ class CommercePosTransaction {
   }
 
   /**
+   * Retrieves the line items from this transaction's order, if it has any.
+   */
+  public function getLineItems() {
+    $line_items = array();
+
+    if (!empty($this->order)) {
+      $line_items = field_get_items('commerce_order', $this->order, 'commerce_line_items');
+    }
+
+    return $line_items;
+  }
+
+  /**
    * Marks the transaction order's status as parked.
    */
   public function park() {

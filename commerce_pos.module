@@ -30,7 +30,7 @@ function commerce_pos_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_sale'),
     'access callback' => '_commerce_pos_access_check',
-    'access arguments' > array('process commerce pos sales'),
+    'access arguments' => array('process commerce pos sales'),
     'file' => 'includes/commerce_pos.sale.inc',
     'type' => MENU_CALLBACK,
   );
@@ -40,7 +40,7 @@ function commerce_pos_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_return'),
     'access callback' => '_commerce_pos_access_check',
-    'access arguments' > array('process commerce pos returns'),
+    'access arguments' => array('process commerce pos returns'),
     'file' => 'includes/commerce_pos.pages.inc',
     'type' => MENU_CALLBACK,
   );
@@ -215,7 +215,8 @@ function _commerce_pos_access_check($access_arguments) {
       }
     }
   }
-  else {
+
+  if (!$access) {
     // If they're not even logged in, we should take them to our custom
     // login page.
     drupal_goto('pos/login');
