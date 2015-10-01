@@ -17,7 +17,7 @@ function commerce_pos_sale($form, &$form_state) {
     $transaction = CommercePos::getCurrentTransaction(CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
 
     if (empty($transaction)) {
-      $transaction = CommercePos::createNewTransaction(CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
+      $transaction = new CommercePosTransaction(NULL, CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
     }
 
     $form_state['transaction'] = $transaction;
@@ -158,7 +158,7 @@ function commerce_pos_sale($form, &$form_state) {
 
   if ($order_wrapper && !empty($order_wrapper->commerce_line_items->value())) {
     $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos');
-    $transaction_options = &$form['transaction_options'];
+    $transaction_options = &$form['wrapper']['transaction_options'];
 
     $transaction_options['order_total'] = array(
       '#markup' => render($order_total),

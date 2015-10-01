@@ -26,7 +26,7 @@ class CommercePosTransaction {
    * @throws \Exception
    */
   public function __construct($transaction_id = NULL, $type = NULL, $uid = NULL) {
-    if ($transaction_id !== NULL) {
+    if ($transaction_id !== NULL && $type == NULL && $uid == NULL) {
       $this->transactionId = $transaction_id;
       $this->load();
     }
@@ -35,7 +35,7 @@ class CommercePosTransaction {
       $this->type = $type;
     }
     else {
-      throw new Exception(t('Cannot initialize POS transaction: all params cannot be null.'));
+      throw new Exception(t('Cannot initialize POS transaction: invalid arguments supplied.'));
     }
   }
 
@@ -258,11 +258,13 @@ class CommercePosTransaction {
         '@order_id' => $this->orderId,
       )));
     }
-    else if (empty($this->transactionId)) {
-      throw new Exception(t('Cannot create order for transaction, the transaction has not been saved yet!'));
-    }
     else {
+      if (empty($this->transactionId)) {
+        $this->save();
+      }
+
       $order = commerce_order_new($this->uid, 'commerce_pos_in_progress');
+      $order->uid = 0;
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
       // Create new default billing profile.
@@ -391,8 +393,10 @@ class CommercePosTransaction {
         $this->uid = $result['uid'];
         $this->orderId = $result['order_id'];
         $this->type = $result['type'];
+        return $this;
       }
       else {
+        $this->transactionId = 0;
         return FALSE;
       }
     }

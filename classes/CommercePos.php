@@ -50,33 +50,21 @@ class CommercePos {
    * @throws \Exception
    */
   public static function setCurrentTransaction(CommercePosTransaction $transaction) {
-    $current_transactions = &drupal_static('commerce_pos_current_transactions', array());
+    $current_transaction = self::getCurrentTransaction($transaction->type, $transaction->uid);
 
-    if (!isset($current_transactions[$transaction->uid][$transaction->type])) {
-      $current_transactions[$transaction->uid][$transaction->type] = $transaction;
-    }
-    else {
+    if ($current_transaction->transactionId != $transaction->transactionId) {
       throw new Exception(t('Cannot set current @type transaction for @uid, the user already has one.', array(
         '@uid' => $transaction->uid,
         '@type' => $transaction->type,
       )));
     }
-  }
+    else {
+      if (empty($transaction->transactionId)) {
+        $current_transaction = $transaction;
+      }
+    }
 
-  /**
-   * Creates a new POS transaction for a user.
-   *
-   * @param int $type
-   *   The type of transaction to create.
-   * @param int $uid
-   *   The user ID of the employee/admin the transaction is being created for.
-   *
-   * @return CommercePosTransaction
-   */
-  public static function createNewTransaction($type, $uid) {
-    $transaction = new CommercePosTransaction(NULL, $type, $uid);
-    $transaction->save();
-    return $transaction;
+    $testing = 0;
   }
 
   /**
@@ -84,9 +72,6 @@ class CommercePos {
    */
   public static function getParkedTransactions($type, $uid) {
     $transactions = self::getAllActiveTransactions($uid);
-
-    dpm($transactions, '$transactions');
-
     return !empty($transactions[$type]['commerce_pos_parked']) ? $transactions[$type]['commerce_pos_parked'] : array();
   }
 
