@@ -193,6 +193,8 @@ function commerce_pos_sale($form, &$form_state) {
       '#attributes' => array(
         'class' => array('commerce-pos-transaction-btn'),
       ),
+      '#ajax' => $wrapper_ajax,
+      '#element_key' => 'void-transaction',
     );
     $transaction_options['discount'] = array(
       '#type' => 'button',
@@ -328,12 +330,21 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
       case 'park-transaction':
         $transaction->park();
         unset($form_state['transaction']);
+        drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
+        break;
+
+      case 'void-transaction':
+        $transaction->void();
+        unset($form_state['transaction']);
+        drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
         break;
 
       case 'retrieve-parked-transaction':
         $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
         $parked_transaction->unpark();
         $transaction->void();
+        unset($form_state['transaction']);
+        drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
         break;
 
       default:
