@@ -25,6 +25,9 @@ function commerce_pos_sale($form, &$form_state) {
     if ($order = $form_state['transaction']->getOrder()) {
       $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
     }
+    elseif (isset($form_state['order_wrapper'])) {
+      unset($form_state['order_wrapper']);
+    }
   }
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
@@ -157,7 +160,7 @@ function commerce_pos_sale($form, &$form_state) {
   );
 
   if ($order_wrapper && !empty($order_wrapper->commerce_line_items->value())) {
-    $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos');
+    $order_total = field_view_field('commerce_order', $order_wrapper->value(), 'commerce_order_total', 'commerce_pos');
     $transaction_options = &$form['wrapper']['transaction_options'];
 
     $transaction_options['order_total'] = array(
@@ -181,7 +184,7 @@ function commerce_pos_sale($form, &$form_state) {
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $wrapper_ajax,
-      '#element_key' => 'park',
+      '#element_key' => 'park-transaction',
     );
 
     $transaction_options['void'] = array(
@@ -324,6 +327,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
 
       case 'park-transaction':
         $transaction->park();
+        unset($form_state['transaction']);
         break;
 
       case 'retrieve-parked-transaction':
