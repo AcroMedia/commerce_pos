@@ -39,6 +39,20 @@ function commerce_pos_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'location_id' => array(
+        'description' => 'The physical location that this transaction was performed at.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'description' => 'A serialized array of additional data.',
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
     ),
     'indexes' => array(
       'transaction_order_id' => array('order_id'),

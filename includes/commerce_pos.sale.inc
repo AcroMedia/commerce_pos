@@ -30,6 +30,8 @@ function commerce_pos_sale($form, &$form_state) {
     }
   }
 
+  dpm($form_state['transaction'], 'transaction');
+
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
 
   $wrapper_id = 'commerce-pos-sale-wrapper';
@@ -218,6 +220,17 @@ function commerce_pos_sale($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => t('Customer'),
       '#autocomplete_path' => 'pos/user/autocomplete',
+      '#ajax' => array(
+        'wrapper' => 'commerce-pos-customer-input-wrapper',
+        'callback' => 'commerce_pos_sale_customer_js',
+      ),
+      '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
+      '#suffix' => '</div>',
+      '#element_key' => 'customer-transaction-update',
+      '#attributes' => array(
+        'placeholder' => t('email@address.com'),
+      ),
+      '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
     );
 
     $has_active_transaction = TRUE;
@@ -281,8 +294,6 @@ function commerce_pos_sale($form, &$form_state) {
       ),
     ),
   );
-
-  dpm($form, '$form');
 
   return $form;
 }
@@ -362,11 +373,19 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
         $parked_transaction->unpark();
         $transaction->void();
         unset($form_state['transaction']);
+
         drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
         break;
 
       case 'line-item-change-price':
         $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value']);
+        break;
+
+      case 'customer-transaction-update':
+        if (!empty($triggering_element['#value'])) {
+          $transaction->data['customer email'] = $triggering_element['#value'];
+          $transaction->save();
+        }
         break;
 
       default:
@@ -398,4 +417,11 @@ function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
  */
 function commerce_pos_sale_wrapper_js($form, &$form_state) {
   return $form['wrapper'];
+}
+
+/**
+ * AJAX callback for the customer field.
+ */
+function commerce_pos_sale_customer_js($form, &$form_state) {
+  return $form['customer'];
 }

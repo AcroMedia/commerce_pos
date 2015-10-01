@@ -13,6 +13,8 @@ class CommercePosTransaction {
   public $uid = 0;
   public $orderId = 0;
   public $type = 0;
+  public $locationId = 0;
+  public $data = array();
 
   protected $order = FALSE;
 
@@ -48,6 +50,8 @@ class CommercePosTransaction {
       'uid' => $this->uid,
       'order_id' => $this->orderId,
       'type' => $this->type,
+      'data' => $this->data,
+      'location_id' => $this->locationId,
     );
 
     if ($this->transactionId) {
@@ -426,11 +430,7 @@ class CommercePosTransaction {
   protected function load() {
     if ($this->transactionId) {
       $result = db_select(self::TABLE_NAME, 't')
-        ->fields('t', array(
-          'uid',
-          'order_id',
-          'type',
-        ))
+        ->fields('t')
         ->condition('transaction_id', $this->transactionId)
         ->execute()
         ->fetchAssoc();
@@ -439,6 +439,15 @@ class CommercePosTransaction {
         $this->uid = $result['uid'];
         $this->orderId = $result['order_id'];
         $this->type = $result['type'];
+        $this->locationId = $result['location_id'];
+
+        if (empty($result['data'])) {
+          $this->data = array();
+        }
+        else {
+          $this->data = unserialize($result['data']);
+        }
+
         return $this;
       }
       else {
