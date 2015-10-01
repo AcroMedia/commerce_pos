@@ -30,9 +30,9 @@ function commerce_pos_sale($form, &$form_state) {
     }
   }
 
-  dpm($form_state['transaction'], 'transaction');
-
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
+
+  $has_active_transaction = ($order_wrapper && !empty($order_wrapper->commerce_line_items->value()));
 
   $wrapper_id = 'commerce-pos-sale-wrapper';
   $wrapper_ajax = array(
@@ -166,12 +166,13 @@ function commerce_pos_sale($form, &$form_state) {
     }
   }
 
+  // Transaction options.
   $form['wrapper']['transaction_options'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
   );
 
-  if ($order_wrapper && !empty($order_wrapper->commerce_line_items->value())) {
+  if ($has_active_transaction) {
     $order_total = field_view_field('commerce_order', $order_wrapper->value(), 'commerce_order_total', 'commerce_pos');
     $transaction_options = &$form['wrapper']['transaction_options'];
 
@@ -232,11 +233,6 @@ function commerce_pos_sale($form, &$form_state) {
       ),
       '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
     );
-
-    $has_active_transaction = TRUE;
-  }
-  else {
-    $has_active_transaction = FALSE;
   }
 
   // Parked transactions
