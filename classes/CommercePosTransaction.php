@@ -342,6 +342,39 @@ class CommercePosTransaction {
   }
 
   /**
+   * Sets the price of a line item in the transaction's order to a specific price.
+   *
+   * @param int $line_item_id
+   *   The ID of the line item in the transaction order to change the price of.
+   * @param int $price
+   *   The new price, in dollars. This function will convert the price to cents.
+   */
+  public function setLineItemPrice($line_item_id, $price) {
+    foreach ($this->getLineItems() as $order_line_item) {
+      if ($order_line_item['line_item_id'] == $line_item_id) {
+        $line_item = commerce_line_item_load($line_item_id);
+        $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+        $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
+        $currency_code = $unit_price['currency_code'];
+
+        $unit_price['data'] = commerce_price_component_delete($unit_price, 'base_price');
+        $unit_price['data'] = commerce_price_component_add($unit_price, 'base_price', array(
+          'amount' => $price * 100,
+          'currency_code' => $currency_code,
+          'data' => array(),
+        ), FALSE);
+
+        $new_total = commerce_price_component_total($unit_price);
+        $unit_price['amount'] = $new_total['amount'];
+        $line_item_wrapper->commerce_unit_price->set($unit_price);
+
+        $line_item_wrapper->save();
+        break;
+      }
+    }
+  }
+
+  /**
    * Retrieves the line items from this transaction's order, if it has any.
    */
   public function getLineItems() {

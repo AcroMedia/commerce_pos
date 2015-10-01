@@ -32,18 +32,11 @@ function commerce_pos_sale($form, &$form_state) {
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
 
-  $form['#attached']['library'][] = array(
-    'system',
-    'ui.autocomplete',
-  );
-
   $wrapper_id = 'commerce-pos-sale-wrapper';
   $wrapper_ajax = array(
     'callback' => 'commerce_pos_sale_wrapper_js',
     'wrapper' => $wrapper_id,
   );
-
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.sale.js';
 
   $js_settings = array(
     'productAutoCompleteUrl' => url('pos/product/autocomplete'),
@@ -77,6 +70,12 @@ function commerce_pos_sale($form, &$form_state) {
     '#suffix' => '</div>',
   );
 
+  if (!empty($form_state['transaction']->transactionId)) {
+    $wrapper['transaction_id'] = array(
+      '#markup' => t('Transaction #@id', array('@id' => $form_state['transaction']->transactionId)),
+    );
+  }
+
   if (!empty($order_wrapper)) {
     $wrapper['line_items'] = array(
       '#tree' => TRUE,
@@ -93,13 +92,16 @@ function commerce_pos_sale($form, &$form_state) {
       $line_item_element = &$wrapper['line_items'][$line_item_id];
 
       $line_item_element['qty'] = array(
-        '#title' => 'Quantity',
+        '#title' => (int) $line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
         '#value' => (int) $line_item_wrapper->quantity->value(),
         '#ajax' => $wrapper_ajax,
         '#element_key' => 'line-item-qty',
         '#line_item_id' => $line_item_id,
         '#element_validate' => array('_commerce_pos_sale_validate_qty'),
+        '#attributes' => array(
+          'class' => array('thevault-pos-hidden-element'),
+        ),
       );
 
       $line_item_element['add_qty'] = array(
@@ -132,9 +134,17 @@ function commerce_pos_sale($form, &$form_state) {
 
       $line_item_element['price_edit'] = array(
         '#type' => 'textfield',
-        '#default_value' => $unit_price['amount'] / 100,
+        '#title' => t('@ @price', array(
+          '@price' => commerce_currency_format($unit_price['amount'], $unit_price['currency_code']),
+        )),
+        '#default_value' => number_format($unit_price['amount'] / 100, 2),
         '#size' => 10,
+        '#element_key' => 'line-item-change-price',
+        '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
+        '#attributes' => array(
+          'class' => array('thevault-pos-hidden-element'),
+        ),
       );
 
       $line_item_total = $line_item_wrapper->commerce_total->value();
@@ -254,8 +264,14 @@ function commerce_pos_sale($form, &$form_state) {
     }
   }
 
-  $js_settings['hasActiveTransaction'] = $has_active_transaction;
+  // Attach our CSS and JS
+  $form['#attached']['library'][] = array(
+    'system',
+    'ui.autocomplete',
+  );
 
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.sale.js';
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
@@ -265,6 +281,8 @@ function commerce_pos_sale($form, &$form_state) {
       ),
     ),
   );
+
+  dpm($form, '$form');
 
   return $form;
 }
@@ -345,6 +363,10 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
         $transaction->void();
         unset($form_state['transaction']);
         drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
+        break;
+
+      case 'line-item-change-price':
+        $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value']);
         break;
 
       default:
