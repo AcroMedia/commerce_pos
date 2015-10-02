@@ -4,3 +4,77 @@
  * @file
  * Core hooks and utility functions for commerce_pos_discount.
  */
+
+function commerce_pos_discount_init() {
+  //dpm(commerce_price_component_types(), 'types');
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state) {
+  if (isset($form['wrapper']['line_items'])) {
+    foreach (element_children($form['wrapper']['line_items']) as $line_item_id) {
+      $line_item_element = &$form['wrapper']['line_items'][$line_item_id];
+
+      $line_item_element['discounts'] = array(
+        '#type' => 'container',
+        '#id' => 'commerce-pos-discount-wrapper',
+      );
+
+      $line_item_element['discounts']['toggle_discount'] = array(
+        '#type' => 'button',
+        '#value' => t('Discount'),
+        '#ajax' => array(
+          'wrapper' => 'commerce-pos-discount-wrapper',
+          'callback' => 'commerce_pos_discount_add_discount_js',
+        ),
+        '#line_item_id' => $line_item_id,
+        '#element_key' => 'toggle-discount',
+        '#name' => 'commerce-pos-discount-toggle-discount-' . $line_item_id,
+      );
+
+      if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
+        $line_item_element['discounts']['add_discount'] = array(
+          '#type' => 'container',
+        );
+
+        $line_item_element['discounts']['add_discount']['description'] = array(
+          '#markup' => t('Add Discount to Item'),
+        );
+
+        $line_item_element['discounts']['add_discount']['amount'] = array(
+          '#type' => 'textfield',
+          '#title' => NULL,
+          '#size' => 5,
+          '#default_value' => 0,
+        );
+
+        $line_item_element['discounts']['add_discount']['percent_discount'] = array(
+          '#type' => 'button',
+          '#value' => '%',
+          '#element_key' => 'add-percent-discount',
+          '#line_item_id' => $line_item_id,
+          '#name' => 'commerce-pos-discount-percent-discount-' . $line_item_id,
+        );
+
+        $line_item_element['discounts']['add_discount']['flat_discount'] = array(
+          '#type' => 'button',
+          '#value' => '%',
+          '#element_key' => 'add-flat-discount',
+          '#line_item_id' => $line_item_id,
+          '#name' => 'commerce-pos-discount-flat-discount-' . $line_item_id,
+        );
+      }
+    }
+  }
+}
+
+/**
+ * AJAX callback for the "Add Discount" buttons.
+ */
+function commerce_pos_discount_add_discount_js($form, &$form_state) {
+  dpm($form_state, '$form_state');
+  $line_item_id = $form_state['triggering_element']['#line_item_id'];
+  return $form['wrapper']['line_items'][$line_item_id]['discounts'];
+}

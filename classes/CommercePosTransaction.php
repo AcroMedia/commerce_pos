@@ -2,7 +2,7 @@
 
 /**
  * @file
- * CommercePosTransaction class definition.
+ * PosTransaction class definition.
  */
 
 class CommercePosTransaction {
@@ -16,6 +16,7 @@ class CommercePosTransaction {
   public $locationId = 0;
   public $data = array();
 
+  protected $bases = array();
   protected $order = FALSE;
 
   /**
@@ -24,8 +25,6 @@ class CommercePosTransaction {
    * @param null $transaction_id
    * @param null $type
    * @param null $uid
-   *
-   * @throws \Exception
    */
   public function __construct($transaction_id = NULL, $type = NULL, $uid = NULL) {
     if ($transaction_id !== NULL && $type == NULL && $uid == NULL) {
@@ -38,6 +37,24 @@ class CommercePosTransaction {
     }
     else {
       throw new Exception(t('Cannot initialize POS transaction: invalid arguments supplied.'));
+    }
+
+    foreach (module_invoke_all('commerce_pos_transaction_base_info') as $base_info) {
+      $this->bases[] = new $base_info['class']($this);
+    }
+  }
+
+  /**
+   * @param $action_name
+   * @param $params
+   *
+   * @return mixed.
+   */
+  public function invokeBaseAction($action_name, $params = array()) {
+    foreach ($this->bases as $base_class) {
+      if (is_callable(array($base_class, $action_name))) {
+        return call_user_func_array(array($base_class, $action_name), $params);
+      }
     }
   }
 
@@ -389,17 +406,6 @@ class CommercePosTransaction {
     }
 
     return $line_items;
-  }
-
-  /**
-   * Marks the transaction order's status as parked.
-   */
-  public function park() {
-    $this->getOrder();
-    if (!empty($this->order)) {
-      $this->order->status = 'commerce_pos_parked';
-      commerce_order_save($this->order);
-    }
   }
 
   /**

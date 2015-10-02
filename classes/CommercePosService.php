@@ -1,10 +1,11 @@
 <?php
 
 /**
- * CommercePos class definition.
+ * @file
+ * PosService class definition.
  */
 
-class CommercePos {
+class CommercePosService {
   const TRANSACTION_TYPE_SALE = 1;
   const TRANSACTION_TYPE_RETURN = 2;
 

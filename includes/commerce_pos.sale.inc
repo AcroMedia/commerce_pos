@@ -14,10 +14,10 @@ function commerce_pos_sale($form, &$form_state) {
   commerce_pos_sale_ajax_check($form, $form_state);
 
   if (!empty($form_state['order_updated'] || !isset($form_state['transaction']))) {
-    $transaction = CommercePos::getCurrentTransaction(CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
+    $transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
 
     if (empty($transaction)) {
-      $transaction = new CommercePosTransaction(NULL, CommercePos::TRANSACTION_TYPE_SALE, $user->uid);
+      $transaction = new CommercePosTransaction(NULL, CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
     }
 
     $form_state['transaction'] = $transaction;
@@ -236,7 +236,7 @@ function commerce_pos_sale($form, &$form_state) {
   }
 
   // Parked transactions
-  if ($parked_transactions = CommercePos::getParkedTransactions(CommercePos::TRANSACTION_TYPE_SALE, $user->uid)) {
+  if ($parked_transactions = CommercePosService::getParkedTransactions(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
     $form['parked_transactions'] = array(
       '#type' => 'container',
       '#tree' => TRUE,
@@ -353,7 +353,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
         break;
 
       case 'park-transaction':
-        $transaction->park();
+        $transaction->invokeBaseAction('park');
         unset($form_state['transaction']);
         drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
         break;

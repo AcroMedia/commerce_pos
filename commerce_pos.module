@@ -121,6 +121,17 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_transaction_base_actions' => array(
+      'class' => 'CommercePosTransactionBaseActions',
+    ),
+  );
+}
+
+/**
  * Implements hook_commerce_order_state_info().
  *
  * Defines a new state that orders created by the POS live in until they have
