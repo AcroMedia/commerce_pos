@@ -141,10 +141,6 @@ class CommercePosTransaction {
 
       if ($this->order) {
         $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
-
-        foreach ($this->orderWrapper->commerce_line_items as $line_item_wrapper) {
-          dpm($line_item_wrapper->value(), 'line item');
-        }
       }
 
       return $this->order;

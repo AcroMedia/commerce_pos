@@ -204,7 +204,7 @@ function commerce_pos_sale($form, &$form_state) {
         'class' => array('commerce-pos-btn-pay'),
       ),
       '#key_binds' => array('f4'),
-      '#ajax' => $wrapper_ajax,
+      '#submit' => array('commerce_pos_sale_pay_submit'),
     );
 
     $transaction_options['park'] = array(
@@ -435,4 +435,58 @@ function commerce_pos_sale_wrapper_js($form, &$form_state) {
  */
 function commerce_pos_sale_customer_js($form, &$form_state) {
   return $form['customer'];
+}
+
+/**
+ * Submit handler for the Sale form's "Pay" button.
+ */
+function commerce_pos_sale_pay_submit($form, &$form_state) {
+  drupal_goto('pos/sale/pay');
+}
+
+/**
+ * Callback for the POS "pay" form.
+ */
+function commerce_pos_sale_pay($form, &$form_state) {
+  global $user;
+
+  if (!isset($form_state['transaction'])) {
+    if ($transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
+      $order = $transaction->getOrder();
+
+      if ($order && $order->status == 'commerce_pos_in_progress' ) {
+        $form_state['transaction'] = $transaction;
+        $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
+      }
+    }
+  }
+
+  if (!isset($form_state['transaction'])) {
+    // No valid transaction found, go back to the sale form.
+    drupal_goto('pos/sale');
+  }
+
+  $line_item_count = 0;
+
+  foreach ($form_state['order_wrapper']->commerce_line_items as $line_item_wrapper) {
+    if (in_array($line_item_wrapper->type->value(), commerce_product_line_item_types())) {
+      $line_item_count ++;
+    }
+  }
+
+  $items_link = l(format_plural($line_item_count, '1 Item', '@count Items'), '');
+
+  $form['summary'] = array(
+    '#markup' => t('Payment - !items - Order #@order_id', array(
+      '!items' => $items_link,
+      '@order_id' => $form_state['order_wrapper']->order_id->value(),
+    )),
+  );
+
+  $form['payment_options'] = array(
+    '#type' => 'container',
+    '#tree' => TRUE,
+  );
+
+  return $form;
 }

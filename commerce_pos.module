@@ -35,6 +35,16 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
+  $items['pos/sale/pay'] = array(
+    'title' => 'Pay',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_sale_pay'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos sales'),
+    'file' => 'includes/commerce_pos.sale.inc',
+    'type' => MENU_CALLBACK,
+  );
+
   $items['pos/return'] = array(
     'title' => 'Sale',
     'page callback' => 'drupal_get_form',

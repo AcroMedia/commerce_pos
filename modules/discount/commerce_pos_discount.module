@@ -5,10 +5,6 @@
  * Core hooks and utility functions for commerce_pos_discount.
  */
 
-function commerce_pos_discount_init() {
-  //dpm(commerce_price_component_types(), 'types');
-}
-
 /**
  * Implements hook_commerce_pos_transaction_base_info().
  */
