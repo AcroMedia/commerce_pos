@@ -13,7 +13,7 @@ function commerce_pos_sale($form, &$form_state) {
 
   commerce_pos_sale_ajax_check($form, $form_state);
 
-  if (!empty($form_state['order_updated'] || !isset($form_state['transaction']))) {
+  if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
 
     if (empty($transaction)) {
@@ -23,6 +23,11 @@ function commerce_pos_sale($form, &$form_state) {
     $form_state['transaction'] = $transaction;
 
     if ($order = $form_state['transaction']->getOrder()) {
+      if (!empty($form_state['order_updated'])) {
+        commerce_order_calculate_total($order);
+        commerce_order_save($order);
+      }
+
       $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
     }
     elseif (isset($form_state['order_wrapper'])) {
@@ -85,6 +90,11 @@ function commerce_pos_sale($form, &$form_state) {
     );
 
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+      // Only show product line item types.
+      if ($line_item_wrapper->type->value() != 'product') {
+        continue;
+      }
+
       $line_item_id = $line_item_wrapper->line_item_id->value();
 
       $wrapper['line_items'][$line_item_id] = array(
@@ -149,10 +159,16 @@ function commerce_pos_sale($form, &$form_state) {
         ),
       );
 
-      $line_item_total = $line_item_wrapper->commerce_total->value();
+      $price_view = field_view_field('commerce_line_item', $line_item_wrapper->value(), 'commerce_total', 'commerce_pos');
+      $price_view = render($price_view);
+
+      if (empty($price_view)) {
+        $line_item_total = $line_item_wrapper->commerce_total->value();
+        $price_view = commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']);
+      }
 
       $line_item_element['total'] = array(
-        '#markup' => commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']),
+        '#markup' => $price_view,
       );
 
       $line_item_element['remove'] = array(
@@ -170,6 +186,7 @@ function commerce_pos_sale($form, &$form_state) {
   $form['wrapper']['transaction_options'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
+    '#id' => 'commerce-pos-transactions-options-wrapper',
   );
 
   if ($has_active_transaction) {
@@ -208,13 +225,6 @@ function commerce_pos_sale($form, &$form_state) {
       ),
       '#ajax' => $wrapper_ajax,
       '#element_key' => 'void-transaction',
-    );
-    $transaction_options['discount'] = array(
-      '#type' => 'button',
-      '#value' => t('Discount'),
-      '#attributes' => array(
-        'class' => array('commerce-pos-transaction-btn'),
-      ),
     );
 
     $transaction_options['customer'] = array(
@@ -314,79 +324,84 @@ function _commerce_pos_sale_validate_qty($element, &$form_state, $form) {
  * This will look at what triggered the AJAX submission and act accordingly.
  */
 function commerce_pos_sale_ajax_check(&$form, &$form_state) {
-  if (!empty($form_state['triggering_element']['#element_key'])) {
+  if (isset($form_state['triggering_element'])) {
     $triggering_element = $form_state['triggering_element'];
 
-    /* @var CommercePosTransaction $transaction */
-    $transaction = $form_state['transaction'];
+    if (!empty($form_state['triggering_element']['#element_key'])) {
+      /* @var CommercePosTransaction $transaction */
+      $transaction = $form_state['transaction'];
 
-    $form_state['order_updated'] = TRUE;
+      $form_state['order_updated'] = TRUE;
 
-    switch ($triggering_element['#element_key']) {
-      case 'product-sku':
-        if (!empty($form_state['values']['product_sku'])) {
-          $product_sku = $form_state['values']['product_sku'];
-        }
-        elseif (!empty($form_state['input']['product_sku'])) {
-          $product_sku = $form_state['input']['product_sku'];
-        }
-        else {
-          $product_sku = FALSE;
-        }
+      switch ($triggering_element['#element_key']) {
+        case 'product-sku':
+          if (!empty($form_state['values']['product_sku'])) {
+            $product_sku = $form_state['values']['product_sku'];
+          }
+          elseif (!empty($form_state['input']['product_sku'])) {
+            $product_sku = $form_state['input']['product_sku'];
+          }
+          else {
+            $product_sku = FALSE;
+          }
 
-        if (!empty($product_sku) && $product = commerce_product_load_by_sku($product_sku)) {
-          $transaction->addProduct($product);
-        }
-        break;
+          if (!empty($product_sku) && $product = commerce_product_load_by_sku($product_sku)) {
+            $transaction->addProduct($product);
+          }
+          break;
 
-      case 'line-item-qty':
-        $line_item_id = $triggering_element['#line_item_id'];
-        $transaction->updateLineItemQuantity($line_item_id, $form_state['values']['line_items'][$line_item_id]['qty']);
-        break;
+        case 'line-item-qty':
+          $line_item_id = $triggering_element['#line_item_id'];
+          $transaction->updateLineItemQuantity($line_item_id, $form_state['values']['line_items'][$line_item_id]['qty']);
+          break;
 
-      case 'line-item-add-qty':
-        $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], 1, 'update');
-        break;
+        case 'line-item-add-qty':
+          $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], 1, 'update');
+          break;
 
-      case 'line-item-remove-qty':
-        $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], -1, 'update');
-        break;
+        case 'line-item-remove-qty':
+          $transaction->updateLineItemQuantity($triggering_element['#line_item_id'], -1, 'update');
+          break;
 
-      case 'park-transaction':
-        $transaction->invokeBaseMethod('park');
-        unset($form_state['transaction']);
-        drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
-        break;
+        case 'park-transaction':
+          $transaction->invokeBaseMethod('park');
+          unset($form_state['transaction']);
+          drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
+          break;
 
-      case 'void-transaction':
-        $transaction->void();
-        unset($form_state['transaction']);
-        drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
-        break;
+        case 'void-transaction':
+          $transaction->void();
+          unset($form_state['transaction']);
+          drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
+          break;
 
-      case 'retrieve-parked-transaction':
-        $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
-        $parked_transaction->unpark();
-        $transaction->void();
-        unset($form_state['transaction']);
+        case 'retrieve-parked-transaction':
+          $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
+          $parked_transaction->unpark();
+          $transaction->void();
+          unset($form_state['transaction']);
 
-        drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
-        break;
+          drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
+          break;
 
-      case 'line-item-change-price':
-        $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value']);
-        break;
+        case 'line-item-change-price':
+          $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value']);
+          break;
 
-      case 'customer-transaction-update':
-        if (!empty($triggering_element['#value'])) {
-          $transaction->data['customer email'] = $triggering_element['#value'];
-          $transaction->save();
-        }
-        break;
+        case 'customer-transaction-update':
+          if (!empty($triggering_element['#value'])) {
+            $transaction->data['customer email'] = $triggering_element['#value'];
+            $transaction->save();
+          }
+          break;
 
-      default:
-        // If we didn't reach any of the above, it means we don't need to reload the order.
-        $form_state['order_updated'] = FALSE;
+        default:
+          // If we didn't reach any of the above, it means we don't need to reload the order.
+          $form_state['order_updated'] = FALSE;
+      }
+
+      // See API documentation for explain of this hook.
+      drupal_alter('commerce_pos_sale_form_ajax', $form_state, $triggering_element);
     }
   }
 }

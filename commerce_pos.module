@@ -192,6 +192,11 @@ function commerce_pos_entity_info_alter(&$entity_info) {
     'label' => t('POS'),
     'custom settings' => TRUE,
   );
+
+  $entity_info['commerce_line_item']['view modes']['commerce_pos'] = array(
+    'label' => t('POS'),
+    'custom settings' => TRUE,
+  );
 }
 
 /**

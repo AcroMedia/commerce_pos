@@ -65,7 +65,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
   /**
    * Retrieves the existing amount for a discount on a line item, if one exists.
    */
-  public function getExistingDiscountAmount($line_item_id, $discount_name) {
+  public function getExistingLineItemDiscountAmount($line_item_id, $discount_name) {
     if ($line_item = $this->transaction->invokeBaseMethod('getLineItem', $line_item_id)) {
 
       $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
@@ -86,15 +86,30 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
   }
 
   /**
+   * Retrieves the existing amount for a transaction order's discount amount.
+   */
+  public function getExistingOrderDiscountAmount() {
+    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
+      foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+        if ($line_item_wrapper->type->value() == 'commerce_pos_discount') {
+          return number_format(abs($line_item_wrapper->commerce_unit_price->amount->value() / 100), 2);
+        }
+      }
+    }
+
+    return 0;
+  }
+
+  /**
    * Retrieves a display name for a specific discount type.
    */
   protected function getDiscountComponentTitle($discount_name) {
     switch ($discount_name) {
       case self::LINE_ITEM_DISCOUNT_NAME:
-        return t('POS Line item discount');
+        return t('Line item discount');
 
       case self::ORDER_DISCOUNT_NAME:
-        return t('POS Order discount');
+        return t('Order discount');
 
       default:
         return FALSE;
@@ -141,11 +156,8 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
         else {
           // Discount amount is 0, make sure we remove any existing POS
           // discounts on the order.
-          $this->removeDiscountComponents($wrapper->commerce_unit_price, $discount_name);
+          $this->removeOrderDiscountLineItems();
         }
-
-        // Update the total order price, for the next rules condition (if any).
-        commerce_order_calculate_total($wrapper->value());
 
         break;
 
@@ -205,11 +217,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
         else {
           // Discount amount is 0, make sure we remove any existing POS
           // discounts on the order.
-          $this->removeDiscountComponents($wrapper->commerce_unit_price, $discount_name);
+          $this->removeOrderDiscountLineItems();
         }
 
-        // Update the total order price, for the next rules condition (if any).
-        commerce_order_calculate_total($wrapper->value());
         break;
 
       case 'commerce_line_item':
@@ -253,7 +263,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
   protected function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_price) {
     $modified_existing = FALSE;
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-      if ($line_item_wrapper->getBundle() == 'commerce_discount') {
+      if ($line_item_wrapper->getBundle() == 'commerce_pos_discount') {
         // Add the discount component price if the line item was originally
         // added by discount module.
         $line_item = $line_item_wrapper->value();
@@ -281,7 +291,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
   protected function addLineItem(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_amount) {
     // Create a new line item.
     $values = array(
-      'type' => 'commerce_discount',
+      'type' => 'commerce_pos_discount',
       'order_id' => $order_wrapper->order_id->value(),
       'quantity' => 1,
       // Flag the line item.
@@ -330,7 +340,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
 
     $discount_amount['data'] = array(
       'discount_name' => $discount_name,
-      'discount_component_title' => $this->getDiscountComponentTitle($discount_name),
+      'pos_discount_component_title' => $this->getDiscountComponentTitle($discount_name),
     );
 
     // Set the new unit price.
@@ -338,7 +348,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
 
     // Add the discount amount as a price component.
     $price = $line_item_wrapper->commerce_unit_price->value();
-    $type = empty($component_title) ? 'discount' : check_plain('discount|' . $discount_name);
+    $type = check_plain('discount|' . $discount_name);
     $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add($price, $type, $discount_amount, TRUE, TRUE);
 
     // Update the line item total.
@@ -372,7 +382,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
       'currency_code' => $discount_amount['currency_code'],
       'data' => array(
         'discount_name' => $discount_name,
-        'discount_component_title' => $this->getDiscountComponentTitle($discount_name),
+        'pos_discount_component_title' => $this->getDiscountComponentTitle($discount_name),
       ),
     );
 
@@ -380,7 +390,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
     $line_item_wrapper->commerce_unit_price->amount = $updated_amount;
     // Add the discount amount as a price component.
     $price = $line_item_wrapper->commerce_unit_price->value();
-    $type = empty($component_title) ? 'discount' : check_plain('discount|' . $discount_name);
+    $type = check_plain('discount|' . $discount_name);
     $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add($price, $type, $difference, TRUE, TRUE);
 
     // Update the line item total.
@@ -416,6 +426,26 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
     $line_item_wrapper->commerce_total->data = $unit_price['data'];
     // Reset the cache because we aren't saving it.
     entity_get_controller('commerce_line_item')->resetCache(array($line_item_wrapper->getIdentifier()));
+  }
+
+  /**
+   * Removes all POS discount line items from an order.
+   */
+  protected function removeOrderDiscountLineItems() {
+    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
+      $line_items_to_delete = array();
+
+      foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
+        if ($line_item_wrapper->type->value() == 'commerce_pos_discount') {
+          $order_wrapper->commerce_line_items->offsetUnset($delta);
+          $line_items_to_delete[] = $line_item_wrapper->line_item_id->value();
+        }
+      }
+
+      if ($line_items_to_delete) {
+        commerce_line_item_delete_multiple($line_items_to_delete);
+      }
+    }
   }
 
   /**

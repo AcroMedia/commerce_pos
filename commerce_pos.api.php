@@ -36,3 +36,21 @@ function hook_commerce_pos_transaction_base_info() {
     ),
   );
 }
+
+/**
+ * Allows modules to act upon the main POS sales form AJAX submission.
+ *
+ * While this is technically possible already through the use of hook_form_alter,
+ * this hook allows other modules to set $form_state['transaction_updated'] to
+ * TRUE to force the form to reload the transaction and recalculate order
+ * totals.
+ *
+ * @param array $form_state
+ *   The drupal form API form state variable.
+ * @param array $triggering_element
+ *   The element that triggered the AJAX submission. Available directly in the
+ *   $form_state variable, but provided for ease-of-use.
+ */
+function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_element) {
+
+}
