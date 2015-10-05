@@ -6,4 +6,6 @@ package = Commerce POS
 dependencies[] = commerce_discount
 dependencies[] = commerce_pos
 
+files[] = classes/CommercePosDiscountBase.php
+
 configure = admin/commerce/config/pos

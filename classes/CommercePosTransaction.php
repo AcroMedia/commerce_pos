@@ -18,6 +18,7 @@ class CommercePosTransaction {
 
   protected $bases = array();
   protected $order = FALSE;
+  protected $orderWrapper = FALSE;
 
   /**
    * Constructor.
@@ -39,22 +40,38 @@ class CommercePosTransaction {
       throw new Exception(t('Cannot initialize POS transaction: invalid arguments supplied.'));
     }
 
-    foreach (module_invoke_all('commerce_pos_transaction_base_info') as $base_info) {
-      $this->bases[] = new $base_info['class']($this);
-    }
+    $this->collectBases();
   }
 
   /**
    * @param $action_name
-   * @param $params
+   * [...arguments] any additional arguments will be passed to the method.
    *
-   * @return mixed.
+   * @return mixed
+   * @throws \Exception
    */
-  public function invokeBaseAction($action_name, $params = array()) {
+  public function invokeBaseMethod($action_name) {
+    $result = FALSE;
+    $called = FALSE;
+
+    // @TODO: this should probably be able to handle calling the same method on
+    // multiple base classes. Or potentially hook into the result?
     foreach ($this->bases as $base_class) {
       if (is_callable(array($base_class, $action_name))) {
-        return call_user_func_array(array($base_class, $action_name), $params);
+        $args = array_slice(func_get_args(), 1);
+        $result = call_user_func_array(array($base_class, $action_name), $args);
+        $called = TRUE;
+        break;
       }
+    }
+
+    if ($called === FALSE) {
+      throw new Exception(t('The transaction base method @name does not exist.', array(
+        '@name' => $action_name,
+      )));
+    }
+    else {
+      return $result;
     }
   }
 
@@ -96,11 +113,37 @@ class CommercePosTransaction {
   }
 
   /**
+   * Retrieves the entity metadata wrapper for this transaction's order.
+   *
+   * The order wrapper is made available as a property on the object because
+   * it's used so often by subclasses and other functionality, so there's no
+   * point in creating a new wrapper all of the time.
+   */
+  public function getOrderWrapper() {
+    if ($this->orderId) {
+      if (!$this->orderWrapper) {
+        $this->loadOrder();
+      }
+
+      return $this->orderWrapper;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
    * Loads the associated commerce order from the database.
    */
   public function loadOrder() {
     if ($this->orderId) {
-      return $this->order = commerce_order_load($this->orderId);
+      $this->order = commerce_order_load($this->orderId);
+
+      if ($this->order) {
+        $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
+      }
+
+      return $this->order;
     }
     else {
       throw new Exception(t('Cannot load order for POS transaction, it does not have an order ID!'));
@@ -463,6 +506,20 @@ class CommercePosTransaction {
     }
     else {
       throw new Exception(t('Cannot load POS transaction: it does not have a transaction ID!'));
+    }
+  }
+
+  /**
+   * Checks for any modules defining additional base classes to be added to this
+   * transaction.
+   */
+  private function collectBases() {
+    foreach (module_invoke_all('commerce_pos_transaction_base_info') as $base_info) {
+      // Only add the base class if it belongs to this type, or if it didn't
+      // specify any types that it belongs to.
+      if (!isset($base_info['types']) || in_array($this->type, $base_info['types'])) {
+        $this->bases[] = new $base_info['class']($this);
+      }
     }
   }
 }

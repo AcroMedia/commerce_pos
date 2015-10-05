@@ -10,9 +10,25 @@ function commerce_pos_discount_init() {
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_discount_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_discount_base' => array(
+      'class' => 'CommercePosDiscountBase',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+      ),
+    ),
+  );
+}
+
+/**
  * Implements hook_form_FORM_ID_alter().
  */
 function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state) {
+  commerce_pos_discount_ajax_check($form, $form_state);
+
   if (isset($form['wrapper']['line_items'])) {
     foreach (element_children($form['wrapper']['line_items']) as $line_item_id) {
       $line_item_element = &$form['wrapper']['line_items'][$line_item_id];
@@ -25,13 +41,13 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
       $line_item_element['discounts']['toggle_discount'] = array(
         '#type' => 'button',
         '#value' => t('Discount'),
+        '#line_item_id' => $line_item_id,
+        '#element_key' => 'toggle-discount',
+        '#name' => 'commerce-pos-discount-toggle-discount-' . $line_item_id,
         '#ajax' => array(
           'wrapper' => 'commerce-pos-discount-wrapper',
           'callback' => 'commerce_pos_discount_add_discount_js',
         ),
-        '#line_item_id' => $line_item_id,
-        '#element_key' => 'toggle-discount',
-        '#name' => 'commerce-pos-discount-toggle-discount-' . $line_item_id,
       );
 
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
@@ -47,7 +63,7 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 5,
-          '#default_value' => 0,
+          '#default_value' => $form_state['transaction']->invokeBaseMethod('getExistingDiscountAmount', $line_item_id, CommercePosDiscountBase::LINE_ITEM_DISCOUNT_NAME),
         );
 
         $line_item_element['discounts']['add_discount']['percent_discount'] = array(
@@ -56,16 +72,53 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#element_key' => 'add-percent-discount',
           '#line_item_id' => $line_item_id,
           '#name' => 'commerce-pos-discount-percent-discount-' . $line_item_id,
+          '#ajax' => array(
+            'wrapper' => 'commerce-pos-discount-wrapper',
+            'callback' => 'commerce_pos_discount_add_discount_js',
+          ),
         );
 
-        $line_item_element['discounts']['add_discount']['flat_discount'] = array(
+        $line_item_element['discounts']['add_discount']['fixed_discount'] = array(
           '#type' => 'button',
-          '#value' => '%',
-          '#element_key' => 'add-flat-discount',
+          '#value' => '$',
+          '#element_key' => 'add-fixed-discount',
           '#line_item_id' => $line_item_id,
-          '#name' => 'commerce-pos-discount-flat-discount-' . $line_item_id,
+          '#name' => 'commerce-pos-discount-fixed-discount-' . $line_item_id,
+          '#ajax' => array(
+            'wrapper' => 'commerce-pos-discount-wrapper',
+            'callback' => 'commerce_pos_discount_add_discount_js',
+          ),
         );
       }
+    }
+  }
+}
+
+/**
+ * Look for AJAX submissions and act accordingly.
+ */
+function commerce_pos_discount_ajax_check($form, &$form_state) {
+  if (!empty($form_state['triggering_element']['#element_key'])) {
+    $triggering_element = $form_state['triggering_element'];
+
+    switch ($triggering_element['#element_key']) {
+      case 'add-percent-discount':
+      case 'add-fixed-discount':
+        $discount_amount = $form_state['values']['line_items'][$triggering_element['#line_item_id']]['discounts']['add_discount']['amount'];
+
+        if ($triggering_element['#element_key'] == 'add-percent-discount') {
+          $discount_type = 'percent';
+        }
+        else {
+          $discount_type = 'fixed';
+          // Convert the amount into cents, as we expected it to be provided
+          // in dollars.
+          $discount_amount *= 100;
+        }
+
+        $form_state['transaction']->invokeBaseMethod('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
+        $form_state['order_updated'] = TRUE;
+        break;
     }
   }
 }
@@ -74,7 +127,6 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
  * AJAX callback for the "Add Discount" buttons.
  */
 function commerce_pos_discount_add_discount_js($form, &$form_state) {
-  dpm($form_state, '$form_state');
   $line_item_id = $form_state['triggering_element']['#line_item_id'];
   return $form['wrapper']['line_items'][$line_item_id]['discounts'];
 }

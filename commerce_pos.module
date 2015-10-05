@@ -127,6 +127,10 @@ function commerce_pos_commerce_pos_transaction_base_info() {
   return array(
     'commerce_pos_transaction_base_actions' => array(
       'class' => 'CommercePosTransactionBaseActions',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
     ),
   );
 }
