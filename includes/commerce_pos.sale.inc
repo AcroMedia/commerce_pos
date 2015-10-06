@@ -488,5 +488,7 @@ function commerce_pos_sale_pay($form, &$form_state) {
     '#tree' => TRUE,
   );
 
+
+
   return $form;
 }
