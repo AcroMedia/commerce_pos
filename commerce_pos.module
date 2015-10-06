@@ -218,25 +218,48 @@ function commerce_pos_entity_info_alter(&$entity_info) {
  * Implements hook_form_FORM_ID_alter().
  */
 function commerce_pos_form_commerce_cop_edit_payment_form_alter(&$form, &$form_state) {
-  dpm($form);
+  $pos_default = 0;
+
+  if (!empty($form['id']['#default_value'])) {
+    $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
+    $payment_id = $form['id']['#default_value'];
+
+    if (in_array($payment_id, $enabled_payment_methods)) {
+      $pos_default = 1;
+    }
+  }
 
   $form['pos'] = array(
     '#type' => 'checkbox',
     '#title' => t('Available on POS'),
     '#description' => t('TRUE or FALSE indicating whether or not this payment method can be used in the POS interface.'),
+    '#default_value' => $pos_default,
   );
 
   $form['actions']['#weight'] = 50;
 
-  $form['actions']['save']['#submit'][] = 'commerce_pos_cop_edit_form_submit';
+  $form['#submit'][] = 'commerce_pos_cop_edit_form_submit';
 }
 
 /**
  * Additional submit handler for the Commerce COP payment method form.
  *
- * This looks to see whether the "Available POS" checkbox was checked or not,
- *
+ * This looks to see whether the "Available POS" checkbox was checked or not
+ * and add/removes the payment method from the list of enabled methods for the
+ * POS.
  */
+function commerce_pos_cop_edit_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['pos'])) {
+    $payment_method_id = $form_state['values']['id'];
+
+    if (!empty($form_state['values']['pos'])) {
+      commerce_pos_enable_payment_method($payment_method_id);
+    }
+    else {
+      commerce_pos_disable_payment_method($payment_method_id);
+    }
+  }
+}
 
 /**
  * Retrieves a list of Commerce Custom Offline Payment methods that are enabled
@@ -249,7 +272,7 @@ function commerce_pos_get_payment_methods() {
   $enabled_pos_methods = array();
 
   foreach ($cop_payment_methods as $method_id => $payment_method) {
-    if (in_array($method_id, $enabled_payment_methods)) {
+    if (!empty($payment_method['status']) && in_array($method_id, $enabled_payment_methods)) {
       $enabled_pos_methods[$method_id] = $payment_method;
     }
   }

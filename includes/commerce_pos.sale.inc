@@ -450,6 +450,12 @@ function commerce_pos_sale_pay_submit($form, &$form_state) {
 function commerce_pos_sale_pay($form, &$form_state) {
   global $user;
 
+  $payment_methods = commerce_pos_get_payment_methods();
+
+  if (empty($payment_methods)) {
+    drupal_set_message(t('No payment methods have been configured for the POS!'), 'error');
+  }
+
   if (!isset($form_state['transaction'])) {
     if ($transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
       $order = $transaction->getOrder();
@@ -488,29 +494,53 @@ function commerce_pos_sale_pay($form, &$form_state) {
     '#tree' => TRUE,
   );
 
-  $form['calculator'] = array(
-    '#markup' => '<div class="thevault-pos-calculator">Calculator</div>',
+  $payment_ajax = array(
+    'wrapper' => 'commerce-pos-sale-keypad-wrapper',
+    'callback' => 'commerce_pos_sale_pay_keypad_js',
+    'effect' => 'fade',
   );
+
+  foreach ($payment_methods as $payment_method) {
+    $form['payment_options'][$payment_method['id']] = array(
+      '#type' => 'button',
+      '#value' => $payment_method['title'],
+      '#name' => 'commerce-pos-payment-method-' . $payment_method['id'],
+      '#ajax' => $payment_ajax,
+      '#payment_method_id' => $payment_method['id'],
+    );
+  }
 
   $form['keypad'] = array(
     '#type' => 'container',
-    '#id' => 'commerce-pos-keypad',
+    '#id' => 'commerce-pos-sale-keypad-wrapper',
     '#tree' => TRUE,
   );
 
-  $form['keypad']['amount'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Enter Cash Amount'),
-  );
+  if (!empty($form_state['triggering_element']['#payment_method_id'])) {
+    $method_id = $form_state['triggering_element']['#payment_method_id'];
 
-  $form['keypad']['add'] = array(
-    '#type' => 'submit',
-    '#value' => t('add'),
-    '#name' => 'commerce-pos-pay-keypad-add',
-  );
+    $form['keypad']['amount'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Enter @title Amount', array(
+        '@title' => $payment_methods[$method_id]['title'],
+      )),
+    );
+
+    $form['keypad']['add'] = array(
+      '#type' => 'submit',
+      '#value' => t('add'),
+      '#name' => 'commerce-pos-pay-keypad-add',
+    );
+  }
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.pay.js';
 
-
   return $form;
+}
+
+/**
+ * AJAX callback for the Pay form keypad.
+ */
+function commerce_pos_sale_pay_keypad_js($form, &$form_state) {
+  return $form['keypad'];
 }
