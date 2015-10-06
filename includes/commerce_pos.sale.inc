@@ -488,6 +488,28 @@ function commerce_pos_sale_pay($form, &$form_state) {
     '#tree' => TRUE,
   );
 
+  $form['calculator'] = array(
+    '#markup' => '<div class="thevault-pos-calculator">Calculator</div>',
+  );
+
+  $form['keypad'] = array(
+    '#type' => 'container',
+    '#id' => 'commerce-pos-keypad',
+    '#tree' => TRUE,
+  );
+
+  $form['keypad']['amount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Enter Cash Amount'),
+  );
+
+  $form['keypad']['add'] = array(
+    '#type' => 'submit',
+    '#value' => t('add'),
+    '#name' => 'commerce-pos-pay-keypad-add',
+  );
+
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.pay.js';
 
 
   return $form;
