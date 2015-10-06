@@ -26,5 +26,5 @@ function commerce_pos_receipt_print($transaction_id) {
     'content' => $receipt,
   );
 
-  return array('#type' => 'ajax', '#commands' => $commands);
+  ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
 }

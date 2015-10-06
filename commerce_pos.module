@@ -233,6 +233,9 @@ function commerce_pos_form_commerce_cop_edit_payment_form_alter(&$form, &$form_s
 
 /**
  * Additional submit handler for the Commerce COP payment method form.
+ *
+ * This looks to see whether the "Available POS" checkbox was checked or not,
+ *
  */
 
 /**
