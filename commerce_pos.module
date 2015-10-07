@@ -94,12 +94,21 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['admin/config/store/pos'] = array(
+  $items['admin/commerce/config/pos'] = array(
+    'title' => 'Point of Sale',
+    'description' => 'Administer POS.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('access administration pages'),
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+    'weight' => -7,
+  );
+
+  $items['admin/commerce/config/pos/settings'] = array(
     'title' => 'Point of Sale Settings',
     'page callback' => 'commerce_pos_settings',
     'access arguments' => array('administer commerce pos'),
     'file '=> 'includes/commerce_pos.admin.inc',
-    'type' => MENU_NORMAL_ITEM,
   );
 
   return $items;
@@ -511,7 +520,6 @@ function commerce_pos_balance_summary_rows($totals, $order) {
   return $rows;
 }
 
-
 /**
  * Returns a summary view of a POS transaction's order.
  */
@@ -519,4 +527,68 @@ function commerce_pos_balance_summary($order) {
   // @TODO: this view should be included as a default view in the module,
   // export it via features.
   return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
+}
+
+/**
+ * Searches for products using the provided keyword(s).
+ */
+function commerce_pos_product_lookup($keywords) {
+  $result = NULL;
+
+  // Allow other modules to perform lookups before we fall back to the default.
+  drupal_alter('commerce_pos_product_lookup', $result, $keywords);
+
+  if ($result === NULL) {
+    // No modules had results, search normally.
+    $query = 'SELECT product_id FROM {commerce_product}
+    WHERE sku = :term
+    OR title LIKE :term_like
+    ORDER BY title ASC
+    LIMIT 5';
+
+    $db_result = db_query($query, array(
+      ':term' => $keywords,
+      ':term_like' => db_like($keywords) . '%',
+    ));
+
+    foreach ($db_result as $row) {
+      $result[] = $row->product_id;
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Builds an array of product data for the product autocomplete.
+ */
+function _commerce_pos_product_autocomplete_build($product_id) {
+  $data = FALSE;
+
+  if ($product = commerce_product_load($product_id)) {
+    $stock = NULL;
+    $image = NULL;
+
+    // Note: an entity_metadata_wrapper is not used here for the sake of speed.
+    if ($stock = field_get_items('commerce_product', $product, 'commerce_stock')) {
+      $stock = !empty($stock[0]['value']) ? $stock[0]['value'] : 0;
+    }
+
+    if ($variation_images = field_get_items('commerce_product', $product, 'field_variation_images')) {
+      $image = !empty($variation_images[0]['uri']) ? file_create_url($variation_images[0]['uri']) : NULL;
+    }
+
+    $price = commerce_product_calculate_sell_price($product);
+    $price = commerce_currency_format($price['amount'], $price['currency_code']);
+
+    $data = array(
+      'title' => $product->title,
+      'sku' => $product->sku,
+      'price' => $price,
+      'stock' => (int) $stock,
+      'image' => $image,
+    );
+  }
+
+  return $data;
 }

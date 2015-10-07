@@ -70,37 +70,3 @@ function commerce_pos_user_autocomplete($string  = '') {
 
   drupal_json_output($matches);
 }
-
-/**
- * Builds an array of product data for the product autocomplete.
- */
-function _commerce_pos_product_autocomplete_build($product_id) {
-  $data = FALSE;
-
-  if ($product = commerce_product_load($product_id)) {
-    $stock = NULL;
-    $image = NULL;
-
-    // Note: an entity_metadata_wrapper is not used here for the sake of speed.
-    if ($stock = field_get_items('commerce_product', $product, 'commerce_stock')) {
-      $stock = !empty($stock[0]['value']) ? $stock[0]['value'] : 0;
-    }
-
-    if ($variation_images = field_get_items('commerce_product', $product, 'field_variation_images')) {
-      $image = !empty($variation_images[0]['uri']) ? file_create_url($variation_images[0]['uri']) : NULL;
-    }
-
-    $price = commerce_product_calculate_sell_price($product);
-    $price = commerce_currency_format($price['amount'], $price['currency_code']);
-
-    $data = array(
-      'title' => $product->title,
-      'sku' => $product->sku,
-      'price' => $price,
-      'stock' => (int) $stock,
-      'image' => $image,
-    );
-  }
-
-  return $data;
-}

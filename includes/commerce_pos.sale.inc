@@ -56,6 +56,32 @@ function commerce_pos_sale($form, &$form_state) {
 
   $wrapper = &$form['wrapper'];
 
+  $wrapper['product_input'] = array(
+    '#type' => 'textfield',
+    '#title' => t('product new one!'),
+    '#size' => 60,
+    '#ajax' => $wrapper_ajax,
+    '#element_key' => 'product-input',
+  );
+
+  if (!empty($form_state['lookup_result'])) {
+    $wrapper['product_results'] = array(
+      '#type' => 'container',
+      '#id' => 'commerce-pos-pay-product-results-wrapper',
+      '#theme' => 'commerce_pos_product_results',
+      '#products' => $form_state['lookup_result'],
+    );
+
+    foreach ($form_state['lookup_result'] as $product_id) {
+      $wrapper['product_results'][$product_id] = array(
+        '#type' => 'button',
+        '#value' => t('add'),
+        '#name' => 'commerce-pos-pay-product-results-' . $product_id,
+        '#product_id' => $product_id,
+      );
+    }
+  }
+
   $wrapper['product_search'] = array(
     '#type' => 'textfield',
     '#title' => 'product',
@@ -395,6 +421,21 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
           }
           break;
 
+        case 'product-input':
+          $keywords = $triggering_element['#value'];
+          if ($lookup_result = commerce_pos_product_lookup($keywords)) {
+            if (is_array($lookup_result)) {
+              // Got a set of results back, need to present the options to the user.
+              $form_state['lookup_result'] = $lookup_result;
+            }
+            else {
+              // Got a straight up product ID back, just add it to the order.
+              $product = commerce_product_load($lookup_result);
+              $transaction->addProduct($product);
+            }
+          }
+          break;
+
         default:
           // If we didn't reach any of the above, it means we don't need to reload the order.
           $form_state['order_updated'] = FALSE;
@@ -564,7 +605,7 @@ function commerce_pos_sale_pay($form, &$form_state) {
   $form['balance']['actions']['finish'] = array(
     '#type' => 'submit',
     '#value' => t('Finish'),
-    '#disabled' => $order_balance > 0,
+    '#disabled' => $order_balance['amount'] > 0,
     '#validate' => array('commerce_pos_sale_pay_validate'),
     '#submit' => array('commerce_pos_sale_pay_finish'),
   );
@@ -575,8 +616,9 @@ function commerce_pos_sale_pay($form, &$form_state) {
   );
 
   $form['balance']['actions']['void'] = array(
-    '#type' => 'button',
-    '#value' => t('Park'),
+    '#type' => 'submit',
+    '#value' => t('Void'),
+    '#submit' => array('commerce_pos_sale_pay_void_submit'),
   );
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.pay.js';
@@ -589,6 +631,13 @@ function commerce_pos_sale_pay($form, &$form_state) {
  */
 function commerce_pos_sale_pay_keypad_js($form, &$form_state) {
   return $form['keypad'];
+}
+
+/**
+ * AJAX callback for the Pay form's wrapper.
+ */
+function commerce_pos_sale_pay_wrapper_js($form, &$form_state) {
+  return $form;
 }
 
 /**
@@ -616,15 +665,17 @@ function commerce_pos_sale_pay_add_payment_submit($form, &$form_state) {
 }
 
 /**
- * AJAX callback for the Pay form's wrapper.
+ * Submit handler for the "Void" button.
  */
-function commerce_pos_sale_pay_wrapper_js($form, &$form_state) {
-  return $form;
+function commerce_pos_sale_pay_void_submit($form, &$form_state) {
+  $form_state['transaction']->void();
+  $form_state['redirect'] = 'pos/sale';
 }
 
 /**
  * Submit handler for the pay form's "Finish" button.
  */
 function commerce_pos_sale_pay_finish($form, &$form_state) {
-  // complete the order, trigger a receipt print, boot as back to the "sale" page.
+  // @TODO: need to mark the order as completed, add a "change" line item if
+  // necessary, print the receipt, and redirect back to the "Sale" form.
 }
