@@ -452,17 +452,24 @@ function commerce_pos_sale_pay($form, &$form_state) {
 
   $payment_methods = commerce_pos_get_payment_methods();
 
+  $form['#prefix'] = '<div id="commerce-pos-pay-form-wrapper">';
+  $form['#suffix'] = '</div>';
+  $form_ajax = array(
+    'wrapper' => 'commerce-pos-pay-form-wrapper',
+    'callback' => 'commerce_pos_sale_pay_wrapper_js',
+  );
+
   if (empty($payment_methods)) {
     drupal_set_message(t('No payment methods have been configured for the POS!'), 'error');
   }
 
   if (!isset($form_state['transaction'])) {
     if ($transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
-      $order = $transaction->getOrder();
+      $order_wrapper = $transaction->getOrderWrapper();
 
-      if ($order && $order->status == 'commerce_pos_in_progress' ) {
+      if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress' ) {
         $form_state['transaction'] = $transaction;
-        $form_state['order_wrapper'] = entity_metadata_wrapper('commerce_order', $order);
+        $form_state['order_wrapper'] = $order_wrapper;
       }
     }
   }
@@ -514,6 +521,7 @@ function commerce_pos_sale_pay($form, &$form_state) {
     '#type' => 'container',
     '#id' => 'commerce-pos-sale-keypad-wrapper',
     '#tree' => TRUE,
+    '#theme' => 'commerce_pos_keypad',
   );
 
   if (!empty($form_state['triggering_element']['#payment_method_id'])) {
@@ -524,14 +532,52 @@ function commerce_pos_sale_pay($form, &$form_state) {
       '#title' => t('Enter @title Amount', array(
         '@title' => $payment_methods[$method_id]['title'],
       )),
+      '#required' => TRUE,
     );
 
     $form['keypad']['add'] = array(
       '#type' => 'submit',
       '#value' => t('add'),
       '#name' => 'commerce-pos-pay-keypad-add',
+      '#validate' => array('commerce_pos_sale_pay_add_payment_validate'),
+      '#submit' => array('commerce_pos_sale_pay_add_payment_submit'),
+      '#ajax' => $form_ajax,
+      '#payment_method_id' => $method_id,
     );
   }
+
+  $form['balance'] = array(
+    '#type' => 'container',
+    '#id' => 'commerce-pos-pay-balance-wrapper',
+  );
+
+  $form['balance']['summary'] = array(
+    '#markup' => commerce_pos_balance_summary($form_state['order_wrapper']->value()),
+  );
+
+  $form['balance']['actions'] = array(
+    '#type' => 'actions',
+  );
+
+  $order_balance = commerce_payment_order_balance($form_state['order_wrapper']->value());
+
+  $form['balance']['actions']['finish'] = array(
+    '#type' => 'submit',
+    '#value' => t('Finish'),
+    '#disabled' => $order_balance > 0,
+    '#validate' => array('commerce_pos_sale_pay_validate'),
+    '#submit' => array('commerce_pos_sale_pay_finish'),
+  );
+
+  $form['balance']['actions']['park'] = array(
+    '#type' => 'button',
+    '#value' => t('Park'),
+  );
+
+  $form['balance']['actions']['void'] = array(
+    '#type' => 'button',
+    '#value' => t('Park'),
+  );
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.pay.js';
 
@@ -543,4 +589,42 @@ function commerce_pos_sale_pay($form, &$form_state) {
  */
 function commerce_pos_sale_pay_keypad_js($form, &$form_state) {
   return $form['keypad'];
+}
+
+/**
+ * Validation handler for the "Add" payment button.
+ */
+function commerce_pos_sale_pay_add_payment_validate($form, &$form_state) {
+  if (!is_numeric($form_state['values']['keypad']['amount'])) {
+    form_set_error('keypad][amount', t('Payment amount must be a number.'));
+  }
+}
+
+/**
+ * Submit handler for the "Add" payment button.
+ */
+function commerce_pos_sale_pay_add_payment_submit($form, &$form_state) {
+  $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
+  $order_wrapper = $form_state['transaction']->getOrderWrapper();
+  $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_wrapper->order_id->value());
+  $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
+  $transaction->amount = $form_state['values']['keypad']['amount'] * 100;
+  $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+  $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+  $transaction->message = '';
+  commerce_payment_transaction_save($transaction);
+}
+
+/**
+ * AJAX callback for the Pay form's wrapper.
+ */
+function commerce_pos_sale_pay_wrapper_js($form, &$form_state) {
+  return $form;
+}
+
+/**
+ * Submit handler for the pay form's "Finish" button.
+ */
+function commerce_pos_sale_pay_finish($form, &$form_state) {
+  // complete the order, trigger a receipt print, boot as back to the "sale" page.
 }

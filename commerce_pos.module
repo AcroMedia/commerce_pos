@@ -132,6 +132,31 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'template' => 'commerce-pos-sale-pay',
       'path' => $path . '/theme',
     ),
+    'commerce_pos_keypad' => array(
+      'render element' => 'element',
+      'template' => 'commerce-pos-keypad',
+      'path' => $path . '/theme',
+    ),
+    'commerce_pos_transaction_balance' => array(
+      'template' => 'commerce-pos-transaction-balance',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'rows' => array(),
+        'form' => NULL,
+        'totals' => array(),
+        'view' => NULL
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_pos_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_pos') . '/includes/views',
   );
 }
 
@@ -212,6 +237,109 @@ function commerce_pos_entity_info_alter(&$entity_info) {
     'label' => t('POS'),
     'custom settings' => TRUE,
   );
+}
+
+/**
+ * Implements hook_commerce_pos_balance_summary_row_info().
+ *
+ * Taken from commerce_payment_commerce_payment_totals_row_info().
+ */
+function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order) {
+  $rows = array();
+
+  if (count($totals) == 0) {
+    // Add a row for the remaining balance on the order.
+    if ($order) {
+      $balance = commerce_payment_order_balance($order, $totals);
+
+      $rows[] = array(
+        'data' => array(
+          array('data' => t('To pay'), 'class' => array('label')),
+          array('data' => commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']), 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay'),
+        'weight' => 10,
+      );
+
+      if ($balance['amount'] < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change'), 'class' => array('label')),
+            array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
+          ),
+          'class' => array('order-change'),
+          'weight' => 15,
+        );
+      }
+    }
+  }
+  elseif (count($totals) == 1) {
+    // Otherwise if there's only a single currency total...
+    $currency_code = key($totals);
+
+    // Add a row for the total amount paid.
+    $rows[] = array(
+      'data' => array(
+        array('data' => t('Total paid'), 'class' => array('label')),
+        array('data' => commerce_currency_format($totals[$currency_code], $currency_code), 'class' => array('total')),
+      ),
+      'class' => array('total-paid'),
+      'weight' => 0,
+    );
+
+    // Add a row for the remaining balance on the order.
+    if ($order) {
+      // @todo Fix for when there's a FALSE $balance.
+      $balance = commerce_payment_order_balance($order, $totals);
+
+      $rows[] = array(
+        'data' => array(
+          array('data' => t('To pay'), 'class' => array('label')),
+          array('data' => commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']), 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay'),
+        'weight' => 10,
+      );
+
+      if ($balance['amount'] < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change'), 'class' => array('label')),
+            array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
+          ),
+          'class' => array('order-change'),
+          'weight' => 15,
+        );
+      }
+    }
+  }
+  else {
+    $weight = 0;
+
+    foreach ($totals as $currency_code => $amount) {
+      $rows[] = array(
+        'data' => array(
+          array('data' => t('To pay (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
+          array('data' => commerce_currency_format($amount > 0 ? $amount : 0, $currency_code), 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay', 'order-to-pay-' . $currency_code),
+        'weight' => $weight++,
+      );
+
+      if ($amount < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
+            array('data' => commerce_currency_format($amount * -1, $currency_code), 'class' => array('balance')),
+          ),
+          'class' => array('order-change', 'order-change-' . $currency_code),
+          'weight' => $weight++,
+        );
+      }
+    }
+  }
+
+  return $rows;
 }
 
 /**
@@ -356,4 +484,39 @@ function _commerce_pos_access_check($access_arguments) {
   }
 
   return $access;
+}
+
+/**
+ * Returns a sorted array of POS balance table rows.
+ *
+ * @param $totals
+ *   An array of payment totals whose keys are currency codes and values are the
+ *     total amount paid in each currency.
+ * @param $order
+ *   If available, the order object to which the payments apply.
+ *
+ * @return
+ *   An array of table row data as expected by theme_table().
+ *
+ * @see hook_commerce_payment_totals_row_info()
+ */
+function commerce_pos_balance_summary_rows($totals, $order) {
+  // Retrieve rows defined by the hook and allow other modules to alter them.
+  $rows = module_invoke_all('commerce_pos_balance_summary_row_info', $totals, $order);
+  drupal_alter('commerce_pos_balance_summary_row_info', $rows, $totals, $order);
+
+  // Sort the rows by weight and return the array.
+  uasort($rows, 'drupal_sort_weight');
+
+  return $rows;
+}
+
+
+/**
+ * Returns a summary view of a POS transaction's order.
+ */
+function commerce_pos_balance_summary($order) {
+  // @TODO: this view should be included as a default view in the module,
+  // export it via features.
+  return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
 }
