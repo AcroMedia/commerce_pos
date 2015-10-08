@@ -46,7 +46,7 @@ function hook_commerce_pos_transaction_base_info() {
  * totals.
  *
  * @param array $form_state
- *   The drupal form API form state variable.
+ *   The Drupal form API form state variable.
  * @param array $triggering_element
  *   The element that triggered the AJAX submission. Available directly in the
  *   $form_state variable, but provided for ease-of-use.
@@ -71,7 +71,7 @@ function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_elemen
  *   Any prior result that another module implementing this hook has found.
  *   If no results have been found yet, this will be NULL.
  * @param $keywords
- *   The keywords for the search.
+ *   The keywords for the search
  */
 function hook_commerce_pos_product_lookup_alter(&$result, $keywords) {
 

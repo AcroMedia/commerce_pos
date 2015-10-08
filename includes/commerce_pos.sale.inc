@@ -36,17 +36,29 @@ function commerce_pos_sale($form, &$form_state) {
   }
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
-
   $has_active_transaction = ($order_wrapper && !empty($order_wrapper->commerce_line_items->value()));
 
   $wrapper_id = 'commerce-pos-sale-wrapper';
+  // Lets other modules easily get the wrapper ID.
+  $form_state['wrapper_id'] = $wrapper_id;
+
   $wrapper_ajax = array(
     'callback' => 'commerce_pos_sale_wrapper_js',
     'wrapper' => $wrapper_id,
   );
 
+  // Determine whether or not the product input should be focused by default.
+  if (empty($form_state['values']) || !empty($form_state['focus_product_input'])) {
+    $focus_product_input = TRUE;
+    unset($form_state['focus_product_input']);
+  }
+  else {
+    $focus_product_input = FALSE;
+  }
+
   $js_settings = array(
     'productAutoCompleteUrl' => url('pos/product/autocomplete'),
+    'focusProductInput' => $focus_product_input,
   );
 
   $form['wrapper'] = array(
@@ -55,14 +67,6 @@ function commerce_pos_sale($form, &$form_state) {
   );
 
   $wrapper = &$form['wrapper'];
-
-  $wrapper['product_input'] = array(
-    '#type' => 'textfield',
-    '#title' => t('product new one!'),
-    '#size' => 60,
-    '#ajax' => $wrapper_ajax,
-    '#element_key' => 'product-input',
-  );
 
   if (!empty($form_state['lookup_result'])) {
     $wrapper['product_results'] = array(
@@ -80,6 +84,8 @@ function commerce_pos_sale($form, &$form_state) {
         '#product_id' => $product_id,
       );
     }
+
+    unset($form_state['lookup_result']);
   }
 
   $wrapper['product_search'] = array(
@@ -87,7 +93,7 @@ function commerce_pos_sale($form, &$form_state) {
     '#title' => 'product',
     '#size' => 60,
     '#attributes' => array(
-      'class' => array('commerce-pos-product-autocomplete'),
+      'class' => array('commerce-pos-product-autocomplete', 'commerce-pos-product-search'),
     ),
   );
 
@@ -374,6 +380,8 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
           if (!empty($product_sku) && $product = commerce_product_load_by_sku($product_sku)) {
             $transaction->addProduct($product);
           }
+
+          $form_state['focus_product_input'] = TRUE;
           break;
 
         case 'line-item-qty':
@@ -423,15 +431,18 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
 
         case 'product-input':
           $keywords = $triggering_element['#value'];
-          if ($lookup_result = commerce_pos_product_lookup($keywords)) {
-            if (is_array($lookup_result)) {
-              // Got a set of results back, need to present the options to the user.
-              $form_state['lookup_result'] = $lookup_result;
-            }
-            else {
-              // Got a straight up product ID back, just add it to the order.
-              $product = commerce_product_load($lookup_result);
-              $transaction->addProduct($product);
+
+          if (!empty($keywords)) {
+            if ($lookup_result = commerce_pos_product_lookup($keywords)) {
+              if (is_array($lookup_result)) {
+                // Got a set of results back, need to present the options to the user.
+                $form_state['lookup_result'] = $lookup_result;
+              }
+              else {
+                // Got a straight up product ID back, just add it to the order.
+                $product = commerce_product_load($lookup_result);
+                $transaction->addProduct($product);
+              }
             }
           }
           break;
@@ -678,4 +689,5 @@ function commerce_pos_sale_pay_void_submit($form, &$form_state) {
 function commerce_pos_sale_pay_finish($form, &$form_state) {
   // @TODO: need to mark the order as completed, add a "change" line item if
   // necessary, print the receipt, and redirect back to the "Sale" form.
+  // Also need to create and/or associate the order with a customer.
 }

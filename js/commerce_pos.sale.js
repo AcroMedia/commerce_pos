@@ -16,6 +16,10 @@
       $('body', context).each(function () {
         $(this).once('commerce-pos-keybindings')
       });
+
+      if (settings.commercePosSale.focusProductInput) {
+        $('.commerce-pos-product-search').focus();
+      }
     }
   };
 
