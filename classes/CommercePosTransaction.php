@@ -182,9 +182,20 @@ class CommercePosTransaction {
    * Adds the specified product to transaction order.
    */
   public function addProduct($product, $quantity = 1, $combine = TRUE) {
+    // First attempt to load the transaction's order.
+    // If no order existed, create one now.
+    if (empty($this->order)) {
+      $order = $this->createNewOrder();
+    }
+    else {
+      $order = $this->order;
+    }
+
     // If the specified product exists...
     // Create a new product line item for it.
-    $line_item = commerce_product_line_item_new($product, $quantity);
+    $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id);
+
+    rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
 
     if (module_exists('commerce_pricing_attributes')) {
       // Hack to prevent the combine logic in addLineItem()
@@ -194,150 +205,6 @@ class CommercePosTransaction {
     }
 
     return $this->addLineItem($line_item, $combine);
-  }
-
-  /**
-   * Adds the specified product to the transaction's order.
-   *
-   * @param $line_item
-   *   An unsaved product line item to be added to the cart with the following data
-   *   on the line item being used to determine how to add the product to the cart:
-   *   - $line_item->commerce_product: reference to the product to add to the cart.
-   *   - $line_item->quantity: quantity of this product to add to the cart.
-   *   - $line_item->data: data array that is saved with the line item if the line
-   *     item is added to the cart as a new item; merged into an existing line
-   *     item if combination is possible.
-   *   - $line_item->order_id: this property does not need to be set when calling
-   *     this function, as it will be set to the specified user's current cart
-   *     order ID.
-   *   Additional field data on the line item may be considered when determining
-   *   whether or not line items can be combined in the cart. This includes the
-   *   line item type, referenced product, and any line item fields that have been
-   *   exposed on the Add to Cart form.
-   * @param $combine
-   *   Boolean indicating whether or not to combine like products on the same line
-   *   item, incrementing an existing line item's quantity instead of adding a
-   *   new line item to the cart order. When the incoming line item is combined
-   *   into an existing line item, field data on the existing line item will be
-   *   left unchanged. Only the quantity will be incremented and the data array
-   *   will be updated by merging the data from the existing line item onto the
-   *   data from the incoming line item, giving precedence to the most recent data.
-   *
-   * @return
-   *   The new or updated line item object or FALSE on failure.
-   */
-  public function addLineItem($line_item, $combine) {
-    // Do not add the line item if it doesn't have a unit price.
-    $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-    if (is_null($line_item_wrapper->commerce_unit_price->value())) {
-      return FALSE;
-    }
-
-    // First attempt to load the customer's shopping cart order.
-    // If no order existed, create one now.
-    if (empty($this->order)) {
-      $order = $this->createNewOrder();
-      $order->data['last_cart_refresh'] = REQUEST_TIME;
-    }
-    else {
-      $order = $this->order;
-    }
-
-    // Set the incoming line item's order_id.
-    $line_item->order_id = $order->order_id;
-
-    // Wrap the order for easy access to field data.
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-
-    // Extract the product and quantity we're adding from the incoming line item.
-    $product = $line_item_wrapper->commerce_product->value();
-    $quantity = $line_item->quantity;
-
-    // Invoke the product prepare event with the shopping cart order.
-    // @TODO: do the same for POS?
-    rules_invoke_all('commerce_cart_product_prepare', $order, $product, $line_item->quantity);
-
-    // Determine if the product already exists on the order and increment its
-    // quantity instead of adding a new line if it does.
-    $matching_line_item = NULL;
-
-    // If we are supposed to look for a line item to combine into...
-    if ($combine) {
-      // Generate an array of properties and fields to compare.
-      $comparison_properties = array('type', 'commerce_product');
-
-      // Add any field that was exposed on the Add to Cart form to the array.
-      // TODO: Bypass combination when an exposed field is no longer available but
-      // the same base product is added to the cart.
-      foreach (field_info_instances('commerce_line_item', $line_item->type) as $info) {
-        if (!empty($info['commerce_cart_settings']['field_access'])) {
-          $comparison_properties[] = $info['field_name'];
-        }
-      }
-
-      // Allow other modules to specify what properties should be compared when
-      // determining whether or not to combine line items.
-      drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, clone($line_item));
-
-      // Loop over each line item on the order.
-      foreach ($order_wrapper->commerce_line_items as $delta => $matching_line_item_wrapper) {
-        // Examine each of the comparison properties on the line item.
-        foreach ($comparison_properties as $property) {
-          // If the property is not present on either line item, bypass it.
-          if (!isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) {
-            continue;
-          }
-
-          // If any property does not match the same property on the incoming line
-          // item or exists on one line item but not the other...
-          if ((!isset($matching_line_item_wrapper->value()->{$property}) && isset($line_item_wrapper->value()->{$property})) ||
-            (isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) ||
-            $matching_line_item_wrapper->{$property}->raw() != $line_item_wrapper->{$property}->raw()) {
-            // Continue the loop with the next line item.
-            continue 2;
-          }
-        }
-
-        // If every comparison line item matched, combine into this line item.
-        $matching_line_item = $matching_line_item_wrapper->value();
-        break;
-      }
-    }
-
-    // If no matching line item was found...
-    if (empty($matching_line_item)) {
-      // Save the incoming line item now so we get its ID.
-      commerce_line_item_save($line_item);
-
-      // Add it to the order's line item reference value.
-      $order_wrapper->commerce_line_items[] = $line_item;
-    }
-    else {
-      // Increment the quantity of the matching line item, update the data array,
-      // and save it.
-      $matching_line_item->quantity += $quantity;
-      $matching_line_item->data = array_merge($line_item->data, $matching_line_item->data);
-
-      commerce_line_item_save($matching_line_item);
-
-      // Clear the line item cache so the updated quantity will be available to
-      // the ensuing load instead of the original quantity as loaded above.
-      entity_get_controller('commerce_line_item')->resetCache(array($matching_line_item->line_item_id));
-
-      // Update the line item variable for use in the invocation and return value.
-      $line_item = $matching_line_item;
-    }
-
-    // Save the updated order.
-    commerce_order_save($order);
-
-    // Invoke the product add event with the newly saved or updated line item.
-    // @TODO: should we invoke this?
-    //rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);
-
-    // Return the line item.
-    return $line_item;
   }
 
   /**
@@ -478,6 +345,149 @@ class CommercePosTransaction {
       $this->order->status = 'commerce_pos_voided';
       commerce_order_save($this->order);
     }
+  }
+
+  /**
+   * Adds the specified product to the transaction's order.
+   *
+   * @param $line_item
+   *   An unsaved product line item to be added to the cart with the following data
+   *   on the line item being used to determine how to add the product to the cart:
+   *   - $line_item->commerce_product: reference to the product to add to the cart.
+   *   - $line_item->quantity: quantity of this product to add to the cart.
+   *   - $line_item->data: data array that is saved with the line item if the line
+   *     item is added to the cart as a new item; merged into an existing line
+   *     item if combination is possible.
+   *   - $line_item->order_id: this property does not need to be set when calling
+   *     this function, as it will be set to the specified user's current cart
+   *     order ID.
+   *   Additional field data on the line item may be considered when determining
+   *   whether or not line items can be combined in the cart. This includes the
+   *   line item type, referenced product, and any line item fields that have been
+   *   exposed on the Add to Cart form.
+   * @param $combine
+   *   Boolean indicating whether or not to combine like products on the same line
+   *   item, incrementing an existing line item's quantity instead of adding a
+   *   new line item to the cart order. When the incoming line item is combined
+   *   into an existing line item, field data on the existing line item will be
+   *   left unchanged. Only the quantity will be incremented and the data array
+   *   will be updated by merging the data from the existing line item onto the
+   *   data from the incoming line item, giving precedence to the most recent data.
+   *
+   * @return
+   *   The new or updated line item object or FALSE on failure.
+   */
+  protected function addLineItem($line_item, $combine) {
+    // Do not add the line item if it doesn't have a unit price.
+    $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+
+    if (is_null($line_item_wrapper->commerce_unit_price->value())) {
+      return FALSE;
+    }
+
+    // First attempt to load the customer's shopping cart order.
+    // If no order existed, create one now.
+    if (empty($this->order)) {
+      throw new Exception(t('Cannot add line item to transaction, it does not have an order created.'));
+    }
+    else {
+      $order = $this->order;
+    }
+
+    // Set the incoming line item's order_id.
+    $line_item->order_id = $order->order_id;
+
+    // Wrap the order for easy access to field data.
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+    // Extract the product and quantity we're adding from the incoming line item.
+    $product = $line_item_wrapper->commerce_product->value();
+    $quantity = $line_item->quantity;
+
+    // Invoke the product prepare event with the shopping cart order.
+    // @TODO: do the same for POS?
+    rules_invoke_all('commerce_cart_product_prepare', $order, $product, $line_item->quantity);
+
+    // Determine if the product already exists on the order and increment its
+    // quantity instead of adding a new line if it does.
+    $matching_line_item = NULL;
+
+    // If we are supposed to look for a line item to combine into...
+    if ($combine) {
+      // Generate an array of properties and fields to compare.
+      $comparison_properties = array('type', 'commerce_product');
+
+      // Add any field that was exposed on the Add to Cart form to the array.
+      // TODO: Bypass combination when an exposed field is no longer available but
+      // the same base product is added to the cart.
+      foreach (field_info_instances('commerce_line_item', $line_item->type) as $info) {
+        if (!empty($info['commerce_cart_settings']['field_access'])) {
+          $comparison_properties[] = $info['field_name'];
+        }
+      }
+
+      // Allow other modules to specify what properties should be compared when
+      // determining whether or not to combine line items.
+      drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, clone($line_item));
+
+      // Loop over each line item on the order.
+      foreach ($order_wrapper->commerce_line_items as $delta => $matching_line_item_wrapper) {
+        // Examine each of the comparison properties on the line item.
+        foreach ($comparison_properties as $property) {
+          // If the property is not present on either line item, bypass it.
+          if (!isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) {
+            continue;
+          }
+
+          // If any property does not match the same property on the incoming line
+          // item or exists on one line item but not the other...
+          if ((!isset($matching_line_item_wrapper->value()->{$property}) && isset($line_item_wrapper->value()->{$property})) ||
+            (isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) ||
+            $matching_line_item_wrapper->{$property}->raw() != $line_item_wrapper->{$property}->raw()) {
+            // Continue the loop with the next line item.
+            continue 2;
+          }
+        }
+
+        // If every comparison line item matched, combine into this line item.
+        $matching_line_item = $matching_line_item_wrapper->value();
+        break;
+      }
+    }
+
+    // If no matching line item was found...
+    if (empty($matching_line_item)) {
+      // Save the incoming line item now so we get its ID.
+      commerce_line_item_save($line_item);
+
+      // Add it to the order's line item reference value.
+      $order_wrapper->commerce_line_items[] = $line_item;
+    }
+    else {
+      // Increment the quantity of the matching line item, update the data array,
+      // and save it.
+      $matching_line_item->quantity += $quantity;
+      $matching_line_item->data = array_merge($line_item->data, $matching_line_item->data);
+
+      commerce_line_item_save($matching_line_item);
+
+      // Clear the line item cache so the updated quantity will be available to
+      // the ensuing load instead of the original quantity as loaded above.
+      entity_get_controller('commerce_line_item')->resetCache(array($matching_line_item->line_item_id));
+
+      // Update the line item variable for use in the invocation and return value.
+      $line_item = $matching_line_item;
+    }
+
+    // Save the updated order.
+    commerce_order_save($order);
+
+    // Invoke the product add event with the newly saved or updated line item.
+    // @TODO: should we invoke this?
+    //rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);
+
+    // Return the line item.
+    return $line_item;
   }
 
   /**

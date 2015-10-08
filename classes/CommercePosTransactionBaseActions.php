@@ -36,9 +36,9 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase {
    */
   public function deleteLineItem($line_item_id, $skip_save = FALSE) {
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
-      foreach ($order_wrapper->commerce_line_items as $key => $line_item_wrapper) {
+      foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
         if ($line_item_wrapper->line_item_id->raw() == $line_item_id) {
-          unset($order_wrapper->commerce_line_items[$key]);
+          $order_wrapper->commerce_line_items->offsetUnset($delta);
           break;
         }
       }
