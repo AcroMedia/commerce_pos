@@ -2,11 +2,12 @@
 
 /**
  * @file
- * Template for the POS "Pay" form.
+ * Default template for the POS "Pay" form.
  *
  * Available variables:
  *  $form
  */
+
 
 ?>
 

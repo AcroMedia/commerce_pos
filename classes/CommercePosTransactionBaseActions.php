@@ -32,6 +32,27 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase {
   }
 
   /**
+   * Removes a line item from the transaction order.
+   */
+  public function deleteLineItem($line_item_id, $skip_save = FALSE) {
+    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
+      foreach ($order_wrapper->commerce_line_items as $key => $line_item_wrapper) {
+        if ($line_item_wrapper->line_item_id->raw() == $line_item_id) {
+          unset($order_wrapper->commerce_line_items[$key]);
+          break;
+        }
+      }
+
+      if (commerce_line_item_delete($line_item_id) && !$skip_save) {
+        $order_wrapper->save();
+      }
+    }
+    else {
+      throw new Exception(t('Cannot remove line item, transaction does not have an order created for it.'));
+    }
+  }
+
+  /**
    * Marks the transaction order's status as parked.
    */
   public function park() {

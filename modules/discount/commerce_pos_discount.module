@@ -64,14 +64,14 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
  * Implements hook_form_FORM_ID_alter().
  */
 function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state) {
-  if (isset($form['wrapper']['line_items'])) {
+  if (isset($form['line_items'])) {
     $wrapper_ajax = array(
-      'wrapper' => $form['wrapper']['#id'],
+      'wrapper' => $form_state['wrapper_id'],
       'callback' => 'commerce_pos_discount_wrapper_js',
     );
 
-    foreach (element_children($form['wrapper']['line_items']) as $line_item_id) {
-      $line_item_element = &$form['wrapper']['line_items'][$line_item_id];
+    foreach (element_children($form['line_items']) as $line_item_id) {
+      $line_item_element = &$form['line_items'][$line_item_id];
 
       $line_item_element['discounts'] = array(
         '#type' => 'container',
@@ -127,8 +127,8 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
     }
 
     // Add a section for order discounts.
-    if (!empty($form['wrapper']['transaction_options'])) {
-      $form['wrapper']['transaction_options']['discount'] = array(
+    if (!empty($form['transaction_options']['actions'])) {
+      $form['transaction_options']['actions']['discount'] = array(
         '#type' => 'button',
         '#value' => t('Discount'),
         '#element_key' => 'toggle-order-discount',
@@ -142,20 +142,20 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
         ),
       );
 
-      $form['wrapper']['transaction_options']['add_order_discount'] = array(
+      $form['transaction_options']['actions']['add_order_discount'] = array(
         '#type' => 'container',
         '#id' => 'commerce-pos-discount-add-order-discount-wrapper',
       );
 
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-order-discount') {
-        $form['wrapper']['transaction_options']['add_order_discount']['amount'] = array(
+        $form['transaction_options']['actions']['add_order_discount']['amount'] = array(
           '#title' => t('Add Discount to Order'),
           '#type' => 'textfield',
           '#size' => 5,
           '#default_value' => $form_state['transaction']->invokeBaseMethod('getExistingOrderDiscountAmount'),
         );
 
-        $form['wrapper']['transaction_options']['add_order_discount']['percent'] = array(
+        $form['transaction_options']['actions']['add_order_discount']['percent'] = array(
           '#type' => 'button',
           '#size' => 5,
           '#value' => '%',
@@ -163,7 +163,7 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#element_key' => 'add-order-percent-discount',
         );
 
-        $form['wrapper']['transaction_options']['add_order_discount']['fixed'] = array(
+        $form['transaction_options']['actions']['add_order_discount']['fixed'] = array(
           '#type' => 'button',
           '#size' => 5,
           '#value' => '$',
@@ -226,19 +226,19 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
  */
 function commerce_pos_discount_add_discount_js($form, &$form_state) {
   $line_item_id = $form_state['triggering_element']['#line_item_id'];
-  return $form['wrapper']['line_items'][$line_item_id]['discounts'];
+  return $form['line_items'][$line_item_id]['discounts'];
 }
 
 /**
  * AJAX callback for the order discounts section.
  */
 function commerce_pos_discount_order_discount_js($form, &$form_state) {
-  return $form['wrapper']['transaction_options']['add_order_discount'];
+  return $form['transaction_options']['actions']['add_order_discount'];
 }
 
 /**
  * AJAX callback to return the entire form wrapper.
  */
 function commerce_pos_discount_wrapper_js($form, &$form_state) {
-  return $form['wrapper'];
+  return $form;
 }

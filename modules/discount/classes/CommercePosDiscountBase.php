@@ -42,6 +42,23 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
   }
 
   /**
+   * Act upon a line item being deleted.
+   *
+   * This will check to see if the only remaining line item in the order is
+   * a POS discount and will remove it if needed.
+   */
+  public function deleteLineItemAfter($line_item_id, $result) {
+    if ($wrapper = $this->transaction->getOrderWrapper()) {
+      if (count($wrapper->commerce_line_items) == 1) {
+        if ($wrapper->commerce_line_items[0]->type->value() == 'commerce_pos_discount') {
+          commerce_line_item_delete($wrapper->commerce_line_items[0]->line_item_id);
+          $wrapper->commerce_line_items->offsetUnset(0);
+        }
+      }
+    }
+  }
+
+  /**
    * Adds a discount to a specific line item in the transaction order.
    */
   public function addLineItemDiscount($type, $line_item_id, $amount) {

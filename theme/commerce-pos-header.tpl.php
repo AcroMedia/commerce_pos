@@ -8,18 +8,20 @@
  */
 ?>
 
-<div id="commerce-pos-header">
-  <div class="links">
+<div id="commerce-pos-header" class="clearfix">
+  <div class="commerce-pos-header-links">
     <ul>
       <li><?php print l(t('Sale'), 'pos/sale'); ?></li>
       <li><?php print l(t('Return'), 'pos/return'); ?></li>
     </ul>
   </div>
 
-  <div class="employee-info">
-    <div class="username">
+  <div class="commerce-pos-header-employee-info">
+    <span class="username">
       <?php print t('<em>@username</em> signed in', array('@username' => $account->name)); ?>
-    </div>
-    <div class="logout"><?php print l(t('sign out'), 'user/logout', array('query' => array('destination' => url('pos')))); ?></div>
+    </span>
+    <span class="logout">
+      <?php print l(t('sign out'), 'user/logout', array('query' => array('destination' => url('pos')))); ?>
+    </span>
   </div>
 </div>

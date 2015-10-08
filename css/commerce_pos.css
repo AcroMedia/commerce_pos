@@ -3,3 +3,52 @@
 .form-item .thevault-pos-hidden-element {
   display: none;
 }
+
+/**
+ * Header
+ */
+
+#commerce-pos-header {
+  margin: 0 0 20px 0;
+  padding: 15px 10px;
+  background: #000;
+  color: #fff;
+}
+
+#commerce-pos-header .commerce-pos-header-links {
+  float: left;
+}
+
+#commerce-pos-header .commerce-pos-header-employee-info {
+  float: right;
+}
+
+/**
+ * Sale form
+ */
+.commerce-pos-col-products {
+  float: left;
+  width: 75%;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+
+.commerce-pos-col-transaction-info {
+  float: left;
+  width: 25%;
+}
+
+.commerce-pos-product-search-container {
+  padding: 20px;
+  background: #ccc;
+  margin-bottom: 20px;
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper {
+  border-top: 1px solid #eee;
+  margin: 0 0 20px 0;
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .form-item {
+  display: inline-block;
+}

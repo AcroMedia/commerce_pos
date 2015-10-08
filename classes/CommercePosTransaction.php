@@ -44,6 +44,8 @@ class CommercePosTransaction {
   }
 
   /**
+   * // @TODO: this needs to be documented better.
+   *
    * @param $action_name
    * @param ...
    *   any additional arguments will be passed to the method.
@@ -53,20 +55,39 @@ class CommercePosTransaction {
    * @throws \Exception
    *
    * @TODO: should this become private and just get called via a __call()
-   * magic method instead?
+   * magic method instead? Also, call_user_func_array is apparently quite
+   * expensive, potentially look into a better way, or use an observer pattern?
    */
   public function invokeBaseMethod($action_name) {
     $result = FALSE;
     $called = FALSE;
 
+    static $after_hooks = array();
+
+    $build_after_hooks = !isset($after_hooks[$action_name]);
+    $args = array_slice(func_get_args(), 1);
+
     // @TODO: this should probably be able to handle calling the same method on
     // multiple base classes. Or potentially hook into the result?
     foreach ($this->bases as $base_class) {
-      if (is_callable(array($base_class, $action_name))) {
-        $args = array_slice(func_get_args(), 1);
+      if (!$called && is_callable(array($base_class, $action_name))) {
         $result = call_user_func_array(array($base_class, $action_name), $args);
         $called = TRUE;
-        break;
+      }
+
+      // Look for any methods that should be called AFTER we call the main one.
+      if ($build_after_hooks && is_callable(array($base_class, $action_name . 'After'))) {
+        $after_hooks[$action_name][] = $base_class;
+      }
+    }
+
+    if (isset($after_hooks[$action_name])) {
+      // Add the result of the initial method call to our arguments so that it's
+      // always the last argument passed to any after hooks.
+      array_push($args, $result);
+
+      foreach ($after_hooks[$action_name] as $base_class) {
+        call_user_func_array(array($base_class, $action_name . 'After'), $args);
       }
     }
 
@@ -123,6 +144,8 @@ class CommercePosTransaction {
    * The order wrapper is made available as a property on the object because
    * it's used so often by subclasses and other functionality, so there's no
    * point in creating a new wrapper all of the time.
+   *
+   * @return EntityDrupalWrapper|bool
    */
   public function getOrderWrapper() {
     if ($this->orderId) {
@@ -378,35 +401,14 @@ class CommercePosTransaction {
         $line_item->quantity = $new_qty;
         commerce_line_item_save($line_item);
       }
+      elseif ($new_qty == 0) {
+        $this->invokeBaseMethod('deleteLineItem', $line_item_id);
+      }
     }
     else {
       throw new Exception(t('Cannot update line item @id quantity, the transaction does not have an order created.', array(
         '@id' => $line_item_id,
       )));
-    }
-  }
-
-  /**
-   * Removes a line item from the transaction order.
-   */
-  public function deleteLineItem($line_item_id) {
-    $this->getOrder();
-    if (!empty($this->order)) {
-      $order_wrapper = entity_metadata_wrapper('commerce_order', $this->order);
-
-      foreach ($order_wrapper->commerce_line_items as $key => $line_item_wrapper) {
-        if ($line_item_wrapper->line_item_id->raw() == $line_item_id) {
-          unset($order_wrapper->commerce_line_items[$key]);
-          break;
-        }
-      }
-
-      if (commerce_line_item_delete($line_item_id)) {
-        $order_wrapper->save();
-      }
-    }
-    else {
-      throw new Exception(t('Cannot remove line item, transaction does not have an order created for it.'));
     }
   }
 

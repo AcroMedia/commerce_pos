@@ -65,15 +65,17 @@ function commerce_pos_sale($form, &$form_state) {
     '#markup' => theme('commerce_pos_header', array('account' => $user)),
   );
 
-  $form['wrapper'] = array(
-    '#type' => 'container',
-    '#id' => $wrapper_id,
-  );
+  $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+  $form['#suffix'] = '</div>';
 
-  $wrapper = &$form['wrapper'];
+  if (!empty($form_state['transaction']->transactionId)) {
+    $form['transaction_id'] = array(
+      '#markup' => '<div class="commerce-pos-transaction-id">' . t('Transaction #@id', array('@id' => $form_state['transaction']->transactionId)) . '</div>',
+    );
+  }
 
   if (!empty($form_state['lookup_result'])) {
-    $wrapper['product_results'] = array(
+    $form['product_results'] = array(
       '#type' => 'container',
       '#id' => 'commerce-pos-pay-product-results-wrapper',
       '#theme' => 'commerce_pos_product_results',
@@ -81,7 +83,7 @@ function commerce_pos_sale($form, &$form_state) {
     );
 
     foreach ($form_state['lookup_result'] as $product_id) {
-      $wrapper['product_results'][$product_id] = array(
+      $form['product_results'][$product_id] = array(
         '#type' => 'button',
         '#value' => t('add'),
         '#name' => 'commerce-pos-pay-product-results-' . $product_id,
@@ -92,7 +94,11 @@ function commerce_pos_sale($form, &$form_state) {
     unset($form_state['lookup_result']);
   }
 
-  $wrapper['product_search'] = array(
+  $form['product_search'] = array(
+    '#type' => 'container',
+  );
+
+  $form['product_search']['input'] = array(
     '#type' => 'textfield',
     '#title' => 'product',
     '#size' => 60,
@@ -101,7 +107,7 @@ function commerce_pos_sale($form, &$form_state) {
     ),
   );
 
-  $wrapper['product_sku'] = array(
+  $form['product_search']['product_sku'] = array(
     '#type' => 'textfield',
     '#title' => NULL,
     '#ajax' => $wrapper_ajax,
@@ -113,14 +119,8 @@ function commerce_pos_sale($form, &$form_state) {
     '#suffix' => '</div>',
   );
 
-  if (!empty($form_state['transaction']->transactionId)) {
-    $wrapper['transaction_id'] = array(
-      '#markup' => t('Transaction #@id', array('@id' => $form_state['transaction']->transactionId)),
-    );
-  }
-
   if (!empty($order_wrapper)) {
-    $wrapper['line_items'] = array(
+    $form['line_items'] = array(
       '#tree' => TRUE,
       '#type' => 'container',
     );
@@ -133,11 +133,11 @@ function commerce_pos_sale($form, &$form_state) {
 
       $line_item_id = $line_item_wrapper->line_item_id->value();
 
-      $wrapper['line_items'][$line_item_id] = array(
+      $form['line_items'][$line_item_id] = array(
         '#type' => 'container',
       );
 
-      $line_item_element = &$wrapper['line_items'][$line_item_id];
+      $line_item_element = &$form['line_items'][$line_item_id];
 
       $line_item_element['qty'] = array(
         '#title' => (int) $line_item_wrapper->quantity->value(),
@@ -219,7 +219,7 @@ function commerce_pos_sale($form, &$form_state) {
   }
 
   // Transaction options.
-  $form['wrapper']['transaction_options'] = array(
+  $form['transaction_options'] = array(
     '#type' => 'container',
     '#tree' => TRUE,
     '#id' => 'commerce-pos-transactions-options-wrapper',
@@ -227,13 +227,17 @@ function commerce_pos_sale($form, &$form_state) {
 
   if ($has_active_transaction) {
     $order_total = field_view_field('commerce_order', $order_wrapper->value(), 'commerce_order_total', 'commerce_pos');
-    $transaction_options = &$form['wrapper']['transaction_options'];
+    $transaction_options = &$form['transaction_options'];
 
     $transaction_options['order_total'] = array(
       '#markup' => render($order_total),
     );
 
-    $transaction_options['pay'] = array(
+    $transaction_options['actions'] = array(
+      '#type' => 'action',
+    );
+
+    $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
       '#value' => t('Pay (F4)'),
       '#attributes' => array(
@@ -244,7 +248,7 @@ function commerce_pos_sale($form, &$form_state) {
       '#submit' => array('commerce_pos_sale_pay_submit'),
     );
 
-    $transaction_options['park'] = array(
+    $transaction_options['actions']['park'] = array(
       '#type' => 'button',
       '#value' => t('Park'),
       '#attributes' => array(
@@ -254,7 +258,7 @@ function commerce_pos_sale($form, &$form_state) {
       '#element_key' => 'park-transaction',
     );
 
-    $transaction_options['void'] = array(
+    $transaction_options['actions']['void'] = array(
       '#type' => 'button',
       '#value' => t('Void'),
       '#attributes' => array(
@@ -291,7 +295,7 @@ function commerce_pos_sale($form, &$form_state) {
 
     $description = format_plural(count($parked_transactions), '1 Transaction Parked', '@count Transactions Parked') . ' - ';
 
-    $form['wrapper']['parked_transactions']['description'] = array(
+    $form['parked_transactions']['description'] = array(
       '#markup' => $description,
     );
 
@@ -305,7 +309,7 @@ function commerce_pos_sale($form, &$form_state) {
         ));
       }
 
-      $form['wrapper']['parked_transactions'][$transaction_id] = array(
+      $form['parked_transactions'][$transaction_id] = array(
         '#type' => 'button',
         '#value' => $button_text,
         '#attributes' => array(
@@ -468,7 +472,8 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
  */
 function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
   if (!empty($form_state['triggering_element']['#line_item_id'])) {
-    $form_state['transaction']->deleteLineItem($form_state['triggering_element']['#line_item_id']);
+    $form_state['transaction']->invokeBaseMethod('deleteLineItem', $form_state['triggering_element']['#line_item_id'], TRUE);
+    $form_state['transaction']->invokeBaseMethod('saveOrder');
 
     if (empty($form_state['transaction']->getLineItems())) {
       $form_state['transaction']->void();
@@ -484,7 +489,7 @@ function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
  * AJAX callback for returning the sale form's wrapper.
  */
 function commerce_pos_sale_wrapper_js($form, &$form_state) {
-  return $form['wrapper'];
+  return $form;
 }
 
 /**
@@ -502,7 +507,7 @@ function commerce_pos_sale_pay_validate($form, &$form_state) {
     $email_address = $form_state['values']['transaction_options']['customer'];
 
     if (!valid_email_address($email_address)) {
-      form_error($form['wrapper']['transaction_options']['customer'], t('Invalid customer email address.'));
+      form_error($form['transaction_options']['customer'], t('Invalid customer email address.'));
     }
   }
 }
