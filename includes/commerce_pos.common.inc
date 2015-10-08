@@ -48,7 +48,8 @@ function _commerce_pos_product_autocomplete_search($term) {
 /**
  * Autocomplete callback for the POS customer textfield.
  *
- * Similar to user_autocomplete() except we also take a look at user emails.
+ * Similar to user_autocomplete(), but we also take a look at user emails.
+ * The JSON result is also keyed by email instead of username.
  */
 function commerce_pos_user_autocomplete($string  = '') {
   $matches = array();
@@ -64,7 +65,7 @@ function commerce_pos_user_autocomplete($string  = '') {
       ->range(0, 10)->execute();
 
     foreach ($result as $user) {
-      $matches[$user->name] = check_plain($user->name . ' (' . $user->mail . ')');
+      $matches[$user->mail] = check_plain($user->name . ' (' . $user->mail . ')');
     }
   }
 

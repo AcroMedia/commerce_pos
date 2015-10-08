@@ -40,4 +40,34 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase {
       commerce_order_save($order);
     }
   }
+
+  /**
+   * Saves the transaction's order.
+   */
+  public function saveOrder() {
+    if ($order = $this->transaction->getOrder()) {
+      commerce_order_save($order);
+    }
+  }
+
+  /**
+   * Assigns the transaction's order to a specific user.
+   *
+   * @param object $user
+   *   The Drupal user to associate with the order.
+   *
+   * @return bool
+   *   TRUE or FALSE, depending on whether the order's user was actually
+   *   updated.
+   */
+  public function setOrderCustomer($user) {
+    if ($order_wrapper = $this->transaction->getOrder()) {
+      if ($order_wrapper->uid != $user->uid) {
+        $order_wrapper->uid = $user->uid;
+        return TRUE;
+      }
+    }
+
+    return FALSE;
+  }
 }

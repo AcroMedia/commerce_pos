@@ -45,10 +45,15 @@ class CommercePosTransaction {
 
   /**
    * @param $action_name
-   * [...arguments] any additional arguments will be passed to the method.
+   * @param ...
+   *   any additional arguments will be passed to the method.
    *
    * @return mixed
+   *   Whatever the result is of the invoked method.
    * @throws \Exception
+   *
+   * @TODO: should this become private and just get called via a __call()
+   * magic method instead?
    */
   public function invokeBaseMethod($action_name) {
     $result = FALSE;

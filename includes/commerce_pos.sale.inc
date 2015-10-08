@@ -236,6 +236,7 @@ function commerce_pos_sale($form, &$form_state) {
         'class' => array('commerce-pos-btn-pay'),
       ),
       '#key_binds' => array('f4'),
+      '#validate' => array('commerce_pos_sale_pay_validate'),
       '#submit' => array('commerce_pos_sale_pay_submit'),
     );
 
@@ -490,9 +491,34 @@ function commerce_pos_sale_customer_js($form, &$form_state) {
 }
 
 /**
+ * Validation handler for the Sale form's "Pay" button.
+ */
+function commerce_pos_sale_pay_validate($form, &$form_state) {
+  if (!empty($form_state['values']['transaction_options']['customer'])) {
+    $email_address = $form_state['values']['transaction_options']['customer'];
+
+    if (!valid_email_address($email_address)) {
+      form_error($form['wrapper']['transaction_options']['customer'], t('Invalid customer email address.'));
+    }
+  }
+}
+
+/**
  * Submit handler for the Sale form's "Pay" button.
  */
 function commerce_pos_sale_pay_submit($form, &$form_state) {
+  if (!empty($form_state['values']['transaction_options']['customer'])) {
+    // Attempt to associate the transaction with a customer.
+    $email_address = $form_state['values']['transaction_options']['customer'];
+
+    if ($user = user_load_by_mail($email_address)) {
+      if ($form_state['transaction']->invokeBaseMethod('setOrderCustomer', $user)) {
+        // Only save if if the order customer was actually updated.
+        $form_state['transaction']->invokeBaseMethod('saveOrder');
+      }
+    }
+  }
+
   drupal_goto('pos/sale/pay');
 }
 
@@ -545,6 +571,14 @@ function commerce_pos_sale_pay($form, &$form_state) {
     '#markup' => t('Payment - !items - Order #@order_id', array(
       '!items' => $items_link,
       '@order_id' => $form_state['order_wrapper']->order_id->value(),
+    )),
+  );
+
+  $form['edit_order'] = array(
+    '#markup' => l(t('Edit Order'), 'pos/sale', array(
+      'attributes' => array(
+        'class' => array('commerce-pos-sale-pay-edit-order'),
+      ),
     )),
   );
 
