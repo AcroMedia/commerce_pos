@@ -218,10 +218,6 @@ class CommercePosTransaction {
       )));
     }
     else {
-      if (empty($this->transactionId)) {
-        $this->save();
-      }
-
       $order = commerce_order_new($this->uid, 'commerce_pos_in_progress');
       $order->uid = 0;
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);

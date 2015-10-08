@@ -1,0 +1,6 @@
+name = Commerce POS Location
+description = Provides the ability to create physical store locations to assign POS transactions to.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos

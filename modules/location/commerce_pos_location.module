@@ -1,0 +1,128 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_location.module
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_location_permission() {
+  return array(
+    'administer commerce pos locations' =>  array(
+      'title' => t('Administer POS locations'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function commerce_pos_location_entity_info() {
+  $info = array();
+
+  $info['commerce_pos_location'] = array(
+    'label' => t('POS Location'),
+    'controller class' => 'EntityAPIController',
+    'base table' => 'commerce_pos_location',
+    'access callback' => 'commerce_pos_location_entity_access_callback',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'location_id',
+      'label' => 'name',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(
+      'commerce_pos_location' => array('label' => t('POS Location')),
+    ),
+    'load hook' => 'commerce_pos_location_load',
+    'label callback' => 'entity_class_label',
+    'uri callback' => 'entity_class_uri',
+    'admin ui' => array(
+      'path' => 'admin/commerce/config/pos/locations',
+      'controller class' => 'EntityDefaultUIController',
+    ),
+    'views controller class' => 'EntityDefaultViewsController',
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_entity_property_info().
+ */
+function commerce_pos_location_entity_property_info() {
+  $info = array();
+
+  $properties = &$info['node']['properties'];
+
+  $properties['location_id'] = array(
+    'label' => t('Location ID'),
+    'description' => t('The ID of the POS location.'),
+    'type' => 'integer',
+    'schema field' => 'location_id',
+  );
+
+  $properties['name'] = array(
+    'label' => t('Location name'),
+    'description' => t('The name of the location'),
+    'type' => 'text',
+    'schema field' => 'name',
+  );
+
+  $properties['created'] = array(
+    'label' => t('Date created'),
+    'type' => 'date',
+    'description' => t('The date the location was posted.'),
+    'schema field' => 'created',
+  );
+
+  $properties['changed'] = array(
+    'label' => t('Date changed'),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t('The date the location was most recently updated.'),
+  );
+
+  return $info;
+}
+
+/**
+ * Access callback for POS location entities.
+ */
+function commerce_pos_location_entity_access_callback($op, $location = NULL, $account = NULL) {
+  // @TODO: proper access checks
+  return TRUE;
+}
+
+function commerce_pos_location_form($form, &$form_state, $location = NULL) {
+  $form['name'] = array(
+    '#title' => t('Location name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($location->name) ? $location->name : '',
+    '#required' => TRUE,
+  );
+
+  field_attach_form('commerce_pos_location', $location, $form, $form_state);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => isset($location->location_id) ? t('Update Location') : t('Save Location'),
+    '#weight' => 50,
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the commerce_pos_location add/edit form.
+ */
+function commerce_pos_location_form_submit($form, &$form_state) {
+  $location = entity_ui_form_submit_build_entity($form, $form_state);
+  $location->save();
+  drupal_set_message(t('Location "@name" has been saved.', array('@name' => $location->name)));
+  $form_state['redirect'] = 'admin/commerce/config/pos/locations';
+}
