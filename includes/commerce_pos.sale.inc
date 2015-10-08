@@ -61,6 +61,10 @@ function commerce_pos_sale($form, &$form_state) {
     'focusProductInput' => $focus_product_input,
   );
 
+  $form['header'] = array(
+    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+  );
+
   $form['wrapper'] = array(
     '#type' => 'container',
     '#id' => $wrapper_id,

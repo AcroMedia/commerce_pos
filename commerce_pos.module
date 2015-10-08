@@ -156,6 +156,13 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'view' => NULL
       ),
     ),
+    'commerce_pos_header' => array(
+      'template' => 'commerce-pos-header',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'account' => NULL,
+      ),
+    ),
   );
 }
 
