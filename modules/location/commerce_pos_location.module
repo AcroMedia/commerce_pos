@@ -6,6 +6,23 @@
  */
 
 /**
+ * Implements hook_menu().
+ */
+function commerce_pos_location_menu() {
+  $items['pos/location/%commerce_pos_location'] = array(
+    'title' => 'POS location',
+    'title callback' => 'commerce_pos_location_title',
+    'title arguments' => array(2),
+    'page callback' => 'commerce_pos_location_view_location',
+    'page arguments' => array(2),
+    'access arguments' => array('view commerce pos locations'),
+    'file' => 'includes/commerce_pos_location.pages.inc',
+  );
+
+  return $items;
+}
+
+/**
  * Implements hook_permission().
  */
 function commerce_pos_location_permission() {
@@ -24,7 +41,8 @@ function commerce_pos_location_entity_info() {
 
   $info['commerce_pos_location'] = array(
     'label' => t('POS Location'),
-    'controller class' => 'EntityAPIController',
+    'entity class' => 'Entity',
+    'controller class' => 'CommercePosLocationEntityController',
     'base table' => 'commerce_pos_location',
     'access callback' => 'commerce_pos_location_entity_access_callback',
     'fieldable' => TRUE,
@@ -39,13 +57,13 @@ function commerce_pos_location_entity_info() {
       'commerce_pos_location' => array('label' => t('POS Location')),
     ),
     'load hook' => 'commerce_pos_location_load',
-    'label callback' => 'entity_class_label',
     'uri callback' => 'entity_class_uri',
     'admin ui' => array(
       'path' => 'admin/commerce/config/pos/locations',
       'controller class' => 'EntityDefaultUIController',
     ),
     'views controller class' => 'EntityDefaultViewsController',
+    'uri callback' => 'commerce_pos_location_uri',
   );
 
   return $info;
@@ -57,7 +75,7 @@ function commerce_pos_location_entity_info() {
 function commerce_pos_location_entity_property_info() {
   $info = array();
 
-  $properties = &$info['node']['properties'];
+  $properties = &$info['commerce_pos_location']['properties'];
 
   $properties['location_id'] = array(
     'label' => t('Location ID'),
@@ -125,4 +143,59 @@ function commerce_pos_location_form_submit($form, &$form_state) {
   $location->save();
   drupal_set_message(t('Location "@name" has been saved.', array('@name' => $location->name)));
   $form_state['redirect'] = 'admin/commerce/config/pos/locations';
+}
+
+/**
+ * Loads a location by ID.
+ */
+function commerce_pos_location_load($location_id) {
+  if (empty($location_id)) {
+    return FALSE;
+  }
+
+  $locations = commerce_pos_location_load_multiple(array($location_id), array());
+  return $locations ? reset($locations) : FALSE;
+}
+
+/**
+ * Loads multiple locations by ID or based on a set of matching conditions.
+ *
+ * @see entity_load()
+ *
+ * @param $location_ids
+ *   An array of location IDs.
+ * @param $conditions
+ *   An array of conditions on the {commerce_pos_location} table in the form
+ *     'field' => $value.
+ * @param $reset
+ *   Whether to reset the internal product loading cache.
+ *
+ * @return
+ *   An array of location objects indexed by location_id.
+ */
+function commerce_pos_location_load_multiple($location_ids = array(), $conditions = array(), $reset = FALSE) {
+  if (empty($location_ids) && empty($conditions)) {
+    return array();
+  }
+
+  return entity_load('commerce_pos_location', $location_ids, $conditions, $reset);
+}
+
+/**
+ * URI callback for a commerce_pos_location entity.
+ *
+ * Locations do not currently need any kind of display URL, so this just returns
+ * NULL.
+ */
+function commerce_pos_location_uri($location) {
+  return array(
+    'path' => 'pos/location/' . $location->location_id,
+  );
+}
+
+/**
+ * Title callback for a POS location display page.
+ */
+function commerce_pos_location_title($location) {
+  return $location->name;
 }
