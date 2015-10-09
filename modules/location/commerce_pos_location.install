@@ -25,13 +25,6 @@ function commerce_pos_location_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'type' => array(
-        'description' => 'Location type.',
-        'type' => 'varchar',
-        'length' => 255,
-        'not null' => TRUE,
-        'default' => '',
-      ),
       'created' => array(
         'description' => 'The Unix timestamp when the location was created.',
         'type' => 'int',

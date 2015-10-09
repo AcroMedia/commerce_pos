@@ -60,7 +60,7 @@ function commerce_pos_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_login'),
     'access arguments' => array('access content'),
-    'file' => 'includes/commerce_pos.logic.inc',
+    'file' => 'includes/commerce_pos.login.inc',
     'type' => MENU_CALLBACK,
   );
 

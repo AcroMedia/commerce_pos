@@ -30,6 +30,18 @@ function commerce_pos_location_permission() {
     'administer commerce pos locations' =>  array(
       'title' => t('Administer POS locations'),
     ),
+    'create commerce pos locations' =>  array(
+      'title' => t('Create new POS locations'),
+    ),
+    'view commerce pos locations' =>  array(
+      'title' => t('View POS locations'),
+    ),
+    'edit commerce pos locations' =>  array(
+      'title' => t('Edit POS locations'),
+    ),
+    'delete commerce pos locations' =>  array(
+      'title' => t('Delete POS locations'),
+    ),
   );
 }
 
@@ -49,12 +61,6 @@ function commerce_pos_location_entity_info() {
     'entity keys' => array(
       'id' => 'location_id',
       'label' => 'name',
-    ),
-    'bundle keys' => array(
-      'bundle' => 'type',
-    ),
-    'bundles' => array(
-      'commerce_pos_location' => array('label' => t('POS Location')),
     ),
     'load hook' => 'commerce_pos_location_load',
     'uri callback' => 'entity_class_uri',
@@ -109,13 +115,72 @@ function commerce_pos_location_entity_property_info() {
 }
 
 /**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_location_form_commerce_pos_login_alter(&$form, &$form_state, $form_id) {
+  $locations = commerce_pos_location_options();
+
+  if (!empty($locations)) {
+    $current_location = commerce_pos_location_get_current_location();
+
+    $form['location'] = array(
+      '#title' => t('Location'),
+      '#type' => 'select',
+      '#options' => commerce_pos_location_options(),
+      '#required' => TRUE,
+      '#default_value' => $current_location ? $current_location : NULL,
+    );
+
+    $form['#submit'][] = 'commerce_pos_location_login_submit';
+  }
+}
+
+/**
+ * Additional submit handler for the POS login form.
+ *
+ * This will store the selected location in the session, as well as a cookie
+ * for longer-lasting purposes.
+ */
+function commerce_pos_location_login_submit($form, &$form_state) {
+  commerce_pos_location_set_current_location($form_state['values']['location']);
+}
+
+/**
  * Access callback for POS location entities.
  */
 function commerce_pos_location_entity_access_callback($op, $location = NULL, $account = NULL) {
-  // @TODO: proper access checks
-  return TRUE;
+  global $user;
+
+  $permission_name = '';
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
+  switch ($op) {
+    case 'view':
+      $permission_name = 'view commerce pos locations';
+      break;
+
+    case 'edit':
+      $permission_name = 'edit commerce pos locations';
+      break;
+
+    case 'delete':
+      $permission_name = 'delete commerce pos locations';
+      break;
+
+    case 'create':
+      $permission_name = 'create commerce pos locations';
+      break;
+  }
+
+  return (user_access('administer commerce pos locations', $account) || user_access($permission_name, $account));
 }
 
+/**
+ * Callback for the commerce_pos_location edit/create form.
+ */
 function commerce_pos_location_form($form, &$form_state, $location = NULL) {
   $form['name'] = array(
     '#title' => t('Location name'),
@@ -198,4 +263,42 @@ function commerce_pos_location_uri($location) {
  */
 function commerce_pos_location_title($location) {
   return $location->name;
+}
+
+/**
+ * Retrieves the current user's location ID, if they have one.
+ */
+function commerce_pos_location_get_current_location() {
+  $location_id = FALSE;
+
+  if (!(isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE)) {
+    $location_id = (isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE);
+  }
+
+  return $location_id;
+}
+
+function commerce_pos_location_set_current_location($location_id) {
+  $_SESSION['commerce_pos_location_id'] = $location_id;
+
+  if (!isset($_COOKIE['commerce_pos_location_id'])) {
+    setcookie('commerce_pos_location_id', $location_id, strtotime('+30 days'));
+  }
+}
+
+/**
+ * Retrieves a list of POS location names, keyed by location_id.
+ */
+function commerce_pos_location_options() {
+  $locations = array();
+
+  $result = db_select('commerce_pos_location', 'cpl')
+    ->fields('cpl', array('name', 'location_id'))
+    ->execute();
+
+  foreach ($result as $row) {
+    $locations[$row->location_id] = $row->name;
+  }
+
+  return $locations;
 }
