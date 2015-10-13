@@ -19,6 +19,14 @@ function commerce_pos_location_menu() {
     'file' => 'includes/commerce_pos_location.pages.inc',
   );
 
+  $items['pos/location-select'] = array(
+    'title' => 'Select location',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_location_select'),
+    'file' => 'includes/commerce_pos_location.pages.inc',
+    'access arguments' => array('view commerce pos locations'),
+  );
+
   return $items;
 }
 
@@ -131,6 +139,18 @@ function commerce_pos_location_form_commerce_pos_login_alter(&$form, &$form_stat
     );
 
     $form['#submit'][] = 'commerce_pos_location_login_submit';
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_location_form_commerce_pos_sale_alter(&$form, &$form_state) {
+  // Make sure the current user has a location, otherwise make them select one.
+  if (!commerce_pos_location_get_current_location()) {
+    drupal_goto('pos/location-select', array(
+      'query' => drupal_get_destination(),
+    ));
   }
 }
 
@@ -268,9 +288,7 @@ function commerce_pos_location_title($location) {
  * Retrieves the current user's location ID, if they have one.
  */
 function commerce_pos_location_get_current_location() {
-  $location_id = FALSE;
-
-  if (!(isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE)) {
+  if (!($location_id = isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE)) {
     $location_id = (isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE);
   }
 
