@@ -197,6 +197,26 @@ function commerce_pos_commerce_pos_transaction_base_info() {
 }
 
 /**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_pos_commerce_payment_method_info() {
+
+  // Note that checkout and terminal are both FALSE. This payment method is
+  // only meant to by internally used by the POS system.
+  $payment_methods['commerce_pos_change'] = array(
+    'base' => 'commerce_pos_change',
+    'title' => t('POS Change'),
+    'short_title' => t('Change'),
+    'description' => t('Change given to a customer.'),
+    'active' => TRUE,
+    'checkout' => FALSE,
+    'terminal' => FALSE,
+    'fieldable' => FALSE,
+  );
+  return $payment_methods;
+}
+
+/**
  * Implements hook_commerce_order_state_info().
  *
  * Defines a new state that orders created by the POS live in until they have

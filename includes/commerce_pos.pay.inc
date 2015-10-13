@@ -206,10 +206,18 @@ function commerce_pos_pay_void_submit($form, &$form_state) {
 }
 
 /**
+ * Validation handler for the pay form's "Finish" button.
+ */
+function commerce_pos_pay_validate($form, &$form_state) {
+
+}
+
+/**
  * Submit handler for the pay form's "Finish" button.
  */
 function commerce_pos_pay_finish($form, &$form_state) {
   // @TODO: need to mark the order as completed, add a "change" line item if
   // necessary, print the receipt, and redirect back to the "Sale" form.
   // Also need to create and/or associate the order with a customer.
+  $form_state['transaction']->doAction('completeTransaction');
 }

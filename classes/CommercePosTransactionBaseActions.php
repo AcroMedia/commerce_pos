@@ -20,6 +20,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'saveOrder',
       'setOrderCustomer',
       'createNewOrder',
+      'completeTransaction',
     );
 
     return $actions;
@@ -170,5 +171,76 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     }
 
     return FALSE;
+  }
+
+  /**
+   * Completes a transaction by updating its order status and make any other
+   * adjustments as needed.
+   */
+  public function completeTransaction() {
+    // @TODO: this gets messed up because $order_wrapper no longer updates
+    // the actual order object in the transaction...
+    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
+      $this->checkPaymentTransactions($order_wrapper);
+
+      $order_wrapper->status->set('completed');
+
+      if (empty($order_wrapper->uid->value())) {
+        $this->createNewUser($order_wrapper);
+      }
+
+      $this->transaction->doAction('save');
+      $this->transaction->doAction('saveOrder');
+    }
+  }
+
+  /**
+   * Creates a new user for a customer
+   */
+  protected function createNewUser(EntityDrupalWrapper $order_wrapper) {
+    $customer_email = $this->transaction->data['customer email'];
+
+    $order_wrapper->mail->set($customer_email);
+
+    // Have Commerce create a username for us.
+    $new_username = commerce_order_get_properties($order_wrapper->value(), array(), 'mail_username');
+
+    $account = entity_create('user', array(
+      'name' => $new_username,
+      'mail' => $customer_email,
+      'status' => 1,
+    ));
+
+    user_save($account);
+
+    $order_wrapper->uid->set($account->uid);
+    drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+  }
+
+  /**
+   * Ensures that the transaction order's balance is zero'd out.
+   *
+   * If the balance is negative, then it means that changed is owed to the
+   * customer and we need to create a separate transaction for it.
+   */
+  protected function checkPaymentTransactions(EntityDrupalWrapper $order_wrapper) {
+    $balance = commerce_payment_order_balance($order_wrapper->value());
+
+    if ($balance['amount'] > 0) {
+      throw new Exception(t('POS transaction order @order_id cannot be finalized, it has a balance owing', array(
+        '@order_id' => $order_wrapper->order_id,
+      )));
+    }
+    elseif ($balance['amount'] < 0) {
+      // Change is owed, record it as a separate payment transaction.
+      $payment_method = commerce_payment_method_load('commerce_pos_change');
+      $transaction = commerce_payment_transaction_new('commerce_pos_change', $order_wrapper->order_id->value());
+      $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
+      $transaction->amount = $balance['amount'];
+      $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+      $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+      $transaction->message = '';
+      commerce_payment_transaction_save($transaction);
+    }
   }
 }
