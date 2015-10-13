@@ -19,6 +19,7 @@ class CommercePosTransaction {
   protected $bases = array();
   protected $order = FALSE;
   protected $orderWrapper = FALSE;
+  protected $actions = array();
 
   /**
    * Constructor.
@@ -51,54 +52,31 @@ class CommercePosTransaction {
    *   any additional arguments will be passed to the method.
    *
    * @return mixed
-   *   Whatever the result is of the invoked method.
+   *   Whatever the result of the invoked method is.
    * @throws \Exception
-   *
-   * @TODO: should this become private and just get called via a __call()
-   * magic method instead? Also, call_user_func_array is apparently quite
-   * expensive, potentially look into a better way, or use an observer pattern?
    */
-  public function invokeBaseMethod($action_name) {
-    $result = FALSE;
-    $called = FALSE;
+  public function doAction($action_name) {
+    if (isset($this->actions[$action_name]['class'])) {
+      $args = array_slice(func_get_args(), 1);
+      $base_class = $this->bases[$this->actions[$action_name]['class']];
 
-    static $after_hooks = array();
+      $this->notifySubscribers($action_name, 'before', $args);
 
-    $build_after_hooks = !isset($after_hooks[$action_name]);
-    $args = array_slice(func_get_args(), 1);
+      $result = call_user_func_array(array($base_class, $action_name), $args);
 
-    // @TODO: this should probably be able to handle calling the same method on
-    // multiple base classes. Or potentially hook into the result?
-    foreach ($this->bases as $base_class) {
-      if (!$called && is_callable(array($base_class, $action_name))) {
-        $result = call_user_func_array(array($base_class, $action_name), $args);
-        $called = TRUE;
-      }
-
-      // Look for any methods that should be called AFTER we call the main one.
-      if ($build_after_hooks && is_callable(array($base_class, $action_name . 'After'))) {
-        $after_hooks[$action_name][] = $base_class;
-      }
-    }
-
-    if (isset($after_hooks[$action_name])) {
       // Add the result of the initial method call to our arguments so that it's
-      // always the last argument passed to any after hooks.
+      // always the last argument passed to any 'after' subscriptions.
       array_push($args, $result);
 
-      foreach ($after_hooks[$action_name] as $base_class) {
-        call_user_func_array(array($base_class, $action_name . 'After'), $args);
-      }
+      $this->notifySubscribers($action_name, 'after', $args);
     }
-
-    if ($called === FALSE) {
+    else {
       throw new Exception(t('The transaction base method @name does not exist.', array(
         '@name' => $action_name,
       )));
     }
-    else {
-      return $result;
-    }
+
+    return $result;
   }
 
   /**
@@ -265,7 +243,7 @@ class CommercePosTransaction {
         commerce_line_item_save($line_item);
       }
       elseif ($new_qty == 0) {
-        $this->invokeBaseMethod('deleteLineItem', $line_item_id);
+        $this->doAction('deleteLineItem', $line_item_id);
       }
     }
     else {
@@ -523,15 +501,64 @@ class CommercePosTransaction {
   }
 
   /**
+   * Call the methods if any classes that have been subscribed to this
+   * transaction's actions.
+   *
+   * @param string $action_name
+   *   The name of the action being invoked.
+   * @param string $position
+   *   The position of the subscription. Currently only 'after' and 'before'
+   *   are actually used.
+   * @param array $arguments
+   *   An array of arguments to be passed to the subscription method.
+   */
+  protected function notifySubscribers($action_name, $position, $arguments) {
+    foreach ($this->actions[$action_name][$position] as $base_class_name => $subscriptions) {
+      foreach ($subscriptions as $subscription_method) {
+        call_user_func_array(array($this->bases[$base_class_name], $subscription_method), $arguments);
+      }
+    }
+  }
+
+  /**
    * Checks for any modules defining additional base classes to be added to this
    * transaction.
+   * @TODO: instead of doing this, can we maybe just register the base methods
+   * themselves for more direct calling?
    */
   private function collectBases() {
     foreach (module_invoke_all('commerce_pos_transaction_base_info') as $base_info) {
       // Only add the base class if it belongs to this type, or if it didn't
       // specify any types that it belongs to.
       if (!isset($base_info['types']) || in_array($this->type, $base_info['types'])) {
-        $this->bases[] = new $base_info['class']($this);
+        $class_name = $base_info['class'];
+        $this->bases[$class_name] = new $class_name($this);
+        $base_class = &$this->bases[$class_name];
+
+        // Register all actions provided by the Base class.
+        foreach ($base_class->actions() as $action_method) {
+          if (!isset($this->actions[$action_method])) {
+            $this->actions[$action_method] = array(
+              'class' => $class_name,
+              'before' => array(),
+              'after' => array(),
+            );
+          }
+          else {
+            throw new Exception(t('Cannot add action @action, it has already been defined!', array(
+              '@action' => $action_method,
+            )));
+          }
+        }
+
+        // Register all subscriptions that the Base class is subscribing to.
+        foreach ($base_class->subscriptions() as $action_method => $positions) {
+          foreach ($positions as $position => $subscription_method) {
+            // $position should either be 'before' or 'after'. Any others are
+            // ignored.
+            $this->actions[$action_method][$position][$class_name][] = $subscription_method;
+          }
+        }
       }
     }
   }

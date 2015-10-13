@@ -5,12 +5,23 @@
  * PosTransactionBase class definition.
  */
 
-class CommercePosTransactionBase {
+class CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /* @var CommercePosTransaction $transaction */
   protected $transaction;
 
   public function __construct(CommercePosTransaction $transaction) {
     $this->transaction = $transaction;
+  }
+
+  public function actions() {
+    return array();
+  }
+
+  public function subscriptions() {
+    return array(
+      'before' => array(),
+      'after' => array(),
+    );
   }
 }

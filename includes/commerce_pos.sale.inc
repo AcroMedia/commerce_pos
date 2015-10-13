@@ -407,7 +407,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
           break;
 
         case 'park-transaction':
-          $transaction->invokeBaseMethod('park');
+          $transaction->doAction('park');
           unset($form_state['transaction']);
           drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
           break;

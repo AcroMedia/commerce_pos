@@ -12,12 +12,32 @@
  * be used without modifications.
  */
 
-class CommercePosDiscountBase extends CommercePosTransactionBase {
+class CommercePosDiscountBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   // Used to keep track of whether or not a discount has already been applied
   // to a line item or order.
   const LINE_ITEM_DISCOUNT_NAME = 'pos_line_item_discount';
   const ORDER_DISCOUNT_NAME = 'pos_order_discount';
+
+  public function actions() {
+    $actions = parent::actions();
+
+    $actions += array(
+      'addOrderDiscount',
+    );
+
+    return $actions;
+  }
+
+  public function subscriptions() {
+    $subscriptions = parent::subscriptions();
+
+    $subscriptions['after'] += array(
+      'deleteLineItemAfter',
+    );
+
+    return $subscriptions;
+  }
 
   /**
    * Adds a discount to the transaction's order.
@@ -62,7 +82,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
    * Adds a discount to a specific line item in the transaction order.
    */
   public function addLineItemDiscount($type, $line_item_id, $amount) {
-    if ($line_item = $this->transaction->invokeBaseMethod('getLineItem', $line_item_id)) {
+    if ($line_item = $this->transaction->doAction('getLineItem', $line_item_id)) {
       $wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
       switch ($type) {
@@ -83,7 +103,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase {
    * Retrieves the existing amount for a discount on a line item, if one exists.
    */
   public function getExistingLineItemDiscountAmount($line_item_id, $discount_name) {
-    if ($line_item = $this->transaction->invokeBaseMethod('getLineItem', $line_item_id)) {
+    if ($line_item = $this->transaction->doAction('getLineItem', $line_item_id)) {
 
       $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
       $data = (array) $line_item_wrapper->commerce_unit_price->data->value() + array('components' => array());

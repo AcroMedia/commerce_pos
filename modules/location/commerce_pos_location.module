@@ -63,7 +63,6 @@ function commerce_pos_location_entity_info() {
       'label' => 'name',
     ),
     'load hook' => 'commerce_pos_location_load',
-    'uri callback' => 'entity_class_uri',
     'admin ui' => array(
       'path' => 'admin/commerce/config/pos/locations',
       'controller class' => 'EntityDefaultUIController',
@@ -280,10 +279,7 @@ function commerce_pos_location_get_current_location() {
 
 function commerce_pos_location_set_current_location($location_id) {
   $_SESSION['commerce_pos_location_id'] = $location_id;
-
-  if (!isset($_COOKIE['commerce_pos_location_id'])) {
-    setcookie('commerce_pos_location_id', $location_id, strtotime('+30 days'));
-  }
+  setcookie('commerce_pos_location_id', $location_id, strtotime('+30 days'));
 }
 
 /**

@@ -7,7 +7,21 @@
  * @TODO: most of the methods in the CommercePosTransaction class should be moved into here.
  */
 
-class CommercePosTransactionBaseActions extends CommercePosTransactionBase {
+class CommercePosTransactionBaseActions extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
+
+  public function actions() {
+    $actions = parent::actions();
+
+    $actions += array(
+      'getLineItem',
+      'deleteLineItem',
+      'park',
+      'saveOrder',
+      'setOrderCustomer',
+    );
+
+    return $actions;
+  }
 
   /**
    * Retrieves a specific line item from the transaction's order.
