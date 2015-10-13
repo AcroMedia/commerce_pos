@@ -19,9 +19,6 @@ class CommercePosTransactionBase implements CommercePosTransactionBaseInterface 
   }
 
   public function subscriptions() {
-    return array(
-      'before' => array(),
-      'after' => array(),
-    );
+    return array();
   }
 }

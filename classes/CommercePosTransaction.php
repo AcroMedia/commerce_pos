@@ -80,31 +80,6 @@ class CommercePosTransaction {
   }
 
   /**
-   * Saves the transaction to the database.
-   */
-  public function save() {
-    $transaction_array = array(
-      'transaction_id' => $this->transactionId,
-      'uid' => $this->uid,
-      'order_id' => $this->orderId,
-      'type' => $this->type,
-      'data' => $this->data,
-      'location_id' => $this->locationId,
-    );
-
-    if ($this->transactionId) {
-      $primary_keys = 'transaction_id';
-    }
-    else {
-      $primary_keys = array();
-    }
-
-    drupal_write_record(self::TABLE_NAME, $transaction_array, $primary_keys);
-    $this->transactionId = $transaction_array['transaction_id'];
-    unset($transaction_array);
-  }
-
-  /**
    * Retrieves the commerce order associated with this transaction.
    */
   public function getOrder() {
@@ -114,6 +89,14 @@ class CommercePosTransaction {
     else {
       return FALSE;
     }
+  }
+
+  /**
+   * Sets the transaction's order.
+   */
+  public function setOrder($order) {
+    $this->order = $order;
+    $this->orderId = $order->order_id;
   }
 
   /**
@@ -163,7 +146,7 @@ class CommercePosTransaction {
     // First attempt to load the transaction's order.
     // If no order existed, create one now.
     if (empty($this->order)) {
-      $order = $this->createNewOrder();
+      $order = $this->doAction('createNewOrder');
     }
     else {
       $order = $this->order;
@@ -183,42 +166,6 @@ class CommercePosTransaction {
     }
 
     return $this->addLineItem($line_item, $combine);
-  }
-
-  /**
-   * Creates a commerce order for this transaction.
-   */
-  function createNewOrder() {
-    if (!empty($this->orderId)) {
-      throw new Exception(t('Cannot create order for transaction @id, an order with @order_id already exists!', array(
-        '@id' => $this->transactionId,
-        '@order_id' => $this->orderId,
-      )));
-    }
-    else {
-      $order = commerce_order_new($this->uid, 'commerce_pos_in_progress');
-      $order->uid = 0;
-      $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-
-      // Create new default billing profile.
-      $billing_profile = entity_create('commerce_customer_profile', array('type' => 'billing'));
-      $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $billing_profile);
-
-      // @TODO: make the state configurable.
-      $profile_wrapper->commerce_customer_address->administrative_area->set('CA');
-      $profile_wrapper->save();
-
-      $order_wrapper->commerce_customer_billing->set($billing_profile);
-
-      commerce_order_save($order);
-
-      $this->orderId = $order->order_id;
-      $this->order = $order;
-
-      $this->save();
-
-      return $this->order;
-    }
   }
 
   /**
@@ -553,10 +500,12 @@ class CommercePosTransaction {
 
         // Register all subscriptions that the Base class is subscribing to.
         foreach ($base_class->subscriptions() as $action_method => $positions) {
-          foreach ($positions as $position => $subscription_method) {
+          foreach ($positions as $position => $subscription_methods) {
             // $position should either be 'before' or 'after'. Any others are
             // ignored.
-            $this->actions[$action_method][$position][$class_name][] = $subscription_method;
+            foreach ($subscription_methods as $subscription_method) {
+              $this->actions[$action_method][$position][$class_name][] = $subscription_method;
+            }
           }
         }
       }

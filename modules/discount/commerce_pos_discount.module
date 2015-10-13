@@ -103,7 +103,7 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 5,
-          '#default_value' => $form_state['transaction']->invokeBaseMethod('getExistingLineItemDiscountAmount', $line_item_id, CommercePosDiscountBase::LINE_ITEM_DISCOUNT_NAME),
+          '#default_value' => $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id, CommercePosDiscountBase::LINE_ITEM_DISCOUNT_NAME),
         );
 
         $line_item_element['discounts']['add_discount']['percent_discount'] = array(
@@ -152,7 +152,7 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#title' => t('Add Discount to Order'),
           '#type' => 'textfield',
           '#size' => 5,
-          '#default_value' => $form_state['transaction']->invokeBaseMethod('getExistingOrderDiscountAmount'),
+          '#default_value' => $form_state['transaction']->doAction('getExistingOrderDiscountAmount'),
         );
 
         $form['transaction_options']['actions']['add_order_discount']['percent'] = array(
@@ -195,7 +195,7 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
           $discount_amount *= 100;
         }
 
-        $form_state['transaction']->invokeBaseMethod('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
+        $form_state['transaction']->doAction('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
         $form_state['order_updated'] = TRUE;
         break;
 
@@ -213,7 +213,7 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
           $discount_amount *= 100;
         }
 
-        $form_state['transaction']->invokeBaseMethod('addOrderDiscount', $discount_type, $discount_amount);
+        $form_state['transaction']->doAction('addOrderDiscount', $discount_type, $discount_amount);
         $form_state['order_updated'] = TRUE;
 
         break;

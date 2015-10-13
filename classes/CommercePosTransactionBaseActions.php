@@ -16,11 +16,77 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'getLineItem',
       'deleteLineItem',
       'park',
+      'save',
       'saveOrder',
       'setOrderCustomer',
+      'createNewOrder',
     );
 
     return $actions;
+  }
+
+  /**
+   * Saves the transaction to the database.
+   */
+  public function save() {
+    $transaction = $this->transaction;
+
+    $transaction_array = array(
+      'transaction_id' => $transaction->transactionId,
+      'uid' => $transaction->uid,
+      'order_id' => $transaction->orderId,
+      'type' => $transaction->type,
+      'data' => $transaction->data,
+      'location_id' => $transaction->locationId,
+    );
+
+    if ($transaction->transactionId) {
+      $primary_keys = 'transaction_id';
+    }
+    else {
+      $primary_keys = array();
+    }
+
+    drupal_write_record($transaction::TABLE_NAME, $transaction_array, $primary_keys);
+    $transaction->transactionId = $transaction_array['transaction_id'];
+    unset($transaction_array);
+  }
+
+  /**
+   * Creates a commerce order for this transaction.
+   */
+  function createNewOrder() {
+    $transaction = $this->transaction;
+
+    if (!empty($transaction->orderId)) {
+      throw new Exception(t('Cannot create order for transaction @id, an order with @order_id already exists!', array(
+        '@id' => $transaction->transactionId,
+        '@order_id' => $transaction->orderId,
+      )));
+    }
+    else {
+      $order = commerce_order_new($transaction->uid, 'commerce_pos_in_progress');
+      $order->uid = 0;
+      $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+
+      // Create new default billing profile.
+      $billing_profile = entity_create('commerce_customer_profile', array('type' => 'billing'));
+      $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $billing_profile);
+
+      // @TODO: make the state configurable.
+      $profile_wrapper->commerce_customer_address->administrative_area->set('CA');
+      $profile_wrapper->save();
+
+      $order_wrapper->commerce_customer_billing->set($billing_profile);
+
+      commerce_order_save($order);
+
+      $transaction->orderId = $order->order_id;
+      $transaction->setOrder($order);
+      $transaction->doAction('save');
+
+      return $transaction->getOrder();
+    }
   }
 
   /**

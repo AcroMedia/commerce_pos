@@ -11,7 +11,7 @@
  *
  * The base classes will be attached to each POS transaction object so that
  * the base classes' methods can be invoked via the transaction object's
- * invokeBaseMethod method.
+ * doAction method.
  *
  * Modules that define their own base class should extend the
  * CommercePosTransactionBase class.

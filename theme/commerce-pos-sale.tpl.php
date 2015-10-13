@@ -8,7 +8,6 @@
  *   - $form: The form API array.
  */
 
-dpm($form, '$form');
 ?>
 
 <?php print render($form['header']); ?>

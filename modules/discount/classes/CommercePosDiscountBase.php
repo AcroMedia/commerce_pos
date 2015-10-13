@@ -32,9 +32,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
 
-    $subscriptions['after'] += array(
-      'deleteLineItemAfter',
-    );
+    $subscriptions['deleteLineItem']['after'][] = 'deleteLineItemAfter';
 
     return $subscriptions;
   }

@@ -434,7 +434,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
         case 'customer-transaction-update':
           if (!empty($triggering_element['#value'])) {
             $transaction->data['customer email'] = $triggering_element['#value'];
-            $transaction->save();
+            $transaction->doAction('save');
           }
           break;
 
@@ -472,8 +472,8 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
  */
 function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
   if (!empty($form_state['triggering_element']['#line_item_id'])) {
-    $form_state['transaction']->invokeBaseMethod('deleteLineItem', $form_state['triggering_element']['#line_item_id'], TRUE);
-    $form_state['transaction']->invokeBaseMethod('saveOrder');
+    $form_state['transaction']->doAction('deleteLineItem', $form_state['triggering_element']['#line_item_id'], TRUE);
+    $form_state['transaction']->doAction('saveOrder');
 
     if (empty($form_state['transaction']->getLineItems())) {
       $form_state['transaction']->void();
@@ -521,9 +521,9 @@ function commerce_pos_sale_pay_submit($form, &$form_state) {
     $email_address = $form_state['values']['transaction_options']['customer'];
 
     if ($user = user_load_by_mail($email_address)) {
-      if ($form_state['transaction']->invokeBaseMethod('setOrderCustomer', $user)) {
+      if ($form_state['transaction']->doAction('setOrderCustomer', $user)) {
         // Only save if if the order customer was actually updated.
-        $form_state['transaction']->invokeBaseMethod('saveOrder');
+        $form_state['transaction']->doAction('saveOrder');
       }
     }
   }
