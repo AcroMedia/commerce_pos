@@ -52,3 +52,14 @@
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .form-item {
   display: inline-block;
 }
+
+/**
+ * Pay form
+ */
+.commerce-pos-pay-col-payments {
+  float: left;
+  width: 75%;
+  padding-right: 20px;
+  box-sizing: border-box;
+}
+

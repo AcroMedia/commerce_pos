@@ -38,10 +38,10 @@ function commerce_pos_menu() {
   $items['pos/sale/pay'] = array(
     'title' => 'Pay',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_sale_pay'),
+    'page arguments' => array('commerce_pos_pay'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
-    'file' => 'includes/commerce_pos.sale.inc',
+    'file' => 'includes/commerce_pos.pay.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -141,9 +141,9 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'template' => 'commerce-pos-sale',
       'path' => $path . '/theme',
     ),
-    'commerce_pos_sale_pay' => array(
+    'commerce_pos_pay' => array(
       'render element' => 'form',
-      'template' => 'commerce-pos-sale-pay',
+      'template' => 'commerce-pos-pay',
       'path' => $path . '/theme',
     ),
     'commerce_pos_keypad' => array(
