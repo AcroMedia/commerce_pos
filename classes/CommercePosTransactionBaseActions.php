@@ -184,7 +184,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       $order_wrapper->status->set('completed');
 
       if (empty($order_wrapper->uid->value())) {
-        $this->createNewUser($order_wrapper);
+        $account = $this->createNewUser($order_wrapper);
+        $order_wrapper->uid->set($account->uid);
       }
 
       $this->transaction->doAction('save');
@@ -193,9 +194,9 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   }
 
   /**
-   * Creates a new user for a customer
+   * Creates a new user for a customer.
    */
-  protected function createNewUser(EntityDrupalWrapper $order_wrapper) {
+  protected function createNewUser(EntityDrupalWrapper $order_wrapper, $send_email = TRUE) {
     $customer_email = $this->transaction->data['customer email'];
 
     $order_wrapper->mail->set($customer_email);
@@ -211,8 +212,11 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
     user_save($account);
 
-    $order_wrapper->uid->set($account->uid);
-    drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+    if ($send_email) {
+      drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+    }
+
+    return $account;
   }
 
   /**

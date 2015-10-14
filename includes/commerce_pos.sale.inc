@@ -283,6 +283,7 @@ function commerce_pos_sale($form, &$form_state) {
         'placeholder' => t('email@address.com'),
       ),
       '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
+      '#required' => TRUE,
     );
   }
 
@@ -515,7 +516,7 @@ function commerce_pos_sale_pay_validate($form, &$form_state) {
 /**
  * Submit handler for the Sale form's "Pay" button.
  */
-function commerce_pos_pay_submit($form, &$form_state) {
+function commerce_pos_sale_pay_submit($form, &$form_state) {
   if (!empty($form_state['values']['transaction_options']['customer'])) {
     // Attempt to associate the transaction with a customer.
     $email_address = $form_state['values']['transaction_options']['customer'];
@@ -527,6 +528,8 @@ function commerce_pos_pay_submit($form, &$form_state) {
       }
     }
   }
+
+  $form_state['transaction']->doAction('save');
 
   drupal_goto('pos/sale/pay');
 }

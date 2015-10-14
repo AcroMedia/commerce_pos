@@ -74,6 +74,43 @@ function commerce_pos_receipt_menu() {
 }
 
 /**
+ * Implements hook_commerce_pos_pay_finish_commands().
+ */
+function commerce_pos_receipt_commerce_pos_pay_finish_commands(CommercePosTransaction $transaction) {
+  $commands = array();
+
+  $receipt = theme('commerce_pos_receipt', array('transaction' => $transaction));
+
+  $commands[] = array(
+    'command' => 'printReceipt',
+    'content' => $receipt,
+  );
+
+  return $commands;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_receipt_form_commerce_pos_pay_alter(&$form, &$form_state, $form_id) {
+  // Attach libraries and JS needed to print a receipt.
+  $js_settings = array(
+    'commercePosReceipt' => array(
+      'cssUrl' => url(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array(
+        'absolute' => TRUE,
+      )),
+    ),
+  );
+
+  $form['#attached']['libraries_load'][] = array('jquery-print');
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_receipt') . '/js/commerce_pos_receipt.js';
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => $js_settings,
+  );
+}
+
+/**
  * Access callback for printing a receipt.
  */
 function commerce_pos_receipt_print_access($transaction_id) {

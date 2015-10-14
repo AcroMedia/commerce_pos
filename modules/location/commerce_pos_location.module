@@ -31,6 +31,21 @@ function commerce_pos_location_menu() {
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_location_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_location_base' => array(
+      'class' => 'CommercePosLocationBase',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
+    ),
+  );
+}
+
+/**
  * Implements hook_permission().
  */
 function commerce_pos_location_permission() {

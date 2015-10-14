@@ -8,9 +8,7 @@
  *  $form
  */
 
-dpm($form, '$form');
 ?>
-
 
 <div class="commerce-pos-pay-container clearfix">
   <div class="commerce-pos-pay-col-payments">

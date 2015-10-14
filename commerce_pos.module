@@ -482,52 +482,6 @@ function commerce_pos_disable_payment_method($method_id) {
 }
 
 /**
- * Access callback for POS pages.
- *
- * @param string|array $access_arguments
- *   A list of permissions to check against.
- *
- * @return bool
- */
-function _commerce_pos_access_check($access_arguments) {
-  $access = FALSE;
-
-  if (is_string($access_arguments)) {
-    $access_arguments = array($access_arguments);
-  }
-
-  if (user_is_logged_in()) {
-    if (user_access('administer commerce pos')) {
-      $access = TRUE;
-    }
-    else {
-
-      // They're logged in, make sure they have permission to access the page.
-      $passed_all_checks = TRUE;
-
-      foreach ($access_arguments as $access_argument) {
-        if (!user_access($access_argument)) {
-          $passed_all_checks = FALSE;
-          break;
-        }
-      }
-
-      if ($passed_all_checks) {
-        $access = TRUE;
-      }
-    }
-  }
-
-  if (!$access) {
-    // If they're not even logged in, we should take them to our custom
-    // login page.
-    drupal_goto('pos/login');
-  }
-
-  return $access;
-}
-
-/**
  * Returns a sorted array of POS balance table rows.
  *
  * @param $totals
@@ -623,4 +577,50 @@ function _commerce_pos_product_autocomplete_build($product_id) {
   }
 
   return $data;
+}
+
+/**
+ * Access callback for POS pages.
+ *
+ * @param string|array $access_arguments
+ *   A list of permissions to check against.
+ *
+ * @return bool
+ */
+function _commerce_pos_access_check($access_arguments) {
+  $access = FALSE;
+
+  if (is_string($access_arguments)) {
+    $access_arguments = array($access_arguments);
+  }
+
+  if (user_is_logged_in()) {
+    if (user_access('administer commerce pos')) {
+      $access = TRUE;
+    }
+    else {
+
+      // They're logged in, make sure they have permission to access the page.
+      $passed_all_checks = TRUE;
+
+      foreach ($access_arguments as $access_argument) {
+        if (!user_access($access_argument)) {
+          $passed_all_checks = FALSE;
+          break;
+        }
+      }
+
+      if ($passed_all_checks) {
+        $access = TRUE;
+      }
+    }
+  }
+
+  if (!$access) {
+    // If they're not even logged in, we should take them to our custom
+    // login page.
+    drupal_goto('pos/login');
+  }
+
+  return $access;
 }

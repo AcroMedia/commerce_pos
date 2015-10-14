@@ -76,3 +76,16 @@ function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_elemen
 function hook_commerce_pos_product_lookup_alter(&$result, $keywords) {
 
 }
+
+/**
+ * Allows modules to add to the list of AJAX commands being returned when a
+ * POS transaction has been finalized via the "Pay" form.
+ *
+ * Modules should return an array of AJAX commands, to be merged in with the
+ * other commands.
+ */
+function hook_commerce_pos_pay_finish_commands(CommercePosTransaction $transaction) {
+  $commands = array();
+  $commands[] = ajax_command_alert(t('This is an example.'));
+  return $commands;
+}
