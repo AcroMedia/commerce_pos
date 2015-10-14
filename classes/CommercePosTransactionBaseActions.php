@@ -184,8 +184,9 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       $order_wrapper->status->set('completed');
 
       if (empty($order_wrapper->uid->value())) {
-        $account = $this->createNewUser($order_wrapper);
-        $order_wrapper->uid->set($account->uid);
+        if ($account = $this->createNewUser($order_wrapper)) {
+          $order_wrapper->uid->set($account->uid);
+        }
       }
 
       $this->transaction->doAction('save');
@@ -197,26 +198,31 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
    * Creates a new user for a customer.
    */
   protected function createNewUser(EntityDrupalWrapper $order_wrapper, $send_email = TRUE) {
-    $customer_email = $this->transaction->data['customer email'];
+    if (!empty($this->transaction->data['customer email'])) {
+      $customer_email = $this->transaction->data['customer email'];
 
-    $order_wrapper->mail->set($customer_email);
+      $order_wrapper->mail->set($customer_email);
 
-    // Have Commerce create a username for us.
-    $new_username = commerce_order_get_properties($order_wrapper->value(), array(), 'mail_username');
+      // Have Commerce create a username for us.
+      $new_username = commerce_order_get_properties($order_wrapper->value(), array(), 'mail_username');
 
-    $account = entity_create('user', array(
-      'name' => $new_username,
-      'mail' => $customer_email,
-      'status' => 1,
-    ));
+      $account = entity_create('user', array(
+        'name' => $new_username,
+        'mail' => $customer_email,
+        'status' => 1,
+      ));
 
-    user_save($account);
+      user_save($account);
 
-    if ($send_email) {
-      drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+      if ($send_email) {
+        drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+      }
+
+      return $account;
     }
-
-    return $account;
+    else {
+      return FALSE;
+    }
   }
 
   /**

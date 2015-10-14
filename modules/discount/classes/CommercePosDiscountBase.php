@@ -24,6 +24,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
 
     $actions += array(
       'addOrderDiscount',
+      'addLineItemDiscount',
+      'getExistingLineItemDiscountAmount',
+      'getExistingOrderDiscountAmount',
     );
 
     return $actions;
@@ -141,7 +144,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   protected function getDiscountComponentTitle($discount_name) {
     switch ($discount_name) {
       case self::LINE_ITEM_DISCOUNT_NAME:
-        return t('Line item discount');
+        return t('Product discount');
 
       case self::ORDER_DISCOUNT_NAME:
         return t('Order discount');

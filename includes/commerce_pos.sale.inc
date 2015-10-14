@@ -283,7 +283,6 @@ function commerce_pos_sale($form, &$form_state) {
         'placeholder' => t('email@address.com'),
       ),
       '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
-      '#required' => TRUE,
     );
   }
 
@@ -332,6 +331,8 @@ function commerce_pos_sale($form, &$form_state) {
   );
 
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
+
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.common.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.sale.js';
   $form['#attached']['js'][] = array(
     'type' => 'setting',

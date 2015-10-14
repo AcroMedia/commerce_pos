@@ -186,11 +186,11 @@ function printer_testing_page() {
 
   $output = '';
 
-  $output .= l(t('Click me'), 'pos/9/print-receipt', array('attributes' => array(
+  $output .= l(t('Click me'), 'pos/11/print-receipt', array('attributes' => array(
     'class' => array('use-ajax'),
   )));
 
-  $test = new CommercePosTransaction(9);
+  $test = new CommercePosTransaction(11);
 
   $output .= theme('commerce_pos_receipt', array('transaction' => $test));
 
@@ -198,13 +198,19 @@ function printer_testing_page() {
   return $output;
 }
 
+/**
+ * Builds a render array to be used in a POS receipt body.
+ *
+ * The array contains various order info, a summary of the line items, order
+ * totals, and payments received (and change given if applicable).
+ */
 function commerce_pos_receipt_build_receipt_body($order) {
   $output = array();
 
   $rows = array();
   $wrapper = entity_metadata_wrapper('commerce_order', $order);
-  $previous_row = FALSE;
 
+  // @TODO: make the type of line types that show up here configurable.
   foreach ($wrapper->commerce_line_items as $delta => $line_item) {
     if (!$line_item->value()) {
       // Handle broken line items by not skipping them - not sure what else to do here.
