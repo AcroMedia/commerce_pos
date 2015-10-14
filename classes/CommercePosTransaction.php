@@ -110,9 +110,11 @@ class CommercePosTransaction {
    */
   public function getOrderWrapper() {
     if ($this->orderId) {
-      if (!$this->orderWrapper) {
+      if (!$this->order) {
         $this->loadOrder();
       }
+
+      $this->checkOrderWrapper();
 
       return $this->orderWrapper;
     }
@@ -127,15 +129,10 @@ class CommercePosTransaction {
   public function loadOrder() {
     if ($this->orderId) {
       $this->order = commerce_order_load($this->orderId);
-
-      if ($this->order) {
-        $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
-      }
-
       return $this->order;
     }
     else {
-      throw new Exception(t('Cannot load order for POS transaction, it does not have an order ID!'));
+      return FALSE;
     }
   }
 
@@ -269,6 +266,22 @@ class CommercePosTransaction {
   }
 
   /**
+   * Returns or creates a new order wrapper as necessary.
+   *
+   * Metadata wrappers lose their reference to the original object when they're
+   * loaded from form_state variables. As a result, we need to check and make
+   * sure that the order wrapper is still indeed referencing the order.
+   */
+  protected function checkOrderWrapper() {
+    if ($this->order) {
+      if (($this->orderWrapper && $this->orderWrapper !== $this->order) ||
+        (!$this->orderWrapper)) {
+        $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
+      }
+    }
+  }
+
+  /**
    * Adds the specified product to the transaction's order.
    *
    * @param $line_item
@@ -295,8 +308,11 @@ class CommercePosTransaction {
    *   will be updated by merging the data from the existing line item onto the
    *   data from the incoming line item, giving precedence to the most recent data.
    *
-   * @return
-   *   The new or updated line item object or FALSE on failure.
+   * @return null The new or updated line item object or FALSE on failure.
+   * The new or updated line item object or FALSE on failure.
+   *
+   * @throws \EntityMetadataWrapperException
+   * @throws \Exception
    */
   protected function addLineItem($line_item, $combine) {
     // Do not add the line item if it doesn't have a unit price.
@@ -469,9 +485,12 @@ class CommercePosTransaction {
 
   /**
    * Checks for any modules defining additional base classes to be added to this
-   * transaction.
-   * @TODO: instead of doing this, can we maybe just register the base methods
-   * themselves for more direct calling?
+   * transaction and registers their action and subscriptions.
+   *
+   * Actions are invoked by calling the transaction's doAction method.
+   *
+   * Subscription methods are automatically called before and after an action
+   * is invoked.
    */
   private function collectBases() {
     foreach (module_invoke_all('commerce_pos_transaction_base_info') as $base_info) {

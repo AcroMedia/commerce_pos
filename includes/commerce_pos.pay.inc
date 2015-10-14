@@ -35,12 +35,12 @@ function commerce_pos_pay($form, &$form_state) {
     }
   }
 
-  $order_balance = commerce_payment_order_balance($form_state['order_wrapper']->value());
-
   if (!isset($form_state['transaction'])) {
     // No valid transaction found, go back to the sale form.
     drupal_goto('pos/sale');
   }
+
+  $order_balance = commerce_payment_order_balance($form_state['order_wrapper']->value());
 
   $line_item_count = 0;
 
@@ -220,4 +220,7 @@ function commerce_pos_pay_finish($form, &$form_state) {
   // necessary, print the receipt, and redirect back to the "Sale" form.
   // Also need to create and/or associate the order with a customer.
   $form_state['transaction']->doAction('completeTransaction');
+
+  drupal_set_message(t('Transaction completed'));
+  $form_state['redirect'] = 'pos/sale';
 }

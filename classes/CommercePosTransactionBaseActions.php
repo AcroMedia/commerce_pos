@@ -178,8 +178,6 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
    * adjustments as needed.
    */
   public function completeTransaction() {
-    // @TODO: this gets messed up because $order_wrapper no longer updates
-    // the actual order object in the transaction...
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
       $this->checkPaymentTransactions($order_wrapper);
 
