@@ -12,7 +12,6 @@
  */
 
 ?>
-????
 <div class="pos-receipt">
   <div class="receipt-header"><?php print render($receipt_header); ?></div>
 
