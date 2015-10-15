@@ -1,4 +1,5 @@
 (function ($) {
+  // @TODO: bootstrap is overriding this...
   // Overrides the default Drupal AJAX prototype beforeSend to add a custom
   // type of AJAX progress element.
   Drupal.ajax.prototype.beforeSend = function (xmlhttprequest, options) {
@@ -57,7 +58,6 @@
       $(this.element).after(this.progress.element);
     }
     else if (this.progress.type == 'commerce_pos') {
-      alert('loading yall');
     }
   };
 } (jQuery));

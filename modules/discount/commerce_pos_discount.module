@@ -45,6 +45,36 @@ function commerce_pos_discount_line_item_title() {
 }
 
 /**
+ * Implements hook_commerce_line_item_rebase_unit_price().
+ */
+function commerce_pos_discount_commerce_line_item_rebase_unit_price(&$price, $old_components, $line_item) {
+  // Check if any discounts have been applied to a line item and recalculate them
+  // as needed.
+  foreach ($old_components as $component) {
+    if (isset($component['price']['data']['pos_discount_type'])) {
+      $discount_type = $component['price']['data']['pos_discount_type'];
+      $cloned_line_item = clone $line_item;
+      $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $cloned_line_item);
+
+      switch ($discount_type) {
+        case 'percent':
+          CommercePosDiscountService::applyPercentDiscount($line_item_wrapper, $component['price']['data']['pos_discount_rate']);
+          break;
+
+        case 'fixed':
+          CommercePosDiscountService::applyFixedDiscount($line_item_wrapper, $component['price']['amount']);
+          break;
+      }
+
+      if ($component = CommercePosDiscountService::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, $component['price']['data']['discount_name'])) {
+        $component_name = 'discount|' . CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME;
+        $price['data'] = commerce_price_component_add($price, $component_name, $component['price'], FALSE);
+      }
+    }
+  }
+}
+
+/**
  * Implements hook_commerce_price_formatted_components_alter().
  */
 function commerce_pos_discount_commerce_price_formatted_components_alter(&$components, $price, $entity) {
@@ -103,7 +133,7 @@ function commerce_pos_discount_form_commerce_pos_sale_alter(&$form, &$form_state
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 5,
-          '#default_value' => $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id, CommercePosDiscountBase::LINE_ITEM_DISCOUNT_NAME),
+          '#default_value' => $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id, CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME),
         );
 
         $line_item_element['discounts']['add_discount']['percent_discount'] = array(
