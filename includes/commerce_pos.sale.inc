@@ -178,14 +178,14 @@ function commerce_pos_sale($form, &$form_state) {
         '#markup' => $line_item_wrapper->commerce_product->sku->value(),
       );
 
-      $unit_price = $line_item_wrapper->commerce_unit_price->value();
+      $base_price = commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price');
 
       $line_item_element['price_edit'] = array(
         '#type' => 'textfield',
         '#title' => t('@ @price', array(
-          '@price' => commerce_currency_format($unit_price['amount'], $unit_price['currency_code']),
+          '@price' => commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']),
         )),
-        '#default_value' => number_format($unit_price['amount'] / 100, 2),
+        '#default_value' => number_format($base_price[0]['price']['amount'] / 100, 2),
         '#size' => 10,
         '#element_key' => 'line-item-change-price',
         '#line_item_id' => $line_item_id,

@@ -217,6 +217,15 @@ class CommercePosTransaction {
         $line_item_wrapper->commerce_unit_price->set($unit_price);
         commerce_line_item_rebase_unit_price($line_item_wrapper->value());
 
+        // @TODO: this should really be done with Rules integration...
+        if (module_exists('commerce_tax')) {
+          module_load_include('inc', 'commerce_tax', 'commerce_tax.rules');
+          
+          foreach (commerce_tax_types() as $name => $tax_type) {
+            commerce_tax_calculate_by_type($line_item_wrapper->value(), $name);
+          }
+        }
+
         $line_item_wrapper->save();
         break;
       }

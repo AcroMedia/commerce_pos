@@ -53,8 +53,7 @@ function commerce_pos_discount_commerce_line_item_rebase_unit_price(&$price, $ol
   foreach ($old_components as $component) {
     if (isset($component['price']['data']['pos_discount_type'])) {
       $discount_type = $component['price']['data']['pos_discount_type'];
-      $cloned_line_item = clone $line_item;
-      $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $cloned_line_item);
+      $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
       switch ($discount_type) {
         case 'percent':
@@ -68,6 +67,7 @@ function commerce_pos_discount_commerce_line_item_rebase_unit_price(&$price, $ol
 
       if ($component = CommercePosDiscountService::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, $component['price']['data']['discount_name'])) {
         $component_name = 'discount|' . CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME;
+        $price['amount'] = $price['amount'] + $component['price']['amount'];
         $price['data'] = commerce_price_component_add($price, $component_name, $component['price'], FALSE);
       }
     }

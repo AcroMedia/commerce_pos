@@ -13,21 +13,6 @@ class CommercePosDiscountService {
   const ORDER_DISCOUNT_NAME = 'pos_order_discount';
 
   /**
-   * Recalculates POS discounts on a given line item
-   *
-   * @param EntityDrupalWrapper $line_item_wrapper
-   *   The line item to recalculate discounts on.
-   */
-  static function recalculateLineItemDiscount(EntityDrupalWrapper $line_item_wrapper) {
-    if ($component = self::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, self::LINE_ITEM_DISCOUNT_NAME)) {
-      /*dpm($component, '$component');*/
-
-      /*commerce_line_item_rebase_unit_price()*/
-
-    }
-  }
-
-  /**
    * Retrieves the price component relating to POS discount from a price field.
    *
    * @param $price_wrapper
