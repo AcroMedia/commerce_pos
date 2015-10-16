@@ -88,6 +88,13 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
       $components[$component['name']]['title'] = $component['price']['data']['pos_discount_component_title'];
     }
   }
+
+  foreach ($components as $component_name => &$component) {
+    // Make sure discount components show up before tax, which has a weight of 0.
+    if (strpos($component_name, 'discount|') === 0) {
+      $component['weight'] = -10;
+    }
+  }
 }
 
 /**
