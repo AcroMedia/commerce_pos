@@ -48,3 +48,10 @@ function commerce_pos_location_schema() {
 
   return $schema;
 }
+
+/**
+ * Implements hook_enable().
+ */
+function commerce_pos_location_enable() {
+  commerce_pos_location_configure_locations();
+}

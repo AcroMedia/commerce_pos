@@ -70,15 +70,21 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       $order->uid = 0;
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
 
-      // Create new default billing profile.
-      $billing_profile = entity_create('commerce_customer_profile', array('type' => 'billing'));
-      $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $billing_profile);
+      $administrative_area = NULL;
 
-      // @TODO: make the state configurable.
-      $profile_wrapper->commerce_customer_address->administrative_area->set('CA');
-      $profile_wrapper->save();
+      // Let other modules decide what the default province/state should be.
+      drupal_alter('commerce_pos_transaction_state', $administrative_area, $this->transaction);
 
-      $order_wrapper->commerce_customer_billing->set($billing_profile);
+      if (!empty($administrative_area)) {
+        // Create new default billing profile.
+        $billing_profile = entity_create('commerce_customer_profile', array('type' => 'billing'));
+        $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $billing_profile);
+
+        $profile_wrapper->commerce_customer_address->administrative_area->set($administrative_area);
+        $profile_wrapper->save();
+
+        $order_wrapper->commerce_customer_billing->set($billing_profile);
+      }
 
       commerce_order_save($order);
 

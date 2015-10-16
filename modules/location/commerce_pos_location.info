@@ -4,6 +4,7 @@ core = 7.x
 package = Commerce POS
 
 dependencies[] = commerce_pos
+dependencies[] = addressfield
 
 files[] = classes/CommercePosLocationBase.php
 files[] = includes/commerce_pos_location.controller.inc

@@ -98,17 +98,19 @@ function commerce_pos_menu() {
     'title' => 'Point of Sale',
     'description' => 'Administer POS.',
     'page callback' => 'system_admin_menu_block_page',
-    'access arguments' => array('access administration pages'),
+    'access arguments' => array('administer commerce pos'),
     'file path' => drupal_get_path('module', 'system'),
     'file' => 'system.admin.inc',
     'weight' => -7,
   );
 
   $items['admin/commerce/config/pos/settings'] = array(
-    'title' => 'Point of Sale Settings',
-    'page callback' => 'commerce_pos_settings',
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_settings'),
     'access arguments' => array('administer commerce pos'),
-    'file '=> 'includes/commerce_pos.admin.inc',
+    'file' => 'includes/commerce_pos.admin.inc',
+    'type' => MENU_CALLBACK,
   );
 
   return $items;
@@ -277,6 +279,29 @@ function commerce_pos_entity_info_alter(&$entity_info) {
     'label' => t('POS'),
     'custom settings' => TRUE,
   );
+}
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function commerce_pos_image_default_styles() {
+  $styles = array();
+
+  $styles['commerce_pos_thumbnail'] = array(
+    'label' => 'Commerce POS thumbnail',
+    'effects' => array(
+      array(
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 150,
+          'height' => 150,
+        ),
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  return $styles;
 }
 
 /**

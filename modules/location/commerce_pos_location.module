@@ -92,6 +92,14 @@ function commerce_pos_location_entity_info() {
     ),
     'views controller class' => 'EntityDefaultViewsController',
     'uri callback' => 'commerce_pos_location_uri',
+    'bundles' => array(
+      'commerce_pos_location' => array(
+        'label' => t('POS Location'),
+        'admin' => array(
+          'path' => 'admin/commerce/config/pos/locations',
+        ),
+      ),
+    ),
   );
 
   return $info;
@@ -170,6 +178,22 @@ function commerce_pos_location_form_commerce_pos_sale_alter(&$form, &$form_state
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_state_alter().
+ * @TODO: test this.
+ */
+function commerce_pos_location_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
+  if (!empty($transaction->locationId)) {
+    // Grab the location's administrative area from its address
+    $location = commerce_pos_location_load($transaction->locationId);
+    $location_wrapper = entity_metadata_wrapper('commerce_pos_location', $location);
+
+    if ($location_administrative_area = $location_wrapper->commerce_pos_location_address->administrative_area->value()) {
+      $administrative_area = $location_administrative_area;
+    }
+  }
+}
+
+/**
  * Additional submit handler for the POS login form.
  *
  * This will store the selected location in the session, as well as a cookie
@@ -221,6 +245,7 @@ function commerce_pos_location_form($form, &$form_state, $location = NULL) {
     '#type' => 'textfield',
     '#default_value' => isset($location->name) ? $location->name : '',
     '#required' => TRUE,
+    '#weight' => -50,
   );
 
   field_attach_form('commerce_pos_location', $location, $form, $form_state);
@@ -230,6 +255,8 @@ function commerce_pos_location_form($form, &$form_state, $location = NULL) {
     '#value' => isset($location->location_id) ? t('Update Location') : t('Save Location'),
     '#weight' => 50,
   );
+
+  dpm($form, '$form');
 
   return $form;
 }
@@ -330,4 +357,58 @@ function commerce_pos_location_options() {
   }
 
   return $locations;
+}
+
+/**
+ * Ensures the address field is present on location entities.
+ */
+function commerce_pos_location_configure_locations() {
+  // Look for or add an address field to the customer profile type.
+  $field_name = 'commerce_pos_location_address';
+  commerce_activate_field($field_name);
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_pos_location', $field_name, 'commerce_pos_location');
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'addressfield',
+      'cardinality' => 1,
+      'entity_types' => array('commerce_pos_location'),
+      'translatable' => FALSE,
+    );
+
+    $field = field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'commerce_pos_location',
+      'bundle' => 'commerce_pos_location',
+      'label' => t('Address'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'addressfield_standard',
+        'weight' => -10,
+        'settings' => array(
+          'format_handlers' => array('address', 'name-oneline'),
+        ),
+      ),
+      'display' => array(),
+    );
+
+    // Set the default display formatters for various view modes.
+    foreach (array('default') as $view_mode) {
+      $instance['display'][$view_mode] = array(
+        'label' => 'hidden',
+        'type' => 'addressfield_default',
+        'weight' => -10,
+      );
+    }
+
+    field_create_instance($instance);
+  }
 }

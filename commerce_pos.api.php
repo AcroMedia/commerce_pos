@@ -89,3 +89,22 @@ function hook_commerce_pos_pay_finish_commands(CommercePosTransaction $transacti
   $commands[] = ajax_command_alert(t('This is an example.'));
   return $commands;
 }
+
+/**
+ * Allows modules to specify the default state for a POS transaction's order.
+ *
+ * The state is used in price calculation rules to determine applicable taxes.
+ *
+ * The administrative_area of the order's billing information will be set to
+ * whatever $administrative_area is set to.
+ *
+ * @param $administrative_area
+ *   The administrative_area to use on the transaction order.
+ * @param CommercePosTransaction $transaction
+ *   The POS transaction object containing the order.
+ */
+function hook_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
+  if (empty($administrative_area)) {
+    $administrative_area = 90;
+  }
+}
