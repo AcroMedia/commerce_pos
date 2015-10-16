@@ -95,9 +95,6 @@ class CommercePosDiscountService {
           return;
         }
 
-        // Remove any existing discount components on the line item.
-        self::removeDiscountComponents($wrapper->commerce_unit_price, $discount_name);
-
         $unit_price = commerce_price_wrapper_value($wrapper, 'commerce_unit_price', TRUE);
         $calculated_discount = $unit_price['amount'] * $rate * -1;
 
@@ -154,9 +151,6 @@ class CommercePosDiscountService {
       case 'commerce_line_item':
 
         $discount_name = self::LINE_ITEM_DISCOUNT_NAME;
-
-        // Remove any existing discount components on the line item.
-        self::removeDiscountComponents($wrapper->commerce_unit_price, $discount_name);
 
         if ($discount_amount) {
 
@@ -340,6 +334,7 @@ class CommercePosDiscountService {
 
     // Set the new unit price.
     $line_item_wrapper->commerce_unit_price->amount = $updated_amount;
+
     // Add the discount amount as a price component.
     $price = $line_item_wrapper->commerce_unit_price->value();
     $type = check_plain('discount|' . $discount_name);
@@ -405,6 +400,8 @@ class CommercePosDiscountService {
    *   Wrapped commerce price.
    */
   static function removeDiscountComponents($price_wrapper, $discount_name_to_remove) {
+    $discount_amounts = 0;
+
     $data = (array) $price_wrapper->data->value() + array('components' => array());
     $component_removed = FALSE;
     // Remove price components belonging to order discounts.
@@ -421,6 +418,8 @@ class CommercePosDiscountService {
       }
 
       if ($remove) {
+        $discount_amounts += $component['price']['amount'];
+
         unset($data['components'][$key]);
         $component_removed = TRUE;
       }
@@ -434,7 +433,7 @@ class CommercePosDiscountService {
     $price_wrapper->data->set($data);
 
     // Re-set the total price.
-    $total = commerce_price_component_total($price_wrapper->value());
-    $price_wrapper->amount->set($total['amount']);
+    $new_total = $price_wrapper->amount->raw() - $discount_amounts;
+    $price_wrapper->amount->set($new_total);
   }
 }

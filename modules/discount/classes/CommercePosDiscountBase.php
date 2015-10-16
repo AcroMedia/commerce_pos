@@ -83,6 +83,10 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
     if ($line_item = $this->transaction->doAction('getLineItem', $line_item_id)) {
       $wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
+      // Remove any existing discount components on the line item.
+      CommercePosDiscountService::removeDiscountComponents($wrapper->commerce_unit_price, CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME);
+      $pre_discount_amount = $wrapper->commerce_unit_price->amount->raw();
+
       switch ($type) {
         case 'fixed':
           CommercePosDiscountService::applyFixedDiscount($wrapper, $amount);
@@ -92,6 +96,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
           CommercePosDiscountService::applyPercentDiscount($wrapper, $amount);
           break;
       }
+
+      $wrapper->commerce_unit_price->amount->set($pre_discount_amount);
+      commerce_line_item_rebase_unit_price($wrapper->value());
 
       $wrapper->save();
     }

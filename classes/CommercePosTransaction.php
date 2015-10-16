@@ -152,14 +152,39 @@ class CommercePosTransaction {
     // If the specified product exists...
     // Create a new product line item for it.
     $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id);
+    $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
     rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
+
+    $amount = $line_item_wrapper->commerce_unit_price->amount->raw();
+    $currency = $line_item_wrapper->commerce_unit_price->currency_code->raw();
+
+    // We "snapshot" the calculated sell price and use it as the line item's
+    // base price.
+    $unit_price = array(
+      'amount' => $amount,
+      'currency_code' => $currency,
+    );
+
+    $unit_price['data'] = commerce_price_component_add($unit_price, 'base_price', array(
+      'amount' => $amount,
+      'currency_code' => $currency,
+      'data' => array(),
+    ), TRUE, FALSE);
+
+    $line_item_wrapper->commerce_unit_price->set($unit_price);
 
     if (module_exists('commerce_pricing_attributes')) {
       // Hack to prevent the combine logic in addLineItem()
       // from incorrectly thinking that the newly-added line item is different than
       // previously-added line items.
       $line_item->commerce_pricing_attributes = serialize(array());
+    }
+
+    if (module_exists('commerce_tax')) {
+      foreach (commerce_tax_types() as $name => $type) {
+        commerce_tax_calculate_by_type($line_item, $name);
+      }
     }
 
     return $this->addLineItem($line_item, $combine);
@@ -203,28 +228,22 @@ class CommercePosTransaction {
    * @param int $line_item_id
    *   The ID of the line item in the transaction order to change the price of.
    * @param int $price
-   *   The new price, in dollars. This function will convert the price to cents.
+   *   The new price in cents.
    */
   public function setLineItemPrice($line_item_id, $price) {
     foreach ($this->getLineItems() as $order_line_item) {
       if ($order_line_item['line_item_id'] == $line_item_id) {
         $line_item = commerce_line_item_load($line_item_id);
         $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
         $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
-        $unit_price['amount'] = $price * 100;
+
+        // Change the base_price
+        $unit_price['amount'] = $price;
+        $unit_price['data']['components'][0]['amount'] = $price;
 
         $line_item_wrapper->commerce_unit_price->set($unit_price);
-        commerce_line_item_rebase_unit_price($line_item_wrapper->value());
 
-        // @TODO: this should really be done with Rules integration...
-        if (module_exists('commerce_tax')) {
-          module_load_include('inc', 'commerce_tax', 'commerce_tax.rules');
-          
-          foreach (commerce_tax_types() as $name => $tax_type) {
-            commerce_tax_calculate_by_type($line_item_wrapper->value(), $name);
-          }
-        }
+        commerce_line_item_rebase_unit_price($line_item);
 
         $line_item_wrapper->save();
         break;

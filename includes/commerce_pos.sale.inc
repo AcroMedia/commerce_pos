@@ -131,6 +131,8 @@ function commerce_pos_sale($form, &$form_state) {
         continue;
       }
 
+      dpm($line_item_wrapper->value(), 'item');
+
       $line_item_id = $line_item_wrapper->line_item_id->value();
 
       $form['line_items'][$line_item_id] = array(
@@ -430,7 +432,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
           break;
 
         case 'line-item-change-price':
-          $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value']);
+          $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value'] * 100);
           break;
 
         case 'customer-transaction-update':
