@@ -15,25 +15,27 @@
     <div class="commerce-pos-keypad-top">
       <div class="commerce-pos-keypad-title"></div>
       <div class="commerce-pos-keypad-close"></div>
-      <?php print render($element['amount']); ?>
+      <div class="commerce-pos-keypad-amount">
+        <?php print render($element['amount']); ?>
+      </div>
     </div>
     <div class="commerce-pos-keypad-keys">
       <div class="commerce-pos-keypad-numbers">
-        <div class="commerce-pos-keypad-key">1</div>
-        <div class="commerce-pos-keypad-key">2</div>
-        <div class="commerce-pos-keypad-key">3</div>
-        <div class="commerce-pos-keypad-key">4</div>
-        <div class="commerce-pos-keypad-key">5</div>
-        <div class="commerce-pos-keypad-key">6</div>
-        <div class="commerce-pos-keypad-key">7</div>
-        <div class="commerce-pos-keypad-key">8</div>
-        <div class="commerce-pos-keypad-key">9</div>
-        <div class="commerce-pos-keypad-key">0</div>
-        <div class="commerce-pos-keypad-key">.</div>
+        <div class="commerce-pos-keypad-key" data-keybind="1">1</div>
+        <div class="commerce-pos-keypad-key" data-keybind="2">2</div>
+        <div class="commerce-pos-keypad-key" data-keybind="3">3</div>
+        <div class="commerce-pos-keypad-key" data-keybind="4">4</div>
+        <div class="commerce-pos-keypad-key" data-keybind="5">5</div>
+        <div class="commerce-pos-keypad-key" data-keybind="6">6</div>
+        <div class="commerce-pos-keypad-key" data-keybind="7">7</div>
+        <div class="commerce-pos-keypad-key" data-keybind="8">8</div>
+        <div class="commerce-pos-keypad-key" data-keybind="9">9</div>
+        <div class="commerce-pos-keypad-key" data-keybind="0">0</div>
+        <div class="commerce-pos-keypad-key" data-keybind=".">.</div>
       </div>
 
       <div class="commerce-pos-keypad-actions">
-        <div class="commerce-pos-keypad-key">&lt;</div>
+        <div class="commerce-pos-keypad-key" data-keybind="">&lt;</div>
         <?php print render($element['add']); ?>
       </div>
     </div>
