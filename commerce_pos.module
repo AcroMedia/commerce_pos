@@ -170,6 +170,14 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'account' => NULL,
       ),
     ),
+    'commerce_pos_product_result' => array(
+      'template' => 'commerce-pos-product-result',
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'product' => NULL,
+      ),
+    ),
   );
 }
 
@@ -570,33 +578,60 @@ function commerce_pos_product_lookup($keywords) {
 }
 
 /**
+ * Retrieves a product's display node id.
+ *
+ * @param int $product_id
+ *   The product ID to retrieve the display node for.
+ *
+ * @return int
+ *   The nid of the display node, or 0 if none was found.
+ */
+function commerce_pos_get_product_display_nid($product_id) {
+  global $language;
+
+  // Iterate through fields which refer to products.
+  foreach (commerce_info_fields('commerce_product_reference', 'node') as $field) {
+    $query = 'SELECT entity_id, language FROM {field_data_' . $field['field_name'] . '}
+      WHERE entity_type = :node
+      AND ' . $field['field_name'] . '_product_id = :product_id
+      AND (language = :language OR language = :language_none)';
+
+    $result = db_query($query, array(
+      ':node' => 'node',
+      'product_id' => $product_id,
+      'language' => $language->language,
+      'language_none' => LANGUAGE_NONE,
+    ));
+
+    $no_lang_id = 0;
+
+    foreach ($result as $row) {
+      if ($row->language == $language->language) {
+        return $row->entity_id;
+      }
+      elseif ($row->language == LANGUAGE_NONE) {
+        $no_lang_id = $row->entity_id;
+      }
+    }
+
+    // If we made it this far, there were either no matches or the only match
+    // was one without a language set.
+    return $no_lang_id;
+  }
+
+  return 0;
+}
+
+/**
  * Builds an array of product data for the product autocomplete.
  */
 function _commerce_pos_product_autocomplete_build($product_id) {
   $data = FALSE;
 
   if ($product = commerce_product_load($product_id)) {
-    $stock = NULL;
-    $image = NULL;
-
-    // Note: an entity_metadata_wrapper is not used here for the sake of speed.
-    if ($stock = field_get_items('commerce_product', $product, 'commerce_stock')) {
-      $stock = !empty($stock[0]['value']) ? $stock[0]['value'] : 0;
-    }
-
-    if ($variation_images = field_get_items('commerce_product', $product, 'field_variation_images')) {
-      $image = !empty($variation_images[0]['uri']) ? file_create_url($variation_images[0]['uri']) : NULL;
-    }
-
-    $price = commerce_product_calculate_sell_price($product);
-    $price = commerce_currency_format($price['amount'], $price['currency_code']);
 
     $data = array(
-      'title' => $product->title,
-      'sku' => $product->sku,
-      'price' => $price,
-      'stock' => (int) $stock,
-      'image' => $image,
+      'markup' => theme('commerce_pos_product_result', array('product' => $product)),
     );
   }
 

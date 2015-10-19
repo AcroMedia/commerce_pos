@@ -37,20 +37,14 @@
 
         // Override the default UI autocomplete render function.
         element.data('ui-autocomplete')._renderItem = function (ul, item) {
-          var innerHtml = $('<div><span>' + item.title + '</span></div>');
-          var addButton = $('<a href="#" data-product-sku="' + item.sku + '">Add</a>');
-          addButton.click(function (e) {
-
-            addProductSku($(this).attr('data-product-sku'));
-            e.preventDefault();
-          });
-
-          innerHtml.find('> span').append(addButton);
-
           return $("<li></li>")
             .data("item.autocomplete", item)
-            .append(innerHtml)
-            .appendTo(ul);
+            .append(item.markup)
+            .appendTo(ul)
+            .find('.btn-add').click(function (e) {
+              addProductSku($(this).attr('data-product-sku'));
+              e.preventDefault();
+            });
         }
       });
     });
