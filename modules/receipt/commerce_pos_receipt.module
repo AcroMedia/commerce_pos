@@ -171,8 +171,6 @@ function commerce_pos_receipt_form_commerce_pos_sale_alter(&$form, &$form_state,
       )),
     );
   }
-
-  dpm($form, '$form');
 }
 
 /**

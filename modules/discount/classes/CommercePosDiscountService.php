@@ -192,8 +192,8 @@ class CommercePosDiscountService {
         $line_item = $line_item_wrapper->value();
         if (isset($line_item->data['discount_name']) && $line_item->data['discount_name'] == $discount_name) {
           self::setPriceComponent($line_item_wrapper, $discount_name, $discount_price);
-          $line_item_wrapper->save();
           $modified_existing = TRUE;
+          $line_item_wrapper->save();
         }
       }
     }
@@ -226,10 +226,14 @@ class CommercePosDiscountService {
     // Set the new unit price.
     $line_item_wrapper->commerce_unit_price->amount = $discount_amount['amount'];
 
+    $line_item_wrapper->commerce_unit_price->data = commerce_price_component_delete($line_item_wrapper->commerce_unit_price->value(), 'discount|pos_order_discount');
+
     // Add the discount amount as a price component.
     $price = $line_item_wrapper->commerce_unit_price->value();
     $type = check_plain('discount|' . $discount_name);
     $line_item_wrapper->commerce_unit_price->data = commerce_price_component_add($price, $type, $discount_amount, TRUE, TRUE);
+
+    self::calculateTaxes($line_item_wrapper);
 
     // Update the line item total.
     self::updateLineItemTotal($line_item_wrapper);
@@ -286,10 +290,13 @@ class CommercePosDiscountService {
       'currency_code' => $discount_amount['currency_code'],
       'data' => array(),
     );
+
     $discount_line_item_wrapper->commerce_unit_price->data = commerce_price_component_add($base_price, 'base_price', $base_price, TRUE);
 
     // Add the discount price component.
     self::addPriceComponent($discount_line_item_wrapper, $discount_name, $discount_amount, $data);
+
+    self::calculateTaxes($discount_line_item_wrapper);
 
     // Save the line item and add it to the order.
     $discount_line_item_wrapper->save();
@@ -435,5 +442,21 @@ class CommercePosDiscountService {
     // Re-set the total price.
     $new_total = $price_wrapper->amount->raw() - $discount_amounts;
     $price_wrapper->amount->set($new_total);
+  }
+
+  /**
+   * Calculate the taxes on a given line item
+   */
+  protected static function calculateTaxes($line_item_wrapper) {
+    if (module_exists('commerce_tax')) {
+      module_load_include('inc', 'commerce_tax', 'commerce_tax.rules');
+
+      // First, remove all tax components from the line item.
+      commerce_tax_remove_taxes($line_item_wrapper, FALSE, array_keys(commerce_tax_rates()));
+
+      foreach (commerce_tax_types() as $name => $type) {
+        commerce_tax_calculate_by_type($line_item_wrapper->value(), $name);
+      }
+    }
   }
 }
