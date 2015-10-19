@@ -28,6 +28,7 @@
     </div>
 
     <?php hide($form['transaction_options']); ?>
+    <?php hide($form['parked_transactions']); ?>
     <?php print drupal_render_children($form); ?>
   </div>
 

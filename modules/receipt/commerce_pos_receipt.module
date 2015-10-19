@@ -90,6 +90,21 @@ function commerce_pos_receipt_menu() {
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_receipt_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_receipt_base' => array(
+      'class' => 'CommercePosReceiptBase',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
+    ),
+  );
+}
+
+/**
  * Implements hook_entity_info_alter().
  */
 function commerce_pos_receipt_entity_info_alter(&$entity_info) {
@@ -131,19 +146,39 @@ function commerce_pos_receipt_commerce_pos_pay_finish_commands(CommercePosTransa
  * Implements hook_form_FORM_ID_alter().
  */
 function commerce_pos_receipt_form_commerce_pos_sale_alter(&$form, &$form_state, $form_id) {
-  if (isset($_SESSION['commerce_pos_previous_transaction'])) {
-    $transaction_options['print_previous'] = array(
-      '#markup' => (t('Print previous transaction receipt', 'pos/' . $_SESSION['commerce_pos_previous_transaction'] . '/print-receipt')),
+  // Attach libraries and JS needed to print a receipt.
+  $js_settings = array(
+    'commercePosReceipt' => array(
+      'cssUrl' => url(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array(
+        'absolute' => TRUE,
+      )),
+    ),
+  );
+
+  $form['#attached']['libraries_load'][] = array('jquery-print');
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_receipt') . '/js/commerce_pos_receipt.js';
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => $js_settings,
+  );
+
+  if (isset($_SESSION['commerce_pos_discount_previous_transaction'])) {
+    $form['print_previous'] = array(
+      '#markup' => l(t('Print previous transaction receipt'), 'pos/' . $_SESSION['commerce_pos_discount_previous_transaction'] . '/print-receipt', array(
+        'attributes' => array(
+          'class' => array('use-ajax', 'commerce-pos-receipt-print-previous'),
+        ),
+      )),
     );
   }
+
+  dpm($form, '$form');
 }
 
 /**
  * Implements hook_form_FORM_ID_alter().
  */
 function commerce_pos_receipt_form_commerce_pos_pay_alter(&$form, &$form_state, $form_id) {
-
-
   // Attach libraries and JS needed to print a receipt.
   $js_settings = array(
     'commercePosReceipt' => array(
@@ -199,14 +234,9 @@ function printer_testing_page() {
 
   $output = '';
 
-  $output .= l(t('Click me'), 'pos/11/print-receipt', array('attributes' => array(
+  $output .= l(t('Click me'), 'pos/1/print-receipt', array('attributes' => array(
     'class' => array('use-ajax'),
   )));
-
-  $test = new CommercePosTransaction(11);
-
-  $output .= theme('commerce_pos_receipt', array('transaction' => $test));
-
 
   return $output;
 }

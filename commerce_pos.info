@@ -8,7 +8,6 @@ dependencies[] = commerce_product
 dependencies[] = commerce_cop
 dependencies[] = commerce_payment
 dependencies[] = ctools
-dependencies[] = xautoload (>= 7.x-5.0)
 
 ; Class definitions
 files[] = classes/CommercePosService.php
