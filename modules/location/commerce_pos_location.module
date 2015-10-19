@@ -256,8 +256,6 @@ function commerce_pos_location_form($form, &$form_state, $location = NULL) {
     '#weight' => 50,
   );
 
-  dpm($form, '$form');
-
   return $form;
 }
 

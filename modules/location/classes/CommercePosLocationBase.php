@@ -11,9 +11,8 @@ class CommercePosLocationBase extends CommercePosTransactionBase implements Comm
    */
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
-
-    $subscriptions['save']['before'][] = 'beforeSave';
-
+    $subscriptions['save']['before'][] = 'detectLocation';
+    $subscriptions['createNewOrder']['before'][] = 'detectLocation';
     return $subscriptions;
   }
 
@@ -23,7 +22,7 @@ class CommercePosLocationBase extends CommercePosTransactionBase implements Comm
    * This checks to see if the transaction's location_id is different than the
    * location ID in the session and will modify it as needed.
    */
-  public function beforeSave() {
+  public function detectLocation() {
     if ($current_location_id = commerce_pos_location_get_current_location()) {
       if ($current_location_id != $this->transaction->locationId) {
         $this->transaction->locationId = $current_location_id;

@@ -89,10 +89,24 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
     }
   }
 
+  $is_pos_order = (isset($entity->type) && $entity->type == 'commerce_order' && $entity->status == 'commerce_pos_in_progress');
+
   foreach ($components as $component_name => &$component) {
     // Make sure discount components show up before tax, which has a weight of 0.
     if (strpos($component_name, 'discount|') === 0) {
       $component['weight'] = -10;
+    }
+
+    if ($is_pos_order) {
+      switch ($component_name) {
+        case 'base_price':
+          $component['title'] = t('Subtotal (excl taxes)');
+          break;
+
+        case 'commerce_price_formatted_amount':
+          $component['title'] = t('Total');
+          break;
+      }
     }
   }
 }

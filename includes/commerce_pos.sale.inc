@@ -12,6 +12,7 @@ function commerce_pos_sale($form, &$form_state) {
   global $user;
 
   commerce_pos_sale_ajax_check($form, $form_state);
+  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
@@ -130,8 +131,6 @@ function commerce_pos_sale($form, &$form_state) {
       if ($line_item_wrapper->type->value() != 'product') {
         continue;
       }
-
-      dpm($line_item_wrapper->value(), 'item');
 
       $line_item_id = $line_item_wrapper->line_item_id->value();
 
@@ -288,43 +287,7 @@ function commerce_pos_sale($form, &$form_state) {
     );
   }
 
-  // Parked transactions
-  if ($parked_transactions = CommercePosService::getParkedTransactions(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
-    $form['parked_transactions'] = array(
-      '#type' => 'container',
-      '#tree' => TRUE,
-    );
-
-    $description = format_plural(count($parked_transactions), '1 Transaction Parked', '@count Transactions Parked') . ' - ';
-
-    $form['parked_transactions']['description'] = array(
-      '#markup' => $description,
-    );
-
-    foreach ($parked_transactions as $transaction_id) {
-      if (count($parked_transactions) == 1) {
-        $button_text = t('Retrieve');
-      }
-      else {
-        $button_text = t('Retrieve Transaction #@id', array(
-          '@id' => $transaction_id,
-        ));
-      }
-
-      $form['parked_transactions'][$transaction_id] = array(
-        '#type' => 'button',
-        '#value' => $button_text,
-        '#attributes' => array(
-          'class' => array('commerce-pos-btn-retrieve-transaction'),
-        ),
-        '#ajax' => $wrapper_ajax,
-        '#name' => 'retrieve-parked-transaction-' . $transaction_id,
-        '#transaction_id' => $transaction_id,
-        '#disabled' => $has_active_transaction,
-        '#element_key' => 'retrieve-parked-transaction',
-      );
-    }
-  }
+  $form['parked_transactions'] = commerce_pos_parked_transactions_section(CommercePosService::TRANSACTION_TYPE_SALE, $wrapper_ajax, $has_active_transaction);
 
   // Attach our CSS and JS
   $form['#attached']['library'][] = array(
@@ -375,7 +338,6 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
     if (!empty($form_state['triggering_element']['#element_key'])) {
       /* @var CommercePosTransaction $transaction */
       $transaction = $form_state['transaction'];
-
       $form_state['order_updated'] = TRUE;
 
       switch ($triggering_element['#element_key']) {
