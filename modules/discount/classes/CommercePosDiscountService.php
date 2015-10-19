@@ -37,6 +37,25 @@ class CommercePosDiscountService {
   }
 
   /**
+   * Apply a specific type of discount.
+   *
+   * This simply services as a centralized function to control which discount
+   * method(s) to call, rather than each individual piece of coding having to
+   * determine where to call applyPercentDiscount or applyFixedDiscount.
+   */
+  static function applyDiscount($wrapper, $type, $rate) {
+    switch ($type) {
+      case 'percent':
+        CommercePosDiscountService::applyPercentDiscount($wrapper, $rate);
+        break;
+
+      case 'fixed':
+        CommercePosDiscountService::applyFixedDiscount($wrapper, $rate);
+        break;
+    }
+  }
+
+  /**
    * A modified version of commerce_discount_percentage().
    */
   static function applyPercentDiscount($wrapper, $rate) {
@@ -74,7 +93,7 @@ class CommercePosDiscountService {
 
           // Modify the existing discount line item or add a new line item
           // if that fails.
-          if (!self::setExistingLineItemPrice($wrapper, $discount_name, $discount_amount)) {
+          if (!self::setExistingLineItemPrice($wrapper, $discount_name, $discount_amount, $component_data)) {
             self::addLineItem($wrapper, $discount_name, $discount_amount, $component_data);
           }
         }
@@ -136,7 +155,7 @@ class CommercePosDiscountService {
           }
 
           // Modify the existing discount line item or add a new one if that fails.
-          if (!self::setExistingLineItemPrice($wrapper, $discount_name, $discount_price)) {
+          if (!self::setExistingLineItemPrice($wrapper, $discount_name, $discount_price, $component_data)) {
             self::addLineItem($wrapper, $discount_name, $discount_price, $component_data);
           }
         }
@@ -179,11 +198,13 @@ class CommercePosDiscountService {
    *   The name of the discount being applied.
    * @param array $discount_price
    *   The discount amount price array (amount, currency_code).
+   * @param array $component_data
+   *   Any price data to merge into the component.
    *
    * @return bool
    *   TRUE if an existing line item was successfully modified, FALSE otherwise.
    */
-  static function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_price) {
+  static function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_price, $component_data = array()) {
     $modified_existing = FALSE;
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
       if ($line_item_wrapper->getBundle() == 'commerce_pos_discount') {
@@ -191,7 +212,7 @@ class CommercePosDiscountService {
         // added by discount module.
         $line_item = $line_item_wrapper->value();
         if (isset($line_item->data['discount_name']) && $line_item->data['discount_name'] == $discount_name) {
-          self::setPriceComponent($line_item_wrapper, $discount_name, $discount_price);
+          self::setPriceComponent($line_item_wrapper, $discount_name, $discount_price, $component_data);
           $modified_existing = TRUE;
           $line_item_wrapper->save();
         }
@@ -210,8 +231,10 @@ class CommercePosDiscountService {
    *   The name of the discount being applied.
    * @param array $discount_amount
    *   The discount amount price array (amount, currency_code).
+   * @param array $component_data
+   *   Any price data to merge into the component.
    */
-  static function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount) {
+  static function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount, $component_data = array()) {
     $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
     // Currencies don't match, abort.
     if ($discount_amount['currency_code'] != $unit_price['currency_code']) {
@@ -223,9 +246,10 @@ class CommercePosDiscountService {
       'pos_discount_component_title' => self::getDiscountComponentTitle($discount_name),
     );
 
+    $discount_amount['data'] += $component_data;
+
     // Set the new unit price.
     $line_item_wrapper->commerce_unit_price->amount = $discount_amount['amount'];
-
     $line_item_wrapper->commerce_unit_price->data = commerce_price_component_delete($line_item_wrapper->commerce_unit_price->value(), 'discount|pos_order_discount');
 
     // Add the discount amount as a price component.
@@ -401,6 +425,26 @@ class CommercePosDiscountService {
   }
 
   /**
+   * Updates any order discounts that need to have their amounts adjusted.
+   *
+   * @param $order_wrapper
+   *   A metadata wrapper of the commerce_order to update the discounts of.
+   */
+  public static function updateOrderDiscounts($order_wrapper) {
+    foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+      if ($line_item_wrapper->getBundle() == 'commerce_pos_discount') {
+        $price_components = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price');
+
+        foreach ($price_components as $price_component) {
+          if (isset($price_component['price']['data']['pos_discount_type'])) {
+            self::applyDiscount($order_wrapper, $price_component['price']['data']['pos_discount_type'], $price_component['price']['data']['pos_discount_rate']);
+          }
+        }
+      }
+    }
+  }
+
+  /**
    * Remove discount components from a given price and recalculate the total.
    *
    * @param object $price_wrapper
@@ -445,13 +489,17 @@ class CommercePosDiscountService {
   }
 
   /**
-   * Calculate the taxes on a given line item
+   * Calculate the taxes on a given line item.
+   *
+   * @param $line_item_wrapper
+   *   A metadata wrapper representing the line item.
    */
   protected static function calculateTaxes($line_item_wrapper) {
     if (module_exists('commerce_tax')) {
       module_load_include('inc', 'commerce_tax', 'commerce_tax.rules');
 
-      // First, remove all tax components from the line item.
+      // First remove all existing tax components from the line item if any
+      // exist.
       commerce_tax_remove_taxes($line_item_wrapper, FALSE, array_keys(commerce_tax_rates()));
 
       foreach (commerce_tax_types() as $name => $type) {

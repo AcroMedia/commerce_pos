@@ -29,9 +29,8 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
 
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
-
     $subscriptions['deleteLineItem']['after'][] = 'afterDeleteLineItem';
-
+    $subscriptions['saveOrder']['before'][] = 'beforeSaveOrder';
     return $subscriptions;
   }
 
@@ -43,16 +42,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
    */
   public function addOrderDiscount($type, $amount) {
     if ($wrapper = $this->transaction->getOrderWrapper()) {
-      switch ($type) {
-        case 'fixed':
-          CommercePosDiscountService::applyFixedDiscount($wrapper, $amount);
-          break;
-
-        case 'percent':
-          CommercePosDiscountService::applyPercentDiscount($wrapper, $amount);
-          break;
-      }
-
+      CommercePosDiscountService::applyDiscount($wrapper, $type, $amount);
       $wrapper->save();
     }
   }
@@ -87,15 +77,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
       CommercePosDiscountService::removeDiscountComponents($wrapper->commerce_unit_price, CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME);
       $pre_discount_amount = $wrapper->commerce_unit_price->amount->raw();
 
-      switch ($type) {
-        case 'fixed':
-          CommercePosDiscountService::applyFixedDiscount($wrapper, $amount);
-          break;
-
-        case 'percent':
-          CommercePosDiscountService::applyPercentDiscount($wrapper, $amount);
-          break;
-      }
+      CommercePosDiscountService::applyDiscount($wrapper, $type, $amount);
 
       $wrapper->commerce_unit_price->amount->set($pre_discount_amount);
       commerce_line_item_rebase_unit_price($wrapper->value());
@@ -134,5 +116,14 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
     }
 
     return 0;
+  }
+
+  /**
+   * Act upon the transaction's order being saved.
+   */
+  public function beforeSaveOrder() {
+    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
+      CommercePosDiscountService::updateOrderDiscounts($order_wrapper);
+    }
   }
 }

@@ -553,6 +553,9 @@ class CommercePosTransaction {
             }
           }
         }
+
+        // @TODO: events should replace the subscription system.
+        // Register all events that the Base class provides.
       }
     }
   }
