@@ -130,7 +130,20 @@ function commerce_pos_receipt_commerce_pos_pay_finish_commands(CommercePosTransa
 /**
  * Implements hook_form_FORM_ID_alter().
  */
+function commerce_pos_receipt_form_commerce_pos_sale_alter(&$form, &$form_state, $form_id) {
+  if (isset($_SESSION['commerce_pos_previous_transaction'])) {
+    $transaction_options['print_previous'] = array(
+      '#markup' => (t('Print previous transaction receipt', 'pos/' . $_SESSION['commerce_pos_previous_transaction'] . '/print-receipt')),
+    );
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
 function commerce_pos_receipt_form_commerce_pos_pay_alter(&$form, &$form_state, $form_id) {
+
+
   // Attach libraries and JS needed to print a receipt.
   $js_settings = array(
     'commercePosReceipt' => array(

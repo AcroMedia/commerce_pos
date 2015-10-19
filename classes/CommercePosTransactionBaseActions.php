@@ -32,6 +32,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   public function save() {
     $transaction = $this->transaction;
 
+    $transaction->changed = REQUEST_TIME;
+
     $transaction_array = array(
       'transaction_id' => $transaction->transactionId,
       'uid' => $transaction->uid,
@@ -39,6 +41,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'type' => $transaction->type,
       'data' => $transaction->data,
       'location_id' => $transaction->locationId,
+      'changed' => $transaction->changed,
+      'created' => $transaction->created,
     );
 
     if ($transaction->transactionId) {

@@ -241,6 +241,7 @@ function commerce_pos_pay_validate($form, &$form_state) {
  */
 function commerce_pos_pay_finish($form, &$form_state) {
   $form_state['transaction']->doAction('completeTransaction');
+  $_SESSION['commerce_pos_previous_transaction'] = $form_state['transaction']->transaction_id;
   drupal_set_message(t('Transaction completed'));
 }
 

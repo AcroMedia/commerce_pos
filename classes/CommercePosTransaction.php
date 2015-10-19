@@ -15,6 +15,8 @@ class CommercePosTransaction {
   public $type = 0;
   public $locationId = 0;
   public $data = array();
+  public $created = 0;
+  public $changed = 0;
 
   protected $bases = array();
   protected $order = FALSE;
@@ -36,6 +38,7 @@ class CommercePosTransaction {
     elseif ($type !== NULL && $uid !== NULL) {
       $this->uid = $uid;
       $this->type = $type;
+      $this->created = REQUEST_TIME;
     }
     else {
       throw new Exception(t('Cannot initialize POS transaction: invalid arguments supplied.'));
@@ -464,6 +467,8 @@ class CommercePosTransaction {
         $this->orderId = $result['order_id'];
         $this->type = $result['type'];
         $this->locationId = $result['location_id'];
+        $this->created = $result['created'];
+        $this->changed = $result['changed'];
 
         if (empty($result['data'])) {
           $this->data = array();
