@@ -1,27 +1,43 @@
 <?php
 
 /**
- * @file
- * commerce_pos.pay.inc
+ * Payment functionality for POS returns and sales.
  */
 
 /**
- * Callback for the POS "pay" form.
+ * Callback for the POS sale payment form.
  */
-function commerce_pos_pay($form, &$form_state) {
+function commerce_pos_sale_payment($form, &$form_state) {
+  commerce_pos_payment($form, $form_state, CommercePosService::TRANSACTION_TYPE_SALE);
+  return $form;
+}
+
+/**
+ * Callback for the POS return payment form.
+ */
+function commerce_pos_return_payment($form, &$form_state) {
+  commerce_pos_payment($form, $form_state, CommercePosService::TRANSACTION_TYPE_RETURN);
+  return $form;
+}
+
+/**
+ * Callback to build a POS payment form.
+ */
+function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   global $user;
 
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
-  commerce_pos_pay_ajax_check($form, $form_state);
+  commerce_pos_payment_ajax_check($form, $form_state);
 
   $payment_methods = commerce_pos_get_payment_methods();
   $wrapper_id = 'commerce-pos-pay-form-wrapper';
+  $form['#theme'] = 'commerce_pos_payment';
 
   $form['#prefix'] = '<div id="' . $wrapper_id . '">';
   $form['#suffix'] = '</div>';
   $form_ajax = array(
     'wrapper' => 'commerce-pos-pay-form-wrapper',
-    'callback' => 'commerce_pos_pay_wrapper_js',
+    'callback' => 'commerce_pos_payment_wrapper_js',
   );
 
   if (empty($payment_methods)) {
@@ -29,7 +45,7 @@ function commerce_pos_pay($form, &$form_state) {
   }
 
   if (!isset($form_state['transaction'])) {
-    if ($transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid)) {
+    if ($transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid)) {
       $order_wrapper = $transaction->getOrderWrapper();
 
       if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress' ) {
@@ -77,7 +93,7 @@ function commerce_pos_pay($form, &$form_state) {
 
     $payment_ajax = array(
       'wrapper' => 'commerce-pos-sale-keypad-wrapper',
-      'callback' => 'commerce_pos_pay_keypad_js',
+      'callback' => 'commerce_pos_payment_keypad_js',
       'effect' => 'fade',
     );
 
@@ -115,8 +131,8 @@ function commerce_pos_pay($form, &$form_state) {
         '#type' => 'submit',
         '#value' => t('add'),
         '#name' => 'commerce-pos-pay-keypad-add',
-        '#validate' => array('commerce_pos_pay_add_payment_validate'),
-        '#submit' => array('commerce_pos_pay_add_payment_submit'),
+        '#validate' => array('commerce_pos_payment_add_payment_validate'),
+        '#submit' => array('commerce_pos_payment_add_payment_submit'),
         '#ajax' => $form_ajax,
         '#payment_method_id' => $method_id,
       );
@@ -139,10 +155,10 @@ function commerce_pos_pay($form, &$form_state) {
       '#type' => 'submit',
       '#value' => t('Finish'),
       '#disabled' => $order_balance['amount'] > 0,
-      '#validate' => array('commerce_pos_pay_validate'),
-      '#submit' => array('commerce_pos_pay_finish'),
+      '#validate' => array('commerce_pos_payment_validate'),
+      '#submit' => array('commerce_pos_payment_finish'),
       '#ajax' => array(
-        'callback' => 'commerce_pos_pay_finish_js',
+        'callback' => 'commerce_pos_payment_finish_js',
         'wrapper' => $wrapper_id,
       ),
     );
@@ -173,32 +189,30 @@ function commerce_pos_pay($form, &$form_state) {
     );
   }
 
-  $form['parked_transactions'] = commerce_pos_parked_transactions_section(CommercePosService::TRANSACTION_TYPE_SALE, $form_ajax, !empty($form_state['transaction']));
+  $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
 
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.pay.js';
-
-  return $form;
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.payment.js';
 }
 
 /**
  * AJAX callback for the Pay form keypad.
  */
-function commerce_pos_pay_keypad_js($form, &$form_state) {
+function commerce_pos_payment_keypad_js($form, &$form_state) {
   return $form['keypad'];
 }
 
 /**
  * AJAX callback for the Pay form's wrapper.
  */
-function commerce_pos_pay_wrapper_js($form, &$form_state) {
+function commerce_pos_payment_wrapper_js($form, &$form_state) {
   return $form;
 }
 
 /**
  * Validation handler for the "Add" payment button.
  */
-function commerce_pos_pay_add_payment_validate($form, &$form_state) {
+function commerce_pos_payment_add_payment_validate($form, &$form_state) {
   if (!is_numeric($form_state['values']['keypad']['amount'])) {
     form_set_error('keypad][amount', t('Payment amount must be a number.'));
   }
@@ -207,7 +221,7 @@ function commerce_pos_pay_add_payment_validate($form, &$form_state) {
 /**
  * Submit handler for the "Add" payment button.
  */
-function commerce_pos_pay_add_payment_submit($form, &$form_state) {
+function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
   $order_wrapper = $form_state['transaction']->getOrderWrapper();
   $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_wrapper->order_id->value());
@@ -223,8 +237,9 @@ function commerce_pos_pay_add_payment_submit($form, &$form_state) {
 
 /**
  * Submit handler for the "Void" button.
+ * @TODO: is this even called?
  */
-function commerce_pos_pay_void_submit($form, &$form_state) {
+function commerce_pos_payment_void_submit($form, &$form_state) {
   $form_state['transaction']->void();
   $form_state['redirect'] = 'pos/sale';
 }
@@ -232,14 +247,14 @@ function commerce_pos_pay_void_submit($form, &$form_state) {
 /**
  * Validation handler for the pay form's "Finish" button.
  */
-function commerce_pos_pay_validate($form, &$form_state) {
+function commerce_pos_payment_validate($form, &$form_state) {
 
 }
 
 /**
  * Submit handler for the pay form's "Finish" button.
  */
-function commerce_pos_pay_finish($form, &$form_state) {
+function commerce_pos_payment_finish($form, &$form_state) {
   $form_state['transaction']->doAction('completeTransaction');
   $_SESSION['commerce_pos_previous_transaction'] = $form_state['transaction']->transaction_id;
   drupal_set_message(t('Transaction completed'));
@@ -250,7 +265,7 @@ function commerce_pos_pay_finish($form, &$form_state) {
  *
  * This logic will occur AFTER the finish submit handler.
  */
-function commerce_pos_pay_finish_js($form, &$form_state) {
+function commerce_pos_payment_finish_js($form, &$form_state) {
   module_load_include('inc', 'ctools', 'includes/ajax');
 
   $commands = array();
@@ -271,7 +286,7 @@ function commerce_pos_pay_finish_js($form, &$form_state) {
  *
  * This will look at what triggered the AJAX submission and act accordingly.
  */
-function commerce_pos_pay_ajax_check($form, &$form_state) {
+function commerce_pos_payment_ajax_check($form, &$form_state) {
   if (isset($form_state['triggering_element'])) {
     $triggering_element = $form_state['triggering_element'];
 

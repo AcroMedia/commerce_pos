@@ -9,7 +9,6 @@
  * Callback for the main POS sale form.
  */
 function commerce_pos_sale($form, &$form_state) {
-  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.transaction');
   commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_SALE);
   return $form;
 }
@@ -18,7 +17,6 @@ function commerce_pos_sale($form, &$form_state) {
  * Callback for the POS return form.
  */
 function commerce_pos_return($form, &$form_state) {
-  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.transaction');
   commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_RETURN);
   return $form;
 }
@@ -31,7 +29,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   commerce_pos_transaction_ajax_check($form, $form_state);
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
+
   $form['#theme'] = 'commerce_pos_transaction';
+  $form['#redirect_key'] = arg(1);
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
@@ -522,8 +522,6 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
   }
 
   $form_state['transaction']->doAction('save');
-
-  // @TODO: this needs to go to either sale or return.
-  drupal_goto('pos/sale/pay');
+  drupal_goto('pos/' . $form['#redirect_key'] . '/payment');
 }
 

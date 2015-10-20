@@ -35,13 +35,13 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/sale/pay'] = array(
+  $items['pos/sale/payment'] = array(
     'title' => 'Pay',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_pay'),
+    'page arguments' => array('commerce_pos_sale_payment'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
-    'file' => 'includes/commerce_pos.pay.inc',
+    'file' => 'includes/commerce_pos.payment.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -52,6 +52,16 @@ function commerce_pos_menu() {
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos returns'),
     'file' => 'includes/commerce_pos.transaction.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/return/payment'] = array(
+    'title' => 'Pay',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_return_payment'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos returns'),
+    'file' => 'includes/commerce_pos.payment.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -143,9 +153,9 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'template' => 'commerce-pos-transaction',
       'path' => $path . '/theme',
     ),
-    'commerce_pos_pay' => array(
+    'commerce_pos_payment' => array(
       'render element' => 'form',
-      'template' => 'commerce-pos-pay',
+      'template' => 'commerce-pos-payment',
       'path' => $path . '/theme',
     ),
     'commerce_pos_keypad' => array(
