@@ -43,6 +43,7 @@
             .appendTo(ul)
             .find('.btn-add').click(function (e) {
               addProductSku($(this).attr('data-product-sku'));
+              element.data('ui-autocomplete').close();
               e.preventDefault();
             });
         }

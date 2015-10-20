@@ -106,6 +106,7 @@ function commerce_pos_sale($form, &$form_state) {
     '#attributes' => array(
       'class' => array('commerce-pos-product-autocomplete', 'commerce-pos-product-search'),
     ),
+    '#element_validate' => array('_commerce_pos_sale_validate_product_input'),
   );
 
   $form['product_search']['product_sku'] = array(
@@ -310,6 +311,15 @@ function commerce_pos_sale($form, &$form_state) {
   );
 
   return $form;
+}
+
+/**
+ * Validation handler for the product search input.
+ */
+function _commerce_pos_sale_validate_product_input($element, &$form_state, $form) {
+  // Always set this input back to empty.
+  unset($form_state['input']['input']);
+  form_set_value($element, '', $form_state);
 }
 
 /**
