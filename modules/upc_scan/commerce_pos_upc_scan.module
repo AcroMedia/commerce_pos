@@ -28,7 +28,7 @@ function commerce_pos_upc_scan_form_commerce_pos_sale_alter(&$form, &$form_state
     '#title' => t('Product UPC (hide me)'),
     '#size' => 60,
     '#ajax' => array(
-      'callback' => 'commerce_pos_sale_wrapper_js',
+      'callback' => 'commerce_pos_transaction_wrapper_js',
       'wrapper' => $form_state['wrapper_id'],
       'progress' => array(
         'type' => 'commerce_pos',

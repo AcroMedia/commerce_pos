@@ -2,23 +2,42 @@
 
 /**
  * @file
- * Callbacks for the POS sale functionality.
+ * Common form-based functions for transactions.
  */
 
 /**
  * Callback for the main POS sale form.
  */
 function commerce_pos_sale($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.transaction');
+  commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_SALE);
+  return $form;
+}
+
+/**
+ * Callback for the POS return form.
+ */
+function commerce_pos_return($form, &$form_state) {
+  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.transaction');
+  commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_RETURN);
+  return $form;
+}
+
+/**
+ * Primary callback for building a POS transaction form.
+ */
+function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) {
   global $user;
 
-  commerce_pos_sale_ajax_check($form, $form_state);
+  commerce_pos_transaction_ajax_check($form, $form_state);
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
+  $form['#theme'] = 'commerce_pos_transaction';
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
-    $transaction = CommercePosService::getCurrentTransaction(CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
+    $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
 
     if (empty($transaction)) {
-      $transaction = new CommercePosTransaction(NULL, CommercePosService::TRANSACTION_TYPE_SALE, $user->uid);
+      $transaction = new CommercePosTransaction(NULL, $transaction_type, $user->uid);
     }
 
     $form_state['transaction'] = $transaction;
@@ -44,7 +63,7 @@ function commerce_pos_sale($form, &$form_state) {
   $form_state['wrapper_id'] = $wrapper_id;
 
   $wrapper_ajax = array(
-    'callback' => 'commerce_pos_sale_wrapper_js',
+    'callback' => 'commerce_pos_transaction_wrapper_js',
     'wrapper' => $wrapper_id,
   );
 
@@ -106,7 +125,7 @@ function commerce_pos_sale($form, &$form_state) {
     '#attributes' => array(
       'class' => array('commerce-pos-product-autocomplete', 'commerce-pos-product-search'),
     ),
-    '#element_validate' => array('_commerce_pos_sale_validate_product_input'),
+    '#element_validate' => array('_commerce_pos_transaction_validate_product_input'),
   );
 
   $form['product_search']['product_sku'] = array(
@@ -148,7 +167,7 @@ function commerce_pos_sale($form, &$form_state) {
         '#ajax' => $wrapper_ajax,
         '#element_key' => 'line-item-qty',
         '#line_item_id' => $line_item_id,
-        '#element_validate' => array('_commerce_pos_sale_validate_qty'),
+        '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
         '#attributes' => array(
           'class' => array('thevault-pos-hidden-element'),
         ),
@@ -213,7 +232,7 @@ function commerce_pos_sale($form, &$form_state) {
         '#type' => 'submit',
         '#value' => 'X',
         '#name' => 'line-item-' . $line_item_id . '-remove',
-        '#submit' => array('commerce_pos_sale_line_item_remove_submit'),
+        '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
       );
@@ -246,8 +265,8 @@ function commerce_pos_sale($form, &$form_state) {
         'class' => array('commerce-pos-btn-pay'),
       ),
       '#key_binds' => array('f4'),
-      '#validate' => array('commerce_pos_sale_pay_validate'),
-      '#submit' => array('commerce_pos_sale_pay_submit'),
+      '#validate' => array('commerce_pos_transaction_pay_validate'),
+      '#submit' => array('commerce_pos_transaction_pay_submit'),
     );
 
     $transaction_options['actions']['park'] = array(
@@ -276,7 +295,7 @@ function commerce_pos_sale($form, &$form_state) {
       '#autocomplete_path' => 'pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
-        'callback' => 'commerce_pos_sale_customer_js',
+        'callback' => 'commerce_pos_transaction_customer_js',
       ),
       '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
       '#suffix' => '</div>',
@@ -288,7 +307,7 @@ function commerce_pos_sale($form, &$form_state) {
     );
   }
 
-  $form['parked_transactions'] = commerce_pos_parked_transactions_section(CommercePosService::TRANSACTION_TYPE_SALE, $wrapper_ajax, $has_active_transaction);
+  $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $wrapper_ajax, $has_active_transaction);
 
   // Attach our CSS and JS
   $form['#attached']['library'][] = array(
@@ -299,7 +318,7 @@ function commerce_pos_sale($form, &$form_state) {
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.common.js';
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.sale.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.transaction.js';
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
@@ -309,14 +328,12 @@ function commerce_pos_sale($form, &$form_state) {
       ),
     ),
   );
-
-  return $form;
 }
 
 /**
  * Validation handler for the product search input.
  */
-function _commerce_pos_sale_validate_product_input($element, &$form_state, $form) {
+function _commerce_pos_transaction_validate_product_input($element, &$form_state, $form) {
   // Always set this input back to empty.
   unset($form_state['input']['input']);
   form_set_value($element, '', $form_state);
@@ -325,7 +342,7 @@ function _commerce_pos_sale_validate_product_input($element, &$form_state, $form
 /**
  * Validation handler for the line item quantity fields.
  */
-function _commerce_pos_sale_validate_qty($element, &$form_state, $form) {
+function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   $requested_qty = drupal_array_get_nested_value($form_state['input'], $element['#parents']);
 
   if (is_numeric($requested_qty) && $requested_qty > 0) {
@@ -341,7 +358,7 @@ function _commerce_pos_sale_validate_qty($element, &$form_state, $form) {
  *
  * This will look at what triggered the AJAX submission and act accordingly.
  */
-function commerce_pos_sale_ajax_check(&$form, &$form_state) {
+function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
   if (isset($form_state['triggering_element'])) {
     $triggering_element = $form_state['triggering_element'];
 
@@ -446,7 +463,7 @@ function commerce_pos_sale_ajax_check(&$form, &$form_state) {
 /**
  * Submit handler for removing a line item entirely.
  */
-function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
+function commerce_pos_transaction_line_item_remove_submit($form, &$form_state) {
   if (!empty($form_state['triggering_element']['#line_item_id'])) {
     $form_state['transaction']->doAction('deleteLineItem', $form_state['triggering_element']['#line_item_id'], TRUE);
     $form_state['transaction']->doAction('saveOrder');
@@ -464,21 +481,21 @@ function commerce_pos_sale_line_item_remove_submit($form, &$form_state) {
 /**
  * AJAX callback for returning the sale form's wrapper.
  */
-function commerce_pos_sale_wrapper_js($form, &$form_state) {
+function commerce_pos_transaction_wrapper_js($form, &$form_state) {
   return $form;
 }
 
 /**
  * AJAX callback for the customer field.
  */
-function commerce_pos_sale_customer_js($form, &$form_state) {
+function commerce_pos_transaction_customer_js($form, &$form_state) {
   return $form['customer'];
 }
 
 /**
  * Validation handler for the Sale form's "Pay" button.
  */
-function commerce_pos_sale_pay_validate($form, &$form_state) {
+function commerce_pos_transaction_pay_validate($form, &$form_state) {
   if (!empty($form_state['values']['transaction_options']['customer'])) {
     $email_address = $form_state['values']['transaction_options']['customer'];
 
@@ -491,7 +508,7 @@ function commerce_pos_sale_pay_validate($form, &$form_state) {
 /**
  * Submit handler for the Sale form's "Pay" button.
  */
-function commerce_pos_sale_pay_submit($form, &$form_state) {
+function commerce_pos_transaction_pay_submit($form, &$form_state) {
   if (!empty($form_state['values']['transaction_options']['customer'])) {
     // Attempt to associate the transaction with a customer.
     $email_address = $form_state['values']['transaction_options']['customer'];
@@ -505,6 +522,6 @@ function commerce_pos_sale_pay_submit($form, &$form_state) {
   }
 
   $form_state['transaction']->doAction('save');
-
   drupal_goto('pos/sale/pay');
 }
+

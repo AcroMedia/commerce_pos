@@ -31,7 +31,7 @@ function commerce_pos_menu() {
     'page arguments' => array('commerce_pos_sale'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
-    'file' => 'includes/commerce_pos.sale.inc',
+    'file' => 'includes/commerce_pos.transaction.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -46,12 +46,12 @@ function commerce_pos_menu() {
   );
 
   $items['pos/return'] = array(
-    'title' => 'Sale',
+    'title' => 'Return',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_return'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos returns'),
-    'file' => 'includes/commerce_pos.pages.inc',
+    'file' => 'includes/commerce_pos.transaction.inc',
     'type' => MENU_CALLBACK,
   );
 
@@ -138,9 +138,9 @@ function commerce_pos_permission() {
  */
 function commerce_pos_theme($existing, $type, $theme, $path) {
   return array(
-    'commerce_pos_sale' => array(
+    'commerce_pos_transaction' => array(
       'render element' => 'form',
-      'template' => 'commerce-pos-sale',
+      'template' => 'commerce-pos-transaction',
       'path' => $path . '/theme',
     ),
     'commerce_pos_pay' => array(
