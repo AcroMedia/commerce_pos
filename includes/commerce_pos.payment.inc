@@ -78,6 +78,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       )),
     );
 
+    // @TODO: not working.
+    $form['summary_table'] = array(
+      '#theme' => 'commerce_pos_product_summary',
+      '#order' => $form_state['order_wrapper']->value(),
+    );
+
     $form['edit_order'] = array(
       '#markup' => l(t('Edit Order'), 'pos/sale', array(
         'attributes' => array(

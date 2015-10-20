@@ -188,6 +188,13 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'product' => NULL,
       ),
     ),
+    'commerce_pos_product_summary' => array(
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'order' => NULL,
+      ),
+    ),
   );
 }
 
