@@ -30,7 +30,6 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
     $subscriptions['deleteLineItemAfter'][] = 'afterDeleteLineItem';
-    $subscriptions['saveOrderBefore'][] = 'beforeSaveOrder';
     $subscriptions['lineItemUpdated'][] = 'lineItemUpdated';
     return $subscriptions;
   }
@@ -109,37 +108,44 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
       foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
         if ($line_item_wrapper->type->value() == 'commerce_pos_discount') {
-          return number_format(abs($line_item_wrapper->commerce_unit_price->amount->value() / 100), 2);
+          return $this->getLineItemDiscountData($line_item_wrapper, CommercePosDiscountService::ORDER_DISCOUNT_NAME);
         }
       }
     }
 
-    return 0;
+    return FALSE;
   }
 
   /**
    * Retrieves the existing amount for a discount on a line item, if one exists.
    */
-  public function getExistingLineItemDiscountAmount($line_item_id, $discount_name) {
+  public function getExistingLineItemDiscountAmount($line_item_id) {
     if ($line_item = $this->transaction->doAction('getLineItem', $line_item_id)) {
-
       $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
+      return $this->getLineItemDiscountData($line_item_wrapper, CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME);
+    }
 
-      if ($component = CommercePosDiscountService::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, $discount_name)) {
-        // Found our discount, return its amount.
-        return number_format(abs($component['price']['amount'] / 100), 2);
+    return FALSE;
+  }
+
+  protected function getLineItemDiscountData($line_item_wrapper, $discount_name) {
+    $data = array(
+      'type' => '',
+      'amount' => 0,
+    );
+
+    if ($component = CommercePosDiscountService::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, $discount_name)) {
+      $data['type'] = $component['price']['data']['pos_discount_type'];
+
+      // Found our discount, return its amount.
+      if ($component['price']['data']['pos_discount_type'] == 'percent') {
+        $data['amount'] = $component['price']['data']['pos_discount_rate'] * 100;
+      }
+      else {
+        $data['amount'] = number_format(abs($component['price']['amount'] / 100), 2);
       }
     }
 
-    return 0;
-  }
-
-  /**
-   * Act upon the transaction's order being saved.
-   */
-  public function beforeSaveOrder() {
-    if ($order_wrapper = $this->transaction->getOrderWrapper()) {
-      /*CommercePosDiscountService::updateOrderDiscounts($order_wrapper);*/
-    }
+    return $data;
   }
 }
