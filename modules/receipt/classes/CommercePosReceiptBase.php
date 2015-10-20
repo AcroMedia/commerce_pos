@@ -12,7 +12,7 @@ class CommercePosReceiptBase extends CommercePosTransactionBase implements Comme
    */
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
-    $subscriptions['completeTransaction']['after'][] = 'storePreviousTransaction';
+    $subscriptions['completeTransactionAfter'][] = 'storePreviousTransaction';
     return $subscriptions;
   }
 

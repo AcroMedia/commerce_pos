@@ -22,13 +22,16 @@ class CommercePosTransaction {
   protected $order = FALSE;
   protected $orderWrapper = FALSE;
   protected $actions = array();
+  protected $events = array();
 
   /**
    * Constructor.
    *
-   * @param null $transaction_id
-   * @param null $type
-   * @param null $uid
+   * @param $transaction_id
+   * @param $type
+   * @param $uid
+   *
+   * @throws \Exception
    */
   public function __construct($transaction_id = NULL, $type = NULL, $uid = NULL) {
     if ($transaction_id !== NULL && $type == NULL && $uid == NULL) {
@@ -48,9 +51,19 @@ class CommercePosTransaction {
   }
 
   /**
+   * __call() magic method.
+   */
+  public function __call($name, $arguments) {
+    // Attempt to invoke any Base actions if an unknown method is invoked on the
+    // Transaction class.
+    return $this->invokeAction($name, $arguments);
+  }
+
+  /**
    * // @TODO: this needs to be documented better.
    *
-   * @param $action_name
+   * @param string $action_name
+   *   The name of the action to invoke.
    * @param ...
    *   any additional arguments will be passed to the method.
    *
@@ -59,27 +72,40 @@ class CommercePosTransaction {
    * @throws \Exception
    */
   public function doAction($action_name) {
-    if (isset($this->actions[$action_name]['class'])) {
+    $args = array_slice(func_get_args(), 1);
+    return $this->invokeAction($action_name, $args);
+  }
+
+  /**
+   * Allows Base Classes to notify other Base Classes when specific events
+   * occur.
+   *
+   * This will invoke the defined methods of any base classes that have
+   * subscribed to specific events.
+   *
+   * @param string $event_name
+   *   The name of the event. This will invoke the methods of any base classes
+   *   subscribed to this event.
+   * @param ...
+   *   Any additional arguments will be passed to the event methods.
+   *
+   * @throws \Exception
+   */
+  public function invokeEvent($event_name) {
+    if (isset($this->events[$event_name]['subscriptions'])) {
       $args = array_slice(func_get_args(), 1);
-      $base_class = $this->bases[$this->actions[$action_name]['class']];
 
-      $this->notifySubscribers($action_name, 'before', $args);
-
-      $result = call_user_func_array(array($base_class, $action_name), $args);
-
-      // Add the result of the initial method call to our arguments so that it's
-      // always the last argument passed to any 'after' subscriptions.
-      array_push($args, $result);
-
-      $this->notifySubscribers($action_name, 'after', $args);
+      foreach ($this->events[$event_name]['subscriptions'] as $base_class => $methods) {
+        foreach ($methods as $method) {
+          call_user_func_array(array($this->bases[$base_class], $method), $args);
+        }
+      }
     }
     else {
-      throw new Exception(t('The transaction base method @name does not exist.', array(
-        '@name' => $action_name,
+      throw new Exception(t('Cannot invoke event, the @event event is not defined.', array(
+        '@event' => $event_name,
       )));
     }
-
-    return $result;
   }
 
   /**
@@ -140,134 +166,6 @@ class CommercePosTransaction {
   }
 
   /**
-   * Adds the specified product to transaction order.
-   */
-  public function addProduct($product, $quantity = 1, $combine = TRUE) {
-    // First attempt to load the transaction's order.
-    // If no order existed, create one now.
-    if (empty($this->order)) {
-      $order = $this->doAction('createNewOrder');
-    }
-    else {
-      $order = $this->order;
-    }
-
-    // If the specified product exists...
-    // Create a new product line item for it.
-    $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id);
-    $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-    rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
-
-    $amount = $line_item_wrapper->commerce_unit_price->amount->raw();
-    $currency = $line_item_wrapper->commerce_unit_price->currency_code->raw();
-
-    // We "snapshot" the calculated sell price and use it as the line item's
-    // base price.
-    $unit_price = array(
-      'amount' => $amount,
-      'currency_code' => $currency,
-    );
-
-    $unit_price['data'] = commerce_price_component_add($unit_price, 'base_price', array(
-      'amount' => $amount,
-      'currency_code' => $currency,
-      'data' => array(),
-    ), TRUE, FALSE);
-
-    $line_item_wrapper->commerce_unit_price->set($unit_price);
-
-    if (module_exists('commerce_pricing_attributes')) {
-      // Hack to prevent the combine logic in addLineItem()
-      // from incorrectly thinking that the newly-added line item is different than
-      // previously-added line items.
-      $line_item->commerce_pricing_attributes = serialize(array());
-    }
-
-    if (module_exists('commerce_tax')) {
-      foreach (commerce_tax_types() as $name => $type) {
-        commerce_tax_calculate_by_type($line_item, $name);
-      }
-    }
-
-    return $this->addLineItem($line_item, $combine);
-  }
-
-  /**
-   * Updates the quantity of a line item in the transactions' order.
-   */
-  function updateLineItemQuantity($line_item_id, $qty, $method = 'replace') {
-    $this->getOrder();
-    if (!empty($this->order)) {
-      $line_item = commerce_line_item_load($line_item_id);
-      $existing_qty = $line_item->quantity;
-
-      if ($method == 'update') {
-        $new_qty = $existing_qty + $qty;
-      }
-      else {
-        $new_qty = $qty;
-      }
-
-      // Make sure the line item actually belongs to the order.
-      if ($new_qty > 0 && ($line_item->order_id == $this->order->order_id) && ((int) $existing_qty != $new_qty)) {
-        $line_item->quantity = $new_qty;
-        commerce_line_item_save($line_item);
-      }
-      elseif ($new_qty == 0) {
-        $this->doAction('deleteLineItem', $line_item_id);
-      }
-    }
-    else {
-      throw new Exception(t('Cannot update line item @id quantity, the transaction does not have an order created.', array(
-        '@id' => $line_item_id,
-      )));
-    }
-  }
-
-  /**
-   * Sets the price of a line item in the transaction's order to a specific price.
-   *
-   * @param int $line_item_id
-   *   The ID of the line item in the transaction order to change the price of.
-   * @param int $price
-   *   The new price in cents.
-   */
-  public function setLineItemPrice($line_item_id, $price) {
-    foreach ($this->getLineItems() as $order_line_item) {
-      if ($order_line_item['line_item_id'] == $line_item_id) {
-        $line_item = commerce_line_item_load($line_item_id);
-        $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-        $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
-
-        // Change the base_price
-        $unit_price['amount'] = $price;
-        $unit_price['data']['components'][0]['amount'] = $price;
-
-        $line_item_wrapper->commerce_unit_price->set($unit_price);
-
-        commerce_line_item_rebase_unit_price($line_item);
-
-        $line_item_wrapper->save();
-        break;
-      }
-    }
-  }
-
-  /**
-   * Retrieves the line items from this transaction's order, if it has any.
-   */
-  public function getLineItems() {
-    $line_items = array();
-
-    if (!empty($this->order)) {
-      $line_items = field_get_items('commerce_order', $this->order, 'commerce_line_items');
-    }
-
-    return $line_items;
-  }
-
-  /**
    * Switches the transaction order's status back from parked to being created.
    */
   public function unpark() {
@@ -290,6 +188,34 @@ class CommercePosTransaction {
   }
 
   /**
+   *
+   * @param $action_name
+   * @param $arguments
+   */
+  protected function invokeAction($action_name, $arguments) {
+    if (isset($this->actions[$action_name]['class'])) {
+      $base_class = $this->bases[$this->actions[$action_name]['class']];
+
+      $this->invokeEvent($action_name . 'Before', $arguments);
+
+      $result = call_user_func_array(array($base_class, $action_name), $arguments);
+
+      // Add the result of the initial method call to our arguments so that it's
+      // always the last argument passed to any 'after' subscriptions.
+      array_push($arguments, $result);
+
+      $this->invokeEvent($action_name . 'After', $arguments);
+
+      return $result;
+    }
+    else {
+      throw new Exception(t('The transaction base method @name does not exist.', array(
+        '@name' => $action_name,
+      )));
+    }
+  }
+
+  /**
    * Returns or creates a new order wrapper as necessary.
    *
    * Metadata wrappers lose their reference to the original object when they're
@@ -303,152 +229,6 @@ class CommercePosTransaction {
         $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
       }
     }
-  }
-
-  /**
-   * Adds the specified product to the transaction's order.
-   *
-   * @param $line_item
-   *   An unsaved product line item to be added to the cart with the following data
-   *   on the line item being used to determine how to add the product to the cart:
-   *   - $line_item->commerce_product: reference to the product to add to the cart.
-   *   - $line_item->quantity: quantity of this product to add to the cart.
-   *   - $line_item->data: data array that is saved with the line item if the line
-   *     item is added to the cart as a new item; merged into an existing line
-   *     item if combination is possible.
-   *   - $line_item->order_id: this property does not need to be set when calling
-   *     this function, as it will be set to the specified user's current cart
-   *     order ID.
-   *   Additional field data on the line item may be considered when determining
-   *   whether or not line items can be combined in the cart. This includes the
-   *   line item type, referenced product, and any line item fields that have been
-   *   exposed on the Add to Cart form.
-   * @param $combine
-   *   Boolean indicating whether or not to combine like products on the same line
-   *   item, incrementing an existing line item's quantity instead of adding a
-   *   new line item to the cart order. When the incoming line item is combined
-   *   into an existing line item, field data on the existing line item will be
-   *   left unchanged. Only the quantity will be incremented and the data array
-   *   will be updated by merging the data from the existing line item onto the
-   *   data from the incoming line item, giving precedence to the most recent data.
-   *
-   * @return null The new or updated line item object or FALSE on failure.
-   * The new or updated line item object or FALSE on failure.
-   *
-   * @throws \EntityMetadataWrapperException
-   * @throws \Exception
-   */
-  protected function addLineItem($line_item, $combine) {
-    // Do not add the line item if it doesn't have a unit price.
-    $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
-
-    if (is_null($line_item_wrapper->commerce_unit_price->value())) {
-      return FALSE;
-    }
-
-    // First attempt to load the customer's shopping cart order.
-    // If no order existed, create one now.
-    if (empty($this->order)) {
-      throw new Exception(t('Cannot add line item to transaction, it does not have an order created.'));
-    }
-    else {
-      $order = $this->order;
-    }
-
-    // Set the incoming line item's order_id.
-    $line_item->order_id = $order->order_id;
-
-    // Wrap the order for easy access to field data.
-    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-
-    // Extract the product and quantity we're adding from the incoming line item.
-    $product = $line_item_wrapper->commerce_product->value();
-    $quantity = $line_item->quantity;
-
-    // Invoke the product prepare event with the shopping cart order.
-    // @TODO: do the same for POS?
-    rules_invoke_all('commerce_cart_product_prepare', $order, $product, $line_item->quantity);
-
-    // Determine if the product already exists on the order and increment its
-    // quantity instead of adding a new line if it does.
-    $matching_line_item = NULL;
-
-    // If we are supposed to look for a line item to combine into...
-    if ($combine) {
-      // Generate an array of properties and fields to compare.
-      $comparison_properties = array('type', 'commerce_product');
-
-      // Add any field that was exposed on the Add to Cart form to the array.
-      // TODO: Bypass combination when an exposed field is no longer available but
-      // the same base product is added to the cart.
-      foreach (field_info_instances('commerce_line_item', $line_item->type) as $info) {
-        if (!empty($info['commerce_cart_settings']['field_access'])) {
-          $comparison_properties[] = $info['field_name'];
-        }
-      }
-
-      // Allow other modules to specify what properties should be compared when
-      // determining whether or not to combine line items.
-      drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, clone($line_item));
-
-      // Loop over each line item on the order.
-      foreach ($order_wrapper->commerce_line_items as $delta => $matching_line_item_wrapper) {
-        // Examine each of the comparison properties on the line item.
-        foreach ($comparison_properties as $property) {
-          // If the property is not present on either line item, bypass it.
-          if (!isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) {
-            continue;
-          }
-
-          // If any property does not match the same property on the incoming line
-          // item or exists on one line item but not the other...
-          if ((!isset($matching_line_item_wrapper->value()->{$property}) && isset($line_item_wrapper->value()->{$property})) ||
-            (isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) ||
-            $matching_line_item_wrapper->{$property}->raw() != $line_item_wrapper->{$property}->raw()) {
-            // Continue the loop with the next line item.
-            continue 2;
-          }
-        }
-
-        // If every comparison line item matched, combine into this line item.
-        $matching_line_item = $matching_line_item_wrapper->value();
-        break;
-      }
-    }
-
-    // If no matching line item was found...
-    if (empty($matching_line_item)) {
-      // Save the incoming line item now so we get its ID.
-      commerce_line_item_save($line_item);
-
-      // Add it to the order's line item reference value.
-      $order_wrapper->commerce_line_items[] = $line_item;
-    }
-    else {
-      // Increment the quantity of the matching line item, update the data array,
-      // and save it.
-      $matching_line_item->quantity += $quantity;
-      $matching_line_item->data = array_merge($line_item->data, $matching_line_item->data);
-
-      commerce_line_item_save($matching_line_item);
-
-      // Clear the line item cache so the updated quantity will be available to
-      // the ensuing load instead of the original quantity as loaded above.
-      entity_get_controller('commerce_line_item')->resetCache(array($matching_line_item->line_item_id));
-
-      // Update the line item variable for use in the invocation and return value.
-      $line_item = $matching_line_item;
-    }
-
-    // Save the updated order.
-    commerce_order_save($order);
-
-    // Invoke the product add event with the newly saved or updated line item.
-    // @TODO: should we invoke this?
-    //rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);
-
-    // Return the line item.
-    return $line_item;
   }
 
   /**
@@ -490,26 +270,6 @@ class CommercePosTransaction {
   }
 
   /**
-   * Call the methods if any classes that have been subscribed to this
-   * transaction's actions.
-   *
-   * @param string $action_name
-   *   The name of the action being invoked.
-   * @param string $position
-   *   The position of the subscription. Currently only 'after' and 'before'
-   *   are actually used.
-   * @param array $arguments
-   *   An array of arguments to be passed to the subscription method.
-   */
-  protected function notifySubscribers($action_name, $position, $arguments) {
-    foreach ($this->actions[$action_name][$position] as $base_class_name => $subscriptions) {
-      foreach ($subscriptions as $subscription_method) {
-        call_user_func_array(array($this->bases[$base_class_name], $subscription_method), $arguments);
-      }
-    }
-  }
-
-  /**
    * Checks for any modules defining additional base classes to be added to this
    * transaction and registers their action and subscriptions.
    *
@@ -535,6 +295,13 @@ class CommercePosTransaction {
               'before' => array(),
               'after' => array(),
             );
+
+            $event_definition = array(
+              'subscriptions' => array(),
+            );
+
+            $this->events[$action_method . 'Before'] = $event_definition;
+            $this->events[$action_method . 'After'] = $event_definition;
           }
           else {
             throw new Exception(t('Cannot add action @action, it has already been defined!', array(
@@ -543,19 +310,37 @@ class CommercePosTransaction {
           }
         }
 
-        // Register all subscriptions that the Base class is subscribing to.
-        foreach ($base_class->subscriptions() as $action_method => $positions) {
-          foreach ($positions as $position => $subscription_methods) {
-            // $position should either be 'before' or 'after'. Any others are
-            // ignored.
-            foreach ($subscription_methods as $subscription_method) {
-              $this->actions[$action_method][$position][$class_name][] = $subscription_method;
-            }
+        // Register all events provided by the Base class.
+        foreach ($base_class->events() as $event_name) {
+          if (!in_array($event_name, $this->events)) {
+            $this->events[$event_name] = array(
+              'subscriptions' => array(),
+            );
+          }
+          else {
+            throw new Exception(t('Cannot load base class <strong>@name</strong>, the event <strong>@event</strong> has already been defined.', array(
+              '@name' => $class_name,
+              '@event' => $event_name,
+            )));
           }
         }
+      }
+    }
 
-        // @TODO: events should replace the subscription system.
-        // Register all events that the Base class provides.
+    // Now that the Base Classes have been added, store their event
+    // subscriptions.
+    /* @var CommercePosTransactionBaseInterface $base_class */
+    foreach ($this->bases as $class_name => $base_class) {
+      foreach ($base_class->subscriptions() as $event_name => $event_methods) {
+        if (isset($this->events[$event_name])) {
+          $this->events[$event_name]['subscriptions'][$class_name] = $event_methods;
+        }
+        else {
+          throw new Exception(t('Cannot subscribe base class @name to event @event, that event does not exist.', array(
+            '@name' => $class_name,
+            '@event' => $event_name,
+          )));
+        }
       }
     }
   }

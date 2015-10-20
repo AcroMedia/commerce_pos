@@ -11,8 +11,8 @@ class CommercePosLocationBase extends CommercePosTransactionBase implements Comm
    */
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
-    $subscriptions['save']['before'][] = 'detectLocation';
-    $subscriptions['createNewOrder']['before'][] = 'detectLocation';
+    $subscriptions['saveBefore'][] = 'detectLocation';
+    $subscriptions['createNewOrderBefore'][] = 'detectLocation';
     return $subscriptions;
   }
 

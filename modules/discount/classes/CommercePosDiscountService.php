@@ -98,9 +98,7 @@ class CommercePosDiscountService {
           }
         }
         else {
-          // Discount amount is 0, make sure we remove any existing POS
-          // discounts on the order.
-          self::removeOrderDiscountLineItems();
+          self::removeOrderDiscountLineItems($wrapper);
         }
 
         break;
@@ -134,6 +132,7 @@ class CommercePosDiscountService {
    */
   static function applyFixedDiscount(EntityMetadataWrapper $wrapper, $discount_amount) {
     $discount_price['amount'] = -$discount_amount;
+    $line_item_types = variable_get('commerce_discount_line_item_types', array('product' => 'product'));
 
     $component_data = array(
       'pos_discount_type' => 'fixed',
@@ -149,7 +148,16 @@ class CommercePosDiscountService {
 
           // If the discount will bring the order to less than zero, set the
           // discount amount so that it stops at zero.
-          $order_amount = $wrapper->commerce_order_total->amount->value();
+          // Loop the line items of the order and calculate the total discount.
+          $order_amount = 0;
+
+          foreach ($wrapper->commerce_line_items as $line_item_wrapper) {
+            if (!empty($line_item_types[$line_item_wrapper->type->value()])) {
+              $line_item_total = commerce_price_wrapper_value($line_item_wrapper, 'commerce_total', TRUE);
+              $order_amount += $line_item_total['amount'];
+            }
+          }
+
           if (-$discount_price['amount'] > $order_amount) {
             $discount_price['amount'] = -$order_amount;
           }
@@ -160,8 +168,6 @@ class CommercePosDiscountService {
           }
         }
         else {
-          // Discount amount is 0, make sure we remove any existing POS
-          // discounts on the order.
           self::removeOrderDiscountLineItems($wrapper);
         }
 
@@ -415,7 +421,7 @@ class CommercePosDiscountService {
     foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
       if ($line_item_wrapper->type->value() == 'commerce_pos_discount') {
         $order_wrapper->commerce_line_items->offsetUnset($delta);
-        $line_items_to_delete[] = $line_item_wrapper->line_item_id->value();
+        $line_items_to_delete[] = $line_item_wrapper->line_item_id;
       }
     }
 
@@ -433,9 +439,9 @@ class CommercePosDiscountService {
   public static function updateOrderDiscounts($order_wrapper) {
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
       if ($line_item_wrapper->getBundle() == 'commerce_pos_discount') {
-        $price_components = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price');
+        $price_wrapper = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price');
 
-        foreach ($price_components as $price_component) {
+        foreach ($price_wrapper['data']['components'] as $price_component) {
           if (isset($price_component['price']['data']['pos_discount_type'])) {
             self::applyDiscount($order_wrapper, $price_component['price']['data']['pos_discount_type'], $price_component['price']['data']['pos_discount_rate']);
           }

@@ -127,8 +127,6 @@ function commerce_pos_sale($form, &$form_state) {
     );
 
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-      dpm($line_item_wrapper->value(), 'line item');
-
       // Only show product line item types.
       if ($line_item_wrapper->type->value() != 'product') {
         continue;

@@ -29,8 +29,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
 
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
-    $subscriptions['deleteLineItem']['after'][] = 'afterDeleteLineItem';
-    $subscriptions['saveOrder']['before'][] = 'beforeSaveOrder';
+    $subscriptions['deleteLineItemAfter'][] = 'afterDeleteLineItem';
+    $subscriptions['saveOrderBefore'][] = 'beforeSaveOrder';
+    $subscriptions['lineItemUpdated'][] = 'lineItemUpdated';
     return $subscriptions;
   }
 
@@ -45,6 +46,19 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
       CommercePosDiscountService::applyDiscount($wrapper, $type, $amount);
       $wrapper->save();
     }
+  }
+
+  /**
+   * Act upon a line item being updated.
+   *
+   * When a line item is updated, it generally means that the order total has
+   * changed, which is potentially a problem for order-wide discounts.
+   *
+   * We need to recalculate any order-wide discounts to ensure that they're
+   * still valid.
+   */
+  public function lineItemUpdated() {
+    CommercePosDiscountService::updateOrderDiscounts($this->transaction->getOrderWrapper());
   }
 
   /**
@@ -83,6 +97,8 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
       commerce_line_item_rebase_unit_price($wrapper->value());
 
       $wrapper->save();
+
+      $this->transaction->invokeEvent('lineItemUpdated');
     }
   }
 
@@ -123,7 +139,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
    */
   public function beforeSaveOrder() {
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
-      CommercePosDiscountService::updateOrderDiscounts($order_wrapper);
+      /*CommercePosDiscountService::updateOrderDiscounts($order_wrapper);*/
     }
   }
 }
