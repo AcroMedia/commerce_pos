@@ -85,7 +85,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     $transaction = $this->transaction;
 
     if (!empty($transaction->orderId)) {
-      throw new Exception(t('Cannot create order for transaction @id, an order with @order_id already exists!', array(
+      throw new Exception(t('Cannot create order for transaction @id, it is already associated with order #@order_id.', array(
         '@id' => $transaction->transactionId,
         '@order_id' => $transaction->orderId,
       )));
@@ -105,9 +105,11 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
         $billing_profile = entity_create('commerce_customer_profile', array('type' => 'billing'));
         $profile_wrapper = entity_metadata_wrapper('commerce_customer_profile', $billing_profile);
 
-        $profile_wrapper->commerce_customer_address->administrative_area->set($administrative_area);
-        $profile_wrapper->save();
+        $profile_wrapper->commerce_customer_address->set(array(
+          'administrative_area' => $administrative_area,
+        ));
 
+        $profile_wrapper->save();
         $order_wrapper->commerce_customer_billing->set($billing_profile);
       }
 

@@ -522,6 +522,8 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
   }
 
   $form_state['transaction']->doAction('save');
+
+  // @TODO: this needs to go to either sale or return.
   drupal_goto('pos/sale/pay');
 }
 
