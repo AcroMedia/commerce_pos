@@ -36,8 +36,9 @@
         var self = $(this);
 
         $(this).once('commerce-pos-summary-toggle', function () {
-          self.click(function () {
+          self.click(function (e) {
             $('.commerce-pos-product-summary').toggleClass('element-invisible');
+            e.preventDefault();
           });
         });
       });

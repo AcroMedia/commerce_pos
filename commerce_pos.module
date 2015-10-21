@@ -319,8 +319,8 @@ function commerce_pos_image_default_styles() {
       array(
         'name' => 'image_scale_and_crop',
         'data' => array(
-          'width' => 150,
-          'height' => 150,
+          'width' => 75,
+          'height' => 75,
         ),
         'weight' => 0,
       ),
@@ -724,6 +724,13 @@ function _commerce_pos_product_thumbnail($product) {
     }
   }
 
+  if (!$uri) {
+    // Check for a default image.
+    if ($default_image = _commerce_pos_product_default_image($product->type)) {
+      $uri = $default_image->uri;
+    }
+  }
+
   if ($uri) {
     return theme('image_style', array(
       'style_name' => 'commerce_pos_thumbnail',
@@ -740,11 +747,27 @@ function _commerce_pos_product_thumbnail($product) {
  * Try and retrieve the first image URI for an entity in a list of fields.
  */
 function _commerce_pos_image_uri($entity_type, $entity, $fields) {
+  $uri = FALSE;
+
   foreach ($fields as $field_name) {
     if ($product_images = field_get_items($entity_type, $entity, $field_name)) {
       if (!empty($product_images[0]['uri'])) {
-        return $product_images[0]['uri'];
+        $uri = $product_images[0]['uri'];
+        break;
       }
+    }
+  }
+
+  return $uri;
+}
+
+/**
+ * Retrieve the URI of a product's default image for the POS, if it exists.
+ */
+function _commerce_pos_product_default_image($product_type) {
+  if ($fid = variable_get('commerce_pos_image_default_' . $product_type)) {
+    if ($file = file_load($fid)) {
+      return $file;
     }
   }
 

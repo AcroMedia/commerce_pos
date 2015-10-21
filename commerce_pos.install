@@ -84,7 +84,17 @@ function commerce_pos_schema() {
  */
 function commerce_pos_uninstall() {
   // Clean up variables.
+  variable_del('commerce_pos_available_products');
+
   foreach (commerce_product_types() as $name => $type) {
     variable_del('commerce_pos_image_field_' . $name);
+
+    // Also remove any default images.
+    if ($fid = variable_get('commerce_pos_image_default_' . $name, 0)) {
+      $file = file_load($fid);
+      file_delete($file, TRUE);
+    }
+
+    variable_del('commerce_pos_image_default_' . $name);
   }
 }
