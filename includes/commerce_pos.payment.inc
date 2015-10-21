@@ -69,7 +69,13 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       }
     }
 
-    $items_link = l(format_plural($line_item_count, '1 Item', '@count Items'), '');
+    $items_link = l(format_plural($line_item_count, '1 Item', '@count Items'), '', array(
+      'fragment' => ' ',
+      'external' => TRUE,
+      'attributes' => array(
+        'class' => array('commerce-pos-summary-toggle'),
+      ),
+    ));
 
     $form['summary'] = array(
       '#markup' => t('Payment - !items - Order #@order_id', array(
@@ -78,10 +84,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       )),
     );
 
-    // @TODO: not working.
     $form['summary_table'] = array(
       '#theme' => 'commerce_pos_product_summary',
       '#order' => $form_state['order_wrapper']->value(),
+      '#attributes' => array(
+        'class' => array('element-invisible')
+      ),
     );
 
     $form['edit_order'] = array(

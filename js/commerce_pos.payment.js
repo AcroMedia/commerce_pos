@@ -31,6 +31,16 @@
           });
         });
       });
+
+      $('.commerce-pos-summary-toggle', context).each(function () {
+        var self = $(this);
+
+        $(this).once('commerce-pos-summary-toggle', function () {
+          self.click(function () {
+            $('.commerce-pos-product-summary').toggleClass('element-invisible');
+          });
+        });
+      });
     }
   };
 } (jQuery));

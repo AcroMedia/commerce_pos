@@ -193,6 +193,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'variables' => array(
         'order' => NULL,
+        'attributes' => array(),
       ),
     ),
   );
@@ -699,4 +700,53 @@ function _commerce_pos_access_check($access_arguments) {
   }
 
   return $access;
+}
+
+/**
+ * Builds an image tag to a product's thumbnail.
+ *
+ * @param object $product
+ *   The product to retrieve the thumbnail for.
+ *
+ * @return string
+ *   Either the image tag for the thumbnail, or an empty string.
+ */
+function _commerce_pos_product_thumbnail($product) {
+  $uri = FALSE;
+
+  if ($image_fields = variable_get('commerce_pos_image_field_' . $product->type, FALSE)) {
+    if (!($uri = _commerce_pos_image_uri('commerce_product', $product, $image_fields))
+     && $nid = commerce_pos_get_product_display_nid($product->product_id)) {
+
+      // Try looking for images on the product display node.
+      $node = node_load($nid);
+      $uri = _commerce_pos_image_uri('node', $node, $image_fields);
+    }
+  }
+
+  if ($uri) {
+    return theme('image_style', array(
+      'style_name' => 'commerce_pos_thumbnail',
+      'path' => $uri,
+      'alt' => $product->title,
+    ));
+  }
+  else {
+    return '';
+  }
+}
+
+/**
+ * Try and retrieve the first image URI for an entity in a list of fields.
+ */
+function _commerce_pos_image_uri($entity_type, $entity, $fields) {
+  foreach ($fields as $field_name) {
+    if ($product_images = field_get_items($entity_type, $entity, $field_name)) {
+      if (!empty($product_images[0]['uri'])) {
+        return $product_images[0]['uri'];
+      }
+    }
+  }
+
+  return FALSE;
 }

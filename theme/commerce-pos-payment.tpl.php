@@ -21,6 +21,7 @@
 <div class="commerce-pos-pay-container clearfix">
   <div class="commerce-pos-pay-col-payments">
     <?php print render($form['summary']); ?>
+    <?php print render($form['summary_table']); ?>
     <?php print render($form['edit_order']); ?>
     <?php print render($form['payment_options']); ?>
     <?php print render($form['keypad']); ?>

@@ -25,16 +25,8 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
   $variables['sell_price'] = commerce_currency_format($price['amount'], $price['currency_code']);
 
   // Check for an image.
-  if ($image_field_name = variable_get('commerce_pos_image_field_' . $product->type, FALSE)) {
-    if ($product_images = field_get_items('commerce_product', $product, $image_field_name)) {
-      if (!empty($product_images[0]['uri'])) {
-        $variables['image'] = theme('image_style', array(
-          'style_name' => 'commerce_pos_thumbnail',
-          'path' => $product_images[0]['uri'],
-          'alt' => $product->title,
-        ));
-      }
-    }
+  if ($image = _commerce_pos_product_thumbnail($product)) {
+    $variables['image'] = $image;
   }
 
   if ($display_nid = commerce_pos_get_product_display_nid($product->product_id)) {
@@ -52,22 +44,33 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
  */
 function theme_commerce_pos_product_summary(&$variables) {
   $order_wrapper = entity_metadata_wrapper('commerce_order', $variables['order']);
-
   $rows = array();
 
   foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-    if ($line_item_wrapper->getBundle() == 'product') {
+    if ($line_item_wrapper->getBundle() == 'product'
+      && isset($line_item_wrapper->commerce_product)
+      && $line_item_wrapper->commerce_product->getIdentifier()) {
+
       $unit_price = $line_item_wrapper->commerce_unit_price->value();
       $total = $line_item_wrapper->commerce_total->value();
+
+      $description = '<span class="title">' . $line_item_wrapper->commerce_product->title->value(array('sanitize' => TRUE)) . '</span>';
+      $description .= '<span class="sku">#' . $line_item_wrapper->commerce_product->sku->value(array('sanitize' => TRUE)) . '</span>';
+
+      $image = _commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value());
 
       $row = array(
         'data' => array(
           array(
-            'data' => $line_item_wrapper->quantity->raw(),
+            'data' => (int) $line_item_wrapper->quantity->raw(),
             'class' => array('qty'),
           ),
           array(
-            'data' => $line_item_wrapper->commerce_product->title->raw(),
+            'data' => $image,
+            'class' => array('thumbnail'),
+          ),
+          array(
+            'data' => $description,
             'class' => array('title'),
           ),
           array(
@@ -87,8 +90,14 @@ function theme_commerce_pos_product_summary(&$variables) {
     }
   }
 
-  return array(
-    '#theme' => 'table',
-    'rows' => $rows,
+  $attributes = array(
+    'class' => array('commerce-pos-product-summary'),
   );
+
+  $attributes = drupal_array_merge_deep($attributes, $variables['attributes']);
+
+  return theme('table', array(
+    'rows' => $rows,
+    'attributes' => $attributes,
+  ));
 }
