@@ -9,6 +9,24 @@
  * Callback for the POS settings form.
  */
 function commerce_pos_settings($form, &$form_state) {
+  if (module_exists('search_api')) {
+    $index_options = array(
+      '' => t('Use default search'),
+    );
+
+    foreach (search_api_index_load_multiple(FALSE) as $id => $index) {
+      $index_options[$id] = $index->name;
+    }
+
+    $form['commerce_pos_search_api_index'] = array(
+      '#type' => 'select',
+      '#title' => t('Search API Index'),
+      '#description' => t('If you would like to use a search API index when search for products in the POS, you may select one here.'),
+      '#options' => $index_options,
+      '#default_value' => variable_get('commerce_pos_search_api_index', NULL),
+    );
+  }
+
   $product_options = array();
 
   foreach (commerce_product_types() as $name => $type) {
@@ -110,6 +128,10 @@ function commerce_pos_settings_validate($form, &$form_state) {
  * Submit handler for the POS settings form.
  */
 function commerce_pos_settings_submit($form, &$form_state) {
+  if (!empty($form_state['values']['commerce_pos_search_api_index'])) {
+    variable_set('commerce_pos_search_api_index', $form_state['values']['commerce_pos_search_api_index']);
+  }
+
   variable_set('commerce_pos_available_products', $form_state['values']['commerce_pos_available_products']);
 
   foreach (commerce_product_types() as $name => $type) {

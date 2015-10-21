@@ -81,8 +81,7 @@ function commerce_pos_menu() {
     'access arguments' => array(
       array(
         'process commerce pos sales',
-        // @TODO: probably need this for returns too?
-        /*'process commerce pos returns',*/
+        'process commerce pos returns',
       )
     ),
     'file' => 'includes/commerce_pos.common.inc',
@@ -96,8 +95,7 @@ function commerce_pos_menu() {
     'access arguments' => array(
       array(
         'process commerce pos sales',
-        // @TODO: probably need this for returns too?
-        /*'process commerce pos returns',*/
+        'process commerce pos returns',
       ),
     ),
     'file' => 'includes/commerce_pos.common.inc',
@@ -563,36 +561,6 @@ function commerce_pos_balance_summary($order) {
   // @TODO: this view should be included as a default view in the module,
   // export it via features.
   return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
-}
-
-/**
- * Searches for products using the provided keyword(s).
- */
-function commerce_pos_product_lookup($keywords) {
-  $result = NULL;
-
-  // Allow other modules to perform lookups before we fall back to the default.
-  drupal_alter('commerce_pos_product_lookup', $result, $keywords);
-
-  if ($result === NULL) {
-    // No modules had results, search normally.
-    $query = 'SELECT product_id FROM {commerce_product}
-    WHERE sku = :term
-    OR title LIKE :term_like
-    ORDER BY title ASC
-    LIMIT 5';
-
-    $db_result = db_query($query, array(
-      ':term' => $keywords,
-      ':term_like' => db_like($keywords) . '%',
-    ));
-
-    foreach ($db_result as $row) {
-      $result[] = $row->product_id;
-    }
-  }
-
-  return $result;
 }
 
 /**

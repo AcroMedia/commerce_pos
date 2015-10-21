@@ -431,24 +431,6 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           }
           break;
 
-        case 'product-input':
-          $keywords = $triggering_element['#value'];
-
-          if (!empty($keywords)) {
-            if ($lookup_result = commerce_pos_product_lookup($keywords)) {
-              if (is_array($lookup_result)) {
-                // Got a set of results back, need to present the options to the user.
-                $form_state['lookup_result'] = $lookup_result;
-              }
-              else {
-                // Got a straight up product ID back, just add it to the order.
-                $product = commerce_product_load($lookup_result);
-                $transaction->addProduct($product);
-              }
-            }
-          }
-          break;
-
         default:
           // If we didn't reach any of the above, it means we don't need to reload the order.
           $form_state['order_updated'] = FALSE;

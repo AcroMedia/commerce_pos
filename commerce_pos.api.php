@@ -56,28 +56,6 @@ function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_elemen
 }
 
 /**
- * Allows modules to find products being searched for in the POS.
- *
- * Modules should return one of the following:
- *
- * 1) An array of product IDs. It is then assumed that the POS users should be
- * presented with these products and potential options for them to add to the
- * transaction order.
- *
- * 2) A product ID integer. It is then assumed that the product ID is an
- * exact match and will automatically be added to the transaction order.
- *
- * @param $result
- *   Any prior result that another module implementing this hook has found.
- *   If no results have been found yet, this will be NULL.
- * @param $keywords
- *   The keywords for the search
- */
-function hook_commerce_pos_product_lookup_alter(&$result, $keywords) {
-
-}
-
-/**
  * Allows modules to add to the list of AJAX commands being returned when a
  * POS transaction has been finalized via the "Pay" form.
  *

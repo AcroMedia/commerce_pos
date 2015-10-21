@@ -9,40 +9,80 @@
  */
 function commerce_pos_product_autocomplete() {
   $params = drupal_get_query_parameters();
-  $results = array();
-
-  if (!empty($params['term'])) {
-    $results = _commerce_pos_product_autocomplete_search($params['term']);
-  }
-
-  drupal_json_output($results);
-}
-
-
-/**
- * Searches for products containing the provided keywords.
- */
-function _commerce_pos_product_autocomplete_search($term) {
   $products = array();
 
+  if (!empty($params['term'])) {
+    $results = commerce_pos_product_search($params['term']);
+
+    foreach ($results as $product_id) {
+      if ($data = _commerce_pos_product_autocomplete_build($product_id)) {
+        $products[$product_id] = $data;
+      }
+    }
+  }
+
+  drupal_json_output($products);
+}
+
+/**
+ * Searches for products via a keyword search.
+ */
+function commerce_pos_product_search($keywords) {
+  // First try and perform a search through the Search API.
+  if (!($results = commerce_pos_product_search_api_search($keywords))) {
+    $results = commerce_pos_product_search_basic($keywords);
+  }
+
+  return $results;
+}
+
+/**
+ * Uses the Search API to perform a product keyword search.
+ */
+function commerce_pos_product_search_api_search($keywords) {
+  $results = array();
+
+  // Check if an index has been selected.
+  if ($index_id = variable_get('commerce_pos_search_api_index')) {
+    $index = search_api_index_load($index_id);
+    $query = new SearchApiQuery($index);
+    $query->keys($keywords);
+    $query->range(0, 5);
+    $query_results = $query->execute();
+
+    if (!empty($query_results['results'])) {
+      $results = array_keys($query_results['results']);
+    }
+  }
+
+  return $results;
+}
+
+/**
+ * Perform a very basic product search via the database.
+ */
+function commerce_pos_product_search_basic($keywords) {
+  $allowed_product_types = CommercePosService::allowedProductTypes();
+  $results = array();
+
   $query = 'SELECT product_id FROM {commerce_product}
-    WHERE sku = :term
-    OR title LIKE :term_like
+    WHERE
+      (sku = :term OR title LIKE :term_like)
+      AND type IN (:types)
     ORDER BY title ASC
     LIMIT 5';
 
   $result = db_query($query, array(
-    ':term' => $term,
-    ':term_like' => db_like($term) . '%',
+    ':term' => $keywords,
+    ':term_like' => db_like($keywords) . '%',
+    ':types' => $allowed_product_types,
   ));
 
   foreach ($result as $row) {
-    if ($data = _commerce_pos_product_autocomplete_build($row->product_id)) {
-      $products[$row->product_id] = $data;
-    }
+    $results[] = $row->product_id;
   }
 
-  return $products;
+  return $results;
 }
 
 /**
@@ -72,6 +112,9 @@ function commerce_pos_user_autocomplete($string  = '') {
   drupal_json_output($matches);
 }
 
+/**
+ * Helper function to build a "Parked Transactions" section.
+ */
 function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has_active_transaction) {
   global $user;
 

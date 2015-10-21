@@ -130,4 +130,20 @@ class CommercePosService {
 
     return $transactions[$uid];
   }
+
+  /**
+   * Retrieves a list of commerce_product types that can be added to a POS
+   * transaction.
+   */
+  public static function allowedProductTypes() {
+    $types = array();
+
+    foreach (variable_get('commerce_pos_available_products', array()) as $type => $allowed) {
+      if ($allowed) {
+        $types[] = $type;
+      }
+    }
+
+    return $types;
+  }
 }
