@@ -149,6 +149,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#type' => 'container',
     );
 
+    $total_prefix = $return ? '(' : '';
+    $total_suffix = $return ? ')' : '';
+
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
       // Only show product line item types.
       if ($line_item_wrapper->type->value() != 'product') {
@@ -223,7 +226,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       $line_item_total = $line_item_wrapper->commerce_total->value();
 
       $line_item_element['total'] = array(
-        '#markup' => commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']),
+        '#markup' => $total_prefix . commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . $total_suffix,
       );
 
       $line_item_element['remove'] = array(
@@ -250,6 +253,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
     $transaction_options['order_total'] = array(
       '#markup' => render($order_total),
+    );
+
+    $transaction_options['balance'] = array(
+      '#markup' => commerce_pos_balance_summary($form_state['order_wrapper']->value()),
     );
 
     $transaction_options['actions'] = array(
@@ -502,6 +509,6 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
   }
 
   $form_state['transaction']->doAction('save');
-  drupal_goto('pos/' . $form['#redirect_key'] . '/payment');
+  $form_state['redirect'] = 'pos/' . $form['#redirect_key'] . '/payment';
 }
 

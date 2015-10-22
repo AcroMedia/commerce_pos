@@ -29,6 +29,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
   commerce_pos_payment_ajax_check($form, $form_state);
 
+  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
   $payment_methods = commerce_pos_get_payment_methods();
   $wrapper_id = 'commerce-pos-pay-form-wrapper';
   $form['#theme'] = 'commerce_pos_payment';
@@ -77,11 +78,20 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       ),
     ));
 
+    $replacements = array(
+      '!items' => $items_link,
+      '@order_id' => $form_state['order_wrapper']->order_id->value(),
+    );
+
+    if ($return) {
+      $summary_text = t('Return - !items - Order #@order_id', $replacements);
+    }
+    else {
+      $summary_text = t('Payment - !items - Order #@order_id', $replacements);
+    }
+
     $form['summary'] = array(
-      '#markup' => t('Payment - !items - Order #@order_id', array(
-        '!items' => $items_link,
-        '@order_id' => $form_state['order_wrapper']->order_id->value(),
-      )),
+      '#markup' => $summary_text,
     );
 
     $form['summary_table'] = array(
@@ -155,6 +165,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     $form['balance'] = array(
       '#type' => 'container',
       '#id' => 'commerce-pos-pay-balance-wrapper',
+    );
+
+    $order_total = commerce_pos_price_order_format($form_state['order_wrapper'], 'commerce_order_total', $return);
+
+    $form['balance']['order_total'] = array(
+      '#markup' => render($order_total),
     );
 
     $form['balance']['summary'] = array(
