@@ -88,7 +88,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#markup' => theme('commerce_pos_header', array('account' => $user)),
   );
 
-  $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
   $form['#suffix'] = '</div>';
 
   if (!empty($form_state['transaction']->transactionId)) {
@@ -265,7 +265,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
     $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
-      '#value' => t('Pay (F4)'),
+      '#value' => $return ? t('Return (F4)') : t('Pay (F4)'),
       '#attributes' => array(
         'class' => array('commerce-pos-btn-pay'),
       ),

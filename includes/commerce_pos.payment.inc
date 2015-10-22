@@ -33,9 +33,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   $payment_methods = commerce_pos_get_payment_methods();
   $wrapper_id = 'commerce-pos-pay-form-wrapper';
   $form['#theme'] = 'commerce_pos_payment';
+  $form['#redirect_key'] = arg(1);
+  $form['#transaction_type'] = $transaction_type;
 
-  $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
   $form['#suffix'] = '</div>';
+
   $form_ajax = array(
     'wrapper' => 'commerce-pos-pay-form-wrapper',
     'callback' => 'commerce_pos_payment_wrapper_js',
@@ -103,7 +106,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
 
     $form['edit_order'] = array(
-      '#markup' => l(t('Edit Order'), 'pos/sale', array(
+      '#markup' => l($return ? t('Edit Return') : t('Edit Order'), 'pos/' . $form['#redirect_key'], array(
         'attributes' => array(
           'class' => array('commerce-pos-sale-pay-edit-order'),
         ),
@@ -297,7 +300,7 @@ function commerce_pos_payment_finish_js($form, &$form_state) {
   }
 
   // Redirect should happen after all other commands.
-  $commands[] = ctools_ajax_command_redirect('pos/sale');
+  $commands[] = ctools_ajax_command_redirect('pos/' . $form['#redirect_key']);
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }

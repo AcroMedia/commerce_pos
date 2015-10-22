@@ -56,7 +56,7 @@ function commerce_pos_menu() {
   );
 
   $items['pos/return/payment'] = array(
-    'title' => 'Pay',
+    'title' => 'Refund',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_return_payment'),
     'access callback' => '_commerce_pos_access_check',
