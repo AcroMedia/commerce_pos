@@ -34,10 +34,10 @@ function commerce_pos_upc_scan_form_alter(&$form, &$form_state, $form_id) {
 /**
  * Adds UPC-scanning functionality to the POS transaction forms.
  */
-function _commerce_pos_upc_scan_transaction_form_alter(&$form, &$form_state, $form_id) {
+function _commerce_pos_upc_scan_transaction_form_alter(&$form, &$form_state) {
   $form['product_search']['upc'] = array(
     '#type' => 'textfield',
-    '#title' => t('Product UPC (hide me)'),
+    '#title' => t('Product UPC'),
     '#size' => 60,
     '#ajax' => array(
       'callback' => 'commerce_pos_transaction_wrapper_js',
@@ -50,6 +50,8 @@ function _commerce_pos_upc_scan_transaction_form_alter(&$form, &$form_state, $fo
     '#attributes' => array(
       'class' => array('commerce-pos-upc-scan-upc-field'),
     ),
+    '#prefix' => '<div class="element-invisible">',
+    '#suffix' => '</div>',
   );
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_upc_scan') . '/js/commerce_pos_upc_scan.js';

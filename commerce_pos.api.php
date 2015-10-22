@@ -56,19 +56,6 @@ function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_elemen
 }
 
 /**
- * Allows modules to add to the list of AJAX commands being returned when a
- * POS transaction has been finalized via the "Pay" form.
- *
- * Modules should return an array of AJAX commands, to be merged in with the
- * other commands.
- */
-function hook_commerce_pos_pay_finish_commands(CommercePosTransaction $transaction) {
-  $commands = array();
-  $commands[] = ajax_command_alert(t('This is an example.'));
-  return $commands;
-}
-
-/**
  * Allows modules to specify the default state for a POS transaction's order.
  *
  * The state is used in price calculation rules to determine applicable taxes.

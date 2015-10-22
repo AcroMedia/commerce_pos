@@ -265,7 +265,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
     $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
-      '#value' => $return ? t('Return (F4)') : t('Pay (F4)'),
+      '#value' => $return ? t('Refund (F4)') : t('Pay (F4)'),
       '#attributes' => array(
         'class' => array('commerce-pos-btn-pay'),
       ),

@@ -38,6 +38,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
   $form['#suffix'] = '</div>';
+  $form_state['wrapper_id'] = $wrapper_id;
 
   $form_ajax = array(
     'wrapper' => 'commerce-pos-pay-form-wrapper',
@@ -190,10 +191,6 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#disabled' => $order_balance['amount'] > 0,
       '#validate' => array('commerce_pos_payment_validate'),
       '#submit' => array('commerce_pos_payment_finish'),
-      '#ajax' => array(
-        'callback' => 'commerce_pos_payment_finish_js',
-        'wrapper' => $wrapper_id,
-      ),
     );
 
     $form['balance']['actions']['park'] = array(
@@ -280,29 +277,7 @@ function commerce_pos_payment_validate($form, &$form_state) {
  */
 function commerce_pos_payment_finish($form, &$form_state) {
   $form_state['transaction']->doAction('completeTransaction');
-  $_SESSION['commerce_pos_previous_transaction'] = $form_state['transaction']->transaction_id;
-  drupal_set_message(t('Transaction completed'));
-}
-
-/**
- * AJAX callback for the pay form's "Finish" button.
- *
- * This logic will occur AFTER the finish submit handler.
- */
-function commerce_pos_payment_finish_js($form, &$form_state) {
-  module_load_include('inc', 'ctools', 'includes/ajax');
-
-  $commands = array();
-
-  // Allow other modules to add to the list of AJAX commands being returned.
-  foreach (module_invoke_all('commerce_pos_pay_finish_commands', $form_state['transaction']) as $module_command) {
-    $commands[] = $module_command;
-  }
-
-  // Redirect should happen after all other commands.
-  $commands[] = ctools_ajax_command_redirect('pos/' . $form['#redirect_key']);
-
-  return array('#type' => 'ajax', '#commands' => $commands);
+  $form_state['redirect'] = 'pos/' . $form['#redirect_key'];
 }
 
 /**

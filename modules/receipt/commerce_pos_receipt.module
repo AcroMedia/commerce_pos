@@ -116,22 +116,6 @@ function commerce_pos_receipt_permission() {
 }
 
 /**
- * Implements hook_commerce_pos_pay_finish_commands().
- */
-function commerce_pos_receipt_commerce_pos_pay_finish_commands(CommercePosTransaction $transaction) {
-  $commands = array();
-
-  $receipt = theme('commerce_pos_receipt', array('transaction' => $transaction));
-
-  $commands[] = array(
-    'command' => 'printReceipt',
-    'content' => $receipt,
-  );
-
-  return $commands;
-}
-
-/**
  * Implements hook_form_alter().
  */
 function commerce_pos_receipt_form_alter(&$form, &$form_state, $form_id) {
@@ -163,20 +147,28 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
 
   $form['#attached']['libraries_load'][] = array('jquery-print');
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_receipt') . '/js/commerce_pos_receipt.js';
-  $form['#attached']['js'][] = array(
-    'type' => 'setting',
-    'data' => $js_settings,
-  );
 
-  if (isset($_SESSION['commerce_pos_discount_previous_transaction'])) {
+  if (isset($_SESSION['commerce_pos_receipt_previous_transaction'])) {
     $form['print_previous'] = array(
-      '#markup' => l(t('Print previous transaction receipt'), 'pos/' . $_SESSION['commerce_pos_discount_previous_transaction'] . '/print-receipt', array(
+      '#markup' => l(t('Print previous transaction receipt'), 'pos/' . $_SESSION['commerce_pos_receipt_previous_transaction'] . '/print-receipt', array(
         'attributes' => array(
           'class' => array('use-ajax', 'commerce-pos-receipt-print-previous'),
         ),
       )),
     );
   }
+
+  if (isset($_SESSION['commerce_pos_print_transaction'])) {
+    $js_settings['commercePosReceipt']['printInfo'] = array(
+      'transactionId' => $_SESSION['commerce_pos_print_transaction'],
+      'printUrl' => url('pos/' . $_SESSION['commerce_pos_print_transaction'] . '/print-receipt'),
+    );
+  }
+
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => $js_settings,
+  );
 }
 
 /**
@@ -256,6 +248,11 @@ function commerce_pos_receipt_build_receipt_body($order) {
 
   $rows = array();
   $wrapper = entity_metadata_wrapper('commerce_order', $order);
+  $transaction = CommercePosService::getOrderTransaction($order->order_id);
+  $return = $transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN;
+
+  $price_prefix = $return ? '(' : '';
+  $price_suffix = $return ? ')' : '';
 
   // @TODO: make the type of line types that show up here configurable.
   foreach ($wrapper->commerce_line_items as $delta => $line_item) {
@@ -269,11 +266,11 @@ function commerce_pos_receipt_build_receipt_body($order) {
         'class' => array('component-name'),
       ),
       array(
-        'data' => commerce_currency_format(
+        'data' => $price_prefix . commerce_currency_format(
           $line_item->commerce_total->amount->raw(),
           $line_item->commerce_total->currency_code->raw(),
           $line_item
-        ),
+        ) . $price_suffix,
         'class' => array('component-total'),
       ),
     );
@@ -294,11 +291,11 @@ function commerce_pos_receipt_build_receipt_body($order) {
           'data' => t('@sku x@qty @ @price', array(
             '@sku' => $line_item->commerce_product->sku->value(),
             '@qty' => (int) $line_item->quantity->value(),
-            '@price' => commerce_currency_format(
+            '@price' => $price_prefix . commerce_currency_format(
               $line_item->commerce_unit_price->amount->raw(),
               $line_item->commerce_unit_price->currency_code->raw(),
               $line_item
-            ),
+            ) . $price_suffix,
           )),
           'colspan' => 2,
         ),
@@ -356,7 +353,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
 
   // @TODO: test this change to the recept total.
   $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total');
-  $output['total'] = $order_total;
+  $output['total']['#markup'] = render($order_total);
   $output['total']['#weight'] = 10;
 
   $output['payments'] = array(
