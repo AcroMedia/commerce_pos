@@ -33,7 +33,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   $payment_methods = commerce_pos_get_payment_methods();
   $wrapper_id = 'commerce-pos-pay-form-wrapper';
   $form['#theme'] = 'commerce_pos_payment';
-  $form['#redirect_key'] = arg(1);
+  $form['#redirect_key'] = $return ? 'return' : 'sale';
   $form['#transaction_type'] = $transaction_type;
 
   $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
@@ -321,7 +321,7 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
 
       switch ($triggering_element['#element_key']) {
         case 'retrieve-parked-transaction':
-          $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
+          $parked_transaction = CommercePosService::loadTransaction($triggering_element['#transaction_id']);
           $parked_transaction->unpark();
 
           if ($transaction) {

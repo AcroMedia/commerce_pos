@@ -38,7 +38,7 @@ class CommercePosService {
 
       if (isset($active_transactions[$type]['commerce_pos_in_progress'])) {
         $transaction_id = $active_transactions[$type]['commerce_pos_in_progress'][0];
-        $current_transactions[$uid][$type] = new CommercePosTransaction($transaction_id);
+        $current_transactions[$uid][$type] = self::loadTransaction($transaction_id);
       }
     }
 

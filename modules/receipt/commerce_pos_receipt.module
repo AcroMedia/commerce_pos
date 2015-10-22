@@ -212,7 +212,7 @@ function commerce_pos_receipt_print_access($transaction_id) {
     $access = TRUE;
   }
   elseif (user_access('process commerce pos sales')) {
-    $transaction = new CommercePosTransaction($transaction_id);
+    $transaction = CommercePosService::loadTransaction($transaction_id);
     if ($transaction->uid == $user->uid) {
       $access = TRUE;
     }

@@ -14,6 +14,7 @@ function commerce_pos_discount_commerce_pos_transaction_base_info() {
       'class' => 'CommercePosDiscountBase',
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
       ),
     ),
   );

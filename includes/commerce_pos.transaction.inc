@@ -30,11 +30,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   commerce_pos_transaction_ajax_check($form, $form_state);
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
 
-  $form['#theme'] = 'commerce_pos_transaction';
-  $form['#redirect_key'] = arg(1);
-  $form['#transaction_type'] = $transaction_type;
-
   $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
+
+  $form['#theme'] = 'commerce_pos_transaction';
+  $form['#redirect_key'] = $return ? 'return' : 'sale';
+  $form['#transaction_type'] = $transaction_type;
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
@@ -417,7 +417,7 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           break;
 
         case 'retrieve-parked-transaction':
-          $parked_transaction = new CommercePosTransaction($triggering_element['#transaction_id']);
+          $parked_transaction = CommercePosService::loadTransaction($triggering_element['#transaction_id']);
           $parked_transaction->unpark();
           $transaction->void();
           unset($form_state['transaction']);

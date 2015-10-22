@@ -327,6 +327,9 @@ class CommercePosTransaction {
       }
     }
 
+    // Clear references to any prior objects.
+    unset($base_class);
+
     // Now that the Base Classes have been added, store their event
     // subscriptions.
     /* @var CommercePosTransactionBaseInterface $base_class */

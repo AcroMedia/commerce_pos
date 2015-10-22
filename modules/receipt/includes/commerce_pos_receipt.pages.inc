@@ -18,7 +18,7 @@
 function commerce_pos_receipt_print($transaction_id) {
   $commands = array();
 
-  $transaction = new CommercePosTransaction($transaction_id);
+  $transaction = CommercePosService::loadTransaction($transaction_id);
   $receipt = theme('commerce_pos_receipt', array('transaction' => $transaction));
 
   $commands[] = array(
