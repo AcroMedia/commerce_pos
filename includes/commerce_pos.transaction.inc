@@ -32,6 +32,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $form['#theme'] = 'commerce_pos_transaction';
   $form['#redirect_key'] = arg(1);
+  $form['#transaction_type'] = $transaction_type;
+
+  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
@@ -216,16 +219,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         ),
       );
 
-      $price_view = field_view_field('commerce_line_item', $line_item_wrapper->value(), 'commerce_total', 'commerce_pos');
-      $price_view = render($price_view);
 
-      if (empty($price_view)) {
-        $line_item_total = $line_item_wrapper->commerce_total->value();
-        $price_view = commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']);
-      }
+      $line_item_total = $line_item_wrapper->commerce_total->value();
 
       $line_item_element['total'] = array(
-        '#markup' => $price_view,
+        '#markup' => commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']),
       );
 
       $line_item_element['remove'] = array(
@@ -247,7 +245,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   );
 
   if ($has_active_transaction) {
-    $order_total = field_view_field('commerce_order', $order_wrapper->value(), 'commerce_order_total', 'commerce_pos');
+    $order_total = commerce_pos_price_order_format($order_wrapper, 'commerce_order_total', $return);
     $transaction_options = &$form['transaction_options'];
 
     $transaction_options['order_total'] = array(

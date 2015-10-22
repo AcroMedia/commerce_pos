@@ -105,17 +105,6 @@ function commerce_pos_receipt_commerce_pos_transaction_base_info() {
 }
 
 /**
- * Implements hook_entity_info_alter().
- */
-function commerce_pos_receipt_entity_info_alter(&$entity_info) {
-  // Add a custom display mode to orders for receipts.
-  $entity_info['commerce_order']['view modes']['commerce_pos_receipt'] = array(
-    'label' => t('POS Receipt'),
-    'custom settings' => TRUE,
-  );
-}
-
-/**
  * Implements hook_permission().
  */
 function commerce_pos_receipt_permission() {
@@ -348,7 +337,8 @@ function commerce_pos_receipt_build_receipt_body($order) {
     '#weight' => 5,
   );
 
-  $order_total = field_view_field('commerce_order', $order, 'commerce_order_total', 'commerce_pos_receipt');
+  // @TODO: test this change to the recept total.
+  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total');
   $output['total'] = $order_total;
   $output['total']['#weight'] = 10;
 

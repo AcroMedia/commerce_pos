@@ -9,6 +9,8 @@ class CommercePosService {
   const TRANSACTION_TYPE_SALE = 1;
   const TRANSACTION_TYPE_RETURN = 2;
 
+  static $transactions = array();
+
   /**
    * Retrieves the current POS transaction for a user.
    *
@@ -65,8 +67,37 @@ class CommercePosService {
         $current_transaction = $transaction;
       }
     }
+  }
 
-    $testing = 0;
+  /**
+   * Load a Commerce POS transaction.
+   */
+  public static function loadTransaction($transaction_id, $reset = FALSE) {
+    if ($reset) {
+      self::$transactions = array();
+    }
+
+    if (!isset(self::$transactions[$transaction_id])) {
+      self::$transactions[$transaction_id] = new CommercePosTransaction($transaction_id);
+    }
+
+    return self::$transactions[$transaction_id];
+  }
+
+  /**
+   * Looks up the POS transaction for a specific order.
+   */
+  public static function getOrderTransaction($order_id) {
+    $result = db_query('SELECT transaction_id FROM {commerce_pos_transaction}
+      WHERE order_id = :order_id', array(
+      ':order_id' => $order_id,
+    ));
+
+    if ($transaction_id = $result->fetchField()) {
+      return self::loadTransaction($transaction_id);
+    }
+
+    return FALSE;
   }
 
   /**
