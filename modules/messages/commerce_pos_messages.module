@@ -7,9 +7,21 @@
 include_once 'commerce_pos_messages.features.inc';
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function commerce_pos_messages_form_commerce_pos_sale_alter(&$form, &$form_state) {
+function commerce_pos_messages_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+      _commerce_pos_messages_transaction_form_alter($form, $form_state);
+      break;
+  }
+}
+
+/**
+ * Adds order message functionality to the POS transaction forms.
+ */
+function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
   if (!empty($form_state['order_wrapper'])) {
 
     // Check to see if we should be adding a

@@ -250,15 +250,6 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
 }
 
 /**
- * Submit handler for the "Void" button.
- * @TODO: is this even called?
- */
-function commerce_pos_payment_void_submit($form, &$form_state) {
-  $form_state['transaction']->void();
-  $form_state['redirect'] = 'pos/sale';
-}
-
-/**
  * Validation handler for the pay form's "Finish" button.
  */
 function commerce_pos_payment_validate($form, &$form_state) {

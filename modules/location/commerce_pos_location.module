@@ -145,9 +145,25 @@ function commerce_pos_location_entity_property_info() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function commerce_pos_location_form_commerce_pos_login_alter(&$form, &$form_state, $form_id) {
+function commerce_pos_location_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'commerce_pos_login':
+      _commerce_pos_location_login_form_alter($form, $form_state);
+      break;
+
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+    _commerce_pos_location_check_form_alter($form, $form_state);
+      break;
+  }
+}
+
+/**
+ * Adds a location selection element to the POS login form.
+ */
+function _commerce_pos_location_login_form_alter(&$form, &$form_state) {
   $locations = commerce_pos_location_options();
 
   if (!empty($locations)) {
@@ -166,9 +182,9 @@ function commerce_pos_location_form_commerce_pos_login_alter(&$form, &$form_stat
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Adds a location check to the POS transaction forms.
  */
-function commerce_pos_location_form_commerce_pos_sale_alter(&$form, &$form_state) {
+function _commerce_pos_location_check_form_alter(&$form, &$form_state) {
   // Make sure the current user has a location, otherwise make them select one.
   if (!commerce_pos_location_get_current_location()) {
     drupal_goto('pos/location-select', array(

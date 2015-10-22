@@ -132,9 +132,26 @@ function commerce_pos_receipt_commerce_pos_pay_finish_commands(CommercePosTransa
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function commerce_pos_receipt_form_commerce_pos_sale_alter(&$form, &$form_state, $form_id) {
+function commerce_pos_receipt_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+      _commerce_pos_receipt_transaction_form_alter($form, $form_state);
+      break;
+
+    case 'commerce_pos_sale_payment':
+    case 'commerce_pos_return_payment':
+      _commerce_pos_receipt_payment_form_alter($form, $form_state);
+      break;
+  }
+}
+
+/**
+ * Adds previous receipt printing functionality to the POS transaction forms.
+ */
+function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
   // Attach libraries and JS needed to print a receipt.
   $js_settings = array(
     'commercePosReceipt' => array(
@@ -163,9 +180,9 @@ function commerce_pos_receipt_form_commerce_pos_sale_alter(&$form, &$form_state,
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Adds receipt-printing functionality to the POS payment forms.
  */
-function commerce_pos_receipt_form_commerce_pos_pay_alter(&$form, &$form_state, $form_id) {
+function _commerce_pos_receipt_payment_form_alter(&$form, &$form_state) {
   // Attach libraries and JS needed to print a receipt.
   $js_settings = array(
     'commercePosReceipt' => array(

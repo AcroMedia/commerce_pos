@@ -20,9 +20,21 @@ function commerce_pos_upc_scan_menu() {
 }
 
 /**
- * Implements hook_form_FORM_ID_alter().
+ * Implements hook_form_alter().
  */
-function commerce_pos_upc_scan_form_commerce_pos_sale_alter(&$form, &$form_state, $form_id) {
+function commerce_pos_upc_scan_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+      _commerce_pos_upc_scan_transaction_form_alter($form, $form_state);
+      break;
+  }
+}
+
+/**
+ * Adds UPC-scanning functionality to the POS transaction forms.
+ */
+function _commerce_pos_upc_scan_transaction_form_alter(&$form, &$form_state, $form_id) {
   $form['product_search']['upc'] = array(
     '#type' => 'textfield',
     '#title' => t('Product UPC (hide me)'),
