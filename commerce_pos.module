@@ -230,7 +230,7 @@ function commerce_pos_commerce_payment_method_info() {
   // only meant to by internally used by the POS system.
   $payment_methods['commerce_pos_change'] = array(
     'base' => 'commerce_pos_change',
-    'title' => t('Change'),
+    'title' => t('Change tendered'),
     'description' => t('Change given to a customer.'),
     'active' => TRUE,
     'checkout' => FALSE,
@@ -341,7 +341,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] < 0) {
         $rows[] = array(
           'data' => array(
-            array('data' => t('Change'), 'class' => array('label')),
+            array('data' => t('Change tendered'), 'class' => array('label')),
             array('data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
           ),
           'class' => array('order-change'),
@@ -381,7 +381,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] < 0) {
         $rows[] = array(
           'data' => array(
-            array('data' => t('Change'), 'class' => array('label')),
+            array('data' => t('Change tendered'), 'class' => array('label')),
             array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
           ),
           'class' => array('order-change'),
