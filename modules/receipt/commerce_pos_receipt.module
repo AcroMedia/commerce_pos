@@ -53,6 +53,8 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'variables' => array(
         'order' => NULL,
+        'return' => FALSE,
+        'transacton' => NULL,
       ),
     ),
   );
@@ -163,6 +165,8 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
       'transactionId' => $_SESSION['commerce_pos_print_transaction'],
       'printUrl' => url('pos/' . $_SESSION['commerce_pos_print_transaction'] . '/print-receipt'),
     );
+
+    unset($_SESSION['commerce_pos_print_transaction']);
   }
 
   $form['#attached']['js'][] = array(
@@ -327,7 +331,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
         'class' => array('component-label'),
       ),
       array(
-        'data' => commerce_currency_format($payment->amount, $payment->currency_code, $payment),
+        'data' => $price_prefix . commerce_currency_format($payment->amount, $payment->currency_code, $payment) . $price_suffix,
         'class' => array('component-total'),
       ),
     );
@@ -340,6 +344,8 @@ function commerce_pos_receipt_build_receipt_body($order) {
   $output['info'] = array(
     '#theme' => 'commerce_pos_receipt_order_info',
     '#order' => $order,
+    '#return' => $return,
+    '#transaction' => $transaction,
     '#weight' => -10,
   );
 
@@ -352,7 +358,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
   );
 
   // @TODO: test this change to the recept total.
-  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total');
+  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', $return);
   $output['total']['#markup'] = render($order_total);
   $output['total']['#weight'] = 10;
 

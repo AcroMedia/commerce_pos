@@ -672,7 +672,7 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
 
   // Add the actual field value to the array.
   $components['commerce_price_formatted_amount'] = array(
-    'title' => t('Order total'),
+    'title' => $return ? t('Refund total') : t('Order total'),
     'price' => $price,
     'weight' => $weight + 1,
   );

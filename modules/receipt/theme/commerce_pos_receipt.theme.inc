@@ -29,8 +29,6 @@ function commerce_pos_receipt_preprocess_commerce_pos_receipt(&$variables) {
     )
   );
 
-  $variables['receipt_date'] = format_date(REQUEST_TIME);
-
   drupal_add_css(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array('media' => 'print'));
 
   $variables['receipt_body'] = commerce_pos_receipt_build_receipt_body($order_wrapper->value());

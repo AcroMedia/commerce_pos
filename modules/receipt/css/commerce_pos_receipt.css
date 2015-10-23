@@ -17,6 +17,9 @@
   border-bottom: 1px dashed #000;
 }
 
+.pos-receipt .pos-order-info .transaction-type {
+}
+
 /* BASIC TABLE STYLES */
 .pos-receipt table {
   width: 100%;
