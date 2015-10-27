@@ -284,6 +284,12 @@ function commerce_pos_commerce_order_status_info() {
     'state' => 'commerce_pos',
   );
 
+  $order_statuses['commerce_pos_returned'] = array(
+    'name' => 'commerce_pos_returned',
+    'title' => t('POS - Returned'),
+    'state' => 'commerce_pos',
+  );
+
   return $order_statuses;
 }
 

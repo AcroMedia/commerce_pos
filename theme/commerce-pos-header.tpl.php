@@ -13,6 +13,9 @@
     <ul>
       <li><?php print l(t('Sale'), 'pos/sale'); ?></li>
       <li><?php print l(t('Return'), 'pos/return'); ?></li>
+      <?php if (module_exists('commerce_pos_report')): ?>
+        <li><?php print l(t('Reports'), 'pos/report'); ?></li>
+      <?php endif; ?>
     </ul>
   </div>
 

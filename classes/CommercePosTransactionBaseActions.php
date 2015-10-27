@@ -346,7 +346,12 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
       $this->checkPaymentTransactions($order_wrapper);
 
-      $order_wrapper->status->set('completed');
+      if ($this->transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN) {
+        $order_wrapper->status->set('commerce_pos_returned');
+      }
+      else {
+        $order_wrapper->status->set('completed');
+      }
 
       if (empty($order_wrapper->uid->value())) {
         if ($account = $this->createNewUser($order_wrapper)) {

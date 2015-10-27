@@ -9,7 +9,7 @@
  */
 function commerce_pos_report_menu() {
   $items['pos/report'] = array(
-    'title' => 'POS Report',
+    'title' => 'POS Reports',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_report_main'),
     'file' => 'includes/commerce_pos_report.pages.inc',

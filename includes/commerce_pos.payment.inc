@@ -278,6 +278,7 @@ function commerce_pos_payment_validate($form, &$form_state) {
 function commerce_pos_payment_finish($form, &$form_state) {
   $form_state['transaction']->doAction('completeTransaction');
   $form_state['redirect'] = 'pos/' . $form['#redirect_key'];
+  drupal_set_message(t('Transaction Completed'));
 }
 
 /**

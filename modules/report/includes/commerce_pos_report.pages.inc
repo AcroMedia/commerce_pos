@@ -8,19 +8,11 @@
  * Callback for the main report form.
  */
 function commerce_pos_report_main($form, &$form_state) {
+  global $user;
+
   if (!isset($form_state['results_container_id'])) {
     $form_state['results_container_id'] = 'commerce-pos-report-results-container';
   }
-
-  $form['filters'] = array(
-    '#type' => 'container',
-  );
-
-  $ajax = array(
-    'callback' => 'commerce_pos_report_main_results_js',
-    'wrapper' => $form_state['results_container_id'],
-    'effect' => 'fade',
-  );
 
   $default_date = format_date(REQUEST_TIME, 'custom', 'Y-m-d');
   $default_type = CommercePosService::TRANSACTION_TYPE_SALE;
@@ -33,9 +25,24 @@ function commerce_pos_report_main($form, &$form_state) {
     $date_filter = $default_date;
   }
 
+  $ajax = array(
+    'callback' => 'commerce_pos_report_main_results_js',
+    'wrapper' => $form_state['results_container_id'],
+    'effect' => 'fade',
+  );
+
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
+
+  $form['header'] = array(
+    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+  );
+
+  $form['filters'] = array(
+    '#type' => 'container',
+  );
+
   $type_filter = isset($form_state['input']['transaction_type']) ?
-    $form_state['input']['transaction_type']
-    :$default_type;
+    $form_state['input']['transaction_type'] : $default_type;
 
   $form['filters']['date_completed'] = array(
     '#type' => 'date_select',
@@ -45,7 +52,6 @@ function commerce_pos_report_main($form, &$form_state) {
     '#ajax' => $ajax,
     '#element_key' => 'date_completed',
   );
-
 
   $form['filters']['transaction_type'] = array(
     '#type' => 'select',

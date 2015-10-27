@@ -65,6 +65,7 @@ function commerce_pos_upc_scan_commerce_pos_sale_form_ajax_alter(&$form_state, $
     if ($product_id = commerce_pos_upc_scan_lookup($triggering_element['#value'])) {
       $product = commerce_product_load($product_id);
       $form_state['transaction']->addProduct($product);
+      $form_state['order_updated'] = TRUE;
     }
   }
 
