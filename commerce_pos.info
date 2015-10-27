@@ -8,6 +8,7 @@ dependencies[] = commerce_product
 dependencies[] = commerce_cop
 dependencies[] = commerce_payment
 dependencies[] = ctools
+dependencies[] = date
 
 ; Class definitions
 files[] = classes/CommercePosService.php

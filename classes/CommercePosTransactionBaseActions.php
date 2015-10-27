@@ -54,6 +54,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'location_id' => $transaction->locationId,
       'changed' => $transaction->changed,
       'created' => $transaction->created,
+      'completed' => $transaction->completed,
     );
 
     if ($transaction->transactionId) {
@@ -353,6 +354,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
         }
       }
 
+      $this->transaction->completed = REQUEST_TIME;
       $this->transaction->doAction('save');
       $this->transaction->doAction('saveOrder');
     }

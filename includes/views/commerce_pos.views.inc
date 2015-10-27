@@ -31,6 +31,21 @@ function commerce_pos_views_data() {
     ),
   );
 
+  $data['commerce_pos_transaction']['type'] = array(
+    'title' => t('Transaction type'),
+    'help' => t('The type of POS transaction.'),
+    'field' => array(
+      'handler' => 'views_handler_field',
+      'click sortable' => TRUE,
+    ),
+    'filter' => array(
+      'handler' => 'views_handler_filter_string',
+    ),
+    'argument' => array(
+      'handler' => 'views_handler_argument_string',
+    ),
+  );
+
   $data['commerce_pos_transaction']['order_id'] = array(
     'title' => t('Transaction order ID'),
     'field' => array(
@@ -59,6 +74,26 @@ function commerce_pos_views_data() {
   $data['commerce_pos_transaction']['created'] = array(
     'title' => t('Created date'),
     'help' => t('The date the POS transaction was created'),
+    'field' => array(
+      'handler' => 'views_handler_field_date',
+      'click sortable' => TRUE,
+    ),
+    'sort' => array(
+      'handler' => 'views_handler_sort_date',
+    ),
+    'filter' => array(
+      'handler' => 'date_views_filter_handler',
+      'is date' => TRUE,
+    ),
+    'argument' => array(
+      'handler' => 'date_views_argument_handler',
+      'is date' => TRUE,
+    ),
+  );
+
+  $data['commerce_pos_transaction']['completed'] = array(
+    'title' => t('Completed date'),
+    'help' => t('The date the POS transaction was completed'),
     'field' => array(
       'handler' => 'views_handler_field_date',
       'click sortable' => TRUE,

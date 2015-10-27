@@ -106,11 +106,20 @@ function commerce_pos_location_entity_info() {
 }
 
 /**
- * Implements hook_entity_property_info().
+ * Implements hook_views_api().
  */
-function commerce_pos_location_entity_property_info() {
-  $info = array();
+function commerce_pos_location_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_pos_location') . '/includes/views',
+    'template path' => drupal_get_path('module', 'commerce_pos_location') . '/theme',
+  );
+}
 
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function commerce_pos_location_entity_property_info_alter(&$info) {
   $properties = &$info['commerce_pos_location']['properties'];
 
   $properties['location_id'] = array(
@@ -140,8 +149,6 @@ function commerce_pos_location_entity_property_info() {
     'schema field' => 'changed',
     'description' => t('The date the location was most recently updated.'),
   );
-
-  return $info;
 }
 
 /**

@@ -1,0 +1,192 @@
+<?php
+
+/**
+ * @file
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_pos_report_menu() {
+  $items['pos/report'] = array(
+    'title' => 'POS Report',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_report_main'),
+    'file' => 'includes/commerce_pos_report.pages.inc',
+    'access arguments' => array('view commerce pos reports'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_report_permission() {
+  return array(
+    'view commerce pos reports' =>  array(
+      'title' => t('View Commerce POS Reports'),
+      'description' => t('Perform administration tasks for my module.'),
+    ),
+  );
+}
+
+/**
+ * Builds a render array of a summary and POS orders, broken down my price
+ * component.
+ */
+function commerce_pos_report_order_summary($completed_date, $transaction_type, $location_id = 0) {
+  $output = array();
+
+  $query = db_select('commerce_pos_transaction', 't');
+
+  $query->fields('ct', array(
+    'commerce_order_total_amount',
+    'commerce_order_total_currency_code',
+    'commerce_order_total_data',
+  ));
+
+  $query->join('field_data_commerce_order_total', 'ct', 'ct.entity_id = t.order_id AND ct.entity_type=:commerce_order', array(
+    ':commerce_order' => 'commerce_order',
+  ));
+
+  $query->where("DATE_FORMAT(FROM_UNIXTIME(t.completed), '%Y-%m-%d') = :completed_date", array(
+    ':completed_date' => $completed_date,
+  ));
+
+  if ($location_id) {
+    $query->condition('t.location_id', $location_id);
+  }
+
+  $query->condition('t.type', $transaction_type);
+
+  if ($result = $query->execute()) {
+    $prices = array();
+
+    $output['total_orders'] = $result->rowCount();
+
+    foreach ($result as $row) {
+      $currency_code = $row->commerce_order_total_currency_code;
+      $data = unserialize($row->commerce_order_total_data);
+      $amount = $row->commerce_order_total_amount;
+
+      if (!isset($prices[$currency_code])) {
+        $prices[$currency_code] = array(
+          'name' => 'commerce_total',
+          'price' => array(
+            'amount' => $amount,
+            'currency_code' => $currency_code,
+            'data' => array(
+              'components' => array(),
+            ),
+          ),
+        );
+      }
+      else {
+        $prices[$currency_code]['price']['amount'] += $amount;
+      }
+
+      $price_components = &$prices[$currency_code]['price']['data']['components'];
+
+      foreach ($data['components'] as $component) {
+        $component_to_update = FALSE;
+
+        foreach ($price_components as $key => &$price_component) {
+          if ($price_component['name'] == $component['name']) {
+            $component_to_update = &$price_component;
+            break;
+          }
+        }
+
+        if (!$component_to_update) {
+          $price_components[] = $component;
+        }
+        else {
+          $component_to_update['price']['amount'] += $component['price']['amount'];
+          unset($component_to_update);
+        }
+      }
+
+      // Now that we've built our price fields list, we need to theme the
+      // output.
+      if (!empty($prices)) {
+        foreach ($prices as $currency_code => $price) {
+          $output['summaries'][$currency_code] = commerce_pos_report_build_price_array($price['price'], $transaction_type);
+        }
+      }
+    }
+
+    // Now that we've built our price fields list, we need to theme the
+    // output.
+    if (!empty($prices)) {
+      foreach ($prices as $currency_code => $price) {
+        $output['summaries'][$currency_code] = commerce_pos_report_build_price_array($price['price'], $transaction_type);
+      }
+    }
+  }
+
+  return $output;
+}
+
+/**
+ * Builds a render array of a formatted price with components.
+ *
+ * Most of this logic was taken from commerce_price_field_formatter_view().
+ */
+function commerce_pos_report_build_price_array($price, $transaction_type) {
+  // Build an array of component display titles and their prices.
+  $components = array();
+  $weight = 0;
+
+  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
+  $price_prefix = $return ? '(' : '';
+  $price_suffix = $return ? ')' : '';
+
+  foreach ($price['data']['components'] as $key => $component) {
+    $component_type = commerce_price_component_type_load($component['name']);
+
+    if (empty($components[$component['name']])) {
+      $components[$component['name']] = array(
+        'title' => check_plain($component_type['display_title']),
+        'price' => commerce_price_component_total($price, $component['name']),
+        'weight' => $component_type['weight'],
+      );
+
+      $weight = max($weight, $component_type['weight']);
+    }
+  }
+
+  // If there is only a single component and its price equals the field's,
+  // then remove it and just show the actual price amount.
+  if (count($components) == 1 && in_array('base_price', array_keys($components))) {
+    $components = array();
+  }
+
+  // Add the actual field value to the array.
+  $components['commerce_price_formatted_amount'] = array(
+    'title' => t('Total'),
+    'price' => $price,
+    'weight' => $weight + 1,
+  );
+
+  // Allow other modules to alter the components.
+  drupal_alter('commerce_price_formatted_components', $components, $price, $entity);
+
+  // Sort the components by weight.
+  uasort($components, 'drupal_sort_weight');
+
+  // Format the prices for display.
+  foreach ($components as $key => &$component) {
+    $component['formatted_price'] = $price_prefix . commerce_currency_format(
+      $component['price']['amount'],
+      $component['price']['currency_code'],
+      $entity
+    ) . $price_suffix;
+  }
+
+  return array(
+    '#theme' => 'commerce_price_formatted_components',
+    '#components' => $components,
+    '#price' => $price,
+  );
+}

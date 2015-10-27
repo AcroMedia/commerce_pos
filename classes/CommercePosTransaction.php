@@ -12,11 +12,12 @@ class CommercePosTransaction {
   public $transactionId = 0;
   public $uid = 0;
   public $orderId = 0;
-  public $type = 0;
+  public $type = '';
   public $locationId = 0;
   public $data = array();
   public $created = 0;
   public $changed = 0;
+  public $completed = 0;
 
   protected $bases = array();
   protected $order = FALSE;
@@ -249,6 +250,7 @@ class CommercePosTransaction {
         $this->locationId = $result['location_id'];
         $this->created = $result['created'];
         $this->changed = $result['changed'];
+        $this->completed = $result['completed'];
 
         if (empty($result['data'])) {
           $this->data = array();

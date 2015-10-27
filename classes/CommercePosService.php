@@ -6,8 +6,8 @@
  */
 
 class CommercePosService {
-  const TRANSACTION_TYPE_SALE = 1;
-  const TRANSACTION_TYPE_RETURN = 2;
+  const TRANSACTION_TYPE_SALE = 'sale';
+  const TRANSACTION_TYPE_RETURN = 'return';
 
   static $transactions = array();
 
@@ -176,5 +176,15 @@ class CommercePosService {
     }
 
     return $types;
+  }
+
+  /**
+   * Retrieves a list of POS transaction types.
+   */
+  public static function transactionTypes() {
+    return array(
+      self::TRANSACTION_TYPE_SALE => t('Sale'),
+      self::TRANSACTION_TYPE_RETURN => t('Return'),
+    );
   }
 }
