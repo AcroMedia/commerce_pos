@@ -5,6 +5,16 @@
  */
 
 /**
+ * Implements hook_views_api().
+ */
+function commerce_pos_report_views_api($module = NULL, $api = NULL) {
+  return array(
+    'api' => '3.0',
+    'path' => drupal_get_path('module', 'commerce_pos_report') . '/includes/views',
+  );
+}
+
+/**
  * Implements hook_menu().
  */
 function commerce_pos_report_menu() {
