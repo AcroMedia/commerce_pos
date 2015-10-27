@@ -17,8 +17,8 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
   $variables['image'] = NULL;
   $stock = NULL;
 
-  if (module_exists('commerce_stock') && $stock = field_get_items('commerce_product', $product, 'commerce_stock')) {
-    $stock = !empty($stock[0]['value']) ? (int) $stock[0]['value'] : 0;
+  if (module_exists('commerce_stock') && $stock_field = field_get_items('commerce_product', $product, 'commerce_stock')) {
+    $stock = !empty($stock_field[0]['value']) ? (int) $stock_field[0]['value'] : 0;
   }
 
   $price = commerce_product_calculate_sell_price($product);
@@ -36,7 +36,7 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
     $variables['product_display'] = NULL;
   }
 
-  $variables['stock'] = $stock !== NULL ? t('@count in stock', array('@count' => $stock)) : t('n/a');
+  $variables['stock'] = $stock !== NULL ? t('@count in stock', array('@count' => $stock)) : t('null stock');
 }
 
 /**
