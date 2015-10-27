@@ -1,0 +1,31 @@
+<?php
+/**
+ * @file
+ * commerce_pos_payment.install
+ */
+
+/**
+ * Implements hook_install().
+ */
+function commerce_pos_payment_install() {
+  $methods = commerce_pos_payment_commerce_custom_offline_payments();
+
+  foreach ($methods as $method) {
+    // Whether or not an offline payment is enabled on the POS is determined
+    // by a variable, so we want to enable it for each of our methods.
+    commerce_pos_enable_payment_method($method['id']);
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_pos_payment_uninstall() {
+  drupal_load('module', 'commerce_pos_payment');
+  $methods = commerce_pos_payment_commerce_custom_offline_payments();
+
+  foreach ($methods as $method) {
+    // We're turning off the module, remove our methods from the POS settings.
+    commerce_pos_disable_payment_method($method['id']);
+  }
+}
