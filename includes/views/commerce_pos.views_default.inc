@@ -58,10 +58,6 @@ function commerce_pos_views_default_views() {
       'empty_column' => 0,
     ),
   );
-  /* Header: Commerce Order: Order total */
-  $handler->display->display_options['header']['order_total']['id'] = 'order_total';
-  $handler->display->display_options['header']['order_total']['table'] = 'commerce_order';
-  $handler->display->display_options['header']['order_total']['field'] = 'order_total';
   /* Footer: Commerce Payment Transaction: POS Balance Summary */
   $handler->display->display_options['footer']['commerce_pos_balance_summary']['id'] = 'commerce_pos_balance_summary';
   $handler->display->display_options['footer']['commerce_pos_balance_summary']['table'] = 'commerce_payment_transaction';
