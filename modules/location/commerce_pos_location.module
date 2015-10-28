@@ -202,7 +202,6 @@ function _commerce_pos_location_check_form_alter(&$form, &$form_state) {
 
 /**
  * Implements hook_commerce_pos_transaction_state_alter().
- * @TODO: test this.
  */
 function commerce_pos_location_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
   if (!empty($transaction->locationId)) {

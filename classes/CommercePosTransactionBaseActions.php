@@ -561,7 +561,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     $this->transaction->doAction('saveOrder');
 
     // Invoke the product add event with the newly saved or updated line item.
-    // @TODO: should we invoke this?
+    // @TODO: should we invoke this? Thinking no.
     //rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);
 
     // Return the line item.

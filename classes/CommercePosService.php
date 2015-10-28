@@ -63,7 +63,6 @@ class CommercePosService {
     }
     else {
       if (empty($transaction->transactionId)) {
-        // @TODO: make sure this is actually updating the static value.
         $current_transaction = $transaction;
       }
     }

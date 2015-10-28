@@ -585,8 +585,6 @@ function commerce_pos_balance_summary_rows($totals, $order) {
  * Returns a summary view of a POS transaction's order.
  */
 function commerce_pos_balance_summary($order) {
-  // @TODO: this view should be included as a default view in the module,
-  // export it via features.
   return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
 }
 

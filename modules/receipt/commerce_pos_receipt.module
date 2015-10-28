@@ -258,7 +258,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
   $price_prefix = $return ? '(' : '';
   $price_suffix = $return ? ')' : '';
 
-  // @TODO: make the type of line types that show up here configurable.
+  // @TODO: make the types of line items that show up here configurable.
   foreach ($wrapper->commerce_line_items as $delta => $line_item) {
     if (!$line_item->value()) {
       // Handle broken line items by not skipping them - not sure what else to do here.
@@ -357,7 +357,6 @@ function commerce_pos_receipt_build_receipt_body($order) {
     '#weight' => 5,
   );
 
-  // @TODO: test this change to the recept total.
   $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', $return);
   $output['total']['#markup'] = render($order_total);
   $output['total']['#weight'] = 10;
