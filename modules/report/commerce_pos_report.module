@@ -116,14 +116,6 @@ function commerce_pos_report_order_summary($completed_date, $transaction_type, $
           unset($component_to_update);
         }
       }
-
-      // Now that we've built our price fields list, we need to theme the
-      // output.
-      if (!empty($prices)) {
-        foreach ($prices as $currency_code => $price) {
-          $output['summaries'][$currency_code] = commerce_pos_report_build_price_array($price['price'], $transaction_type);
-        }
-      }
     }
 
     // Now that we've built our price fields list, we need to theme the
