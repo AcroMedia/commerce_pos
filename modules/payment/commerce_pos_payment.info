@@ -1,6 +1,7 @@
 name = Commerce POS Payment
 description = Provides some default offline payment methods for the POS.
 core = 7.x
+package = Commerce POS
 
 dependencies[] = commerce_pos
 dependencies[] = commerce_cop
