@@ -1,10 +1,18 @@
 <?php
 /**
  * @file
- * Code for the Commerce POS Messages feature.
+ * commerce_pos_messages.module
  */
 
-include_once 'commerce_pos_messages.features.inc';
+/**
+ * Implements hook_views_api().
+ */
+function commerce_pos_messages_views_api($module = NULL, $api = NULL) {
+  return array(
+    'api' => '3.0',
+    'path' => drupal_get_path('module', 'commerce_pos_messages') . '/includes/views',
+  );
+}
 
 /**
  * Implements hook_form_alter().
@@ -82,7 +90,7 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
 }
 
 /**
- * AJAX callback for the "Add Note" button.
+ * AJAX callback for the 'Add Note' button.
  */
 function commerce_pos_messages_add_note_js($form, &$form_state) {
   return $form['messages']['add'];
