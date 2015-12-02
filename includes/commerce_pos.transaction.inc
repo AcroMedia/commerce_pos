@@ -59,7 +59,13 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   }
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
-  $has_active_transaction = ($order_wrapper && !empty($order_wrapper->commerce_line_items->value()));
+  if ($order_wrapper) {
+    $line_items = $order_wrapper->commerce_line_items->value();
+    $has_active_transaction = !empty($line_items);
+  }
+  else {
+    $has_active_transaction = FALSE;
+  }
 
   $wrapper_id = 'commerce-pos-sale-wrapper';
   // Lets other modules easily get the wrapper ID.
@@ -166,6 +172,14 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
       $line_item_element = &$form['line_items'][$line_item_id];
 
+      $line_item_element['line_item_row_wrapper_open'] = array(
+        '#markup' => '<div class="line-item-row-wrapper">',
+      );
+
+      $line_item_element['quantity_wrapper_open'] = array(
+        '#markup' => '<div class="quantity-wrapper line-item-col">',
+      );
+
       $line_item_element['qty'] = array(
         '#title' => (int) $line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
@@ -177,6 +191,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#attributes' => array(
           'class' => array('thevault-pos-hidden-element'),
         ),
+      );
+
+      $line_item_element['add_remove_wrapper_open'] = array(
+        '#markup' => '<div class="add-remove-wrapper line-item-col">',
       );
 
       $line_item_element['add_qty'] = array(
@@ -197,12 +215,28 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#ajax' => $wrapper_ajax,
       );
 
+      $line_item_element['add_remove_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
+      $line_item_element['quantity_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
+      $line_item_element['title_wrapper_open'] = array(
+        '#markup' => '<div class="title-wrapper line-item-col">',
+      );
+
       $line_item_element['title'] = array(
         '#markup' => $line_item_wrapper->commerce_product->title->value(),
       );
 
       $line_item_element['sku'] = array(
-        '#markup' => $line_item_wrapper->commerce_product->sku->value(),
+        '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
+      );
+
+      $line_item_element['title_wrapper_close'] = array(
+        '#markup' => '</div>',
       );
 
       $base_price = commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price');
@@ -220,13 +254,18 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#attributes' => array(
           'class' => array('thevault-pos-hidden-element'),
         ),
+        '#prefix' => '<div class="price-edit-wrapper line-item-col">',
+        '#suffix' => '</div>',
       );
 
+      $line_item_element['total_wrapper_open'] = array(
+        '#markup' => '<div class="total-wrapper line-item-col">',
+      );
 
       $line_item_total = $line_item_wrapper->commerce_total->value();
 
       $line_item_element['total'] = array(
-        '#markup' => $total_prefix . commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . $total_suffix,
+        '#markup' => '<strong>' . $total_prefix . commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . $total_suffix . '</strong>',
       );
 
       $line_item_element['remove'] = array(
@@ -236,6 +275,14 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
+      );
+
+      $line_item_element['total_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
+      $line_item_element['line_item_row_wrapper_close'] = array(
+        '#markup' => '</div>',
       );
     }
   }
@@ -255,8 +302,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#markup' => render($order_total),
     );
 
+    $order_value = $form_state['order_wrapper']->value();
     $transaction_options['balance'] = array(
-      '#markup' => commerce_pos_balance_summary($form_state['order_wrapper']->value()),
+      '#markup' => commerce_pos_balance_summary($order_value),
     );
 
     $transaction_options['actions'] = array(

@@ -30,6 +30,6 @@ function commerce_pos_receipt_preprocess_commerce_pos_receipt(&$variables) {
   );
 
   drupal_add_css(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array('media' => 'print'));
-
-  $variables['receipt_body'] = commerce_pos_receipt_build_receipt_body($order_wrapper->value());
+  $order_value = $order_wrapper->value();
+  $variables['receipt_body'] = commerce_pos_receipt_build_receipt_body($order_value);
 }

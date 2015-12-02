@@ -44,14 +44,16 @@ function commerce_pos_product_search_api_search($keywords) {
 
   // Check if an index has been selected.
   if ($index_id = variable_get('commerce_pos_search_api_index')) {
-    $index = search_api_index_load($index_id);
-    $query = new SearchApiQuery($index);
-    $query->keys($keywords);
-    $query->range(0, 5);
-    $query_results = $query->execute();
+    if ($index_id != 'default') {
+      $index = search_api_index_load($index_id);
+      $query = new SearchApiQuery($index);
+      $query->keys($keywords);
+      $query->range(0, 5);
+      $query_results = $query->execute();
 
-    if (!empty($query_results['results'])) {
-      $results = array_keys($query_results['results']);
+      if (!empty($query_results['results'])) {
+        $results = array_keys($query_results['results']);
+      }
     }
   }
 

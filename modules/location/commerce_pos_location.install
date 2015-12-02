@@ -46,6 +46,42 @@ function commerce_pos_location_schema() {
     ),
   );
 
+  $schema['commerce_pos_location_float'] = array(
+    'description' => 'The base table for POS location float amounts.',
+    'fields' => array(
+      'float_id' => array(
+        'description' => 'The unique identifier for this float entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'description' => 'The location this float entry is for',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'The float amount, in cents',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the location was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('float_id'),
+    'indexes' => array(
+      'float_location' => array('location_id'),
+      'float_amount' => array('amount'),
+      'float_created' => array('created'),
+    ),
+  );
+
   return $schema;
 }
 
@@ -54,4 +90,45 @@ function commerce_pos_location_schema() {
  */
 function commerce_pos_location_enable() {
   commerce_pos_location_configure_locations();
+}
+
+/**
+ * Create commerce_pos_location_float table.
+ */
+function commerce_pos_location_update_7001() {
+  db_create_table('commerce_pos_location_float', array(
+    'description' => 'The base table for POS location float amounts.',
+    'fields' => array(
+      'float_id' => array(
+        'description' => 'The unique identifier for this float entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'description' => 'The location this float entry is for',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'The float amount, in cents',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the location was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('float_id'),
+    'indexes' => array(
+      'float_location' => array('location_id'),
+      'float_amount' => array('amount'),
+      'float_created' => array('created'),
+    ),
+  ));
 }

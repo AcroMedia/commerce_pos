@@ -93,7 +93,8 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
       CommercePosDiscountService::applyDiscount($wrapper, $type, $amount);
 
       $wrapper->commerce_unit_price->amount->set($pre_discount_amount);
-      commerce_line_item_rebase_unit_price($wrapper->value());
+      $wrapper_value = $wrapper->value();
+      commerce_line_item_rebase_unit_price($wrapper_value);
 
       $wrapper->save();
 

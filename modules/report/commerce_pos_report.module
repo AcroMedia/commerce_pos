@@ -5,28 +5,52 @@
  */
 
 /**
- * Implements hook_views_api().
- */
-function commerce_pos_report_views_api($module = NULL, $api = NULL) {
-  return array(
-    'api' => '3.0',
-    'path' => drupal_get_path('module', 'commerce_pos_report') . '/includes/views',
-  );
-}
-
-/**
  * Implements hook_menu().
  */
 function commerce_pos_report_menu() {
-  $items['pos/report'] = array(
-    'title' => 'POS Reports',
+  $items['pos/end-of-day'] = array(
+    'title' => 'End of Day Report',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_report_main'),
+    'page arguments' => array('commerce_pos_report_end_of_day'),
     'file' => 'includes/commerce_pos_report.pages.inc',
     'access arguments' => array('view commerce pos reports'),
   );
-
+  $items['pos/end-of-day/print/%'] = array(
+    'title' => 'Print Transaction Receipt',
+    'page callback' => 'commerce_pos_report_receipt_print',
+    'page arguments' => array(3),
+    'access callback' => 'commerce_pos_receipt_print_access',
+    'access arguments' => array(),
+    'file' => 'includes/commerce_pos_report.pages.inc',
+  );
   return $items;
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_report_theme($existing, $type, $theme, $path) {
+  return array(
+    'commerce_pos_report_end_of_day' => array(
+      'render element' => 'form',
+      'path' => $path . '/theme',
+      'file' => 'commerce_pos_report.theme.inc',
+      'template' => 'commerce-pos-report-end-of-day',
+    ),
+    'commerce_pos_report_receipt' => array(
+      'template' => 'commerce-pos-report-receipt',
+      'file' => 'commerce_pos_report.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'transaction' => null,
+      ),
+    ),
+    'commerce_pos_report_end_of_day_result_table' => array(
+      'render element' => 'form',
+      'path' => $path . '/theme',
+      'file' => 'commerce_pos_report.theme.inc',
+    ),
+  );
 }
 
 /**
@@ -39,6 +63,13 @@ function commerce_pos_report_permission() {
       'description' => t('Perform administration tasks for my module.'),
     ),
   );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_report_form_commerce_pos_transaction_form_alter(&$form, &$form_state, $form_id) {
+
 }
 
 /**
@@ -191,4 +222,58 @@ function commerce_pos_report_build_price_array($price, $transaction_type) {
     '#components' => $components,
     '#price' => $price,
   );
+}
+
+/**
+ * Prepares an array of JavaScript settings that contain instructions on how
+ * to format currencies via a JavaScript function call.
+ *
+ * @param array $currencies
+ *   An array of currency codes to provide formatting settings for.
+ *
+ * @return array
+ */
+function commerce_pos_report_currency_js($currencies) {
+  $settings = array();
+
+  foreach ($currencies as $currency_code) {
+    $settings[$currency_code] = commerce_currency_load($currency_code);
+    $settings[$currency_code]['divisor'] = pow(10, $settings[$currency_code]['decimals']);
+  }
+
+  return $settings;
+}
+
+/**
+ * Custom currency formatter function.
+ *
+ * Most logic taken from commerce_currency_format().
+ */
+function commerce_pos_report_currency_format($amount, $currency_code, $convert = TRUE) {
+
+  // First load the currency array.
+  $currency = commerce_currency_load($currency_code);
+
+  // Then convert the price amount to the currency's major unit decimal value.
+  if ($convert == TRUE) {
+    $amount = commerce_currency_amount_to_decimal($amount, $currency_code);
+  }
+
+  // Format the price as a number.
+  $price = number_format(commerce_currency_round(abs($amount), $currency), $currency['decimals'], $currency['decimal_separator'], $currency['thousands_separator']);
+
+  // Establish the replacement values to format this price for its currency.
+  $replacements = array(
+    '@code_before' => $currency['code_placement'] == 'before' ? $currency['code'] : '',
+    '@symbol_before' => $currency['symbol_placement'] == 'before' ? $currency['symbol'] : '',
+    '@price' => $price,
+    '@symbol_after' => $currency['symbol_placement'] == 'after' ? $currency['symbol'] : '',
+    '@code_after' => $currency['code_placement'] == 'after' ? $currency['code'] : '',
+    '@negative_before' => $amount < 0 ? '(' : '',
+    '@negative_after' => $amount < 0 ? ')' : '',
+    '@symbol_spacer' => $currency['symbol_spacer'],
+    '@code_spacer' => $currency['code_spacer'],
+  );
+
+  return trim(t('@code_before@code_spacer@negative_before@symbol_before@price@negative_after@symbol_spacer@symbol_after@code_spacer@code_after', $replacements));
 }

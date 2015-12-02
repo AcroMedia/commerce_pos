@@ -44,7 +44,7 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
       'file' => 'commerce_pos_receipt.theme.inc',
       'path' => $path . '/theme',
       'variables' => array(
-        'transaction' => NULL,
+        'transaction' => null,
       ),
     ),
     'commerce_pos_receipt_order_info' => array(

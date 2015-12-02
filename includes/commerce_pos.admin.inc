@@ -11,7 +11,7 @@
 function commerce_pos_settings($form, &$form_state) {
   if (module_exists('search_api')) {
     $index_options = array(
-      '' => t('Use default search'),
+      'default' => t('Use default search'),
     );
 
     foreach (search_api_index_load_multiple(FALSE) as $id => $index) {

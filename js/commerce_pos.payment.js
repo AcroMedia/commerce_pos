@@ -12,6 +12,11 @@
             var inputs = self.data('commerce-pos-keybind-amount');
             var key = self.attr('data-keybind');
 
+            self.addClass('pressed');
+            window.setTimeout(function() {
+              self.removeClass('pressed');
+            }, 500);
+
             inputs.each(function () {
               var self = $(this);
               var currentValue = self.val();

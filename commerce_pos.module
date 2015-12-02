@@ -66,7 +66,7 @@ function commerce_pos_menu() {
   );
 
   $items['pos/login'] = array(
-    'title' => 'Point of Sale Login',
+    'title' => 'Employee Login',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_login'),
     'access arguments' => array('access content'),
@@ -682,7 +682,8 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
   );
 
   // Allow other modules to alter the components.
-  drupal_alter('commerce_price_formatted_components', $components, $price, $order_wrapper->value());
+  $order_value = $order_wrapper->value();
+  drupal_alter('commerce_price_formatted_components', $components, $price, $order_value);
 
   // Sort the components by weight.
   uasort($components, 'drupal_sort_weight');

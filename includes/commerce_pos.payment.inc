@@ -65,7 +65,8 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   );
 
   if (isset($form_state['transaction'])) {
-    $order_balance = commerce_payment_order_balance($form_state['order_wrapper']->value());
+    $order_value = $form_state['order_wrapper']->value();
+    $order_balance = commerce_payment_order_balance($order_value);
     $line_item_count = 0;
 
     foreach ($form_state['order_wrapper']->commerce_line_items as $line_item_wrapper) {
@@ -177,8 +178,9 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#markup' => render($order_total),
     );
 
+    $order_value = $form_state['order_wrapper']->value();
     $form['balance']['summary'] = array(
-      '#markup' => commerce_pos_balance_summary($form_state['order_wrapper']->value()),
+      '#markup' => commerce_pos_balance_summary($order_value),
     );
 
     $form['balance']['actions'] = array(
@@ -254,7 +256,8 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
 function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
   $order_wrapper = $form_state['transaction']->getOrderWrapper();
-  $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_wrapper->order_id->value());
+  $order_id = $order_wrapper->order_id->value();
+  $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_id);
   $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
   $transaction->amount = $form_state['values']['keypad']['amount'] * 100;
   $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();

@@ -353,7 +353,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
         $order_wrapper->status->set('completed');
       }
 
-      if (empty($order_wrapper->uid->value())) {
+      $order_uid = $order_wrapper->uid->value();
+      if (empty($order_uid)) {
         if ($account = $this->createNewUser($order_wrapper)) {
           $order_wrapper->uid->set($account->uid);
         }

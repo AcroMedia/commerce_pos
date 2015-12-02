@@ -83,8 +83,9 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
       );
     }
 
+    $order_value = $form_state['order_wrapper']->value();
     $form['messages']['messages'] = array(
-      '#markup' => commerce_pos_messages_transaction_messages($form_state['order_wrapper']->value()),
+      '#markup' => commerce_pos_messages_transaction_messages($order_value),
     );
   }
 }
@@ -108,10 +109,11 @@ function commerce_pos_messages_js($form, &$form_state) {
  */
 function commerce_pos_messages_add_message($message_text, $order_wrapper) {
   if (!empty($message_text)) {
+    $order_value = $order_wrapper->value();
     $message = entity_create('message', array('type' => 'commerce_order_admin_comment'));
     $wrapper = entity_metadata_wrapper('message', $message);
     $wrapper->message_commerce_body->value->set($message_text);
-    $wrapper->message_commerce_order->set($order_wrapper->value());
+    $wrapper->message_commerce_order->set($order_value);
     message_save($message);
   }
 }

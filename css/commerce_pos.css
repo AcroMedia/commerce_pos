@@ -10,17 +10,90 @@
 
 #commerce-pos-header {
   margin: 0 0 20px 0;
-  padding: 15px 10px;
-  background: #000;
+  padding: 15px 20px;
   color: #fff;
+  background: #151515;
+}
+
+#commerce-pos-header #pos-logo {
+  float: left;
+  margin: 0 30px 0 0;
+  max-width: 218px;
+}
+#commerce-pos-header #pos-logo img {
+  max-width: 100%;
+  height: auto;
 }
 
 #commerce-pos-header .commerce-pos-header-links {
   float: left;
+  margin: 0;
+  padding: 14px 0 0 0;
+}
+#commerce-pos-header .commerce-pos-header-links ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#commerce-pos-header .commerce-pos-header-links ul li {
+  float: left;
+  margin: 0 5px 0 0;
+  padding: 0;
+  background: none;
+}
+#commerce-pos-header .commerce-pos-header-links ul li:last-child {
+  margin-right: 0;
+}
+#commerce-pos-header .commerce-pos-header-links ul li a {
+  position: relative;
+  display: block;
+  margin: 0;
+  padding: 13px 15px;
+  font: bold 15px/15px "Arial", sans-serif;
+  color: #fff;
+  text-decoration: none;
+  text-transform: uppercase;
+  background: #006699;
+  -webkit-border-radius: 5px;
+  border-radius: 5px;
+}
+#commerce-pos-header .commerce-pos-header-links ul li a:hover {
+  color: #fff;
+  background: #005179;
+}
+#commerce-pos-header .commerce-pos-header-links ul li a.active {
+  color: #fff;
+  background: #ff9900;
 }
 
 #commerce-pos-header .commerce-pos-header-employee-info {
   float: right;
+  margin: 0;
+  padding: 10px 0 0 0;
+}
+#commerce-pos-header .commerce-pos-header-employee-info ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+#commerce-pos-header .commerce-pos-header-employee-info ul li {
+  float: left;
+  margin: 0 11px 0 0;
+  padding: 0 14px 0 0;
+  background: url(../images/bullet_header.png) 100% 50% no-repeat;
+}
+#commerce-pos-header .commerce-pos-header-employee-info ul li:last-child {
+  margin-right: 0;
+  padding-right: 0;
+  background: none;
+}
+#commerce-pos-header .commerce-pos-header-employee-info ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+#commerce-pos-header .commerce-pos-header-employee-info ul li a:hover {
+  color: #209cda;
+  text-decoration: none;
 }
 
 /**
@@ -38,19 +111,130 @@
   width: 25%;
 }
 
+.commerce-pos-col-transaction-info .btn {
+  margin-bottom: 5px;
+}
+
+.commerce-pos-col-transaction-info .table-striped > tbody > tr:nth-of-type(2n+1),
+.commerce-pos-col-transaction-info .table-striped > tbody > tr {
+  background: #fff;
+}
+
+.commerce-pos-col-transaction-info .label {
+  color: #333;
+}
+
+.view-pos-balance-summary .views-field-amount {
+  text-align: right;
+}
+
+.commerce-pos-transaction-id {
+  padding: 0 0 5px 0;
+  font-size: 18px;
+}
+
+.payment-totals-table .label {
+  display: table-cell;
+  font-size: 14px;
+  text-align: left;
+}
+.payment-totals-table .balance {
+  display: table-cell;
+  text-align: right;
+}
+
 .commerce-pos-product-search-container {
-  padding: 20px;
-  background: #ccc;
+  padding: 36px 20px 20px 20px;
   margin-bottom: 20px;
+  text-align: center;
+  background: #f0f0f0;
+}
+.commerce-pos-product-search-container label {
+  display: inline-block;
+  margin: 0 10px 0 0;
+  font-size: 21px;
+  text-transform: capitalize;
+  vertical-align: top;
+}
+.commerce-pos-product-search-container input.form-control {
+  display: inline-block;
+  vertical-align: top;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper {
-  border-top: 1px solid #eee;
+  clear: both;
   margin: 0 0 20px 0;
+  padding: 20px 0 0 0;
+  border-top: 1px solid #eee;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .form-item {
   display: inline-block;
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-row-wrapper {
+  display: table;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-col {
+  position: relative;
+  display: table-cell;
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
+  color: #006699;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper {
+  width: 10%;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .form-type-textfield {
+  margin: 0;
+  padding: 7px 0 0 0;
+  min-height: 50px;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper label {
+  font-size: 16px;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper {
+  position: absolute;
+  top: 0;
+  right: 15px;
+  width: 30px;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper button {
+  display: block;
+  margin: 0 0 2px 0;
+  padding: 2px 3px;
+  width: 19px;
+  font-size: 14px;
+  line-height: 14px;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper {
+  width: 50%;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .price-edit-wrapper {
+  text-align: center;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper {
+  text-align: right;
+}
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper .btn {
+  margin: 0 0 0 10px;
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper #commerce-pos-discount-wrapper {
+  clear: both;
+  display: block;
+}
+
+#commerce-pos-customer-input-wrapper {
+  margin: 30px 0 0 0;
+  padding: 25px 0 0 0;
+  border-top: 1px solid #ddd;
 }
 
 /**
@@ -63,3 +247,205 @@
   box-sizing: border-box;
 }
 
+/**
+ * Keypad
+ */
+.commerce-pos-keypad {
+
+}
+
+#edit-keypad-amount {
+  height: auto;
+  margin-left: 10px;
+  font-size: 2em;
+}
+
+.commerce-pos-keypad-numbers {
+  position: relative;
+}
+
+.commerce-pos-keypad-key {
+  width: 33%;
+  display: block;
+  float: left;
+  padding: 15px;
+  border: 10px solid white;
+  border-radius: 30px;
+  font-size: 2em;
+  font-weight: bold;
+  text-align: center;
+  background-color: #ccc;
+  transition: all .2s ease 0s;
+}
+
+.commerce-pos-keypad-key:hover {
+  background-color: #bbb;
+}
+
+.commerce-pos-keypad-key.pressed {
+  transition: all .2s ease 0s;
+  box-shadow: inset 0 0 5px #333;
+  background: #bbb;
+}
+
+.commerce-pos-keypad-actions button {
+  width: 33%;
+  padding: 15px;
+  margin-right: 10px;
+  border: 10px solid white;
+  border-radius: 30px;
+  float: right;
+  font-size: 2em;
+}
+
+.commerce-pos-keypad-actions button:hover {
+  border-color: white;
+}
+
+/**
+ * End of Day Report
+ */
+
+#edit-date {
+  /* Fix item label position */
+  float: none;
+}
+
+/**
+ * Add product
+ */
+.commerce-pos-product-display {
+  margin-bottom: 15px;
+}
+
+.commerce-pos-product-display .display-image {
+  float: left;
+  margin-right: 10px;
+}
+
+.commerce-pos-product-display .display-details,
+.commerce-pos-product-display .display-stock,
+.commerce-pos-product-display .display-price,
+.commerce-pos-product-display .display-add {
+  /* Clear image */
+  padding-left: 85px;
+}
+
+.commerce-pos-product-display .display-details {
+}
+
+.commerce-pos-product-display .display-details .title {
+  font-weight: bold;
+}
+
+.commerce-pos-product-display .display-price {
+  font-weight: bold;
+}
+
+.commerce-pos-product-display .display-add {
+
+}
+
+.commerce-pos-product-display .display-add a {
+  display: inline-block;
+  padding: 0 15px 5px;
+  border-radius: 15px;
+  font-size: 2em;
+  line-height: 1.2;
+  background-color: #4cae4c;
+  color: white;
+}
+
+.commerce-pos-product-display .display-add a:hover {
+  background-color: #449d44;
+}
+
+/**
+ * Content
+ */
+.page-pos-float .pos-main-content {
+  padding-top: 50px;
+}
+
+h1.page-header {
+  display: none;
+}
+
+.page-pos-float h1.page-header,
+.page-pos-login h1.page-header {
+  display: block;
+}
+
+/**
+ * Login
+ */
+#pos-login-cont {
+  position: relative;
+  margin: 50px auto 0 auto;
+  max-width: 400px;
+  border-left: 1px solid #151515;
+  border-right: 1px solid #151515;
+  border-bottom: 1px solid #151515;
+  -webkit-border-radius: 0 0 20px 20px;
+  border-radius: 0 0 20px 20px;
+  background: #fff;
+}
+#pos-login-content {
+  margin: 0;
+  padding: 23px 10px 45px 10px;
+}
+#pos-login-header {
+  margin: 0;
+  padding: 15px;
+  text-align: center;
+  background: #151515;
+}
+
+/**
+ * Responsive Media Queries
+ */
+
+
+/* 1200px and below */
+@media screen and (max-width: 1200px) {
+  .commerce-pos-col-products {
+    width: 65%;
+  }
+  .commerce-pos-col-transaction-info {
+    width: 35%;
+  }
+}
+
+/* 800px and below */
+@media screen and (max-width: 800px) {
+  #commerce-pos-header #pos-logo {
+    padding-top: 11px;
+    max-width: 161px;
+  }
+}
+
+/* 767px and below - Down to Phone */
+@media screen and (max-width: 767px) {
+  .commerce-pos-header-nav-cont {
+    clear: both;
+    float: none;
+  }
+  #commerce-pos-header .commerce-pos-header-employee-info {
+    padding: 0;
+  }
+  #commerce-pos-header .commerce-pos-header-links ul li a {
+    padding: 6px 13px;
+    font-size: 13px;
+  }
+
+  .commerce-pos-col-products {
+    float: none;
+    margin: 0 0 30px 0;
+    padding: 0;
+    width: auto;
+  }
+  .commerce-pos-col-transaction-info {
+    float: none;
+    width: auto;
+  }
+}
