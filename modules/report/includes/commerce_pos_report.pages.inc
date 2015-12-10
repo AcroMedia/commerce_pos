@@ -51,7 +51,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
   $form['filters']['date'] = array(
     '#type' => 'date_select',
-    '#title' => t('Transaction date'),
+    '#title' => t('Transaction Date'),
     '#date_format' => 'Y-m-d',
     '#default_value' => $default_date,
     '#ajax' => $ajax,

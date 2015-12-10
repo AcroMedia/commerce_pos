@@ -230,7 +230,7 @@ function commerce_pos_commerce_payment_method_info() {
   // only meant to by internally used by the POS system.
   $payment_methods['commerce_pos_change'] = array(
     'base' => 'commerce_pos_change',
-    'title' => t('Change tendered'),
+    'title' => t('Change Tendered'),
     'description' => t('Change given to a customer.'),
     'active' => TRUE,
     'checkout' => FALSE,
@@ -347,7 +347,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] < 0) {
         $rows[] = array(
           'data' => array(
-            array('data' => t('Change tendered'), 'class' => array('label')),
+            array('data' => t('Change Tendered'), 'class' => array('label')),
             array('data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
           ),
           'class' => array('order-change'),
@@ -363,7 +363,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     // Add a row for the total amount paid.
     $rows[] = array(
       'data' => array(
-        array('data' => $return ? t('Total refunded') : t('Total paid'), 'class' => array('label')),
+        array('data' => $return ? t('Total Refunded') : t('Total Paid'), 'class' => array('label')),
         array('data' => $balance_prefix . commerce_currency_format($totals[$currency_code], $currency_code) . $balance_suffix, 'class' => array('total')),
       ),
       'class' => array('total-paid'),
@@ -377,7 +377,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('To refund') : t('To pay'), 'class' => array('label')),
+          array('data' => $return ? t('To refund') : t('To Pay'), 'class' => array('label')),
           array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
         ),
         'class' => array('order-to-pay'),
@@ -387,7 +387,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] < 0) {
         $rows[] = array(
           'data' => array(
-            array('data' => t('Change tendered'), 'class' => array('label')),
+            array('data' => t('Change Tendered'), 'class' => array('label')),
             array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
           ),
           'class' => array('order-change'),

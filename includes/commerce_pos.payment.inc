@@ -158,7 +158,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
       $form['keypad']['add'] = array(
         '#type' => 'submit',
-        '#value' => t('add'),
+        '#value' => t('Add'),
         '#name' => 'commerce-pos-pay-keypad-add',
         '#validate' => array('commerce_pos_payment_add_payment_validate'),
         '#submit' => array('commerce_pos_payment_add_payment_submit'),

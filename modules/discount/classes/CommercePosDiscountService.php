@@ -275,10 +275,10 @@ class CommercePosDiscountService {
   static function getDiscountComponentTitle($discount_name) {
     switch ($discount_name) {
       case self::LINE_ITEM_DISCOUNT_NAME:
-        return t('Product discount');
+        return t('Product Discount');
 
       case self::ORDER_DISCOUNT_NAME:
-        return t('Order discount');
+        return t('Order Discount');
 
       default:
         return FALSE;
