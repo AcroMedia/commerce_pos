@@ -135,10 +135,11 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
         $line_item_element['discounts']['add_discount'] = array(
           '#type' => 'container',
+            '#size' => 2,
         );
 
         $line_item_element['discounts']['add_discount']['description'] = array(
-          '#markup' => t('Add Discount to Item'),
+          //'#markup' => t('Discount:'),
         );
 
         $discount_data = $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id);
@@ -146,7 +147,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
         $line_item_element['discounts']['add_discount']['amount'] = array(
           '#type' => 'textfield',
           '#title' => NULL,
-          '#size' => 5,
+          '#size' => 2,
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
         );
 

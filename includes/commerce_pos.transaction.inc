@@ -184,6 +184,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#title' => (int) $line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
         '#value' => (int) $line_item_wrapper->quantity->value(),
+        '#size' => 1,
+        '#maxlength' => 3,
         '#ajax' => $wrapper_ajax,
         '#element_key' => 'line-item-qty',
         '#line_item_id' => $line_item_id,
@@ -228,7 +230,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $line_item_element['title'] = array(
-        '#markup' => $line_item_wrapper->commerce_product->title->value(),
+        '#markup' => '<span class="title">'. $line_item_wrapper->commerce_product->title->value() .'</span>',
       );
 
       $line_item_element['sku'] = array(
@@ -247,7 +249,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
           '@price' => commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']),
         )),
         '#default_value' => number_format($base_price[0]['price']['amount'] / 100, 2),
-        '#size' => 10,
+        '#size' => 2,
+        '#maxlength' => 10,
         '#element_key' => 'line-item-change-price',
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
