@@ -10,6 +10,7 @@
         element.click(function() {
           element.show();
           elementLabel.hide();
+          element.focus();
         });
       });
 

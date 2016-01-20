@@ -154,6 +154,10 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
           '@title' => $payment_methods[$method_id]['title'],
         )),
         '#required' => TRUE,
+        '#attributes' => array(
+            'autofocus' => 'autofocus',
+        ),
+
       );
 
       $form['keypad']['add'] = array(

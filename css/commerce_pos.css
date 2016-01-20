@@ -63,10 +63,6 @@
   transition: all .15s ease-in-out;
 }
 
-#commerce-pos-pay-form-wrapper input.form-button-disabled {
-  color: #A2A2A2;
-}
-
 #commerce-pos-sale-wrapper button:hover,
 #commerce-pos-sale-wrapper input:hover,
 #commerce-pos-pay-form-wrapper button:hover,
@@ -243,7 +239,7 @@
 
 #commerce-pos-header .commerce-pos-header-employee-info ul li a:hover,
 #commerce-pos-header .commerce-pos-header-employee-info ul li a:focus {
-  color: #209cda;
+  color: #0091FF;
   text-decoration: none;
 }
 
@@ -338,15 +334,29 @@
   margin: 0;
   padding: 0;
   vertical-align: middle;
+  width: 15%;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
-  color: #006699;
-  border-bottom: 1px solid #8DC2E0;
+  padding: 0 8px;
+  color: #0091FF;
+  border: 1px solid transparent;
+  border-bottom-color: #0091FF;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper {
-  width: 10%;
+#commerce-pos-sale-wrapper .price-edit-wrapper input,
+#commerce-pos-sale-wrapper .quantity-wrapper input[type="text"]{
+  padding: 3px 8px;
+  color: #0091FF;
+  border: 1px solid #0091FF;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 0;
+  text-align: right;
+}
+
+#commerce-pos-sale-wrapper .quantity-wrapper input[type="text"] {
+  width: 45px;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .form-type-textfield {
@@ -355,7 +365,7 @@
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper label {
-  font-size: 16px;
+
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper {
@@ -374,7 +384,7 @@
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper {
-  width: 50%;
+  width: 45%;
   font-size: 12px;
 }
 
@@ -383,10 +393,12 @@
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .price-edit-wrapper {
-  text-align: center;
+  width: 25%;
+  text-align: left;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper {
+  width: 15%;
   text-align: right;
 }
 
@@ -400,7 +412,7 @@
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper #commerce-pos-discount-wrapper {
   padding: 10px;
-  margin-left: 63%;
+  margin-left: 60%;
   clear: both;
   display: block;
   background: #F0F0F0;
@@ -465,9 +477,7 @@
   background: #DCDCDC;
 }
 
-/*---------------------*/
 /*Sale - Discount Area*/
-/*---------------------*/
 #commerce-pos-discount-wrapper .form-submit {
   margin: 0 2px;
 }
@@ -476,7 +486,7 @@
 .views-field-message-commerce-body {
   padding: 20px;
   background: #F0F0F0;
-  margin: 20px 0;
+  margin: 20px 0 5px;
 }
 
 .views-field-message-commerce-body p:last-of-type {
@@ -485,6 +495,13 @@
 
 #commerce-pos-messages-add-note-wrapper {
   margin-bottom: 20px;
+}
+
+/*-- --*/
+
+.commerce-pos-receipt-print-previous {
+  margin: 20px 0 0 0;
+  display: inline-block;
 }
 
 /*---------------------*/
@@ -521,6 +538,7 @@
 
 #commerce-pos-report-results-container table {
   margin: 0;
+  width: 100%;
 }
 
 .sticky-enabled.tableheader-processed.sticky-table thead th {
@@ -595,8 +613,24 @@
   border-top: 1px solid #F0F0F0;
 }
 
+#commerce-pos-pay-form-wrapper #edit-payment-options input.form-button-disabled {
+  background-color: #eee;
+  color: #A2A2A2;
+  border-color: #ccc;
+  cursor: default;
+}
+
+#commerce-pos-pay-form-wrapper #edit-payment-options input.form-button-disabled:hover {
+  background-color: #eee!important;
+}
+
+
+#edit-payment-options--2 {
+  margin: 25px 0 0 0;
+}
+
 #commerce-pos-pay-form-wrapper #edit-payment-options input {
-  background: #ff9900;
+  background-color: #ff9900;
   color: #fff;
   border-color: transparent;
   padding: 15px 25px;
@@ -606,7 +640,7 @@
 
 #commerce-pos-pay-form-wrapper #edit-payment-options input:hover,
 #commerce-pos-pay-form-wrapper #edit-payment-options input:focus {
-  background: #E28B07;
+  background-color: #E28B07;
 }
 
 /*---------------------*/
@@ -631,14 +665,15 @@
 
 .commerce-pos-keypad-amount .form-item-keypad-amount input {
   max-width: 100% !important;
-  margin: 0;
-  padding: 15px 30px;
+  margin: 0 0 20px 0;
+  padding: 15px 20px;
   height: auto;
-  background: #484848 !important;
-  color: #fff;
-  border: 2px solid #484848;
+  background: #FFFFFF !important;
+  color: #000;
+  border: 2px solid #D6D6D6;
   font-size: 30px;
-  text-align: right;
+  -webkit-box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
+  box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
 }
 
 .commerce-pos-keypad-amount .form-item-keypad-amount input.error {
