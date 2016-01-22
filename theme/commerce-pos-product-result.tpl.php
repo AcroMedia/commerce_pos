@@ -24,7 +24,8 @@
     <div class="sku">
       <?php print $product->sku; ?>
       <?php if ($product_display) { ?>
-        <?php print ' - ' . $product_display; ?>
+          <br>
+        <?php print $product_display; ?>
       <?php } ?>
     </div>
   </div>

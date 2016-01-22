@@ -61,4 +61,12 @@
       .trigger('blur');
   }
 
+  //Trigger the 'Pay' button to be clicked when f4 is pressed
+  $(document).keydown(function(event){
+    if (event.keyCode == 115) {
+      $('.commerce-pos-btn-pay').click();
+    }
+  });
+
+
 } (jQuery));

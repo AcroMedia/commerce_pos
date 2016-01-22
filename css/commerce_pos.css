@@ -1,8 +1,23 @@
 /*---------------------*/
+/*Colours*/
+/*---------------------
+Primary Colour (Blue): #0091FF
+Primary Colour Hover: Primary Color Hover: #087FDA
+Secondary Colour (Orange): #ff9900
+Secondary Colour Hover: #E28B07
+*/
+
+
+/*---------------------*/
 /*General*/
 /*---------------------*/
 #commerce-pos-sale-wrapper {
   font-family: Arial,"Helvetica Neue",Helvetica,sans-serif!important;
+}
+
+.commerce-pos-pay-container,
+.commerce-pos-sale-container{
+  margin: 0 0 20px 0;
 }
 
 #commerce-pos-sale-wrapper .form-item {
@@ -114,6 +129,16 @@
   background: #E28B07;
 }
 
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit.form-button-disabled,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit.form-button-disabled,
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit.form-button-disabled:hover,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit.form-button-disabled:focus{
+  background-color: #eee;
+  color: #A2A2A2;
+  border-color: #ccc;
+  cursor: default;
+}
+
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:last-of-type {
   margin-right: 0;
 }
@@ -127,6 +152,10 @@
 
 .form-item .thevault-pos-hidden-element {
   display: none;
+}
+
+#edit-parked-transactions {
+  margin: 20px 0 0 0;
 }
 
 /*---------------------*/
@@ -338,7 +367,7 @@
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
-  padding: 0 8px;
+  padding: 0 5px;
   color: #0091FF;
   border: 1px solid transparent;
   border-bottom-color: #0091FF;
@@ -607,29 +636,24 @@
   background: #087FDA;
 }
 
-#edit-payment-options {
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper {
   margin: 20px 0;
   padding-top: 20px;
   border-top: 1px solid #F0F0F0;
 }
 
-#commerce-pos-pay-form-wrapper #edit-payment-options input.form-button-disabled {
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper input.form-button-disabled {
   background-color: #eee;
   color: #A2A2A2;
   border-color: #ccc;
   cursor: default;
 }
 
-#commerce-pos-pay-form-wrapper #edit-payment-options input.form-button-disabled:hover {
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper input.form-button-disabled:hover {
   background-color: #eee!important;
 }
 
-
-#edit-payment-options--2 {
-  margin: 25px 0 0 0;
-}
-
-#commerce-pos-pay-form-wrapper #edit-payment-options input {
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper input {
   background-color: #ff9900;
   color: #fff;
   border-color: transparent;
@@ -638,8 +662,8 @@
   font-size: 20px;
 }
 
-#commerce-pos-pay-form-wrapper #edit-payment-options input:hover,
-#commerce-pos-pay-form-wrapper #edit-payment-options input:focus {
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper input:hover,
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper input:focus {
   background-color: #E28B07;
 }
 
@@ -672,6 +696,7 @@
   color: #000;
   border: 2px solid #D6D6D6;
   font-size: 30px;
+  text-align: right;
   -webkit-box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
   box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
 }
@@ -689,7 +714,7 @@
   border-right: 1px solid #D6D6D6;
 }
 
-.commerce-pos-keypad-key {1
+.commerce-pos-keypad-key {
   box-sizing: border-box;
   width: 33.33%;
   display: block;
@@ -895,12 +920,14 @@ div.status {
 /*Add Product*/
 /*---------------------*/
 .commerce-pos-product-display {
-  margin-bottom: 15px;
+  padding: 10px 10px 15px;
+  border-bottom: 1px solid #eee;
 }
 
 .commerce-pos-product-display .display-image {
   float: left;
-  margin-right: 10px;
+  margin: 5px 15px 0 0;
+  border: 1px solid #eee;
 }
 
 .commerce-pos-product-display .display-details,
@@ -908,14 +935,16 @@ div.status {
 .commerce-pos-product-display .display-price,
 .commerce-pos-product-display .display-add {
   /* Clear image */
-  padding-left: 85px;
+  padding-left: 90px;
 }
 
 .commerce-pos-product-display .display-details {
+  font-size: 10px;
 }
 
 .commerce-pos-product-display .display-details .title {
   font-weight: bold;
+  font-size: 18px;
 }
 
 .commerce-pos-product-display .display-price {
@@ -928,17 +957,19 @@ div.status {
 
 .commerce-pos-product-display .display-add a {
   display: inline-block;
-  padding: 0 15px 5px;
-  border-radius: 15px;
-  font-size: 2em;
-  line-height: 1.2;
-  background-color: #4cae4c;
+  padding: 0 8px 2px;
+  margin: 15px 0 0 0;
+  border-radius: 3px;
+  font-size: 16px;
+  font-weight: bold;
+  background-color: #0091FF;
   color: white;
+  transition: all .15s ease-in-out;
 }
 
 .commerce-pos-product-display .display-add a:hover,
 .commerce-pos-product-display .display-add a:focus {
-  background-color: #449d44;
+  background-color: #087FDA;
 }
 
 /*---------------------*/
@@ -1016,7 +1047,7 @@ h1.page-header {
     width: 100%;
   }
 
-  #commerce-pos-pay-form-wrapper #edit-payment-options input {
+  #commerce-pos-pay-form-wrapper .commerce-pos-pay-col-payments .form-wrapper input {
     padding: 10px 15px;
     font-size: 16px;
   }

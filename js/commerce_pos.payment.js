@@ -37,6 +37,13 @@
         });
       });
 
+      //Have the Enter key trigger the 'Add' button when focused on text input
+      $('.commerce-pos-keypad-amount input').keypress(function(event) {
+        if (event.keyCode == 13) {
+          $('.commerce-pos-keypad-actions .form-submit').mousedown();
+        }
+      });
+
       $('.commerce-pos-summary-toggle', context).each(function () {
         var self = $(this);
 

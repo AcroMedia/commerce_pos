@@ -148,6 +148,9 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 2,
+          //'#attributes' => array(
+          //    'autofocus' => 'autofocus',
+          //),
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
         );
 
