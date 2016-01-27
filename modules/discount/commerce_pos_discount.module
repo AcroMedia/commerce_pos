@@ -106,6 +106,8 @@ function commerce_pos_discount_form_alter(&$form, &$form_state, $form_id) {
  * Adds discount functionality to the POS transaction forms.
  */
 function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_discount') . '/js/commerce_pos_discount.js';
+
   if (isset($form['line_items'])) {
     $wrapper_ajax = array(
       'wrapper' => $form_state['wrapper_id'],
@@ -133,6 +135,15 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       );
 
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
+        $form['discounts']['add_discount']['#attached']['js'][] = array(
+            'type' => 'setting',
+            'data' => array(
+                'commercePosDiscount' => array(
+                    'focusInput' => TRUE,
+                ),
+            ),
+        );
+
         $line_item_element['discounts']['add_discount'] = array(
           '#type' => 'container',
             '#size' => 2,
@@ -148,9 +159,6 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 2,
-          //'#attributes' => array(
-          //    'autofocus' => 'autofocus',
-          //),
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
         );
 
@@ -190,7 +198,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
         '#ajax' => array(
           'callback' => 'commerce_pos_discount_order_discount_js',
           'wrapper' => 'commerce-pos-discount-add-order-discount-wrapper',
-          'effect' => 'fade',
+          'effect' => 'slide',
         ),
       );
 
@@ -206,6 +214,9 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#title' => t('Add Discount to Order'),
           '#type' => 'textfield',
           '#size' => 5,
+          '#attributes' => array(
+              'autofocus' => 'autofocus',
+          ),
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
         );
 

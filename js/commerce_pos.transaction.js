@@ -21,6 +21,10 @@
       if (settings.commercePosSale.focusProductInput) {
         $('.commerce-pos-product-search').focus();
       }
+
+      // Key Navigator Stuff
+      $('#commerce-pos-pay-product-results-wrapper .commerce-pos-product-display', context).keynavigator(/* optional settings */);
+
     }
   };
 
@@ -67,6 +71,5 @@
       $('.commerce-pos-btn-pay').click();
     }
   });
-
 
 } (jQuery));

@@ -1,5 +1,7 @@
 <?php
 
+
+
 /**
  * @file
  * Common form-based functions for transactions.
@@ -375,6 +377,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.common.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.transaction.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';
+
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(

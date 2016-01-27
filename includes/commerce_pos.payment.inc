@@ -89,10 +89,10 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
 
     if ($return) {
-      $summary_text = t('Return - !items - Order #@order_id', $replacements);
+      $summary_text = t('<div class="order-text">Return - !items - Order #@order_id </div>', $replacements);
     }
     else {
-      $summary_text = t('Payment - !items - Order #@order_id', $replacements);
+      $summary_text = t('<div class="order-text">Payment - !items - Order #@order_id </div>', $replacements);
     }
 
     $form['summary'] = array(
@@ -156,6 +156,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#required' => TRUE,
         '#attributes' => array(
             'autofocus' => 'autofocus',
+            'autocomplete' => 'off',
         ),
 
       );

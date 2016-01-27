@@ -30,6 +30,8 @@ function commerce_pos_messages_form_alter(&$form, &$form_state, $form_id) {
  * Adds order message functionality to the POS transaction forms.
  */
 function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_messages') . '/js/commerce_pos_messages.js';
+
   if (!empty($form_state['order_wrapper'])) {
 
     // Check to see if we should be adding a
@@ -66,6 +68,15 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
     );
 
     if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-note') {
+      $form['messages']['add']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+              'commercePosMessages' => array(
+                'focusInput' => TRUE,
+              ),
+          ),
+      );
+
       $form['messages']['add']['note_text'] = array(
         '#type' => 'textarea',
         '#required' => TRUE,

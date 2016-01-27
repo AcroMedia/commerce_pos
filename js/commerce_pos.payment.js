@@ -38,10 +38,14 @@
       });
 
       //Have the Enter key trigger the 'Add' button when focused on text input
-      $('.commerce-pos-keypad-amount input').keypress(function(event) {
+      $('.commerce-pos-keypad-amount input', context).keypress(function(event) {
         if (event.keyCode == 13) {
           $('.commerce-pos-keypad-actions .form-submit').mousedown();
         }
+
+        $('.commerce-pos-keypad-actions .form-submit', context).mousedown(function(){
+          $('.commerce-pos-keypad-amount input').val('50');
+        });
       });
 
       $('.commerce-pos-summary-toggle', context).each(function () {
