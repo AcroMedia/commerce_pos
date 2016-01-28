@@ -135,18 +135,18 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       );
 
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
-        $form['discounts']['add_discount']['#attached']['js'][] = array(
-            'type' => 'setting',
-            'data' => array(
-                'commercePosDiscount' => array(
-                    'focusInput' => TRUE,
-                ),
-            ),
-        );
-
         $line_item_element['discounts']['add_discount'] = array(
           '#type' => 'container',
-            '#size' => 2,
+          '#size' => 2,
+        );
+
+        $line_item_element['discounts']['add_discount']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+            'commercePosDiscount' => array(
+              'focusInput' => TRUE,
+            ),
+          ),
         );
 
         $line_item_element['discounts']['add_discount']['description'] = array(

@@ -151,8 +151,8 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_receipt') . '/js/commerce_pos_receipt.js';
 
   if (isset($_SESSION['commerce_pos_receipt_previous_transaction'])) {
-    $form['print_previous'] = array(
-      '#markup' => l(t('Print previous transaction receipt'), 'pos/' . $_SESSION['commerce_pos_receipt_previous_transaction'] . '/print-receipt', array(
+    $form['parked_transactions']['print_previous'] = array(
+      '#markup' => l(t('Print Previous Transaction Receipt'), 'pos/' . $_SESSION['commerce_pos_receipt_previous_transaction'] . '/print-receipt', array(
         'attributes' => array(
           'class' => array('use-ajax', 'commerce-pos-receipt-print-previous'),
         ),

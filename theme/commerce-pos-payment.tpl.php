@@ -30,7 +30,6 @@
   </div>
   <div class="commerce-pos-col-transaction-info">
     <?php print render($form['balance']); ?>
-    Customer email input goes here...
   </div>
 </div>
 

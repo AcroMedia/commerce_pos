@@ -7,59 +7,22 @@ Secondary Colour (Orange): #ff9900
 Secondary Colour Hover: #E28B07
 */
 
-/*---------------------*/
-/*Animations*/
-/*---------------------*/
-.animated {
-  -webkit-animation-duration: 1s;
-  animation-duration: 1s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
-
-@-webkit-keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    -webkit-transform: translate3d(-100%, 0, 0);
-    transform: translate3d(-100%, 0, 0);
-  }
-
-  to {
-    opacity: 1;
-    -webkit-transform: none;
-    transform: none;
-  }
-}
-
-@keyframes fadeInLeft {
-  from {
-    opacity: 0;
-    -webkit-transform: translate3d(-100%, 0, 0);
-    transform: translate3d(-100%, 0, 0);
-  }
-
-  to {
-    opacity: 1;
-    -webkit-transform: none;
-    transform: none;
-  }
-}
-
-.fadeInLeft {
-  -webkit-animation-name: fadeInLeft;
-  animation-name: fadeInLeft;
-}
 
 /*---------------------*/
 /*General*/
 /*---------------------*/
-#commerce-pos-sale-wrapper {
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
   font-family: Arial,"Helvetica Neue",Helvetica,sans-serif!important;
 }
 
-.commerce-pos-pay-container,
-.commerce-pos-sale-container{
-  margin: 0 0 20px 0;
+#commerce-pos-sale-wrapper a, #commerce-pos-pay-form-wrapper a {
+  color: #0091FF;
+}
+
+#commerce-pos-sale-wrapper a:hover, #commerce-pos-sale-wrapper a:focus,
+#commerce-pos-pay-form-wrapper a:hover, #commerce-pos-pay-form-wrapper a:focus {
+  color: #087FDA;
+  text-decoration: underline;
 }
 
 #commerce-pos-sale-wrapper .form-item {
@@ -68,22 +31,7 @@ Secondary Colour Hover: #E28B07
 
 #commerce-pos-sale-wrapper textarea,
 #commerce-pos-sale-wrapper select,
-#commerce-pos-sale-wrapper input
-/*[type="date"],*/
-/*#commerce-pos-sale-wrapper input[type="datetime"],*/
-/*#commerce-pos-sale-wrapper input[type="datetime-local"],*/
-/*#commerce-pos-sale-wrapper input[type="email"],*/
-/*#commerce-pos-sale-wrapper input[type="month"],*/
-/*#commerce-pos-sale-wrapper input[type="number"],*/
-/*#commerce-pos-sale-wrapper input[type="password"],*/
-/*#commerce-pos-sale-wrapper input[type="search"],*/
-/*#commerce-pos-sale-wrapper input[type="tel"],*/
-/*#commerce-pos-sale-wrapper input[type="text"],*/
-/*#commerce-pos-sale-wrapper input[type="time"],*/
-/*#commerce-pos-sale-wrapper input[type="url"],*/
-/*#commerce-pos-sale-wrapper input[type="week"]*/
-
-{
+#commerce-pos-sale-wrapper input {
   margin: 0;
   padding: 5px 10px;
   border-radius: 2px;
@@ -101,7 +49,8 @@ Secondary Colour Hover: #E28B07
 #commerce-pos-sale-wrapper button, #commerce-pos-sale-wrapper input[type="reset"],
 #commerce-pos-sale-wrapper input[type="submit"], #commerce-pos-sale-wrapper input[type="button"],
 #commerce-pos-pay-form-wrapper button, #commerce-pos-pay-form-wrapper input[type="reset"],
-#commerce-pos-pay-form-wrapper input[type="submit"], #commerce-pos-pay-form-wrapper input[type="button"] {
+#commerce-pos-pay-form-wrapper input[type="submit"], #commerce-pos-pay-form-wrapper input[type="button"],
+#commerce-pos-report-results-container input[type="submit"] {
   -webkit-appearance: none;
   cursor: pointer;
   color: #333;
@@ -123,17 +72,12 @@ Secondary Colour Hover: #E28B07
 #commerce-pos-sale-wrapper input:hover,
 #commerce-pos-pay-form-wrapper button:hover,
 #commerce-pos-pay-form-wrapper input:hover,
+#commerce-pos-report-results-container input[type="submit"]:hover,
 #commerce-pos-sale-wrapper button:focus,
 #commerce-pos-sale-wrapper input:focus,
 #commerce-pos-pay-form-wrapper button:focus,
-#commerce-pos-pay-form-wrapper input:focus
-/*#commerce-pos-sale-wrapper input[type="reset"]:hover,*/
-/*#commerce-pos-sale-wrapper input[type="submit"]:hover, */
-/*#commerce-pos-sale-wrapper input[type="button"]:hover,*/
-/*#commerce-pos-pay-form-wrapper button:hover,*/
-/*#commerce-pos-pay-form-wrapper input[type="reset"]:hover,*/
-/*#commerce-pos-pay-form-wrapper input[type="submit"]:hover, */
-/*#commerce-pos-pay-form-wrapper input[type="button"]:hover*/ {
+#commerce-pos-pay-form-wrapper input:focus,
+#commerce-pos-report-results-container input[type="submit"]:focus {
   background: #f9f9f9;
 }
 
@@ -201,7 +145,13 @@ Secondary Colour Hover: #E28B07
 }
 
 #edit-parked-transactions {
-  margin: 20px 0 0 0;
+  padding: 15px 0 0 0;
+  /*background: #F0F0F0;*/
+  border-top: 1px solid #eee
+}
+
+.commerce-pos-receipt-print-previous {
+  margin: 0 0 0 20px;
 }
 
 /*---------------------*/
@@ -516,6 +466,10 @@ Secondary Colour Hover: #E28B07
   border-top: 1px solid #eee;
 }
 
+#commerce-pos-pay-balance-wrapper #commerce-pos-customer-input-wrapper {
+  margin-top: 20px;
+}
+
 #commerce-pos-discount-wrapper .form-wrapper {
   margin-top: 10px;
   display: inline;
@@ -591,11 +545,9 @@ Secondary Colour Hover: #E28B07
   margin-bottom: 20px;
 }
 
-/*-- --*/
-
-.commerce-pos-receipt-print-previous {
-  margin: 20px 0 0 0;
-  display: inline-block;
+#thevault-pos-messages-wrapper .views-field-name,
+#thevault-pos-messages-wrapper .views-field-timestamp {
+  font-size: 12px;
 }
 
 /*---------------------*/
@@ -709,7 +661,7 @@ Secondary Colour Hover: #E28B07
 .commerce-pos-pay-col-payments .commerce-pos-sale-pay-edit-order {
   padding: 5px 10px;
   background: #0091FF;
-  color: #fff;
+  color: #fff!important;
   font-size: 12px;
   font-weight: bold;
   border-radius: 2px;

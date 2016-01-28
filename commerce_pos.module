@@ -377,7 +377,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('To refund') : t('To Pay'), 'class' => array('label')),
+          array('data' => $return ? t('To Refund') : t('To Pay'), 'class' => array('label')),
           array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
         ),
         'class' => array('order-to-pay'),
@@ -402,7 +402,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     foreach ($totals as $currency_code => $amount) {
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('To refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
+          array('data' => $return ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
           array('data' => $balance_prefix . commerce_currency_format($amount > 0 ? $amount : 0, $currency_code) . $balance_suffix, 'class' => array('balance')),
         ),
         'class' => array('order-to-pay', 'order-to-pay-' . $currency_code),

@@ -208,6 +208,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#element_key' => 'line-item-add-qty',
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
+        '#attributes' => array(
+          'tabindex' => 0,
+        ),
       );
 
       $line_item_element['remove_qty'] = array(
@@ -258,6 +261,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#ajax' => $wrapper_ajax,
         '#attributes' => array(
           'class' => array('thevault-pos-hidden-element'),
+          'tabindex' => 0,
         ),
         '#prefix' => '<div class="price-edit-wrapper line-item-col">',
         '#suffix' => '</div>',

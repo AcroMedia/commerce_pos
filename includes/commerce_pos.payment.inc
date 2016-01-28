@@ -219,6 +219,23 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#ajax' => $form_ajax,
       '#element_key' => 'void-transaction',
     );
+
+    $form['balance']['actions']['customer'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Customer'),
+      '#autocomplete_path' => 'pos/user/autocomplete',
+      '#ajax' => array(
+        'wrapper' => 'commerce-pos-customer-input-wrapper',
+        'callback' => 'commerce_pos_transaction_customer_js',
+      ),
+      '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
+      '#suffix' => '</div>',
+      '#element_key' => 'customer-transaction-update',
+      '#attributes' => array(
+        'placeholder' => t('email@address.com'),
+      ),
+      '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
+    );
   }
   else {
     $form['no_transactions'] = array(

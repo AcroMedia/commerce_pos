@@ -43,9 +43,9 @@
           $('.commerce-pos-keypad-actions .form-submit').mousedown();
         }
 
-        $('.commerce-pos-keypad-actions .form-submit', context).mousedown(function(){
-          $('.commerce-pos-keypad-amount input').val('50');
-        });
+        //$('.commerce-pos-keypad-actions .form-submit', context).mousedown(function(){
+        //  $('.commerce-pos-keypad-amount input').val('50');
+        //});
       });
 
       $('.commerce-pos-summary-toggle', context).each(function () {

@@ -96,8 +96,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     t('Count Group'),
     t('Declared Amount'),
     t('POS expected Amount'),
-    t('Over/short'),
-    t('Cash deposit'),
+    t('Over/Short'),
+    t('Cash Deposit'),
   );
 
 

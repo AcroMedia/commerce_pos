@@ -23,7 +23,24 @@
       }
 
       // Key Navigator Stuff
-      $('#commerce-pos-pay-product-results-wrapper .commerce-pos-product-display', context).keynavigator(/* optional settings */);
+      $('commerce-pos-product-autocomplete .commerce-pos-product-display', context).keynavigator({
+        activateOn: 'click',
+        parentFocusOn: 'mouseover'
+      });
+
+      //When focused on quantity, price, or customer email input, pressing enter will unfocus and submit any changes
+      $('.line-item-row-wrapper input, #commerce-pos-customer-input-wrapper input', context).keypress(function(event) {
+        if (event.keyCode == 13) {
+          $(this).blur();
+        }
+      });
+
+      //Trigger the 'Pay' button to be clicked when f4 is pressed
+      $('body', context).keydown(function(event){
+        if (event.keyCode == 115) {
+          $('.commerce-pos-btn-pay').click();
+        }
+      });
 
     }
   };
@@ -37,7 +54,15 @@
 
       element.once('commerce-pos-autocomplete', function () {
         element.autocomplete({
-          source: settings.commercePosSale.productAutoCompleteUrl
+          source: settings.commercePosSale.productAutoCompleteUrl,
+          focus: function( event, ui ) {
+            event.preventDefault(); // without this: keyboard movements reset the input to ''
+            $(this).val(ui.item.question);
+          },
+          select: function( event, ui ) {
+            document.location.href = ui.item.url;
+          },
+          context: this
         });
 
         // Override the default UI autocomplete render function.
@@ -64,12 +89,5 @@
       .val(sku)
       .trigger('blur');
   }
-
-  //Trigger the 'Pay' button to be clicked when f4 is pressed
-  $(document).keydown(function(event){
-    if (event.keyCode == 115) {
-      $('.commerce-pos-btn-pay').click();
-    }
-  });
 
 } (jQuery));
