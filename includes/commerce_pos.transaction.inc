@@ -230,6 +230,30 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '</div>',
       );
 
+      $line_item_element['image_wrapper_open'] = array(
+        '#markup' => '<div class="image-wrapper line-item-col">',
+      );
+
+      $product = commerce_product_load($line_item_wrapper->commerce_product->product_id);
+
+      $product_images = $line_item_wrapper->commerce_product->field_images->value();
+      $product_primary_image = $product_images[0];
+
+      $line_item_element['image'] = array(
+        '#markup' => theme_image_style(array(
+          'style_name' => 'commerce_pos_thumbnail',
+          'path' => $product_primary_image['uri'],
+          'alt' => $product_primary_image['alt'],
+          'title' => $product_primary_image['title'],
+          'width' => $product_primary_image['width'],
+          'height' => $product_primary_image['height'],
+        )),
+      );
+
+      $line_item_element['image_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
       $line_item_element['title_wrapper_open'] = array(
         '#markup' => '<div class="title-wrapper line-item-col">',
       );
