@@ -154,6 +154,41 @@ Secondary Colour Hover: #E28B07
   margin: 0 0 0 20px;
 }
 
+#commerce-pos-sale-wrapper .button-link,
+#commerce-pos-sale-wrapper .button-link:hover,
+#commerce-pos-sale-wrapper button.button-link, #commerce-pos-sale-wrapper input[type="reset"].button-link,
+#commerce-pos-sale-wrapper input[type="submit"].button-link, #commerce-pos-sale-wrapper input[type="button"].button-link,
+#commerce-pos-pay-form-wrapper button.button-link, #commerce-pos-pay-form-wrapper input[type="reset"].button-link,
+#commerce-pos-pay-form-wrapper input[type="submit"].button-link, #commerce-pos-pay-form-wrapper input[type="button"].button-link,
+#commerce-pos-report-results-container input[type="submit"].button-link,
+#commerce-pos-sale-wrapper button.button-link:hover, #commerce-pos-sale-wrapper input[type="reset"].button-link:hover,
+#commerce-pos-sale-wrapper input[type="submit"].button-link:hover, #commerce-pos-sale-wrapper input[type="button"].button-link:hover,
+#commerce-pos-pay-form-wrapper button.button-link:hover, #commerce-pos-pay-form-wrapper input[type="reset"].button-link:hover,
+#commerce-pos-pay-form-wrapper input[type="submit"].button-link:hover, #commerce-pos-pay-form-wrapper input[type="button"].button-link:hover,
+#commerce-pos-report-results-container input[type="submit"].button-link:hover{
+  border: none;
+  background: transparent;
+  font-weight: normal;
+  color: #2698f2;
+  text-decoration: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  font-size: 100%;
+  vertical-align: baseline;
+  font: inherit;
+}
+
+#commerce-pos-sale-wrapper .button-link.button-link:hover,
+#commerce-pos-sale-wrapper button.button-link:hover, #commerce-pos-sale-wrapper input[type="reset"].button-link:hover,
+#commerce-pos-sale-wrapper input[type="submit"].button-link:hover, #commerce-pos-sale-wrapper input[type="button"].button-link:hover,
+#commerce-pos-pay-form-wrapper button.button-link:hover, #commerce-pos-pay-form-wrapper input[type="reset"].button-link:hover,
+#commerce-pos-pay-form-wrapper input[type="submit"].button-link:hover, #commerce-pos-pay-form-wrapper input[type="button"].button-link:hover,
+#commerce-pos-report-results-container input[type="submit"].button-link:hover{
+  text-decoration: underline;
+}
+
 /*---------------------*/
 /*Header*/
 /*---------------------*/
@@ -454,7 +489,7 @@ Secondary Colour Hover: #E28B07
   margin-right: 15px;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper #commerce-pos-discount-wrapper {
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
   padding: 10px;
   margin-left: 60%;
   clear: both;
@@ -470,23 +505,23 @@ Secondary Colour Hover: #E28B07
   margin-top: 20px;
 }
 
-#commerce-pos-discount-wrapper .form-wrapper {
+.commerce-pos-discount-wrapper .form-wrapper {
   margin-top: 10px;
   display: inline;
 }
 
-#commerce-pos-discount-wrapper .form-wrapper input[type="submit"] {
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"] {
   background: #0091FF;
   color: #fff;
   border: 1px solid transparent;
 }
 
-#commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:hover,
-#commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:focus {
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:hover,
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:focus {
   background: #087FDA;
 }
 
-#commerce-pos-discount-wrapper .form-item {
+.commerce-pos-discount-wrapper .form-item {
   margin-top: 0;
   margin-bottom: 0;
   vertical-align: baseline;
@@ -526,7 +561,7 @@ Secondary Colour Hover: #E28B07
 }
 
 /*Sale - Discount Area*/
-#commerce-pos-discount-wrapper .form-submit {
+.commerce-pos-discount-wrapper .form-submit {
   margin: 0 2px;
 }
 

@@ -137,6 +137,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
 
     if ($component = CommercePosDiscountService::getPosDiscountComponent($line_item_wrapper->commerce_unit_price, $discount_name)) {
       $data['type'] = $component['price']['data']['pos_discount_type'];
+      $data['currency_code'] = $component['price']['currency_code'];
 
       // Found our discount, return its amount.
       if ($component['price']['data']['pos_discount_type'] == 'percent') {

@@ -119,7 +119,12 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
 
       $line_item_element['discounts'] = array(
         '#type' => 'container',
-        '#id' => 'commerce-pos-discount-wrapper',
+        '#id' => 'commerce-pos-discount-wrapper-' . $line_item_id,
+        '#attributes' => array(
+          'class' => array(
+            'commerce-pos-discount-wrapper',
+          )
+        )
       );
 
       $line_item_element['discounts']['toggle_discount'] = array(
@@ -129,12 +134,15 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
         '#element_key' => 'toggle-discount',
         '#name' => 'commerce-pos-discount-toggle-discount-' . $line_item_id,
         '#ajax' => array(
-          'wrapper' => 'commerce-pos-discount-wrapper',
+          'wrapper' => 'commerce-pos-discount-wrapper-' . $line_item_id,
           'callback' => 'commerce_pos_discount_add_discount_js',
         ),
       );
 
+      $discount_data = $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id);
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-discount') {
+        $line_item_element['discounts']['toggle_discount']['#element_key'] = 'toggle-discount-hide';
+
         $line_item_element['discounts']['add_discount'] = array(
           '#type' => 'container',
           '#size' => 2,
@@ -145,6 +153,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           'data' => array(
             'commercePosDiscount' => array(
               'focusInput' => TRUE,
+              'lineItemId' => $line_item_id,
             ),
           ),
         );
@@ -152,8 +161,6 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
         $line_item_element['discounts']['add_discount']['description'] = array(
           //'#markup' => t('Discount:'),
         );
-
-        $discount_data = $form_state['transaction']->doAction('getExistingLineItemDiscountAmount', $line_item_id);
 
         $line_item_element['discounts']['add_discount']['amount'] = array(
           '#type' => 'textfield',
@@ -182,6 +189,36 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
 
         if ($discount_data) {
           $line_item_element['discounts']['add_discount'][$discount_data['type']]['#attributes']['class'][] = 'active';
+        }
+      } else {
+        if (!empty($discount_data) && isset($discount_data['amount']) & !empty($discount_data['amount'])) {
+          $discount_type_symbol = '';
+          if (isset($discount_data['type']) && $discount_data['type'] == 'percent') {
+            $discount_type_symbol = '%';
+          } else {
+            $discount_type_symbol = ' ' . $discount_data['currency_code'];
+          }
+
+          $line_item_element['discounts']['discount_description'] = array(
+            '#markup' => $discount_data['amount'] . $discount_type_symbol . ' ' . t('Discount Applied'),
+            '#prefix' => '<span class="discount-description">',
+            '#suffix' => '</span>',
+            '#line_item_id' => $line_item_id,
+            '#element_key' => 'discount-description',
+          );
+
+          $line_item_element['discounts']['remove_discount'] = array(
+            '#type' => 'button',
+            '#value' => 'remove',
+            '#prefix' => ' - ',
+            '#element_key' => 'remove-discount',
+            '#line_item_id' => $line_item_id,
+            '#name' => 'commerce-pos-discount-remove-discount-' . $line_item_id,
+            '#ajax' => $wrapper_ajax,
+            '#attributes' => array(
+              'class' => array('button-link')
+            )
+          );
         }
       }
     }
@@ -263,6 +300,14 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
           // in dollars.
           $discount_amount *= 100;
         }
+
+        $form_state['transaction']->doAction('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
+        $form_state['order_updated'] = TRUE;
+        break;
+
+      case 'remove-discount':
+        $discount_amount = 0;
+        $discount_type = 'fixed';
 
         $form_state['transaction']->doAction('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
         $form_state['order_updated'] = TRUE;
