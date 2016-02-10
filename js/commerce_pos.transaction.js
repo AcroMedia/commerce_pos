@@ -42,6 +42,13 @@
         }
       });
 
+      $('.commerce-pos-remove-payment', context).click(function(event){
+        event.preventDefault();
+
+        $('.commerce-pos-remove-payment-input').val($(this).data('transaction-id'));
+        $('.commerce-pos-remove-payment').trigger('remove_payment');
+      });
+
     }
   };
 
@@ -89,14 +96,5 @@
       .val(sku)
       .trigger('blur');
   }
-
-  $(document).on('click', '.commerce-pos-remove-payment', function(event){
-    event.preventDefault();
-
-    var transaction_id = $(this).data('transaction-id');
-
-    $('.commerce-pos-remove-payment-input').val(transaction_id);
-    $('.commerce-pos-remove-payment').trigger('remove_payment');
-  });
 
 } (jQuery));
