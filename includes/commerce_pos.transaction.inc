@@ -344,6 +344,32 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#type' => 'action',
     );
 
+    $transaction_options['actions']['remove_payment'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove Payment'),
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-transaction-btn',
+          'commerce-pos-remove-payment'
+        ),
+        'style' => array('display: none')
+      ),
+      '#submit' => array('commerce_pos_payment_remove_payment_submit'),
+      '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_payment')),
+      '#element_key' => 'remove-payment',
+    );
+
+    $transaction_options['remove_payment_text'] = array(
+      '#type' => 'hidden',
+      '#default_value' => null,
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-remove-payment-input'
+        ),
+        'style' => array('display: none')
+      ),
+    );
+
     $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
       '#value' => $return ? t('Refund (F4)') : t('Pay (F4)'),
@@ -439,6 +465,14 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   else {
     form_error($element, t('Quantity must be a number and greater than zero.'));
   }
+}
+
+function commerce_pos_payment_remove_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['transaction_options']['remove_payment_text'];
+
+  commerce_payment_transaction_delete($transaction_id);
+
+  $form_state['rebuild'] = TRUE;
 }
 
 /**

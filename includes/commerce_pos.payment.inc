@@ -192,6 +192,32 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#type' => 'actions',
     );
 
+    $form['balance']['actions']['remove_payment'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove Payment'),
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-transaction-btn',
+          'commerce-pos-remove-payment'
+        ),
+        'style' => array('display: none')
+      ),
+      '#submit' => array('commerce_pos_payment_remove_payment_submit'),
+      '#ajax' => array_merge($form_ajax, array('event' => 'remove_payment')),
+      '#element_key' => 'remove-payment',
+    );
+
+    $form['balance']['remove_payment_text'] = array(
+      '#type' => 'hidden',
+      '#default_value' => null,
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-remove-payment-input'
+        ),
+        'style' => array('display: none')
+      ),
+    );
+
     $form['balance']['actions']['finish'] = array(
       '#type' => 'submit',
       '#value' => t('Finish'),
@@ -295,6 +321,14 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
  */
 function commerce_pos_payment_validate($form, &$form_state) {
 
+}
+
+function commerce_pos_payment_remove_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['remove_payment_text'];
+
+  commerce_payment_transaction_delete($transaction_id);
+
+  $form_state['rebuild'] = TRUE;
 }
 
 /**
