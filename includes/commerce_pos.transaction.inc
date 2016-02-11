@@ -354,7 +354,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         ),
         'style' => array('display: none')
       ),
-      '#submit' => array('commerce_pos_payment_remove_payment_submit'),
+      '#submit' => array('commerce_pos_transaction_remove_payment_submit'),
       '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_payment')),
       '#element_key' => 'remove-payment',
     );
@@ -467,7 +467,7 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   }
 }
 
-function commerce_pos_payment_remove_payment_submit($form, &$form_state){
+function commerce_pos_transaction_remove_payment_submit($form, &$form_state){
   $transaction_id = $form_state['values']['transaction_options']['remove_payment_text'];
 
   commerce_payment_transaction_delete($transaction_id);

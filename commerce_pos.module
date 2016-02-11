@@ -193,6 +193,11 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'attributes' => array(),
       ),
     ),
+    'commerce_pos_price_formatted_components' => array(
+      'variables' => array(
+        'components' => array(), 'price' => array()
+      ),
+    ),
   );
 }
 
@@ -704,7 +709,7 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
   }
 
   return array(
-    '#markup' => theme('commerce_price_formatted_components', array('components' => $components, 'price' => $price)),
+    '#markup' => theme('commerce_pos_price_formatted_components', array('components' => $components, 'price' => $price)),
   );
 }
 
@@ -840,4 +845,53 @@ function _commerce_pos_product_default_image($product_type) {
   }
 
   return FALSE;
+}
+
+/**
+ * Themes a price components table.
+ *
+ * A customized version of the 'theme_commerce_price_formatted_components' display
+ * from commerce_price.module.
+ *
+ * @param $variables
+ *   Includes the 'components' array and original 'price' array.
+ */
+function theme_commerce_pos_price_formatted_components($variables) {
+  // Add the CSS styling to the table.
+  drupal_add_css(drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css');
+
+  // Build table rows out of the components.
+  $rows = array();
+
+  foreach ($variables['components'] as $name => $component) {
+    $row = array(
+      'data' => array(),
+      'class' => array(drupal_html_class('component-type-' . $name)),
+    );
+
+    $row['data'][] = array(
+      'data' => $component['title'],
+      'class' => array('component-title'),
+    );
+
+    // add action
+    if(isset($component['action'])){
+      $row['data'][] = array(
+        'data' => $component['action'],
+        'class' => array('component-action'),
+      );
+    }
+    else{
+      $row['data'][] = array();
+    }
+
+    $row['data'][] = array(
+      'data' => $component['formatted_price'],
+      'class' => array('component-total'),
+    );
+
+    $rows[] = $row;
+  }
+
+  return theme('table', array('rows' => $rows, 'attributes' => array('class' => array('commerce-price-formatted-components'))));
 }
