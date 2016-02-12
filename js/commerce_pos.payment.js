@@ -67,6 +67,12 @@
         $('.commerce-pos-remove-payment-input').val(transaction_id);
         $('.commerce-pos-remove-payment').trigger('remove_payment');
       });
+
+      if (settings.commercePosPayment && settings.commercePosPayment.focusInput) {
+        if($(settings.commercePosPayment.selector).length > 0) {
+          $(settings.commercePosPayment.selector).focus();
+        }
+      }
     }
   };
 

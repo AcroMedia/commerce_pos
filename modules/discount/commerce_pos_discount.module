@@ -132,6 +132,7 @@ function _commerce_pos_discount_payment_form_alter(&$form, $form_state) {
       ),
       '#submit' => array('commerce_pos_transaction_remove_order_discount_submit'),
       '#ajax' => array_merge($form_ajax, array('event' => 'remove_order_discount')),
+      '#limit_validation_errors' => array(),
       '#element_key' => 'remove-order-discount',
     );
   }
@@ -273,6 +274,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
         ),
         '#submit' => array('commerce_pos_transaction_remove_order_discount_submit'),
         '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_order_discount')),
+        '#limit_validation_errors' => array(),
         '#element_key' => 'remove-order-discount',
       );
 

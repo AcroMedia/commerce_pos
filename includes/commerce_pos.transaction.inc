@@ -356,6 +356,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       ),
       '#submit' => array('commerce_pos_transaction_remove_payment_submit'),
       '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_payment')),
+      '#limit_validation_errors' => array(
+        array('transaction_options', 'remove_payment_text')
+      ),
       '#element_key' => 'remove-payment',
     );
 
@@ -388,6 +391,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $wrapper_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'park-transaction',
     );
 
@@ -398,6 +402,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $wrapper_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'void-transaction',
     );
 

@@ -157,9 +157,23 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#attributes' => array(
             'autofocus' => 'autofocus',
             'autocomplete' => 'off',
+            'class' => array(
+              'commerce-pos-payment-keypad-amount'
+            )
         ),
-
       );
+
+      if (isset($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-payment') {
+        $form['keypad']['amount']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+            'commercePosPayment' => array(
+              'focusInput' => TRUE,
+              'selector' => '.commerce-pos-payment-keypad-amount',
+            ),
+          ),
+        );
+      }
 
       $form['keypad']['add'] = array(
         '#type' => 'submit',
@@ -169,6 +183,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#submit' => array('commerce_pos_payment_add_payment_submit'),
         '#ajax' => $form_ajax,
         '#payment_method_id' => $method_id,
+        '#element_key' => 'add-payment'
       );
     }
 
@@ -204,12 +219,14 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       ),
       '#submit' => array('commerce_pos_payment_remove_payment_submit'),
       '#ajax' => array_merge($form_ajax, array('event' => 'remove_payment')),
+      '#limit_validation_errors' => array(
+        array('remove_payment_text')
+      ),
       '#element_key' => 'remove-payment',
     );
 
     $form['balance']['remove_payment_text'] = array(
       '#type' => 'hidden',
-      '#default_value' => null,
       '#attributes' => array(
         'class' => array(
           'commerce-pos-remove-payment-input'
@@ -233,6 +250,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $form_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'park-transaction',
     );
 
@@ -243,6 +261,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $form_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'void-transaction',
     );
 
@@ -312,6 +331,8 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
   $transaction->message = '';
   commerce_payment_transaction_save($transaction);
+
+  $form_state['input']['keypad']['amount'] = null;
 
   $form_state['rebuild'] = TRUE;
 }
