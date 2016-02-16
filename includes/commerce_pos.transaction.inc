@@ -234,7 +234,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<div class="image-wrapper line-item-col">',
       );
 
-      $product = commerce_product_load($line_item_wrapper->commerce_product->product_id);
+      $product = commerce_product_load($line_item_wrapper->commerce_product->product_id->value());
 
       $product_images = $line_item_wrapper->commerce_product->field_images->value();
       $product_primary_image = $product_images[0];
@@ -262,9 +262,16 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<span class="title">'. $line_item_wrapper->commerce_product->title->value() .'</span>',
       );
 
-      $line_item_element['sku'] = array(
-        '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
-      );
+      if ($display_nid = commerce_pos_get_product_display_nid($line_item_wrapper->commerce_product->product_id->value())) {
+        $line_item_element['sku'] = array(
+          '#markup' => '<br />' . l($line_item_wrapper->commerce_product->sku->value(), 'node/' . $display_nid, array('attributes' => array('target' => '_blank'))),
+        );
+      }
+      else {
+        $line_item_element['sku'] = array(
+          '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
+        );
+      }
 
       $line_item_element['title_wrapper_close'] = array(
         '#markup' => '</div>',

@@ -1002,7 +1002,9 @@ div.status {
 }
 
 .commerce-pos-product-display:hover,
-.commerce-pos-product-display:focus {
+.commerce-pos-product-display:focus,
+.commerce-pos-transaction-product-search-item.selected .commerce-pos-product-display
+{
   background: #F0F0F0;
 }
 
