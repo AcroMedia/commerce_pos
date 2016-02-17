@@ -198,11 +198,16 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           //'#markup' => t('Discount:'),
         );
 
+        $discount_default_value = NULL;
+        if($discount_data && !empty($discount_data['amount'])){ // make sure 0 gets set as NULL
+          $discount_default_value = $discount_data['amount'];
+        }
+
         $line_item_element['discounts']['add_discount']['amount'] = array(
           '#type' => 'textfield',
           '#title' => NULL,
           '#size' => 2,
-          '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
+          '#default_value' => $discount_default_value,
         );
 
         $line_item_element['discounts']['add_discount']['percent'] = array(
