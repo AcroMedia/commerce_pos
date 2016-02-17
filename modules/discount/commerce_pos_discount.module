@@ -354,6 +354,8 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
 
         if ($triggering_element['#element_key'] == 'add-percent-discount') {
           $discount_type = 'percent';
+          // Convert percent 100% style to 1.0 style.
+          $discount_amount /= 100;
         }
         else {
           $discount_type = 'fixed';
@@ -380,6 +382,8 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
 
         if ($triggering_element['#element_key'] == 'add-order-percent-discount') {
           $discount_type = 'percent';
+          // Convert percent 100% style to 1.0 style.
+          $discount_amount /= 100;
         }
         else {
           $discount_type = 'fixed';
