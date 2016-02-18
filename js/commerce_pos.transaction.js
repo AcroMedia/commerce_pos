@@ -3,7 +3,7 @@
     attach: function (context, settings) {
       setupProductAutocomplete(context, settings);
 
-      $('.thevault-pos-hidden-element', context).each(function() {
+      $('.commerce-pos-hidden-element', context).each(function() {
         var element = $(this);
         var elementLabel = element.siblings('label');
 

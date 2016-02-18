@@ -193,7 +193,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#line_item_id' => $line_item_id,
         '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
         '#attributes' => array(
-          'class' => array('thevault-pos-hidden-element'),
+          'class' => array('commerce-pos-hidden-element'),
         ),
       );
 
@@ -291,7 +291,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
         '#attributes' => array(
-          'class' => array('thevault-pos-hidden-element'),
+          'class' => array('commerce-pos-hidden-element'),
           'tabindex' => 0,
         ),
         '#prefix' => '<div class="price-edit-wrapper line-item-col">',
@@ -419,11 +419,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#autocomplete_path' => 'pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
-        'callback' => 'commerce_pos_transaction_customer_js',
+        'callback' => 'commerce_pos_customer_js',
       ),
       '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
       '#suffix' => '</div>',
-      '#element_key' => 'customer-transaction-update',
+      '#element_key' => 'customer-update',
       '#attributes' => array(
         'placeholder' => t('email@address.com'),
       ),
@@ -558,11 +558,9 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value'] * 100);
           break;
 
-        case 'customer-transaction-update':
-          if (!empty($triggering_element['#value'])) {
-            $transaction->data['customer email'] = $triggering_element['#value'];
-            $transaction->doAction('save');
-          }
+        case 'customer-update':
+          $transaction->data['customer email'] = !empty($triggering_element['#value']) ? $triggering_element['#value'] : NULL;
+          $transaction->doAction('save');
           break;
 
         default:
@@ -593,13 +591,6 @@ function commerce_pos_transaction_line_item_remove_submit($form, &$form_state) {
  */
 function commerce_pos_transaction_wrapper_js($form, &$form_state) {
   return $form;
-}
-
-/**
- * AJAX callback for the customer field.
- */
-function commerce_pos_transaction_customer_js($form, &$form_state) {
-  return $form['customer'];
 }
 
 /**

@@ -271,11 +271,11 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#autocomplete_path' => 'pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
-        'callback' => 'commerce_pos_transaction_customer_js',
+        'callback' => 'commerce_pos_customer_js',
       ),
       '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
       '#suffix' => '</div>',
-      '#element_key' => 'customer-transaction-update',
+      '#element_key' => 'customer-update',
       '#attributes' => array(
         'placeholder' => t('email@address.com'),
       ),
@@ -332,7 +332,8 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $transaction->message = '';
   commerce_payment_transaction_save($transaction);
 
-  $form_state['input']['keypad']['amount'] = null;
+  $form_state['input']['keypad']['amount'] = NULL;
+  $form_state['triggering_element']['#payment_method_id'] = NULL;
 
   $form_state['rebuild'] = TRUE;
 }
@@ -398,6 +399,11 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
           $transaction->void();
           unset($form_state['transaction']);
           drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
+          break;
+
+        case 'customer-update':
+          $transaction->data['customer email'] = !empty($triggering_element['#value']) ? $triggering_element['#value'] : NULL;
+          $transaction->doAction('save');
           break;
 
         default:

@@ -140,7 +140,7 @@ Secondary Colour Hover: #E28B07
   cursor: default;
 }
 
-.form-item .thevault-pos-hidden-element {
+.form-item .commerce-pos-hidden-element {
   display: none;
 }
 
@@ -580,8 +580,8 @@ Secondary Colour Hover: #E28B07
   margin-bottom: 20px;
 }
 
-#thevault-pos-messages-wrapper .views-field-name,
-#thevault-pos-messages-wrapper .views-field-timestamp {
+#commerce-pos-messages-wrapper .views-field-name,
+#commerce-pos-messages-wrapper .views-field-timestamp {
   font-size: 12px;
 }
 

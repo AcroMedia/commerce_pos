@@ -46,7 +46,7 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
 
     $form['messages'] = array(
       '#type' => 'container',
-      '#id' => 'thevault-pos-messages-wrapper',
+      '#id' => 'commerce-pos-messages-wrapper',
       '#tree' => TRUE,
     );
 
@@ -90,7 +90,7 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
         '#type' => 'button',
         '#value' => t('Submit'),
         '#ajax' => array(
-          'wrapper' => 'thevault-pos-messages-wrapper',
+          'wrapper' => 'commerce-pos-messages-wrapper',
           'callback' => 'commerce_pos_messages_js',
           'effect' => 'fade',
         ),
@@ -101,7 +101,7 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
         '#type' => 'button',
         '#value' => t('Cancel'),
         '#ajax' => array(
-          'wrapper' => 'thevault-pos-messages-wrapper',
+          'wrapper' => 'commerce-pos-messages-wrapper',
           'callback' => 'commerce_pos_messages_js',
           'effect' => 'fade',
         ),
