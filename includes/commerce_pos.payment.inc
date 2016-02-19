@@ -89,10 +89,10 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
 
     if ($return) {
-      $summary_text = t('Return - !items - Order #@order_id', $replacements);
+      $summary_text = t('<div class="order-text">Return - !items - Order #@order_id </div>', $replacements);
     }
     else {
-      $summary_text = t('Payment - !items - Order #@order_id', $replacements);
+      $summary_text = t('<div class="order-text">Payment - !items - Order #@order_id </div>', $replacements);
     }
 
     $form['summary'] = array(
@@ -154,7 +154,26 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
           '@title' => $payment_methods[$method_id]['title'],
         )),
         '#required' => TRUE,
+        '#attributes' => array(
+            'autofocus' => 'autofocus',
+            'autocomplete' => 'off',
+            'class' => array(
+              'commerce-pos-payment-keypad-amount'
+            )
+        ),
       );
+
+      if (isset($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-payment') {
+        $form['keypad']['amount']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+            'commercePosPayment' => array(
+              'focusInput' => TRUE,
+              'selector' => '.commerce-pos-payment-keypad-amount',
+            ),
+          ),
+        );
+      }
 
       $form['keypad']['add'] = array(
         '#type' => 'submit',
@@ -164,6 +183,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#submit' => array('commerce_pos_payment_add_payment_submit'),
         '#ajax' => $form_ajax,
         '#payment_method_id' => $method_id,
+        '#element_key' => 'add-payment'
       );
     }
 
@@ -187,6 +207,34 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#type' => 'actions',
     );
 
+    $form['balance']['actions']['remove_payment'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove Payment'),
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-transaction-btn',
+          'commerce-pos-remove-payment'
+        ),
+        'style' => array('display: none')
+      ),
+      '#submit' => array('commerce_pos_payment_remove_payment_submit'),
+      '#ajax' => array_merge($form_ajax, array('event' => 'remove_payment')),
+      '#limit_validation_errors' => array(
+        array('remove_payment_text')
+      ),
+      '#element_key' => 'remove-payment',
+    );
+
+    $form['balance']['remove_payment_text'] = array(
+      '#type' => 'hidden',
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-remove-payment-input'
+        ),
+        'style' => array('display: none')
+      ),
+    );
+
     $form['balance']['actions']['finish'] = array(
       '#type' => 'submit',
       '#value' => t('Finish'),
@@ -202,6 +250,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $form_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'park-transaction',
     );
 
@@ -212,7 +261,25 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $form_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'void-transaction',
+    );
+
+    $form['balance']['actions']['customer'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Customer'),
+      '#autocomplete_path' => 'pos/user/autocomplete',
+      '#ajax' => array(
+        'wrapper' => 'commerce-pos-customer-input-wrapper',
+        'callback' => 'commerce_pos_customer_js',
+      ),
+      '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
+      '#suffix' => '</div>',
+      '#element_key' => 'customer-update',
+      '#attributes' => array(
+        'placeholder' => t('email@address.com'),
+      ),
+      '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
     );
   }
   else {
@@ -265,6 +332,9 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $transaction->message = '';
   commerce_payment_transaction_save($transaction);
 
+  $form_state['input']['keypad']['amount'] = NULL;
+  $form_state['triggering_element']['#payment_method_id'] = NULL;
+
   $form_state['rebuild'] = TRUE;
 }
 
@@ -273,6 +343,14 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
  */
 function commerce_pos_payment_validate($form, &$form_state) {
 
+}
+
+function commerce_pos_payment_remove_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['remove_payment_text'];
+
+  commerce_payment_transaction_delete($transaction_id);
+
+  $form_state['rebuild'] = TRUE;
 }
 
 /**
@@ -321,6 +399,11 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
           $transaction->void();
           unset($form_state['transaction']);
           drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
+          break;
+
+        case 'customer-update':
+          $transaction->data['customer email'] = !empty($triggering_element['#value']) ? $triggering_element['#value'] : NULL;
+          $transaction->doAction('save');
           break;
 
         default:

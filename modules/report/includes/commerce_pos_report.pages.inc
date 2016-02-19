@@ -93,11 +93,11 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   );
 
   $headers = array(
-    t('Count group'),
-    t('Declared amount'),
-    t('POS expected amount'),
-    t('Over/short'),
-    t('Cash deposit'),
+    t('Count Group'),
+    t('Declared Amount'),
+    t('POS expected Amount'),
+    t('Over/Short'),
+    t('Cash Deposit'),
   );
 
 
@@ -155,6 +155,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       // Declared amount
       $row['declared'] = array(
         '#type' => 'textfield',
+        '#size' => 5,
+        '#maxlength' => 10,
         '#title' => t('Declared amount'),
         '#title_display' => 'invisible',
         '#attributes' => array(
@@ -190,6 +192,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       if ($is_cash) {
         $row['cash_deposit'] = array(
           '#type' => 'textfield',
+          '#size' => 5,
+          '#maxlength' => 10,
           '#title' => t('Cash Deposit'),
           '#title_display' => 'invisible',
         );

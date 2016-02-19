@@ -30,8 +30,9 @@ function commerce_pos_messages_form_alter(&$form, &$form_state, $form_id) {
  * Adds order message functionality to the POS transaction forms.
  */
 function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
-  if (!empty($form_state['order_wrapper'])) {
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_messages') . '/js/commerce_pos_messages.js';
 
+  if (!empty($form_state['order_wrapper'])) {
     // Check to see if we should be adding a
     if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'submit-note') {
       $message_text = $form_state['values']['messages']['add']['note_text'];
@@ -45,7 +46,7 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
 
     $form['messages'] = array(
       '#type' => 'container',
-      '#id' => 'thevault-pos-messages-wrapper',
+      '#id' => 'commerce-pos-messages-wrapper',
       '#tree' => TRUE,
     );
 
@@ -66,6 +67,20 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
     );
 
     if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-note') {
+      // change add note button into label
+      $form['messages']['add']['add_note'] = array(
+        '#markup' => '<div class="commerce-pos-note-title">' . $form['messages']['add']['add_note']['#value'] . '</div>',
+      );
+
+      $form['messages']['add']['#attached']['js'][] = array(
+          'type' => 'setting',
+          'data' => array(
+              'commercePosMessages' => array(
+                'focusInput' => TRUE,
+              ),
+          ),
+      );
+
       $form['messages']['add']['note_text'] = array(
         '#type' => 'textarea',
         '#required' => TRUE,
@@ -75,11 +90,23 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
         '#type' => 'button',
         '#value' => t('Submit'),
         '#ajax' => array(
-          'wrapper' => 'thevault-pos-messages-wrapper',
+          'wrapper' => 'commerce-pos-messages-wrapper',
           'callback' => 'commerce_pos_messages_js',
           'effect' => 'fade',
         ),
         '#element_key' => 'submit-note',
+      );
+
+      $form['messages']['add']['cancel'] = array(
+        '#type' => 'button',
+        '#value' => t('Cancel'),
+        '#ajax' => array(
+          'wrapper' => 'commerce-pos-messages-wrapper',
+          'callback' => 'commerce_pos_messages_js',
+          'effect' => 'fade',
+        ),
+        '#limit_validation_errors' => array(),
+        '#element_key' => 'cancel-note',
       );
     }
 

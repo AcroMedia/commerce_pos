@@ -30,13 +30,13 @@ function commerce_pos_views_default_views() {
   $handler->display->display_options['pager']['type'] = 'full';
   $handler->display->display_options['style_plugin'] = 'table';
   $handler->display->display_options['style_options']['columns'] = array(
-    'transaction_id' => 'transaction_id',
-    'amount' => 'amount',
     'payment_method' => 'payment_method',
+    'amount' => 'amount',
+    'nothing' => 'nothing',
   );
   $handler->display->display_options['style_options']['default'] = '-1';
   $handler->display->display_options['style_options']['info'] = array(
-    'transaction_id' => array(
+    'payment_method' => array(
       'sortable' => 0,
       'default_sort_order' => 'asc',
       'align' => '',
@@ -50,9 +50,7 @@ function commerce_pos_views_default_views() {
       'separator' => '',
       'empty_column' => 0,
     ),
-    'payment_method' => array(
-      'sortable' => 0,
-      'default_sort_order' => 'asc',
+    'nothing' => array(
       'align' => '',
       'separator' => '',
       'empty_column' => 0,
@@ -63,12 +61,26 @@ function commerce_pos_views_default_views() {
   $handler->display->display_options['footer']['commerce_pos_balance_summary']['table'] = 'commerce_payment_transaction';
   $handler->display->display_options['footer']['commerce_pos_balance_summary']['field'] = 'commerce_pos_balance_summary';
   $handler->display->display_options['footer']['commerce_pos_balance_summary']['label'] = 'Balance';
+  /* Field: Commerce Payment Transaction: Transaction ID */
+  $handler->display->display_options['fields']['transaction_id']['id'] = 'transaction_id';
+  $handler->display->display_options['fields']['transaction_id']['table'] = 'commerce_payment_transaction';
+  $handler->display->display_options['fields']['transaction_id']['field'] = 'transaction_id';
+  $handler->display->display_options['fields']['transaction_id']['label'] = '';
+  $handler->display->display_options['fields']['transaction_id']['exclude'] = TRUE;
+  $handler->display->display_options['fields']['transaction_id']['element_label_colon'] = FALSE;
   /* Field: Commerce Payment Transaction: Payment method */
   $handler->display->display_options['fields']['payment_method']['id'] = 'payment_method';
   $handler->display->display_options['fields']['payment_method']['table'] = 'commerce_payment_transaction';
   $handler->display->display_options['fields']['payment_method']['field'] = 'payment_method';
   $handler->display->display_options['fields']['payment_method']['label'] = '';
   $handler->display->display_options['fields']['payment_method']['element_label_colon'] = FALSE;
+  /* Field: Global: Custom text */
+  $handler->display->display_options['fields']['nothing']['id'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['table'] = 'views';
+  $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
+  $handler->display->display_options['fields']['nothing']['label'] = '';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="#" class="commerce-pos-remove-payment button-link" data-transaction-id="[transaction_id]">remove</a>';
+  $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   /* Field: Commerce Payment Transaction: Amount */
   $handler->display->display_options['fields']['amount']['id'] = 'amount';
   $handler->display->display_options['fields']['amount']['table'] = 'commerce_payment_transaction';

@@ -23,7 +23,9 @@
     <?php print render($form['summary']); ?>
     <?php print render($form['summary_table']); ?>
     <?php print render($form['edit_order']); ?>
-    <?php print render($form['payment_options']); ?>
+    <div class="edit-payment-options-wrapper">
+      <?php print render($form['payment_options']); ?>
+    </div>
     <?php print render($form['keypad']); ?>
   </div>
   <div class="commerce-pos-col-transaction-info">

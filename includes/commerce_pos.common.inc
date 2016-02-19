@@ -161,3 +161,10 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 
   return $parked_transactions_section;
 }
+
+/**
+ * AJAX callback for the customer field.
+ */
+function commerce_pos_customer_js($form, &$form_state) {
+  return $form['customer'];
+}
