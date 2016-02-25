@@ -22,6 +22,8 @@ function commerce_pos_payment_install() {
  */
 function commerce_pos_payment_uninstall() {
   drupal_load('module', 'commerce_pos_payment');
+  drupal_load('module', 'commerce_pos');
+
   $methods = commerce_pos_payment_commerce_custom_offline_payments();
 
   foreach ($methods as $method) {
