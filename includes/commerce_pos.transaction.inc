@@ -380,12 +380,20 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       ),
     );
 
+    if (module_exists('form_keybinds')) {
+      $button_keybind_text = ' ' .  t('(F4)');
+    }
+    else {
+      $button_keybind_text = '';
+    }
+
     $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
-      '#value' => $return ? t('Refund (F4)') : t('Pay (F4)'),
+      '#value' => ($return ? t('Refund') : t('Pay')) . $button_keybind_text,
       '#attributes' => array(
         'class' => array('commerce-pos-btn-pay'),
       ),
+      // This won't do anything without form_keybinds installed.
       '#key_binds' => array('f4'),
       '#validate' => array('commerce_pos_transaction_pay_validate'),
       '#submit' => array('commerce_pos_transaction_pay_submit'),

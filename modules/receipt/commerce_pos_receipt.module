@@ -9,16 +9,6 @@
  * Implements hook_libraries_info().
  */
 function commerce_pos_receipt_libraries_info() {
-  $libraries['escpos-php'] = array(
-    'name' => 'ESC/POS Print Driver for PHP',
-    'vendor url' => 'https://github.com/mike42/escpos-php',
-    'download url' => 'https://github.com/mike42/escpos-php/archive/master.zip',
-    'version' => '1.0',
-    'files' => array(
-      'php' => array('Escpos.php'),
-    ),
-  );
-
   $libraries['jquery-print'] = array(
     'name' => 'jQuery Print Plugin',
     'vendor url' => 'https://github.com/DoersGuild/jQuery.print',
