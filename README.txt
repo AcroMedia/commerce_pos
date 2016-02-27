@@ -31,6 +31,9 @@ This module requires the following modules:
 
  * Date (https://www.drupal.org/project/date)
 
+ * jQuery Update (https://www.drupal.org/project/jquery_update) running jQuery
+   1.7 or higher.
+
 
 RECOMMENDED MODULES
 -------------------
