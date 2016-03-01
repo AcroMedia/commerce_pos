@@ -56,6 +56,7 @@ function commerce_pos_location_float_form($form, &$form_state, $location_id = 0)
     '#type' => 'textfield',
     '#title' => t('Amount'),
     '#required' => TRUE,
+    '#size' => 10
   );
 
   $form['actions'] = array(
@@ -64,7 +65,7 @@ function commerce_pos_location_float_form($form, &$form_state, $location_id = 0)
 
   $form['actions']['save'] = array(
     '#type' => 'submit',
-    '#value' => t('Continue'),
+    '#value' => t('Continue')
   );
 
   // Add module CSS

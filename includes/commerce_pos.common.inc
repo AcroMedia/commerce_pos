@@ -126,6 +126,9 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
     $parked_transactions_section = array(
       '#type' => 'container',
       '#tree' => TRUE,
+      '#attributes' => array(
+        'class' => array('parked-transactions-wrapper')
+      )
     );
 
     $description = format_plural(count($parked_transactions), '1 Transaction Parked', '@count Transactions Parked') . ' - ';

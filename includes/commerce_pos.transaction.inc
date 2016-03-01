@@ -182,6 +182,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<div class="quantity-wrapper line-item-col">',
       );
 
+      $line_item_element['textbox_wrapper_open'] = array(
+        '#markup' => '<div class="textbox-wrapper">',
+      );
+
       $line_item_element['qty'] = array(
         '#title' => (int) $line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
@@ -196,6 +200,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
           'class' => array('commerce-pos-hidden-element'),
         ),
       );
+
+      $line_item_element['textbox_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
 
       $line_item_element['add_remove_wrapper_open'] = array(
         '#markup' => '<div class="add-remove-wrapper line-item-col">',

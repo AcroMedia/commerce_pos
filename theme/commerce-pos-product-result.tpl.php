@@ -17,6 +17,12 @@
   <div class="display-image">
     <?php print $image; ?>
   </div>
+  <div class="display-add">
+    <?php print l('+', '', array('fragment' => '#', 'external' => TRUE, 'attributes' => array(
+      'class' => array('btn-add'),
+      'data-product-sku' => $product->sku,
+    ))); ?>
+  </div>
   <div class="display-details">
     <div class="title">
       <?php print $product->title; ?>
@@ -40,11 +46,5 @@
   </div>
   <div class="display-price">
     <?php print $sell_price; ?>
-  </div>
-  <div class="display-add">
-    <?php print l('+', '', array('fragment' => '#', 'external' => TRUE, 'attributes' => array(
-      'class' => array('btn-add'),
-      'data-product-sku' => $product->sku,
-    ))); ?>
   </div>
 </div>

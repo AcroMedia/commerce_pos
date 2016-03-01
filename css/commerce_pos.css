@@ -87,7 +87,8 @@ Secondary Colour Hover: #E28B07
 }
 
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit,
-#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit {
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit,
+#commerce-pos-location-float-form .form-submit {
   background: #0091FF;
   border: 0;
   margin: 0 0 5px 0;
@@ -105,8 +106,14 @@ Secondary Colour Hover: #E28B07
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:hover,
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:focus,
 #commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:hover,
-#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:focus {
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:focus,
+#commerce-pos-location-float-form .form-submit:hover ,
+#commerce-pos-location-float-form .form-submit:focus {
   background: #087FDA;
+}
+
+#commerce-pos-location-float-form .form-submit{
+  width: 100px;
 }
 
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:last-of-type {
@@ -114,7 +121,8 @@ Secondary Colour Hover: #E28B07
 }
 
 #commerce-pos-transactions-options-wrapper .commerce-pos-btn-pay.form-submit,
-#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type {
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn {
   display: block;
   width: 100%;
   font-size: 20px;
@@ -126,7 +134,9 @@ Secondary Colour Hover: #E28B07
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .commerce-pos-btn-pay.form-submit:hover,
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .commerce-pos-btn-pay.form-submit:focus,
 #commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type:hover,
-#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type:focus {
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type:focus,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn:hover,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn:focus {
   background: #E28B07;
 }
 
@@ -144,7 +154,8 @@ Secondary Colour Hover: #E28B07
   display: none;
 }
 
-#edit-parked-transactions {
+.parked-transactions-wrapper {
+  margin-top: 15px;
   padding: 15px 0 0 0;
   /*background: #F0F0F0;*/
   border-top: 1px solid #eee
@@ -187,6 +198,13 @@ Secondary Colour Hover: #E28B07
 #commerce-pos-pay-form-wrapper input[type="submit"].button-link:hover, #commerce-pos-pay-form-wrapper input[type="button"].button-link:hover,
 #commerce-pos-report-results-container input[type="submit"].button-link:hover{
   text-decoration: underline;
+}
+
+#commerce-pos-sale-wrapper .button-link.small,
+#commerce-pos-sale-wrapper input[type="submit"].button-link.small,
+#commerce-pos-pay-form-wrapper .button-link.small,
+#commerce-pos-pay-form-wrapper input[type="submit"].button-link.small{
+  font-size: 12px;
 }
 
 /*---------------------*/
@@ -434,6 +452,10 @@ Secondary Colour Hover: #E28B07
   width: 45px;
 }
 
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .textbox-wrapper {
+  width: 45px;
+}
+
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .form-type-textfield {
   margin: 13px 0 !important;
   padding: 0;
@@ -448,7 +470,7 @@ Secondary Colour Hover: #E28B07
   right: 0;
   top: 15px;
   width: 20px;
-  margin: 0 20px 0 0;
+  margin: 0 15px 0 0;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper button {
@@ -497,6 +519,10 @@ Secondary Colour Hover: #E28B07
   background: #F0F0F0;
 }
 
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper.no-background {
+  background: transparent;
+}
+
 #commerce-pos-customer-input-wrapper {
   border-top: 1px solid #eee;
 }
@@ -510,18 +536,22 @@ Secondary Colour Hover: #E28B07
   display: inline;
 }
 
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue,
 .commerce-pos-discount-wrapper .form-wrapper input[type="submit"] {
   background: #0091FF;
   color: #fff;
   border: 1px solid transparent;
 }
 
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue:hover,
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue:focus,
 .commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:hover,
 .commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:focus {
   background: #087FDA;
 }
 
-.commerce-pos-discount-wrapper .form-item {
+.commerce-pos-discount-wrapper .form-item,
+#commerce-pos-sale-wrapper .commerce-pos-discount-wrapper .form-item {
   margin-top: 0;
   margin-bottom: 0;
   vertical-align: baseline;
@@ -1036,13 +1066,13 @@ div.status {
 }
 
 .commerce-pos-product-display .display-add {
-
+  float: right;
 }
 
 .commerce-pos-product-display .display-add a {
   display: inline-block;
   padding: 0 8px 2px;
-  margin: 15px 0 0 0;
+  margin: 5px 0 0 0;
   border-radius: 3px;
   font-size: 16px;
   font-weight: bold;
@@ -1097,6 +1127,18 @@ h1.page-header {
   padding: 15px;
   text-align: center;
   background: #151515;
+}
+
+/*---------------------*/
+/*Enter Float*/
+/*---------------------*/
+#commerce-pos-location-float-form #edit-actions {
+  margin-top: -6px;
+}
+
+#commerce-pos-location-float-form #edit-amount {
+  height: 32px;
+  margin-top: 5px;
 }
 
 /*---------------------*/

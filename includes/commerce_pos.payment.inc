@@ -163,17 +163,15 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         ),
       );
 
-      if (isset($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-payment') {
-        $form['keypad']['amount']['#attached']['js'][] = array(
-          'type' => 'setting',
-          'data' => array(
-            'commercePosPayment' => array(
-              'focusInput' => TRUE,
-              'selector' => '.commerce-pos-payment-keypad-amount',
-            ),
+      $form['keypad']['amount']['#attached']['js'][] = array(
+        'type' => 'setting',
+        'data' => array(
+          'commercePosPayment' => array(
+            'focusInput' => TRUE,
+            'selector' => '.commerce-pos-payment-keypad-amount',
           ),
-        );
-      }
+        ),
+      );
 
       $form['keypad']['add'] = array(
         '#type' => 'submit',
@@ -241,6 +239,9 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#disabled' => $order_balance['amount'] > 0,
       '#validate' => array('commerce_pos_payment_validate'),
       '#submit' => array('commerce_pos_payment_finish'),
+      '#attributes' => array(
+        'class' => array('commerce-pos-payment-finish-btn')
+      )
     );
 
     $form['balance']['actions']['park'] = array(

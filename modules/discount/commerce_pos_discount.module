@@ -93,7 +93,7 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
 
       if(strpos($component['name'], 'pos_order_discount') !== FALSE) {
         // add action button for removing order discount
-        $components[$component['name']]['action'] = '<a href="#" class="commerce-pos-remove-order-discount button-link">' . t('remove') . '</a>';
+        $components[$component['name']]['action'] = '<a href="#" class="commerce-pos-remove-order-discount button-link small">' . t('remove') . '</a>';
       }
     }
   }
@@ -217,6 +217,9 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#line_item_id' => $line_item_id,
           '#name' => 'commerce-pos-discount-percent-discount-' . $line_item_id,
           '#ajax' => $wrapper_ajax,
+          '#attributes' => array(
+            'class' => array('blue')
+          )
         );
 
         $line_item_element['discounts']['add_discount']['fixed'] = array(
@@ -226,12 +229,16 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#line_item_id' => $line_item_id,
           '#name' => 'commerce-pos-discount-fixed-discount-' . $line_item_id,
           '#ajax' => $wrapper_ajax,
+          '#attributes' => array(
+            'class' => array('blue')
+          )
         );
 
         if ($discount_data) {
           $line_item_element['discounts']['add_discount'][$discount_data['type']]['#attributes']['class'][] = 'active';
         }
-      } else {
+      }
+      else {
         if (!empty($discount_data) && isset($discount_data['amount']) & !empty($discount_data['amount'])) {
           $discount_type_symbol = '';
           if (isset($discount_data['type']) && $discount_data['type'] == 'percent') {
@@ -241,7 +248,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           }
 
           $line_item_element['discounts']['discount_description'] = array(
-            '#markup' => $discount_data['amount'] . $discount_type_symbol . ' ' . t('Discount Applied'),
+            '#markup' => $discount_data['amount'] . $discount_type_symbol,
             '#prefix' => '<span class="discount-description">',
             '#suffix' => '</span>',
             '#line_item_id' => $line_item_id,
@@ -257,9 +264,12 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
             '#name' => 'commerce-pos-discount-remove-discount-' . $line_item_id,
             '#ajax' => $wrapper_ajax,
             '#attributes' => array(
-              'class' => array('button-link')
+              'class' => array('button-link', 'small')
             )
           );
+        }
+        else {
+          $line_item_element['discounts']['#attributes']['class'][] = 'no-background';
         }
       }
     }
