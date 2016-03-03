@@ -21,10 +21,6 @@
   </div>
 
   <div class="commerce-pos-header-nav-cont clearfix">
-<!--    <div id="pos-logo">-->
-<!--      <a href="--><?php //print base_path(); ?><!--pos"><img src="--><?php //print base_path() . drupal_get_path('theme', 'thevault'); ?><!--/gfx/logo_the_vault_pro_scooters.png" alt="" /></a>-->
-<!--    </div>-->
-
     <div class="commerce-pos-header-links">
       <ul class="clearfix">
         <li><?php print l(t('Sale'), 'pos/sale'); ?></li>

@@ -193,7 +193,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#line_item_id' => $line_item_id,
         '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
         '#attributes' => array(
-          'class' => array('thevault-pos-hidden-element'),
+          'class' => array('commerce-pos-hidden-element'),
         ),
       );
 
@@ -230,6 +230,30 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '</div>',
       );
 
+      $line_item_element['image_wrapper_open'] = array(
+        '#markup' => '<div class="image-wrapper line-item-col">',
+      );
+
+      $product = commerce_product_load($line_item_wrapper->commerce_product->product_id->value());
+
+      $product_images = $line_item_wrapper->commerce_product->field_images->value();
+      $product_primary_image = $product_images[0];
+
+      $line_item_element['image'] = array(
+        '#markup' => theme_image_style(array(
+          'style_name' => 'commerce_pos_thumbnail',
+          'path' => $product_primary_image['uri'],
+          'alt' => $product_primary_image['alt'],
+          'title' => $product_primary_image['title'],
+          'width' => $product_primary_image['width'],
+          'height' => $product_primary_image['height'],
+        )),
+      );
+
+      $line_item_element['image_wrapper_close'] = array(
+        '#markup' => '</div>',
+      );
+
       $line_item_element['title_wrapper_open'] = array(
         '#markup' => '<div class="title-wrapper line-item-col">',
       );
@@ -238,9 +262,16 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<span class="title">'. $line_item_wrapper->commerce_product->title->value() .'</span>',
       );
 
-      $line_item_element['sku'] = array(
-        '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
-      );
+      if ($display_nid = commerce_pos_get_product_display_nid($line_item_wrapper->commerce_product->product_id->value())) {
+        $line_item_element['sku'] = array(
+          '#markup' => '<br />' . l($line_item_wrapper->commerce_product->sku->value(), 'node/' . $display_nid, array('attributes' => array('target' => '_blank'))),
+        );
+      }
+      else {
+        $line_item_element['sku'] = array(
+          '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
+        );
+      }
 
       $line_item_element['title_wrapper_close'] = array(
         '#markup' => '</div>',
@@ -260,7 +291,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
         '#attributes' => array(
-          'class' => array('thevault-pos-hidden-element'),
+          'class' => array('commerce-pos-hidden-element'),
           'tabindex' => 0,
         ),
         '#prefix' => '<div class="price-edit-wrapper line-item-col">',
@@ -320,6 +351,35 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#type' => 'action',
     );
 
+    $transaction_options['actions']['remove_payment'] = array(
+      '#type' => 'submit',
+      '#value' => t('Remove Payment'),
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-transaction-btn',
+          'commerce-pos-remove-payment'
+        ),
+        'style' => array('display: none')
+      ),
+      '#submit' => array('commerce_pos_transaction_remove_payment_submit'),
+      '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_payment')),
+      '#limit_validation_errors' => array(
+        array('transaction_options', 'remove_payment_text')
+      ),
+      '#element_key' => 'remove-payment',
+    );
+
+    $transaction_options['remove_payment_text'] = array(
+      '#type' => 'hidden',
+      '#default_value' => null,
+      '#attributes' => array(
+        'class' => array(
+          'commerce-pos-remove-payment-input'
+        ),
+        'style' => array('display: none')
+      ),
+    );
+
     $transaction_options['actions']['pay'] = array(
       '#type' => 'submit',
       '#value' => $return ? t('Refund (F4)') : t('Pay (F4)'),
@@ -338,6 +398,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $wrapper_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'park-transaction',
     );
 
@@ -348,6 +409,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         'class' => array('commerce-pos-transaction-btn'),
       ),
       '#ajax' => $wrapper_ajax,
+      '#limit_validation_errors' => array(),
       '#element_key' => 'void-transaction',
     );
 
@@ -357,11 +419,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#autocomplete_path' => 'pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
-        'callback' => 'commerce_pos_transaction_customer_js',
+        'callback' => 'commerce_pos_customer_js',
       ),
       '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
       '#suffix' => '</div>',
-      '#element_key' => 'customer-transaction-update',
+      '#element_key' => 'customer-update',
       '#attributes' => array(
         'placeholder' => t('email@address.com'),
       ),
@@ -415,6 +477,14 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   else {
     form_error($element, t('Quantity must be a number and greater than zero.'));
   }
+}
+
+function commerce_pos_transaction_remove_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['transaction_options']['remove_payment_text'];
+
+  commerce_payment_transaction_delete($transaction_id);
+
+  $form_state['rebuild'] = TRUE;
 }
 
 /**
@@ -488,11 +558,9 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value'] * 100);
           break;
 
-        case 'customer-transaction-update':
-          if (!empty($triggering_element['#value'])) {
-            $transaction->data['customer email'] = $triggering_element['#value'];
-            $transaction->doAction('save');
-          }
+        case 'customer-update':
+          $transaction->data['customer email'] = !empty($triggering_element['#value']) ? $triggering_element['#value'] : NULL;
+          $transaction->doAction('save');
           break;
 
         default:
@@ -523,13 +591,6 @@ function commerce_pos_transaction_line_item_remove_submit($form, &$form_state) {
  */
 function commerce_pos_transaction_wrapper_js($form, &$form_state) {
   return $form;
-}
-
-/**
- * AJAX callback for the customer field.
- */
-function commerce_pos_transaction_customer_js($form, &$form_state) {
-  return $form['customer'];
 }
 
 /**

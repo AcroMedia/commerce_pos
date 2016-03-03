@@ -58,6 +58,22 @@
           });
         });
       });
+
+      $('.commerce-pos-remove-payment', context).click(function(event){
+        event.preventDefault();
+
+        var transaction_id = $(this).data('transaction-id');
+
+        $('.commerce-pos-remove-payment-input').val(transaction_id);
+        $('.commerce-pos-remove-payment').trigger('remove_payment');
+      });
+
+      if (settings.commercePosPayment && settings.commercePosPayment.focusInput) {
+        if($(settings.commercePosPayment.selector).length > 0) {
+          $(settings.commercePosPayment.selector).focus();
+        }
+      }
     }
   };
+
 } (jQuery));

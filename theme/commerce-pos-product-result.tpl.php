@@ -22,10 +22,16 @@
       <?php print $product->title; ?>
     </div>
     <div class="sku">
-      <?php print $product->sku; ?>
       <?php if ($product_display) { ?>
-          <br>
+        <?php print l($product->sku, $product_display, array(
+          'attributes' => array(
+            'target' => '_blank',
+            'onclick' => 'event.stopPropagation();', // because the event is dynamically added to dom we need to prevent bubbling immediately by doing it inline
+          )
+        )); ?>
         <?php print $product_display; ?>
+      <?php }else{ ?>
+        <?php print $product->sku; ?>
       <?php } ?>
     </div>
   </div>

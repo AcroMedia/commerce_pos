@@ -3,7 +3,7 @@
     attach: function (context, settings) {
       setupProductAutocomplete(context, settings);
 
-      $('.thevault-pos-hidden-element', context).each(function() {
+      $('.commerce-pos-hidden-element', context).each(function() {
         var element = $(this);
         var elementLabel = element.siblings('label');
 
@@ -42,6 +42,12 @@
         }
       });
 
+      $('.commerce-pos-remove-payment', context).click(function(event){
+        event.preventDefault();
+
+        $('.commerce-pos-remove-payment-input').val($(this).data('transaction-id'));
+        $('.commerce-pos-remove-payment').trigger('remove_payment');
+      });
     }
   };
 
@@ -55,27 +61,39 @@
       element.once('commerce-pos-autocomplete', function () {
         element.autocomplete({
           source: settings.commercePosSale.productAutoCompleteUrl,
-          focus: function( event, ui ) {
+          focus: function(event, ui) {
             event.preventDefault(); // without this: keyboard movements reset the input to ''
-            $(this).val(ui.item.question);
+
+            // clear all other rows as selected
+            $('.commerce-pos-transaction-product-search-item').removeClass('selected');
+            ui.item.element.addClass('selected');
           },
-          select: function( event, ui ) {
-            document.location.href = ui.item.url;
+          select: function(event, ui){
+            addProductSku(ui.item.element.find('.btn-add').attr('data-product-sku'));
           },
           context: this
         });
 
         // Override the default UI autocomplete render function.
-        element.data('ui-autocomplete')._renderItem = function (ul, item) {
-          return $("<li></li>")
-            .data("item.autocomplete", item)
+        element.data('ui-autocomplete')._renderItemData = function (ul, item) {
+          var product = $("<li></li>");
+
+          item.element = product;
+
+          product.addClass('commerce-pos-transaction-product-search-item')
+            .data("ui-autocomplete-item", item)
             .append(item.markup)
             .appendTo(ul)
             .find('.btn-add').click(function (e) {
+              e.preventDefault();
+              e.stopPropagation(); // prevent product from being added via bubbling
+
               addProductSku($(this).attr('data-product-sku'));
               element.data('ui-autocomplete').close();
-              e.preventDefault();
-            });
+
+          });
+
+          return product;
         }
       });
     });
