@@ -1,0 +1,15 @@
+name = Commerce POS Payment
+description = Provides some default offline payment methods for the POS.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos
+dependencies[] = commerce_cop
+dependencies[] = commerce_payment
+dependencies[] = rules
+
+features[commerce_custom_offline_payment][] = credit
+features[commerce_custom_offline_payment][] = debit
+features[commerce_custom_offline_payment][] = gift_card
+features[commerce_custom_offline_payment][] = test
+features[features_api][] = api:2

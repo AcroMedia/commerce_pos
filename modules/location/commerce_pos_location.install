@@ -1,0 +1,134 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_location.install
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_location_schema() {
+  $schema['commerce_pos_location'] = array(
+    'description' => 'The base table for the POS Location entity',
+    'fields' => array(
+      'location_id' => array(
+        'description' => 'Primary key of the location entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Location name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the location was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the location was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('location_id'),
+    'indexes' => array(
+      'location_name' => array('name'),
+      'location_created' => array('created'),
+      'location_changed' => array('changed'),
+    ),
+  );
+
+  $schema['commerce_pos_location_float'] = array(
+    'description' => 'The base table for POS location float amounts.',
+    'fields' => array(
+      'float_id' => array(
+        'description' => 'The unique identifier for this float entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'description' => 'The location this float entry is for',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'The float amount, in cents',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the location was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('float_id'),
+    'indexes' => array(
+      'float_location' => array('location_id'),
+      'float_amount' => array('amount'),
+      'float_created' => array('created'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function commerce_pos_location_enable() {
+  commerce_pos_location_configure_locations();
+}
+
+/**
+ * Create commerce_pos_location_float table.
+ */
+function commerce_pos_location_update_7001() {
+  db_create_table('commerce_pos_location_float', array(
+    'description' => 'The base table for POS location float amounts.',
+    'fields' => array(
+      'float_id' => array(
+        'description' => 'The unique identifier for this float entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'description' => 'The location this float entry is for',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'The float amount, in cents',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the location was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('float_id'),
+    'indexes' => array(
+      'float_location' => array('location_id'),
+      'float_amount' => array('amount'),
+      'float_created' => array('created'),
+    ),
+  ));
+}

@@ -1,0 +1,6 @@
+name = Commerce POS UPC Scan
+description = Provides the ability to use a UPC scanner in the POS interface.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos

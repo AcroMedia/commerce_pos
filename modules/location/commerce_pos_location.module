@@ -1,0 +1,510 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_location.module
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_pos_location_menu() {
+  $items['pos/location/%commerce_pos_location'] = array(
+    'title' => 'POS location',
+    'title callback' => 'commerce_pos_location_title',
+    'title arguments' => array(2),
+    'page callback' => 'commerce_pos_location_view_location',
+    'page arguments' => array(2),
+    'access arguments' => array('view commerce pos locations'),
+    'file' => 'includes/commerce_pos_location.pages.inc',
+  );
+
+  $items['pos/location-select'] = array(
+    'title' => 'Select location',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_location_select'),
+    'file' => 'includes/commerce_pos_location.pages.inc',
+    'access arguments' => array('view commerce pos locations'),
+  );
+
+  $items['pos/float/%/select'] = array(
+    'title' => 'Enter opening float',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_location_float_form', 2),
+    'file' => 'includes/commerce_pos_location.pages.inc',
+    'access arguments' => array('view commerce pos locations'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_location_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_location_base' => array(
+      'class' => 'CommercePosLocationBase',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_location_permission() {
+  return array(
+    'administer commerce pos locations' =>  array(
+      'title' => t('Administer POS locations'),
+    ),
+    'create commerce pos locations' =>  array(
+      'title' => t('Create new POS locations'),
+    ),
+    'view commerce pos locations' =>  array(
+      'title' => t('View POS locations'),
+    ),
+    'edit commerce pos locations' =>  array(
+      'title' => t('Edit POS locations'),
+    ),
+    'delete commerce pos locations' =>  array(
+      'title' => t('Delete POS locations'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function commerce_pos_location_entity_info() {
+  $info = array();
+
+  $info['commerce_pos_location'] = array(
+    'label' => t('POS Location'),
+    'entity class' => 'Entity',
+    'controller class' => 'CommercePosLocationEntityController',
+    'base table' => 'commerce_pos_location',
+    'access callback' => 'commerce_pos_location_entity_access_callback',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'location_id',
+      'label' => 'name',
+    ),
+    'load hook' => 'commerce_pos_location_load',
+    'admin ui' => array(
+      'path' => 'admin/commerce/pos/locations',
+      'controller class' => 'EntityDefaultUIController',
+    ),
+    'views controller class' => 'EntityDefaultViewsController',
+    'uri callback' => 'commerce_pos_location_uri',
+    'bundles' => array(
+      'commerce_pos_location' => array(
+        'label' => t('POS Location'),
+        'admin' => array(
+          'path' => 'admin/commerce/pos/locations',
+        ),
+      ),
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_pos_location_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_pos_location') . '/includes/views',
+    'template path' => drupal_get_path('module', 'commerce_pos_location') . '/theme',
+  );
+}
+
+/**
+ * Implements hook_entity_property_info_alter().
+ */
+function commerce_pos_location_entity_property_info_alter(&$info) {
+  $properties = &$info['commerce_pos_location']['properties'];
+
+  $properties['location_id'] = array(
+    'label' => t('Location ID'),
+    'description' => t('The ID of the POS location.'),
+    'type' => 'integer',
+    'schema field' => 'location_id',
+  );
+
+  $properties['name'] = array(
+    'label' => t('Location name'),
+    'description' => t('The name of the location'),
+    'type' => 'text',
+    'schema field' => 'name',
+  );
+
+  $properties['created'] = array(
+    'label' => t('Date created'),
+    'type' => 'date',
+    'description' => t('The date the location was posted.'),
+    'schema field' => 'created',
+  );
+
+  $properties['changed'] = array(
+    'label' => t('Date changed'),
+    'type' => 'date',
+    'schema field' => 'changed',
+    'description' => t('The date the location was most recently updated.'),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_pos_location_form_alter(&$form, &$form_state, $form_id) {
+  switch ($form_id) {
+    case 'commerce_pos_login':
+      _commerce_pos_location_login_form_alter($form, $form_state);
+      break;
+
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+    case 'commerce_pos_sale_payment':
+    case 'commerce_pos_return_payment':
+      // This will make sure a location and float have been entered before
+      // being able to process transactions.
+      _commerce_pos_location_check_form_alter($form, $form_state);
+      break;
+  }
+}
+
+/**
+ * Adds a location selection element to the POS login form.
+ */
+function _commerce_pos_location_login_form_alter(&$form, &$form_state) {
+  $locations = commerce_pos_location_options();
+
+  if (!empty($locations)) {
+    $current_location = commerce_pos_location_get_current_location();
+
+    $form['location'] = array(
+      '#title' => t('Location'),
+      '#type' => 'select',
+      '#options' => commerce_pos_location_options(),
+      '#required' => TRUE,
+      '#default_value' => $current_location ? $current_location : NULL,
+    );
+
+    $form['#submit'][] = 'commerce_pos_location_login_submit';
+  }
+}
+
+/**
+ * Adds a location check to the POS transaction forms.
+ */
+function _commerce_pos_location_check_form_alter(&$form, &$form_state) {
+  $current_location = commerce_pos_location_get_current_location();
+  $destination = drupal_get_destination();
+
+  // Make sure the current user has a location, otherwise make them select one.
+  if (!$current_location) {
+    drupal_goto('pos/location-select', array(
+      'query' => $destination,
+    ));
+  }
+  else if (!commerce_pos_location_get_float($current_location)) {
+    drupal_goto('pos/float/' . $current_location . '/select', array(
+      'query' => $destination,
+    ));
+  }
+}
+
+/**
+ * Implements hook_commerce_pos_transaction_state_alter().
+ */
+function commerce_pos_location_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
+  if (!empty($transaction->locationId)) {
+    // Grab the location's administrative area from its address
+    $location = commerce_pos_location_load($transaction->locationId);
+    $location_wrapper = entity_metadata_wrapper('commerce_pos_location', $location);
+
+    if ($location_administrative_area = $location_wrapper->commerce_pos_location_address->administrative_area->value()) {
+      $administrative_area = $location_administrative_area;
+    }
+  }
+}
+
+/**
+ * Additional submit handler for the POS login form.
+ *
+ * This will store the selected location in the session, as well as a cookie
+ * for longer-lasting purposes.
+ */
+function commerce_pos_location_login_submit($form, &$form_state) {
+  commerce_pos_location_set_current_location($form_state['values']['location']);
+}
+
+/**
+ * Access callback for POS location entities.
+ */
+function commerce_pos_location_entity_access_callback($op, $location = NULL, $account = NULL) {
+  global $user;
+
+  $permission_name = '';
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
+  switch ($op) {
+    case 'view':
+      $permission_name = 'view commerce pos locations';
+      break;
+
+    case 'edit':
+      $permission_name = 'edit commerce pos locations';
+      break;
+
+    case 'delete':
+      $permission_name = 'delete commerce pos locations';
+      break;
+
+    case 'create':
+      $permission_name = 'create commerce pos locations';
+      break;
+  }
+
+  return (user_access('administer commerce pos locations', $account) || user_access($permission_name, $account));
+}
+
+/**
+ * Callback for the commerce_pos_location edit/create form.
+ */
+function commerce_pos_location_form($form, &$form_state, $location = NULL) {
+  $form['name'] = array(
+    '#title' => t('Location name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($location->name) ? $location->name : '',
+    '#required' => TRUE,
+    '#weight' => -50,
+  );
+
+  field_attach_form('commerce_pos_location', $location, $form, $form_state);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => isset($location->location_id) ? t('Update Location') : t('Save Location'),
+    '#weight' => 50,
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the commerce_pos_location add/edit form.
+ */
+function commerce_pos_location_form_submit($form, &$form_state) {
+  $location = entity_ui_form_submit_build_entity($form, $form_state);
+  $location->save();
+  drupal_set_message(t('Location "@name" has been saved.', array('@name' => $location->name)));
+  $form_state['redirect'] = 'admin/commerce/pos/locations';
+}
+
+/**
+ * Loads a location by ID.
+ */
+function commerce_pos_location_load($location_id) {
+  if (empty($location_id)) {
+    return FALSE;
+  }
+
+  $locations = commerce_pos_location_load_multiple(array($location_id), array());
+  return $locations ? reset($locations) : FALSE;
+}
+
+/**
+ * Loads multiple locations by ID or based on a set of matching conditions.
+ *
+ * @see entity_load()
+ *
+ * @param $location_ids
+ *   An array of location IDs.
+ * @param $conditions
+ *   An array of conditions on the {commerce_pos_location} table in the form
+ *     'field' => $value.
+ * @param $reset
+ *   Whether to reset the internal product loading cache.
+ *
+ * @return
+ *   An array of location objects indexed by location_id.
+ */
+function commerce_pos_location_load_multiple($location_ids = array(), $conditions = array(), $reset = FALSE) {
+  if (empty($location_ids) && empty($conditions)) {
+    return array();
+  }
+
+  return entity_load('commerce_pos_location', $location_ids, $conditions, $reset);
+}
+
+/**
+ * URI callback for a commerce_pos_location entity.
+ *
+ * Locations do not currently need any kind of display URL, so this just returns
+ * NULL.
+ */
+function commerce_pos_location_uri($location) {
+  return array(
+    'path' => 'pos/location/' . $location->location_id,
+  );
+}
+
+/**
+ * Title callback for a POS location display page.
+ */
+function commerce_pos_location_title($location) {
+  return $location->name;
+}
+
+/**
+ * Retrieves the current user's location ID, if they have one.
+ */
+function commerce_pos_location_get_current_location() {
+  if (!($location_id = isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE)) {
+    $location_id = (isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE);
+  }
+
+  return $location_id;
+}
+
+function commerce_pos_location_set_current_location($location_id) {
+  $_SESSION['commerce_pos_location_id'] = $location_id;
+  setcookie('commerce_pos_location_id', $location_id, strtotime('+30 days'));
+}
+
+/**
+ * Retrieves a list of POS location names, keyed by location_id.
+ */
+function commerce_pos_location_options() {
+  $locations = array();
+
+  $result = db_select('commerce_pos_location', 'cpl')
+    ->fields('cpl', array('name', 'location_id'))
+    ->execute();
+
+  foreach ($result as $row) {
+    $locations[$row->location_id] = $row->name;
+  }
+
+  return $locations;
+}
+
+/**
+ * Ensures the address field is present on location entities.
+ */
+function commerce_pos_location_configure_locations() {
+  // Look for or add an address field to the customer profile type.
+  $field_name = 'commerce_pos_location_address';
+  commerce_activate_field($field_name);
+  field_cache_clear();
+
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_pos_location', $field_name, 'commerce_pos_location');
+
+  if (empty($field)) {
+    $field = array(
+      'field_name' => $field_name,
+      'type' => 'addressfield',
+      'cardinality' => 1,
+      'entity_types' => array('commerce_pos_location'),
+      'translatable' => FALSE,
+    );
+
+    $field = field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'field_name' => $field_name,
+      'entity_type' => 'commerce_pos_location',
+      'bundle' => 'commerce_pos_location',
+      'label' => t('Address'),
+      'required' => TRUE,
+      'widget' => array(
+        'type' => 'addressfield_standard',
+        'weight' => -10,
+        'settings' => array(
+          'format_handlers' => array('address', 'name-oneline'),
+        ),
+      ),
+      'display' => array(),
+    );
+
+    // Set the default display formatters for various view modes.
+    foreach (array('default') as $view_mode) {
+      $instance['display'][$view_mode] = array(
+        'label' => 'hidden',
+        'type' => 'addressfield_default',
+        'weight' => -10,
+      );
+    }
+
+    field_create_instance($instance);
+  }
+}
+
+/**
+ * Retrieves a float entry for a location.
+ *
+ * @param int $location_id
+ *   The ID of the location to get the entry for.
+ * @param int|bool $date
+ *   A timestamp indicating the date to retrieve the float entry for. Any
+ *   entries that were created on the same day as $date will be returned.
+ *
+ * @return array|object
+ *   All float entries found. If only one entry is found, it will be returned
+ *   by itself instead.
+ */
+function commerce_pos_location_get_float($location_id, $date = FALSE) {
+  $entries = array();
+
+  if ($date === FALSE) {
+    $date = REQUEST_TIME;
+  }
+
+  $date = format_date($date, 'custom', 'Y-m-d');
+
+  $result = db_query("SELECT float_id, location_id, amount, created
+    FROM {commerce_pos_location_float}
+    WHERE location_id = :location_id
+    AND DATE_FORMAT(FROM_UNIXTIME(created), '%Y-%m-%d') = :date", array(
+    ':location_id' => $location_id,
+    ':date' => $date,
+  ));
+
+  foreach ($result as $row) {
+    $entries[$row->float_id] = $row;
+  }
+
+  return count($entries) == 1 ? reset($entries) : $entries;
+}
+
+/**
+ * Creates a new float entry for a location.
+ *
+ * @param int $location_id
+ *   The ID of the location the float entry is for.
+ * @param int $amount
+ *   The float amount, in cents.
+ */
+function commerce_pos_location_add_float($location_id, $amount) {
+  $record = (object) array(
+    'float_id' => 0,
+    'location_id' => $location_id,
+    'amount' => $amount,
+    'created' => REQUEST_TIME,
+  );
+
+  drupal_write_record('commerce_pos_location_float', $record);
+}

@@ -1,0 +1,897 @@
+<?php
+
+/**
+ * @file
+ * Hooks and utility functions for commerce_pos.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_pos_menu() {
+  $items = array();
+
+  $items['pos'] = array(
+    'title' => 'Point of Sale',
+    'page callback' => 'commerce_pos_redirect',
+    'access arguments' => array(
+      array(
+        'process commerce pos sales',
+        'process commerce pos returns',
+      )
+    ),
+    'access callback' => '_commerce_pos_access_check',
+    'file' => 'includes/commerce_pos.pages.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/sale'] = array(
+    'title' => 'Sale',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_sale'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos sales'),
+    'file' => 'includes/commerce_pos.transaction.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/sale/payment'] = array(
+    'title' => 'Pay',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_sale_payment'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos sales'),
+    'file' => 'includes/commerce_pos.payment.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/return'] = array(
+    'title' => 'Return',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_return'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos returns'),
+    'file' => 'includes/commerce_pos.transaction.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/return/payment'] = array(
+    'title' => 'Refund',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_return_payment'),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array('process commerce pos returns'),
+    'file' => 'includes/commerce_pos.payment.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/login'] = array(
+    'title' => 'Employee Login',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_login'),
+    'access arguments' => array('access content'),
+    'file' => 'includes/commerce_pos.login.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/product/autocomplete'] = array(
+    'title' => 'Product Autocomplete',
+    'page callback' => 'commerce_pos_product_autocomplete',
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array(
+      array(
+        'process commerce pos sales',
+        'process commerce pos returns',
+      )
+    ),
+    'file' => 'includes/commerce_pos.common.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pos/user/autocomplete'] = array(
+    'title' => 'User Autocomplete',
+    'page callback' => 'commerce_pos_user_autocomplete',
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array(
+      array(
+        'process commerce pos sales',
+        'process commerce pos returns',
+      ),
+    ),
+    'file' => 'includes/commerce_pos.common.inc',
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['admin/commerce/pos'] = array(
+    'title' => 'Point of Sale',
+    'description' => 'Administer POS.',
+    'page callback' => 'system_admin_menu_block_page',
+    'access arguments' => array('administer commerce pos'),
+    'file path' => drupal_get_path('module', 'system'),
+    'file' => 'system.admin.inc',
+    'weight' => 10,
+  );
+
+  $items['admin/commerce/pos/settings'] = array(
+    'title' => 'Settings',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_settings'),
+    'access arguments' => array('administer commerce pos'),
+    'file' => 'includes/commerce_pos.admin.inc',
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_permission() {
+  return array(
+    'administer commerce pos' =>  array(
+      'title' => t('Administer Commerce POS'),
+    ),
+    'process commerce pos sales' => array(
+      'title' => t('Process Commerce POS sales'),
+    ),
+    'process commerce pos returns' => array(
+      'title' => t('Process Commerce POS returns'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_theme($existing, $type, $theme, $path) {
+  return array(
+    'commerce_pos_transaction' => array(
+      'render element' => 'form',
+      'template' => 'commerce-pos-transaction',
+      'path' => $path . '/theme',
+    ),
+    'commerce_pos_payment' => array(
+      'render element' => 'form',
+      'template' => 'commerce-pos-payment',
+      'path' => $path . '/theme',
+    ),
+    'commerce_pos_keypad' => array(
+      'render element' => 'element',
+      'template' => 'commerce-pos-keypad',
+      'path' => $path . '/theme',
+    ),
+    'commerce_pos_transaction_balance' => array(
+      'template' => 'commerce-pos-transaction-balance',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'rows' => array(),
+        'form' => NULL,
+        'totals' => array(),
+        'view' => NULL
+      ),
+    ),
+    'commerce_pos_header' => array(
+      'template' => 'commerce-pos-header',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'account' => NULL,
+      ),
+    ),
+    'commerce_pos_product_result' => array(
+      'template' => 'commerce-pos-product-result',
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'product' => NULL,
+      ),
+    ),
+    'commerce_pos_product_summary' => array(
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'order' => NULL,
+        'attributes' => array(),
+      ),
+    ),
+    'commerce_pos_price_formatted_components' => array(
+      'variables' => array(
+        'components' => array(), 'price' => array()
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_views_api().
+ */
+function commerce_pos_views_api() {
+  return array(
+    'api' => 3,
+    'path' => drupal_get_path('module', 'commerce_pos') . '/includes/views',
+  );
+}
+
+/**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_transaction_base_actions' => array(
+      'class' => 'CommercePosTransactionBaseActions',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_pos_commerce_payment_method_info() {
+
+  // Note that checkout and terminal are both FALSE. This payment method is
+  // only meant to by internally used by the POS system.
+  $payment_methods['commerce_pos_change'] = array(
+    'base' => 'commerce_pos_change',
+    'title' => t('Change Tendered'),
+    'description' => t('Change given to a customer.'),
+    'active' => TRUE,
+    'checkout' => FALSE,
+    'terminal' => FALSE,
+    'fieldable' => FALSE,
+  );
+  return $payment_methods;
+}
+
+/**
+ * Implements hook_commerce_order_state_info().
+ *
+ * Defines a new state that orders created by the POS live in until they have
+ * been fully processed.
+ */
+function commerce_pos_commerce_order_state_info() {
+  $order_states = array();
+
+  $order_states['commerce_pos'] = array(
+    'name' => 'commerce_pos',
+    'title' => t('Point of Sale'),
+    'description' => t('Orders in this state are currently being generated by the POS.'),
+    'weight' => 10,
+    'default_status' => 'creating',
+  );
+
+  return $order_states;
+}
+
+/**
+ * Implements hook_commerce_order_status_info().
+ */
+function commerce_pos_commerce_order_status_info() {
+  $order_statuses = array();
+
+  $order_statuses['commerce_pos_in_progress'] = array(
+    'name' => 'commerce_pos_in_progress',
+    'title' => t('POS - In Progress'),
+    'state' => 'commerce_pos',
+  );
+
+  $order_statuses['commerce_pos_parked'] = array(
+    'name' => 'commerce_pos_parked',
+    'title' => t('POS - Parked'),
+    'state' => 'commerce_pos',
+  );
+
+  $order_statuses['commerce_pos_voided'] = array(
+    'name' => 'commerce_pos_voided',
+    'title' => t('POS - Voided'),
+    'state' => 'commerce_pos',
+  );
+
+  $order_statuses['commerce_pos_returned'] = array(
+    'name' => 'commerce_pos_returned',
+    'title' => t('POS - Returned'),
+    'state' => 'commerce_pos',
+  );
+
+  return $order_statuses;
+}
+
+/**
+ * Implements hook_image_default_styles().
+ */
+function commerce_pos_image_default_styles() {
+  $styles = array();
+
+  $styles['commerce_pos_thumbnail'] = array(
+    'label' => 'Commerce POS thumbnail',
+    'effects' => array(
+      array(
+        'name' => 'image_scale_and_crop',
+        'data' => array(
+          'width' => 75,
+          'height' => 75,
+        ),
+        'weight' => 0,
+      ),
+    ),
+  );
+
+  return $styles;
+}
+
+/**
+ * Implements hook_commerce_pos_balance_summary_row_info().
+ *
+ * Taken from commerce_payment_commerce_payment_totals_row_info().
+ */
+function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order) {
+  $rows = array();
+
+  $transaction = CommercePosService::getOrderTransaction($order->order_id);
+  $return = $transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN;
+
+  $balance_prefix = $return ? '(' : '';
+  $balance_suffix = $return ? ')' : '';
+
+  if (count($totals) == 0) {
+    // Add a row for the remaining balance on the order.
+    if ($order) {
+      $balance = commerce_payment_order_balance($order, $totals);
+
+      $rows[] = array(
+        'data' => array(
+          array('data' => $return ? t('Refund') : t('To pay'), 'class' => array('label')),
+          array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay'),
+        'weight' => 10,
+      );
+
+      if ($balance['amount'] < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change Tendered'), 'class' => array('label')),
+            array('data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+          ),
+          'class' => array('order-change'),
+          'weight' => 15,
+        );
+      }
+    }
+  }
+  elseif (count($totals) == 1) {
+    // Otherwise if there's only a single currency total...
+    $currency_code = key($totals);
+
+    // Add a row for the total amount paid.
+    $rows[] = array(
+      'data' => array(
+        array('data' => $return ? t('Total Refunded') : t('Total Paid'), 'class' => array('label')),
+        array('data' => $balance_prefix . commerce_currency_format($totals[$currency_code], $currency_code) . $balance_suffix, 'class' => array('total')),
+      ),
+      'class' => array('total-paid'),
+      'weight' => 0,
+    );
+
+    // Add a row for the remaining balance on the order.
+    if ($order) {
+      // @todo Fix for when there's a FALSE $balance.
+      $balance = commerce_payment_order_balance($order, $totals);
+
+      $rows[] = array(
+        'data' => array(
+          array('data' => $return ? t('To Refund') : t('To Pay'), 'class' => array('label')),
+          array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay'),
+        'weight' => 10,
+      );
+
+      if ($balance['amount'] < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change Tendered'), 'class' => array('label')),
+            array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
+          ),
+          'class' => array('order-change'),
+          'weight' => 15,
+        );
+      }
+    }
+  }
+  else {
+    $weight = 0;
+
+    foreach ($totals as $currency_code => $amount) {
+      $rows[] = array(
+        'data' => array(
+          array('data' => $return ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
+          array('data' => $balance_prefix . commerce_currency_format($amount > 0 ? $amount : 0, $currency_code) . $balance_suffix, 'class' => array('balance')),
+        ),
+        'class' => array('order-to-pay', 'order-to-pay-' . $currency_code),
+        'weight' => $weight++,
+      );
+
+      if ($amount < 0) {
+        $rows[] = array(
+          'data' => array(
+            array('data' => t('Change (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
+            array('data' => commerce_currency_format($amount * -1, $currency_code), 'class' => array('balance')),
+          ),
+          'class' => array('order-change', 'order-change-' . $currency_code),
+          'weight' => $weight++,
+        );
+      }
+    }
+  }
+
+  return $rows;
+}
+
+/**
+ * Implements template_preprocess_commerce_price_formatted_components().
+ */
+function commerce_pos_preprocess_commerce_price_formatted_components(&$variables) {
+  $test = 0;
+}
+
+/**
+ * Implements hook_commerce_price_formatted_components_alter().
+ */
+function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $entity) {
+  $is_pos_order = (isset($entity->type) && $entity->type == 'commerce_order' && $entity->status == 'commerce_pos_in_progress');
+
+  if ($is_pos_order) {
+    foreach ($components as $component_name => &$component) {
+      // Make sure discount components show up before tax, which has a weight of 0.
+      if (strpos($component_name, 'discount|') === 0) {
+        $component['weight'] = -10;
+      }
+
+      switch ($component_name) {
+        case 'base_price':
+          $component['title'] = t('Subtotal (excl taxes)');
+          break;
+
+        case 'commerce_price_formatted_amount':
+          $component['title'] = t('Total');
+          break;
+      }
+    }
+  }
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_form_commerce_cop_edit_payment_form_alter(&$form, &$form_state) {
+  $pos_default = 0;
+
+  if (!empty($form['id']['#default_value'])) {
+    $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
+    $payment_id = $form['id']['#default_value'];
+
+    if (in_array($payment_id, $enabled_payment_methods)) {
+      $pos_default = 1;
+    }
+  }
+
+  $form['pos'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Available on POS'),
+    '#description' => t('TRUE or FALSE indicating whether or not this payment method can be used in the POS interface.'),
+    '#default_value' => $pos_default,
+  );
+
+  $form['actions']['#weight'] = 50;
+
+  $form['#submit'][] = 'commerce_pos_cop_edit_form_submit';
+}
+
+/**
+ * Additional submit handler for the Commerce COP payment method form.
+ *
+ * This looks to see whether the "Available POS" checkbox was checked or not
+ * and add/removes the payment method from the list of enabled methods for the
+ * POS.
+ */
+function commerce_pos_cop_edit_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['pos'])) {
+    $payment_method_id = $form_state['values']['id'];
+
+    if (!empty($form_state['values']['pos'])) {
+      commerce_pos_enable_payment_method($payment_method_id);
+    }
+    else {
+      commerce_pos_disable_payment_method($payment_method_id);
+    }
+  }
+}
+
+/**
+ * Retrieves a list of Commerce Custom Offline Payment methods that are enabled
+ * on the POS.
+ */
+function commerce_pos_get_payment_methods() {
+  // First get a list of all offline payment methods.
+  $cop_payment_methods = commerce_cop_get_payments();
+  $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
+  $enabled_pos_methods = array();
+
+  foreach ($cop_payment_methods as $method_id => $payment_method) {
+    if (!empty($payment_method['status']) && in_array($method_id, $enabled_payment_methods)) {
+      $enabled_pos_methods[$method_id] = $payment_method;
+    }
+  }
+
+  return $enabled_pos_methods;
+}
+
+/**
+ * Enables a Commerce Custom Offline Payment method for use in the POS.
+ */
+function commerce_pos_enable_payment_method($method_id) {
+  $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
+
+  if (!in_array($method_id, $enabled_payment_methods)) {
+    $enabled_payment_methods[] = $method_id;
+    variable_set('commerce_pos_payment_methods', $enabled_payment_methods);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+/**
+ * Disables a Commerce Custom Offline Payment method from use in the POS.
+ */
+function commerce_pos_disable_payment_method($method_id) {
+  $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
+
+  foreach ($enabled_payment_methods as $key => $enabled_method_id) {
+    if ($method_id == $enabled_method_id) {
+      array_splice($enabled_payment_methods, $key, 1);
+      variable_set('commerce_pos_payment_methods', $enabled_payment_methods);
+      return TRUE;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Returns a sorted array of POS balance table rows.
+ *
+ * @param $totals
+ *   An array of payment totals whose keys are currency codes and values are the
+ *     total amount paid in each currency.
+ * @param $order
+ *   If available, the order object to which the payments apply.
+ *
+ * @return
+ *   An array of table row data as expected by theme_table().
+ *
+ * @see hook_commerce_payment_totals_row_info()
+ */
+function commerce_pos_balance_summary_rows($totals, $order) {
+  // Retrieve rows defined by the hook and allow other modules to alter them.
+  $rows = module_invoke_all('commerce_pos_balance_summary_row_info', $totals, $order);
+  drupal_alter('commerce_pos_balance_summary_row_info', $rows, $totals, $order);
+
+  // Sort the rows by weight and return the array.
+  uasort($rows, 'drupal_sort_weight');
+
+  return $rows;
+}
+
+/**
+ * Returns a summary view of a POS transaction's order.
+ */
+function commerce_pos_balance_summary($order) {
+  return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
+}
+
+/**
+ * Retrieves a product's display node id.
+ *
+ * @param int $product_id
+ *   The product ID to retrieve the display node for.
+ *
+ * @return int
+ *   The nid of the display node, or 0 if none was found.
+ */
+function commerce_pos_get_product_display_nid($product_id) {
+  global $language;
+
+  // Iterate through fields which refer to products.
+  foreach (commerce_info_fields('commerce_product_reference', 'node') as $field) {
+    $query = 'SELECT entity_id, language FROM {field_data_' . $field['field_name'] . '}
+      WHERE entity_type = :node
+      AND ' . $field['field_name'] . '_product_id = :product_id
+      AND (language = :language OR language = :language_none)';
+
+    $result = db_query($query, array(
+      ':node' => 'node',
+      'product_id' => $product_id,
+      'language' => $language->language,
+      'language_none' => LANGUAGE_NONE,
+    ));
+
+    $no_lang_id = 0;
+
+    foreach ($result as $row) {
+      if ($row->language == $language->language) {
+        return $row->entity_id;
+      }
+      elseif ($row->language == LANGUAGE_NONE) {
+        $no_lang_id = $row->entity_id;
+      }
+    }
+
+    // If we made it this far, there were either no matches or the only match
+    // was one without a language set.
+    return $no_lang_id;
+  }
+
+  return 0;
+}
+
+/**
+ * Formats an order's price as components.
+ *
+ * A customized version of the 'commerce_price_formatted_components' display
+ * from commerce_price_field_formatter_view().
+ *
+ * @param object $order_wrapper
+ *   The entity metadata wrapper for the order.
+ * @param string $field_name
+ *   The name of the price field to format.
+ * @param bool $return
+ *   A boolean indicating whether this price is being used in a return or not.
+ *
+ * @return array
+ *   A render array for the formatted price field.
+ */
+function commerce_pos_price_order_format($order_wrapper, $field_name, $return = FALSE) {
+  $price = $order_wrapper->{$field_name}->value();
+  $components = array();
+  $weight = 0;
+
+  foreach ($price['data']['components'] as $key => $component) {
+    $component_type = commerce_price_component_type_load($component['name']);
+
+    if (empty($components[$component['name']])) {
+      $components[$component['name']] = array(
+        'title' => check_plain($component_type['display_title']),
+        'price' => commerce_price_component_total($price, $component['name']),
+        'weight' => $component_type['weight'],
+      );
+
+      $weight = max($weight, $component_type['weight']);
+    }
+  }
+
+  // If there is only a single component and its price equals the field's,
+  // then remove it and just show the actual price amount.
+  if (count($components) == 1 && in_array('base_price', array_keys($components))) {
+    $components = array();
+  }
+
+  // Add the actual field value to the array.
+  $components['commerce_price_formatted_amount'] = array(
+    'title' => $return ? t('Refund total') : t('Order total'),
+    'price' => $price,
+    'weight' => $weight + 1,
+  );
+
+  // Allow other modules to alter the components.
+  $order_value = $order_wrapper->value();
+  drupal_alter('commerce_price_formatted_components', $components, $price, $order_value);
+
+  // Sort the components by weight.
+  uasort($components, 'drupal_sort_weight');
+
+  // Format the prices for display.
+  foreach ($components as $key => &$component) {
+    $formatted_price = commerce_currency_format(
+      $component['price']['amount'],
+      $component['price']['currency_code'],
+      $order_wrapper->value()
+    );
+
+    if ($return) {
+      $formatted_price = '(' . $formatted_price . ')';
+    }
+
+    $component['formatted_price'] = $formatted_price;
+  }
+
+  return array(
+    '#markup' => theme('commerce_pos_price_formatted_components', array('components' => $components, 'price' => $price)),
+  );
+}
+
+/**
+ * Builds an array of product data for the product autocomplete.
+ */
+function _commerce_pos_product_autocomplete_build($product_id) {
+  $data = FALSE;
+
+  if ($product = commerce_product_load($product_id)) {
+
+    $data = array(
+      'markup' => theme('commerce_pos_product_result', array('product' => $product)),
+    );
+  }
+
+  return $data;
+}
+
+/**
+ * Access callback for POS pages.
+ *
+ * @param string|array $access_arguments
+ *   A list of permissions to check against.
+ *
+ * @return bool
+ */
+function _commerce_pos_access_check($access_arguments) {
+  $access = FALSE;
+
+  if (is_string($access_arguments)) {
+    $access_arguments = array($access_arguments);
+  }
+
+  if (user_is_logged_in()) {
+    if (user_access('administer commerce pos')) {
+      $access = TRUE;
+    }
+    else {
+
+      // They're logged in, make sure they have permission to access the page.
+      $passed_all_checks = TRUE;
+
+      foreach ($access_arguments as $access_argument) {
+        if (!user_access($access_argument)) {
+          $passed_all_checks = FALSE;
+          break;
+        }
+      }
+
+      if ($passed_all_checks) {
+        $access = TRUE;
+      }
+    }
+  }
+
+  if (!$access) {
+    // If they're not even logged in, we should take them to our custom
+    // login page.
+    drupal_goto('pos/login');
+  }
+
+  return $access;
+}
+
+/**
+ * Builds an image tag to a product's thumbnail.
+ *
+ * @param object $product
+ *   The product to retrieve the thumbnail for.
+ *
+ * @return string
+ *   Either the image tag for the thumbnail, or an empty string.
+ */
+function _commerce_pos_product_thumbnail($product) {
+  $uri = FALSE;
+
+  if ($image_fields = variable_get('commerce_pos_image_field_' . $product->type, FALSE)) {
+    if (!($uri = _commerce_pos_image_uri('commerce_product', $product, $image_fields))
+     && $nid = commerce_pos_get_product_display_nid($product->product_id)) {
+
+      // Try looking for images on the product display node.
+      $node = node_load($nid);
+      $uri = _commerce_pos_image_uri('node', $node, $image_fields);
+    }
+  }
+
+  if (!$uri) {
+    // Check for a default image.
+    if ($default_image = _commerce_pos_product_default_image($product->type)) {
+      $uri = $default_image->uri;
+    }
+  }
+
+  if ($uri) {
+    return theme('image_style', array(
+      'style_name' => 'commerce_pos_thumbnail',
+      'path' => $uri,
+      'alt' => $product->title,
+    ));
+  }
+  else {
+    return '';
+  }
+}
+
+/**
+ * Try and retrieve the first image URI for an entity in a list of fields.
+ */
+function _commerce_pos_image_uri($entity_type, $entity, $fields) {
+  $uri = FALSE;
+
+  foreach ($fields as $field_name) {
+    if ($product_images = field_get_items($entity_type, $entity, $field_name)) {
+      if (!empty($product_images[0]['uri'])) {
+        $uri = $product_images[0]['uri'];
+        break;
+      }
+    }
+  }
+
+  return $uri;
+}
+
+/**
+ * Retrieve the URI of a product's default image for the POS, if it exists.
+ */
+function _commerce_pos_product_default_image($product_type) {
+  if ($fid = variable_get('commerce_pos_image_default_' . $product_type)) {
+    if ($file = file_load($fid)) {
+      return $file;
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Themes a price components table.
+ *
+ * A customized version of the 'theme_commerce_price_formatted_components' display
+ * from commerce_price.module.
+ *
+ * @param $variables
+ *   Includes the 'components' array and original 'price' array.
+ */
+function theme_commerce_pos_price_formatted_components($variables) {
+  // Add the CSS styling to the table.
+  drupal_add_css(drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css');
+
+  // Build table rows out of the components.
+  $rows = array();
+
+  foreach ($variables['components'] as $name => $component) {
+    $row = array(
+      'data' => array(),
+      'class' => array(drupal_html_class('component-type-' . $name)),
+    );
+
+    $row['data'][] = array(
+      'data' => $component['title'],
+      'class' => array('component-title'),
+    );
+
+    // add action
+    if(isset($component['action'])){
+      $row['data'][] = array(
+        'data' => $component['action'],
+        'class' => array('component-action'),
+      );
+    }
+    else{
+      $row['data'][] = array();
+    }
+
+    $row['data'][] = array(
+      'data' => $component['formatted_price'],
+      'class' => array('component-total'),
+    );
+
+    $rows[] = $row;
+  }
+
+  return theme('table', array('rows' => $rows, 'attributes' => array('class' => array('commerce-price-formatted-components'))));
+}

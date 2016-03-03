@@ -1,0 +1,7 @@
+name = Commerce POS Messages
+description = Provides the ability to add commerce messages via the POS terminal.
+core = 7.x
+package = Commerce POS
+dependencies[] = commerce_message
+dependencies[] = commerce_pos
+dependencies[] = views

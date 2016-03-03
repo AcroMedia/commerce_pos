@@ -1,0 +1,16 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_receipt.install
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_pos_receipt_uninstall() {
+  // Clean up variables.
+  variable_del('commerce_pos_receipt_header');
+  variable_del('commerce_pos_receipt_footer');
+}
+

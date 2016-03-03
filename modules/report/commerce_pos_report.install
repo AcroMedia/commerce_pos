@@ -1,0 +1,98 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_report.install
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_report_schema() {
+  $schema = array();
+
+  $schema['commerce_pos_report_declared_data'] = array(
+    'description' => 'The base table for POS declared amount information',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'data_location' => array('location_id'),
+      'data_amount' => array('amount'),
+      'data_date' => array('date'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Create commerce_pos_report_declared_data table.
+ */
+function commerce_pos_report_update_7001(&$sandbox) {
+  db_create_table('commerce_pos_report_declared_data', array(
+    'description' => 'The base table for POS declared amount information',
+    'fields' => array(
+      'id' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'location_id' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'date' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'data' => array(
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ),
+    ),
+    'primary key' => array('id'),
+    'indexes' => array(
+      'data_location' => array('location_id'),
+      'data_amount' => array('amount'),
+      'data_date' => array('date'),
+    ),
+  ));
+}
