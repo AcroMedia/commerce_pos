@@ -27,6 +27,7 @@ Secondary Colour Hover: #E28B07
 
 #commerce-pos-sale-wrapper .form-item {
   margin: 20px 0;
+  font-size: 14px;
 }
 
 #commerce-pos-sale-wrapper textarea,
@@ -347,6 +348,10 @@ Secondary Colour Hover: #E28B07
   box-sizing: border-box;
 }
 
+.commerce-pos-col-products * {
+  box-sizing: border-box;
+}
+
 .commerce-pos-col-transaction-info {
   float: left;
   width: 25%;
@@ -422,6 +427,7 @@ Secondary Colour Hover: #E28B07
   padding: 0;
   vertical-align: middle;
   width: 15%;
+  box-sizing: border-box;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
@@ -439,7 +445,7 @@ Secondary Colour Hover: #E28B07
 
 #commerce-pos-sale-wrapper .price-edit-wrapper input,
 #commerce-pos-sale-wrapper .quantity-wrapper input[type="text"]{
-  padding: 3px 8px;
+  padding: 2px;
   color: #0091FF;
   border: 1px solid #0091FF;
   font-weight: bold;
@@ -450,10 +456,19 @@ Secondary Colour Hover: #E28B07
 
 #commerce-pos-sale-wrapper .quantity-wrapper input[type="text"] {
   width: 45px;
+  font-size: 14px;
+}
+
+#commerce-pos-sale-wrapper .price-edit-wrapper input:focus,
+#commerce-pos-sale-wrapper .quantity-wrapper input[type="text"]:focus {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .textbox-wrapper {
   width: 45px;
+  margin-left: 35px;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .form-type-textfield {
@@ -467,7 +482,7 @@ Secondary Colour Hover: #E28B07
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper {
   position: absolute;
-  right: 0;
+  left: 0;
   top: 15px;
   width: 20px;
   margin: 0 15px 0 0;
@@ -490,7 +505,8 @@ Secondary Colour Hover: #E28B07
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper .title {
-  font-size: 20px;
+  font-size: 16px;
+  font-weight: bold;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .price-edit-wrapper {
@@ -509,6 +525,7 @@ Secondary Colour Hover: #E28B07
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper strong {
   margin-right: 15px;
+  font-size: 14px;
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
@@ -929,7 +946,12 @@ git
 .commerce-pos-col-transaction-info tr.order-to-pay {
   background: #313131;
   color: #fff;
-  font-size: 130%;
+  font-size: 120%;
+}
+
+.commerce-pos-col-transaction-info tr.order-change {
+  font-size: 120%;
+  font-style: italic;
 }
 
 .commerce-pos-col-transaction-info td {

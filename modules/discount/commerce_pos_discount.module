@@ -240,19 +240,19 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       }
       else {
         if (!empty($discount_data) && isset($discount_data['amount']) & !empty($discount_data['amount'])) {
-          $discount_type_symbol = '';
+          $discount_price = '';
           if (isset($discount_data['type']) && $discount_data['type'] == 'percent') {
-            $discount_type_symbol = '%';
+            $discount_price = $discount_data['amount'] . '%';
           } else {
-            $discount_type_symbol = ' ' . $discount_data['currency_code'];
+            $discount_price = commerce_currency_format(($discount_data['amount'] * 100), $discount_data['currency_code']);
           }
 
           $line_item_element['discounts']['discount_description'] = array(
-            '#markup' => $discount_data['amount'] . $discount_type_symbol,
-            '#prefix' => '<span class="discount-description">',
-            '#suffix' => '</span>',
-            '#line_item_id' => $line_item_id,
-            '#element_key' => 'discount-description',
+              '#markup' => $discount_price,
+              '#prefix' => '<span class="discount-description">',
+              '#suffix' => '</span>',
+              '#line_item_id' => $line_item_id,
+              '#element_key' => 'discount-description',
           );
 
           $line_item_element['discounts']['remove_discount'] = array(
