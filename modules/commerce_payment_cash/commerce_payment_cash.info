@@ -1,6 +1,0 @@
-name = Cash Payment Method
-description = Provides a cash payment method, useful for brick and mortar stores.
-package = Commerce
-dependencies[] = commerce
-dependencies[] = commerce_payment
-core = 7.x
