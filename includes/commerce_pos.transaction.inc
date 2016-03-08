@@ -178,67 +178,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<div class="line-item-row-wrapper">',
       );
 
-      $line_item_element['quantity_wrapper_open'] = array(
-        '#markup' => '<div class="quantity-wrapper line-item-col">',
-      );
-
-      $line_item_element['textbox_wrapper_open'] = array(
-        '#markup' => '<div class="textbox-wrapper">',
-      );
-
-      $line_item_element['qty'] = array(
-        '#title' => (int) $line_item_wrapper->quantity->value(),
-        '#type' => 'textfield',
-        '#value' => (int) $line_item_wrapper->quantity->value(),
-        '#size' => 4,
-        '#maxlength' => 4,
-        '#ajax' => $wrapper_ajax,
-        '#element_key' => 'line-item-qty',
-        '#line_item_id' => $line_item_id,
-        '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
-        '#attributes' => array(
-          'class' => array('commerce-pos-hidden-element'),
-        ),
-      );
-
-      $line_item_element['textbox_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-
-      $line_item_element['add_remove_wrapper_open'] = array(
-        '#markup' => '<div class="add-remove-wrapper line-item-col">',
-      );
-
-      $line_item_element['add_qty'] = array(
-        '#type' => 'button',
-        '#value' => '+',
-        '#name' => 'line-item-' . $line_item_id . '-plus',
-        '#element_key' => 'line-item-add-qty',
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-        '#attributes' => array(
-          'tabindex' => 0,
-        ),
-      );
-
-      $line_item_element['remove_qty'] = array(
-        '#type' => 'button',
-        '#value' => '-',
-        '#name' => 'line-item-' . $line_item_id . '-minus',
-        '#element_key' => 'line-item-remove-qty',
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-      );
-
-      $line_item_element['add_remove_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $line_item_element['quantity_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
       $line_item_element['image_wrapper_open'] = array(
         '#markup' => '<div class="image-wrapper line-item-col">',
       );
@@ -290,12 +229,12 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
       $line_item_element['price_edit'] = array(
         '#type' => 'textfield',
-        '#title' => t('@ @price', array(
+        '#title' => t('@price', array(
           '@price' => commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']),
         )),
         '#default_value' => number_format($base_price[0]['price']['amount'] / 100, 2),
-        '#size' => 3,
-        '#maxlength' => 7,
+        '#size' => 5,
+        '#maxlength' => 10,
         '#element_key' => 'line-item-change-price',
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
@@ -305,6 +244,67 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         ),
         '#prefix' => '<div class="price-edit-wrapper line-item-col">',
         '#suffix' => '</div>',
+      );
+
+      $line_item_element['quantity_wrapper_open'] = array(
+          '#markup' => '<div class="quantity-wrapper line-item-col">',
+      );
+
+      $line_item_element['textbox_wrapper_open'] = array(
+          '#markup' => '<div class="textbox-wrapper">',
+      );
+
+      $line_item_element['qty'] = array(
+          '#title' => (int) $line_item_wrapper->quantity->value(),
+          '#type' => 'textfield',
+          '#value' => (int) $line_item_wrapper->quantity->value(),
+          '#size' => 4,
+          '#maxlength' => 4,
+          '#ajax' => $wrapper_ajax,
+          '#element_key' => 'line-item-qty',
+          '#line_item_id' => $line_item_id,
+          '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
+          '#attributes' => array(
+              'class' => array('commerce-pos-hidden-element'),
+          ),
+      );
+
+      $line_item_element['textbox_wrapper_close'] = array(
+          '#markup' => '</div>',
+      );
+
+
+      $line_item_element['add_remove_wrapper_open'] = array(
+          '#markup' => '<div class="add-remove-wrapper line-item-col">',
+      );
+
+      $line_item_element['add_qty'] = array(
+          '#type' => 'button',
+          '#value' => '+',
+          '#name' => 'line-item-' . $line_item_id . '-plus',
+          '#element_key' => 'line-item-add-qty',
+          '#line_item_id' => $line_item_id,
+          '#ajax' => $wrapper_ajax,
+          '#attributes' => array(
+              'tabindex' => 0,
+          ),
+      );
+
+      $line_item_element['remove_qty'] = array(
+          '#type' => 'button',
+          '#value' => '-',
+          '#name' => 'line-item-' . $line_item_id . '-minus',
+          '#element_key' => 'line-item-remove-qty',
+          '#line_item_id' => $line_item_id,
+          '#ajax' => $wrapper_ajax,
+      );
+
+      $line_item_element['add_remove_wrapper_close'] = array(
+          '#markup' => '</div>',
+      );
+
+      $line_item_element['quantity_wrapper_close'] = array(
+          '#markup' => '</div>',
       );
 
       $line_item_element['total_wrapper_open'] = array(
@@ -319,7 +319,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
       $line_item_element['remove'] = array(
         '#type' => 'submit',
-        '#value' => 'X',
+        '#value' => 'Remove',
         '#name' => 'line-item-' . $line_item_id . '-remove',
         '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
         '#line_item_id' => $line_item_id,

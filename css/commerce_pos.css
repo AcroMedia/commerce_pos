@@ -162,8 +162,8 @@ Secondary Colour Hover: #E28B07
   border-top: 1px solid #eee
 }
 
-.commerce-pos-receipt-print-previous {
-  margin: 0 0 0 20px;
+.parked-transactions-wrapper input {
+  margin: 0 20px 0 0!important;
 }
 
 #commerce-pos-sale-wrapper .button-link,
@@ -342,19 +342,12 @@ Secondary Colour Hover: #E28B07
 /*Sale*/
 /*---------------------*/
 .commerce-pos-col-products {
-  float: left;
-  width: 75%;
-  padding-right: 20px;
+  width: 100%;
   box-sizing: border-box;
 }
 
 .commerce-pos-col-products * {
   box-sizing: border-box;
-}
-
-.commerce-pos-col-transaction-info {
-  float: left;
-  width: 25%;
 }
 
 .commerce-pos-col-transaction-info .btn {
@@ -401,10 +394,49 @@ Secondary Colour Hover: #E28B07
   vertical-align: top;
 }
 
+/*Sale - Line Items*/
+.commerce-pos-transaction-line-items * {
+  vertical-align: middle;
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-col {
+  display: inline-block;
+  margin: 5px 0;
+}
+
+.commerce-pos-transaction-line-items .image-wrapper {
+  width: 100px;
+  padding-right: 2%;
+}
+
+.commerce-pos-transaction-line-items .title-wrapper {
+  width: calc(100% - 100px);
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.commerce-pos-transaction-line-items .price-edit-wrapper,
+.commerce-pos-transaction-line-items .quantity-wrapper {
+  width: 125px;
+  padding-right: 2%;
+  text-align: center;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper {
+  width: calc(100% - 250px);
+  text-align: right;
+}
+
+
+.commerce-pos-transaction-line-items {
+  border-top: 1px solid #eee;
+  margin-bottom: 20px;
+}
+
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper {
   clear: both;
   margin: 0;
-  padding: 20px;
+  padding: 20px 0;
   border-bottom: 1px solid #eee;
 }
 
@@ -413,28 +445,30 @@ Secondary Colour Hover: #E28B07
 }
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-row-wrapper {
-  display: table;
   margin: 0;
   padding: 0;
   width: 100%;
   font-size: 16px
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-col {
-  position: relative;
-  display: table-cell;
-  margin: 0;
-  padding: 0;
-  vertical-align: middle;
-  width: 15%;
-  box-sizing: border-box;
+
+/*Sale - Title Wrapper*/
+.commerce-pos-transaction-line-items .title-wrapper .title {
+  font-size: 14px;
+  font-weight: bold;
 }
 
+@media(min-width: 767px) {
+  .commerce-pos-transaction-line-items .title-wrapper .title {
+    font-size: 16px;
+  }
+}
+
+/*Sale - Price Edit Wrapper*/
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
-  padding: 0 5px;
+  padding: 8px 5px 7px;
   color: #0091FF;
   border: 1px solid transparent;
-  border-bottom-color: #0091FF;
   transition: all .15s ease-in-out;
 }
 
@@ -443,20 +477,67 @@ Secondary Colour Hover: #E28B07
   background: rgba(0, 126, 255, 0.1);
 }
 
-#commerce-pos-sale-wrapper .price-edit-wrapper input,
-#commerce-pos-sale-wrapper .quantity-wrapper input[type="text"]{
-  padding: 2px;
+#commerce-pos-sale-wrapper .price-edit-wrapper .form-item {
+  margin: 0;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 2px;
+}
+
+#commerce-pos-sale-wrapper .price-edit-wrapper label,
+#commerce-pos-sale-wrapper .price-edit-wrapper input {
   color: #0091FF;
-  border: 1px solid #0091FF;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
+  border: 1px solid transparent;
   border-radius: 0;
-  text-align: right;
+  height: 38px;
+  line-height: 38px;
+  padding: 0 2px;
+  width: 100%;
+  text-align: center;
+}
+
+/*Sale - Quantity Wrapper*/
+.commerce-pos-transaction-line-items .quantity-wrapper .add-remove-wrapper {
+  display: inline-block!important;
+  width: 20px;
+  margin: 0;
+  font-size: 0;
+}
+
+#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"] {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle;
+  padding: 0!important;
+  margin: 0;
+  font-size: 13px;
+  border-radius: 0;
+  transition: all .1s ease-in-out;
+  border: 1px solid #ddd;
+}
+
+#commerce-pos-sale-wrapper .add-remove-wrapper input:first-of-type {
+  border-bottom: 0;
+  border-left: 0;
+}
+
+#commerce-pos-sale-wrapper .add-remove-wrapper input:last-of-type {
+  border-left: 0;
 }
 
 #commerce-pos-sale-wrapper .quantity-wrapper input[type="text"] {
-  width: 45px;
+  height: 38px;
   font-size: 14px;
+  font-weight: bold;
+  line-height: 38px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  color: #0091FF;
+  border: 0;
+  border-radius: 0;
 }
 
 #commerce-pos-sale-wrapper .price-edit-wrapper input:focus,
@@ -466,29 +547,25 @@ Secondary Colour Hover: #E28B07
   box-shadow: none;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .textbox-wrapper {
-  width: 45px;
-  margin-left: 35px;
+#commerce-pos-sale-wrapper .quantity-wrapper .textbox-wrapper {
+  width: calc(100% - 20px);
+  display: inline-block;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .form-type-textfield {
+#commerce-pos-sale-wrapper .quantity-wrapper .textbox-wrapper .form-item {
+  border: 1px solid #ddd;
+  width: 100%;
+  text-align: center;
+  margin: 0!important;
+  border-radius: 2px 0 0 2px;
+}
+
+#commerce-pos-sale-wrapper .quantity-wrapper .form-type-textfield {
   margin: 13px 0 !important;
   padding: 0;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper label {
-
-}
-
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper {
-  position: absolute;
-  left: 0;
-  top: 15px;
-  width: 20px;
-  margin: 0 15px 0 0;
-}
-
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper .add-remove-wrapper button {
+#commerce-pos-sale-wrapper .quantity-wrapper .add-remove-wrapper button {
   display: block;
   margin: 0 0 2px 0;
   padding: 2px 3px;
@@ -497,45 +574,41 @@ Secondary Colour Hover: #E28B07
   line-height: 14px;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper {
-  padding: 12px 0 0 0;
-  width: 45%;
-  font-size: 12px;
-  line-height: 1.3;
+#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"]:hover,
+#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"]:focus {
+  background: #EAEAEA;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper .title {
-  font-size: 16px;
-  font-weight: bold;
-}
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .price-edit-wrapper {
-  width: 25%;
-  text-align: left;
-}
-
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper {
-  width: 15%;
-  text-align: right;
-}
-
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper .btn {
+/*Sale - Total Wrapper*/
+#commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper .btn {
   margin: 0 0 0 10px;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .total-wrapper strong {
-  margin-right: 15px;
+#commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper strong {
+  margin-right: 5px;
   font-size: 14px;
 }
 
-.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
-  padding: 10px;
-  margin-left: 60%;
-  clear: both;
-  display: block;
-  background: #F0F0F0;
+#commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper input[type="submit"] {
+  position: relative;
+  top: 6px;
+  text-indent: -9999px;
+  width: 10px;
+  height: 10px;
+  margin: 0;
+  opacity: 0.25;
+  background: url(../images/remove-symbol.png) no-repeat center;
+  background-size: 10px;
+  border: 0;
 }
 
+#commerce-pos-sale-wrapper .total-wrapper input[type="submit"]:hover,
+#commerce-pos-sale-wrapper .total-wrapper input[type="submit"]:focus {
+  opacity: 1;
+}
+
+/*Sale - Discount*/
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper.no-background {
   background: transparent;
 }
@@ -549,8 +622,17 @@ Secondary Colour Hover: #E28B07
 }
 
 .commerce-pos-discount-wrapper .form-wrapper {
-  margin-top: 10px;
-  display: inline;
+  display: inline-block;
+}
+
+.commerce-pos-discount-wrapper .discount-description {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-discount-wrapper input.form-text {
+  font-size: 12px!important;
+  margin: 0 2px 0 10px;
 }
 
 #commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue,
@@ -574,44 +656,10 @@ Secondary Colour Hover: #E28B07
   vertical-align: baseline;
 }
 
-.commerce-pos-transaction-line-items * {
-  vertical-align: middle;
-}
-
-.commerce-pos-transaction-line-items {
-  border-top: 1px solid #eee;
-  margin-bottom: 20px;
-}
-
-#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"],
-#commerce-pos-sale-wrapper .total-wrapper input[type="submit"] {
-  width: 20px;
-  height: 20px;
-  vertical-align: middle;
-  padding: 0;
-  margin: 1px 0;
-  background: #eee;
-  border: 0;
-  border-radius: 2px;
-  transition: all .1s ease-in-out;
-}
-
-.total-wrapper input[type="submit"] {
-  margin: 0 0 0 10px;
-}
-
-#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"]:hover,
-#commerce-pos-sale-wrapper .total-wrapper input[type="submit"]:hover,
-#commerce-pos-sale-wrapper .add-remove-wrapper input[type="submit"]:focus,
-#commerce-pos-sale-wrapper .total-wrapper input[type="submit"]:focus{
-  background: #DCDCDC;
-}
-
-/*Sale - Discount Area*/
 .commerce-pos-discount-wrapper .form-submit {
   margin: 0 2px;
 }
-git
+
 /*Sale - Notes*/
 .views-field-message-commerce-body {
   padding: 20px;
@@ -623,8 +671,8 @@ git
   margin-bottom: 0;
 }
 
-#commerce-pos-messages-add-note-wrapper {
-  margin-bottom: 20px;
+#commerce-pos-messages-wrapper {
+  margin-bottom: 40px;
 }
 
 #commerce-pos-messages-wrapper .views-field-name,
@@ -702,7 +750,7 @@ git
 /*---------------------*/
 .commerce-pos-product-summary {
   width: 100%;
-  margin: 0 0 20px;
+  margin: 10px 0 20px;
 }
 
 .commerce-pos-product-summary td {
@@ -718,6 +766,7 @@ git
 
 .commerce-pos-product-summary td.title .sku {
   font-size: 80%;
+  display: block;
 }
 
 .commerce-pos-product-summary tr.odd, .commerce-pos-product-summary tr.even {
@@ -726,18 +775,12 @@ git
 
 .commerce-pos-product-summary tr td, .commerce-pos-product-summary tr th {
   border: 1px solid #E4E4E4;
-}
-
-.commerce-pos-pay-col-payments {
-  float: left;
-  width: 75%;
-  padding-right: 20px;
-  box-sizing: border-box;
+  text-align: left;
 }
 
 .commerce-pos-pay-col-payments .order-text {
   display: inline-block;
-  margin: 0 15px 15px 0;
+  margin: 0 15px 0 0;
 }
 
 .commerce-pos-pay-col-payments .commerce-pos-sale-pay-edit-order {
@@ -756,7 +799,7 @@ git
 }
 
 #commerce-pos-pay-form-wrapper .edit-payment-options-wrapper {
-  margin: 10px 0 20px;
+  margin: 20px 0;
   padding-top: 20px;
   border-top: 1px solid #F0F0F0;
 }
@@ -1108,7 +1151,11 @@ div.status {
   background-color: #087FDA;
 }
 
-/*---------------------*/
+.commerce-pos-product-display .display-details a {
+  display: inline-block;
+}
+
+  /*---------------------*/
 /*Content*/
 /*---------------------*/
 .page-pos-float .pos-main-content {
@@ -1169,25 +1216,6 @@ h1.page-header {
 
 /* 980px and below */
 @media screen and (max-width: 980px) {
-  .commerce-pos-col-products, .commerce-pos-pay-col-payments {
-    width: 65%;
-  }
-
-  .commerce-pos-col-transaction-info {
-    width: 35%;
-  }
-
-  /*---------------------*/
-  /*Sale*/
-  /*---------------------*/
-  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper {
-    width: 15%;
-  }
-
-  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper {
-    width: 45%;
-  }
-
   /*---------------------*/
   /*Keypad*/
   /*---------------------*/
@@ -1257,18 +1285,80 @@ h1.page-header {
     height: 51px;
   }
 
+}
+
+/* 767px and above */
+@media screen and (min-width: 980px) {
   /*---------------------*/
   /*Sale*/
   /*---------------------*/
-  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .quantity-wrapper {
-    width: 65px;
+  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-row-wrapper {
+    display: table;
+    width: 100%;
   }
 
-  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .title-wrapper {
-    width: 45%;
+  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .line-item-col {
+    position: relative;
+    display: table-cell;
+    box-sizing: border-box;
   }
 
-  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper {
-    padding: 20px 0;
+  .commerce-pos-transaction-line-items .image-wrapper {
+    width: 11%;
+    padding-right: 2%;
+  }
+
+  .commerce-pos-transaction-line-items .title-wrapper {
+    width: 38%;
+    padding-right: 2%;
+  }
+
+  .commerce-pos-transaction-line-items .price-edit-wrapper {
+    width: 15%;
+  }
+
+  .commerce-pos-transaction-line-items .quantity-wrapper {
+    width: 12%;
+  }
+
+  #commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper {
+    width: 15%;
+  }
+
+  .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
+    margin-left: 53.75%;
+    clear: both;
+  }
+}
+
+@media screen and (min-width: 767px) {
+  /*---------------------*/
+  /*Layout*/
+  /*---------------------*/
+  .commerce-pos-col-products,
+  .commerce-pos-pay-col-payments {
+    float: left;
+    padding-right: 20px;
+    width: 65%;
+    box-sizing: border-box;
+  }
+
+  .commerce-pos-col-transaction-info {
+    width: 35%;
+    float: left;
+  }
+}
+
+@media screen and (min-width: 980px) {
+  /*---------------------*/
+  /*Layout*/
+  /*---------------------*/
+  .commerce-pos-col-products,
+  .commerce-pos-pay-col-payments {
+    width: 75%;
+  }
+
+  .commerce-pos-col-transaction-info {
+    width: 25%;
   }
 }
