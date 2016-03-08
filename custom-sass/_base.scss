@@ -1,0 +1,80 @@
+//
+//---GENERAL---
+//
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif!important;
+}
+
+//Login
+#pos-login-cont {
+  position: relative;
+  margin: 50px auto 0 auto;
+  max-width: 400px;
+  border-left: 1px solid #151515;
+  border-right: 1px solid #151515;
+  border-bottom: 1px solid #151515;
+  -webkit-border-radius: 0 0 20px 20px;
+  border-radius: 0 0 20px 20px;
+  background: #fff;
+}
+
+#pos-login-content {
+  margin: 0;
+  padding: 23px 10px 45px 10px;
+}
+
+#pos-login-header {
+  margin: 0;
+  padding: 15px;
+  text-align: center;
+  background: #151515;
+}
+
+//Content
+h1.page-header {
+  display: none;
+}
+
+.page-pos-float {
+  .pos-main-content {
+    padding-top: 50px;
+  }
+
+  h1.page-header,
+  h1.page-header {
+    display: block;
+  }
+}
+
+//Status Message
+div.status {
+  margin: 15px 0;
+  border-radius: 2px;
+}
+
+//Please Wait
+.ajax-progress-throbber {
+  background-color: #fff;
+  position: absolute;
+  z-index: 100;
+  border: 2px solid #ccc;
+  padding: 10px;
+  width: auto;
+}
+
+//Parked Transactions
+.parked-transactions-wrapper {
+  margin-top: 15px;
+  padding: 15px 0 0 0;
+  border-top: 1px solid #eee;
+
+  input {
+    margin: 0 20px 0 0!important;
+  }
+}
+
+//Hidden Elements
+.form-item .commerce-pos-hidden-element {
+  display: none;
+}

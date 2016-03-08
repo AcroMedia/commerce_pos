@@ -1,0 +1,269 @@
+//
+//---PAY---
+//
+.commerce-pos-product-summary {
+  width: 100%;
+  margin: 10px 0 20px;
+
+  td {
+    vertical-align: middle;
+    text-align: center;
+  }
+
+  td.title .title {
+    font-weight: bold;
+    font-size: 120%;
+    margin-right: 10px;
+  }
+
+  td.title .sku {
+    font-size: 80%;
+    display: block;
+  }
+
+  tr.odd, tr.even {
+    background: #fff;
+  }
+
+  tr td, tr th {
+    border: 1px solid #E4E4E4;
+    text-align: left;
+  }
+}
+
+.commerce-pos-pay-col-payments .order-text {
+  display: inline-block;
+  margin: 0 15px 0 0;
+
+  .commerce-pos-sale-pay-edit-order {
+    padding: 5px 10px;
+    background: $primary;
+    color: #fff !important;
+    font-size: 12px;
+    font-weight: bold;
+    border-radius: px;
+    transition: all .15s ease-in-out;
+  }
+
+  .commerce-pos-sale-pay-edit-order:hover,
+  .commerce-pos-sale-pay-edit-order:focus {
+    background: $primary-hover;
+  }
+}
+
+#commerce-pos-pay-form-wrapper .edit-payment-options-wrapper {
+  margin: 20px 0;
+  padding-top: 20px;
+  border-top: 1px solid #F0F0F0;
+
+  input.form-button-disabled {
+    background-color: #eee;
+    color: #A2A2A2;
+    border-color: #ccc;
+    cursor: default;
+  }
+
+  input.form-button-disabled:hover {
+    background-color: #eee !important;
+  }
+
+  input {
+    background-color: $secondary;
+    color: #fff;
+    border-color: transparent;
+    padding: 15px 25px;
+    margin: 0 10px 0 0;
+    font-size: 20px;
+  }
+
+  input:hover,
+  input:focus {
+    background-color: $secondary-hover;
+  }
+}
+
+//
+//---KEYPAD---
+//
+.commerce-pos-keypad {
+  width: 75%;
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+.commerce-pos-keypad-amount {
+  .form-item-keypad-amount {
+    margin-bottom: 0;
+  }
+
+  .form-item label {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .form-item-keypad-amount input {
+    max-width: 100% !important;
+    margin: 0 0 20px 0;
+    padding: 15px 20px;
+    height: auto;
+    background: #FFFFFF !important;
+    color: #000;
+    border: 2px solid #D6D6D6;
+    font-size: 30px;
+    text-align: right;
+    -webkit-box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
+    box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
+  }
+
+  .form-item-keypad-amount input.error {
+    border: 2px solid red;
+  }
+}
+
+.commerce-pos-keypad {
+  .commerce-pos-keypad-numbers {
+    position: relative;
+  }
+
+  .commerce-pos-keypad-keys {
+    overflow: hidden;
+    border-right: 1px solid #D6D6D6;
+  }
+
+  .commerce-pos-keypad-key {
+    box-sizing: border-box;
+    width: 33.33%;
+    display: block;
+    float: left;
+    padding: 14px;
+    border: 1px solid #D6D6D6;
+    border-right: 0;
+    border-bottom: 0;
+    font-size: 22px;
+    text-align: center;
+    background-color: #F0F0F0;
+    color: #000000;
+    cursor: pointer;
+    transition: all .1s ease 0s;
+  }
+
+  .commerce-pos-keypad-key:hover, .commerce-pos-keypad-key:focus {
+    background-color: #E4E4E4;
+  }
+}
+
+#commerce-pos-location-float-form {
+  #edit-actions {
+    margin-top: -6px;
+  }
+
+  #edit-amount {
+    height: 32px;
+    margin-top: 5px;
+  }
+}
+
+.commerce-pos-keypad-key.pressed {
+  /*transition: all .2s ease 0s;*/
+  /*box-shadow: inset 0 0 10px #C1C1C1;*/
+  background-color: #E4E4E4;
+}
+
+.commerce-pos-keypad-actions button {
+  width: 33%;
+  padding: 15px;
+  margin-right: 10px;
+  border: 10px solid white;
+  border-radius: 30px;
+  float: right;
+  font-size: 2em;
+}
+
+.commerce-pos-keypad-actions button:hover, .commerce-pos-keypad-actions button:focus {
+  border-color: white;
+}
+
+.form-type-textfield.form-item-keypad-amount.form-text {
+  width: 100%;
+  padding: 40px 20px;
+  background: #666;
+  color: #fff;
+  border: 0;
+  border-right: 1px solid #fff;
+  font-size: 50px;
+  text-align: right;
+}
+
+.commerce-pos-keypad-key:last-of-type {
+  background-color: #E4E4E4;
+  color: #000;
+}
+
+.commerce-pos-keypad-key:last-of-type:hover, .commerce-pos-keypad-key:last-of-type:focus {
+  background-color: #DADADA;
+}
+
+#commerce-pos-pay-form-wrapper {
+  .commerce-pos-keypad-actions input[type="submit"] {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 62px;
+    margin: 0;
+    padding: 13px 15px;
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+    text-transform: uppercase;
+    background: $primary;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    transition: all .15s ease-in-out;
+  }
+
+  .commerce-pos-keypad-actions input[type="submit"]:hover,
+  .commerce-pos-keypad-actions input[type="submit"]:focus {
+    background-color: $primary-hover;
+  }
+}
+
+//767 and below
+@media screen and (max-width: 767px) {
+  //
+  //---KEYPAD---
+  //
+  .commerce-pos-keypad-amount .form-item-keypad-amount input {
+    font-size: 30px;
+  }
+
+  .commerce-pos-keypad-key {
+    font-size: 20px;
+  }
+
+  .commerce-pos-keypad-key,
+  #commerce-pos-pay-form-wrapper .commerce-pos-keypad-actions input[type="submit"] {
+    padding: 10px;
+  }
+
+  #commerce-pos-pay-form-wrapper .commerce-pos-keypad-actions input[type="submit"] {
+    height: 51px;
+  }
+}
+
+//980px and below
+@media screen and (max-width: 980px) {
+  //
+  //---KEYPAD---
+  //
+  .commerce-pos-keypad {
+    width: 100%;
+  }
+
+  #commerce-pos-pay-form-wrapper .commerce-pos-pay-col-payments .form-wrapper input {
+    padding: 10px 15px;
+    font-size: 16px;
+  }
+}

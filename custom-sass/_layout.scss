@@ -1,0 +1,25 @@
+@media screen and (min-width: 767px) {
+  .commerce-pos-col-products,
+  .commerce-pos-pay-col-payments {
+    float: left;
+    padding-right: 20px;
+    width: 65%;
+    box-sizing: border-box;
+  }
+
+  .commerce-pos-col-transaction-info {
+    width: 35%;
+    float: left;
+  }
+}
+
+@media screen and (min-width: 980px) {
+  .commerce-pos-col-products,
+  .commerce-pos-pay-col-payments {
+    width: 75%;
+  }
+
+  .commerce-pos-col-transaction-info {
+    width: 25%;
+  }
+}

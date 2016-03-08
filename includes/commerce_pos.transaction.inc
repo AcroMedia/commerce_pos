@@ -456,7 +456,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     'ui.autocomplete',
   );
 
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.common.js';

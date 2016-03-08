@@ -1,0 +1,444 @@
+//
+//---SALE---
+//
+.commerce-pos-col-products {
+  width: 100%;
+  box-sizing: border-box;
+  *
+  {
+    box-sizing: border-box;
+  }
+}
+
+.commerce-pos-transaction-id {
+  padding: 0 0 5px 0;
+  font-size: 22px;
+}
+
+.payment-totals-table {
+  .label {
+    display: table-cell;
+    text-align: left;
+  }
+
+  .balance {
+    display: table-cell;
+    text-align: right;
+  }
+}
+
+#commerce-pos-sale-wrapper {
+  a {
+    color: $primary;
+  }
+
+  .form-item {
+    margin: 20px 0;
+    font-size: 14px;
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  a {
+    color: $primary;
+  }
+
+  a:hover, a:focus {
+    color: $primary-hover;
+    text-decoration: underline;
+  }
+
+  textarea,
+  select,
+  input {
+    margin: 0;
+    padding: 5px 10px;
+    border-radius: 2px;
+    height: auto;
+    max-width: 100%;
+    background: #fff;
+    box-sizing: border-box;
+    vertical-align: baseline;
+  }
+
+  button, input[type="reset"],
+  input[type="submit"], input[type="button"] {
+    -webkit-appearance: none;
+    cursor: pointer;
+    color: #333;
+    font-weight: bold;
+    font-size: 12px;
+    outline: 0;
+    overflow: visible;
+    padding: 5px 10px;
+    margin: 0 4px 0 0;
+    width: auto;
+    display: inline-block;
+    border-radius: 2px;
+    border: 1px solid #DADADA;
+    background: #fff;
+    transition: all .15s ease-in-out;
+  }
+
+  button:hover, input:hover, button:focus, input:focus {
+    background: #f9f9f9;
+  }
+}
+
+//
+//---LINE ITEMS---
+//
+.commerce-pos-transaction-line-items {
+  border-top: 1px solid #eee;
+  margin-bottom: 20px;
+
+  * {
+    vertical-align: middle;
+  }
+
+  > .form-wrapper > .form-wrapper .line-item-col {
+    display: inline-block;
+    margin: 5px 0;
+  }
+
+  .image-wrapper {
+    width: 100px;
+    padding-right: 2%;
+  }
+
+  .title-wrapper {
+    width: calc(100% - 100px);
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  .price-edit-wrapper,
+  .quantity-wrapper {
+    width: 125px;
+    padding-right: 2%;
+    text-align: center;
+  }
+
+  > .form-wrapper > .form-wrapper {
+    clear: both;
+    margin: 0;
+    padding: 20px 0;
+    border-bottom: 1px solid #eee;
+  }
+
+  > .form-wrapper > .form-wrapper .form-item {
+    display: inline-block;
+  }
+
+  > .form-wrapper > .form-wrapper .line-item-row-wrapper {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    font-size: 16px
+  }
+
+  .total-wrapper {
+    width: calc(100% - 250px);
+    text-align: right;
+  }
+}
+
+.commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
+  padding: 8px 5px 7px;
+  color: $primary;
+  border: 1px solid transparent;
+  transition: all .15s ease-in-out;
+
+  &:hover,
+  &:focus {
+    background: rgba(0, 126, 255, 0.1);
+  }
+}
+
+//
+//---TITLE WRAPPER---
+//
+.commerce-pos-transaction-line-items {
+  .title-wrapper .title {
+    font-size: 14px;
+    font-weight: bold;
+
+    @media(min-width: 767px) {
+      font-size: 16px;
+    }
+  }
+}
+
+//
+//---PRICE EDIT WRAPPER---
+//
+#commerce-pos-sale-wrapper .price-edit-wrapper {
+  .form-item {
+    margin: 0;
+    width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 2px;
+  }
+
+  label,
+  input {
+    color: $primary;
+    font-weight: bold;
+    font-size: 14px;
+    border: 1px solid transparent;
+    border-radius: 0;
+    height: 38px;
+    line-height: 38px;
+    padding: 0 2px;
+    width: 100%;
+    text-align: center;
+  }
+}
+
+//
+//---QUANTITY WRAPPER---
+//
+.commerce-pos-transaction-line-items .quantity-wrapper .add-remove-wrapper {
+  display: inline-block!important;
+  width: 20px;
+  margin: 0;
+  font-size: 0;
+}
+
+#commerce-pos-sale-wrapper .add-remove-wrapper {
+  input[type="submit"] {
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    padding: 0 !important;
+    margin: 0;
+    font-size: 13px;
+    border-radius: 0;
+    transition: all .1s ease-in-out;
+    border: 1px solid #ddd;
+  }
+
+  input:first-of-type {
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  input:last-of-type {
+    border-left: 0;
+  }
+
+  input[type="submit"]:hover,
+  input[type="submit"]:focus {
+    background: #EAEAEA;
+  }
+
+  button {
+    display: block;
+    margin: 0 0 2px 0;
+    padding: 2px 3px;
+    width: 19px;
+    font-size: 14px;
+    line-height: 14px;
+  }
+}
+
+#commerce-pos-sale-wrapper .quantity-wrapper {
+  input[type="text"] {
+    height: 38px;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 38px;
+    text-align: center;
+    padding: 0;
+    margin: 0;
+    color: $primary;
+    border: 0;
+    border-radius: 0;
+  }
+
+  input[type="text"]:focus {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  .textbox-wrapper {
+    width: calc(100% - 20px);
+    display: inline-block;
+  }
+
+  .textbox-wrapper .form-item {
+    border: 1px solid #ddd;
+    width: 100%;
+    text-align: center;
+    margin: 0!important;
+    border-radius: 2px 0 0 2px;
+  }
+
+  .form-type-textfield {
+    margin: 13px 0 !important;
+    padding: 0;
+  }
+}
+
+#commerce-pos-sale-wrapper .price-edit-wrapper input:focus {
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+}
+
+//
+//---TOTAL WRAPPER---
+//
+#commerce-pos-sale-wrapper .commerce-pos-transaction-line-items .total-wrapper {
+  .btn {
+    margin: 0 0 0 10px;
+  }
+
+  strong {
+    margin-right: 5px;
+    font-size: 14px;
+  }
+
+  input[type="submit"] {
+    position: relative;
+    top: 6px;
+    text-indent: -9999px;
+    width: 10px;
+    height: 10px;
+    margin: 0;
+    opacity: 0.25;
+    background: url(../images/remove-symbol.png) no-repeat center;
+    background-size: 10px;
+    border: 0;
+  }
+
+  input[type="submit"]:hover,
+  input[type="submit"]:focus {
+    opacity: 1;
+  }
+}
+
+//
+//---DISCOUNT---
+//
+#commerce-pos-pay-balance-wrapper #commerce-pos-customer-input-wrapper {
+  border-top: 1px solid #eee;
+  margin-top: 20px;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-discount-wrapper {
+  .form-wrapper {
+    display: inline-block;
+  }
+
+  .discount-description {
+    margin-left: 10px;
+    display: inline-block;
+  }
+
+  input.form-text {
+    font-size: 12px!important;
+    margin: 0 2px 0 10px;
+  }
+
+  .form-submit {
+    margin: 0 2px;
+  }
+}
+
+#commerce-pos-sale-wrapper, .commerce-pos-discount-wrapper {
+  .form-wrapper input[type="submit"].blue,
+  .form-wrapper input[type="submit"] {
+    background: $primary;
+    color: #fff;
+    border: 1px solid transparent;
+  }
+
+  .form-wrapper input[type="submit"].blue:hover,
+  .form-wrapper input[type="submit"].blue:focus,
+  .form-wrapper input[type="submit"]:hover,
+  .form-wrapper input[type="submit"]:focus {
+    background: $primary-hover;
+  }
+
+  .form-item,
+  .form-item {
+    margin-top: 0;
+    margin-bottom: 0;
+    vertical-align: baseline;
+  }
+}
+
+
+//
+//---NOTES---
+//
+.views-field-message-commerce-body {
+  padding: 20px;
+  background: #F0F0F0;
+  margin: 20px 0 5px;
+}
+
+.views-field-message-commerce-body p:last-of-type {
+  margin-bottom: 0;
+}
+
+#commerce-pos-messages-wrapper {
+  margin-bottom: 40px;
+
+  .views-field-name,
+  .views-field-timestamp {
+    font-size: 12px;
+  }
+}
+
+//
+//---REFUND---
+//
+#commerce-pos-return-payment .commerce-price-formatted-components, .payment-totals-table {
+  width: 100%;
+  margin-bottom: 0;
+}
+
+@media screen and (min-width: 980px) {
+  #commerce-pos-sale-wrapper .commerce-pos-transaction-line-items {
+    > .form-wrapper > .form-wrapper .line-item-row-wrapper {
+      display: table;
+      width: 100%;
+    }
+
+    > .form-wrapper > .form-wrapper .line-item-col {
+      position: relative;
+      display: table-cell;
+      box-sizing: border-box;
+    }
+
+    .image-wrapper {
+      width: 11%;
+      padding-right: 2%;
+    }
+
+    .title-wrapper {
+      width: 38%;
+      padding-right: 2%;
+    }
+
+    .price-edit-wrapper {
+      width: 15%;
+    }
+
+    .quantity-wrapper {
+      width: 12%;
+    }
+
+    .total-wrapper {
+      width: 15%;
+    }
+
+    > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
+      margin-left: 53.75%;
+      clear: both;
+    }
+  }
+}

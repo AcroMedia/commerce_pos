@@ -1,0 +1,144 @@
+//
+//---HEADER---
+//
+#commerce-pos-header {
+  margin: 0 0 20px 0;
+  padding: 20px;
+  color: #fff;
+  background: #313131;
+  border-radius: 2px;
+
+  #pos-logo {
+    float: left;
+    margin: 0 30px 0 0;
+    max-width: 218px;
+
+    img {
+      max-width: 100%;
+      height: auto;
+    }
+  }
+
+  //Header Links
+  .commerce-pos-header-links {
+    float: left;
+    margin: 0;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    ul li {
+      float: left;
+      margin: 0 10px 0 0;
+      padding: 0;
+      background: none;
+    }
+
+    ul li:last-child {
+      margin-right: 0;
+    }
+
+    ul li a {
+      position: relative;
+      display: block;
+      margin: 0;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      text-decoration: none;
+
+      text-transform: uppercase;
+      background: $primary;
+      border: 2px solid transparent;
+
+      border-radius: 2px;
+      transition: all .15s ease-in-out;
+    }
+
+    ul li a:hover,
+    ul li a:focus {
+      color: #fff;
+      background: $primary-hover;
+    }
+
+    ul li a.active {
+      color: #fff;
+      background: transparent;
+      border: 2px solid $primary;
+      cursor: default;
+    }
+
+    ul li a.active:focus {
+      background: rgba(255,255,255,0.2);
+    }
+  }
+
+  //Employee Info
+  .commerce-pos-header-employee-info {
+    float: right;
+    margin: 0;
+    padding: 8px 0 0 0;
+
+    ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    ul li {
+      float: left;
+      margin: 0 11px 0 0;
+      padding: 0 14px 0 0;
+      background: url(../images/bullet_header.png) 100% 50% no-repeat;
+      color: #9C9C9C;
+    }
+
+    ul li em {
+      font-weight: bold;
+    }
+
+    ul li:last-child {
+      margin-right: 0;
+      padding-right: 0;
+      background: none;
+    }
+
+    ul li a {
+      color: #fff;
+      text-decoration: none;
+    }
+
+    ul li a:hover,
+    ul li a:focus {
+      color: $primary;
+      text-decoration: none;
+    }
+  }
+
+  //800px and below
+  @media screen and (max-width: 800px) {
+    #pos-logo {
+      padding-top: 11px;
+      max-width: 161px;
+    }
+  }
+
+  //767px and below
+  @media screen and (max-width: 767px) {
+    //Employee Info
+    .commerce-pos-header-employee-info {
+      float: none;
+      margin: 0 0 10px 0;
+      padding: 0;
+    }
+
+    .commerce-pos-header-links ul li a {
+      padding: 6px 13px;
+      font-size: 13px;
+    }
+  }
+}

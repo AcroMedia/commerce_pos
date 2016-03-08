@@ -1,0 +1,92 @@
+//
+//---PRODUCT SEARCH---
+//
+.commerce-pos-product-search-container {
+  padding: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+  background: #f0f0f0;
+
+  label {
+    display: inline-block;
+    margin: 0 10px 0 0;
+    font-size: 21px;
+    text-transform: capitalize;
+    vertical-align: middle;
+  }
+
+  input.form-control {
+    display: inline-block;
+    vertical-align: top;
+  }
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-product-search-container .form-item {
+  margin: 10px 0;
+}
+
+.commerce-pos-product-display {
+  padding: 10px 10px 15px;
+  border-bottom: 1px solid #eee;
+  transition: all .2s ease-in-out;
+
+  &:hover, &:focus {
+    background: #F0F0F0;
+  }
+
+  .display-image {
+    float: left;
+    margin: 5px 15px 0 0;
+    border: 1px solid #eee;
+  }
+
+  .display-details,
+  .display-stock,
+  .display-price,
+  .display-add {
+    /* Clear image */
+    padding-left: 90px;
+  }
+
+  .display-details {
+    font-size: 10px;
+  }
+
+  .display-details .title {
+    font-weight: bold;
+    font-size: 18px;
+  }
+
+  .display-price {
+    font-weight: bold;
+  }
+
+  .display-add {
+    float: right;
+  }
+
+  .display-add a {
+    display: inline-block;
+    padding: 0 8px 2px;
+    margin: 5px 0 0 0;
+    border-radius: 3px;
+    font-size: 16px;
+    font-weight: bold;
+    background-color: $primary;
+    color: white;
+    transition: all .15s ease-in-out;
+  }
+
+  .display-add a:hover,
+  .display-add a:focus {
+    background-color: $primary-hover;
+  }
+
+  .display-details a {
+    display: inline-block;
+  }
+}
+
+.commerce-pos-transaction-product-search-item.selected .commerce-pos-product-display {
+  background: #F0F0F0;
+}

@@ -1,0 +1,83 @@
+//
+//---REPORTS---
+//
+#edit-date {
+  //Fix item label position
+  float: none;
+}
+
+#commerce-pos-report-end-of-day {
+  .container-inline-date .form-item-date > label {
+    font-size: 20px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #E0E0E0;
+  }
+
+  .container-inline-date .form-item .form-item,
+  .form-item.form-item-location-id {
+    margin: 0 15px 15px 0;
+  }
+
+  .container-inline-date .form-item .form-item label,
+  .form-item-location-id label {
+    margin-bottom: 5px;
+  }
+}
+
+#commerce-pos-report-results-container {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #E0E0E0;
+  overflow-x: auto;
+
+  table {
+    margin: 0;
+    width: 100%;
+  }
+
+  input[type="submit"] {
+    -webkit-appearance: none;
+    cursor: pointer;
+    color: #333;
+    font-weight: bold;
+    font-size: 12px;
+    outline: 0;
+    overflow: visible;
+    padding: 5px 10px;
+    margin: 0 4px 0 0;
+    width: auto;
+    display: inline-block;
+    border-radius: 2px;
+    border: 1px solid #DADADA;
+    background: #fff;
+    transition: all .15s ease-in-out;
+  }
+
+  input[type="submit"]:hover, input[type="submit"]:focus {
+    background: #f9f9f9;
+  }
+}
+
+.sticky-enabled.tableheader-processed.sticky-table {
+  thead th {
+    background-color: #E4E4E4;
+    color: inherit;
+    padding: 15px;
+    font-weight: bold;
+    border-color: transparent;
+    border-right: 1px solid #fff;
+  }
+
+  tr.odd,
+  tr.even {
+    background-color: #FFFFFF;
+    border-color: transparent;
+    border-bottom: 1px solid #eee;
+  }
+
+  tr td {
+    padding: 15px;
+  }
+}
+

@@ -291,8 +291,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
 
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
+    $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.payment.js';
 }
 

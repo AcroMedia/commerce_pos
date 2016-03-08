@@ -39,7 +39,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   );
 
   $form['#attached']['libraries_load'][] = array('jquery-print');
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos.css';
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
   $form['#attached']['js'][] = array(
     'type' => 'setting',

@@ -1,0 +1,241 @@
+//
+//---SIDEBAR---
+//
+
+//Buttons
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info,
+#commerce-pos-location-float-form {
+  .form-submit {
+    background: $primary;
+    border: 0;
+    margin: 0 0 5px 0;
+    border-radius: 2px;
+    padding: 10px 20px;
+    color: #fff;
+    display: block;
+    width: 100%;
+    transition: all .15s ease-in-out;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-shadow: none;
+
+    &:hover, &:focus {
+      background: $primary-hover;
+    }
+  }
+}
+
+#commerce-pos-location-float-form .form-submit {
+  width: 100px;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:last-of-type {
+  margin-right: 0;
+}
+
+#commerce-pos-transactions-options-wrapper .commerce-pos-btn-pay.form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn {
+  display: block;
+  width: 100%;
+  font-size: 20px;
+  padding: 20px;
+  margin: 0 0 20px 0;
+  background: $secondary;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .commerce-pos-btn-pay {
+  .form-submit:hover, .form-submit:focus {
+    background: $secondary-hover;
+  }
+}
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .commerce-pos-btn-pay.form-submit:focus,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type:hover,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type:focus,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn:hover,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn:focus {
+  background: $secondary-hover;
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  .commerce-pos-col-transaction-info .form-submit.form-button-disabled {
+    &:hover, &:focus {
+      background-color: #eee !important;
+      color: #A2A2A2;
+      border-color: #ccc;
+      cursor: default;
+    }
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper, #commerce-pos-report-results-container {
+  .button-link, .button-link:hover, button.button-link, input[type="reset"].button-link,
+  input[type="submit"].button-link,input[type="button"].button-link {
+    border: none;
+    background: transparent;
+    font-weight: normal;
+    color: #2698f2;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    font: inherit;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper, #commerce-pos-location-float-form {
+  .commerce-pos-col-transaction-info .form-submit,
+  .form-submit {
+    background: $primary;
+    border: 0;
+    margin: 0 0 5px 0;
+    border-radius: 2px;
+    padding: 10px 20px;
+    color: #fff;
+    display: block;
+    width: 100%;
+    transition: all .15s ease-in-out;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-shadow: none;
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  .button-link.small, input[type="submit"].button-link.small {
+    font-size: 12px;
+  }
+}
+//
+
+#commerce-pos-pay-balance-wrapper .form-actions {
+  margin: 20px 0;
+}
+
+.commerce-price-formatted-components {
+  margin-top: 0;
+}
+
+.commerce-pos-col-transaction-info {
+  .btn {
+    margin-bottom: 5px;
+  }
+
+  .table-striped > tbody > tr:nth-of-type(2n+1),
+  .table-striped > tbody > tr {
+    background: #fff;
+  }
+
+  table {
+    width: 100%;
+    font-size: 14px;
+    border: 0;
+  }
+
+  tbody {
+    border: 0;
+  }
+
+  tr.odd, tr.even {
+    padding: 0;
+    width: 100%;
+    background-color: #F0F0F0;
+    color: #333;
+    border: 0;
+    border-bottom: 1px solid #FFFFFF;
+  }
+
+  tr.order-to-pay {
+    background: #313131;
+    color: #fff;
+    font-size: 120%;
+  }
+
+  tr.order-change {
+    font-size: 120%;
+    font-style: italic;
+  }
+
+  td {
+    padding: 15px 10px;
+    border: 0;
+  }
+
+  td:nth-child(1) {
+    font-weight: bold;
+  }
+
+  td:nth-child(2) {
+    text-align: right;
+  }
+
+  td.balance {
+    font-weight: bold;
+  }
+}
+
+#commerce-pos-sale-wrapper #commerce-pos-discount-add-order-discount-wrapper {
+  margin: 20px 0;
+
+  .form-text {
+    padding: 9px;
+    height: 34px;
+    margin: 0 2px 0 0;
+    vertical-align: middle;
+  }
+
+  .form-submit {
+    margin: 0 5px 0 0;
+  }
+}
+
+.form-item-transaction-options-customer label {
+  margin-bottom: 5px;
+}
+
+.form-item-transaction-options-actions-add-order-discount-amount {
+  margin-bottom: 5px;
+  display: inline;
+
+  label {
+    margin-bottom: 5px;
+  }
+}
+
+#commerce-pos-sale-wrapper #commerce-pos-discount-add-order-discount-wrapper input[type="submit"] {
+  width: auto;
+  display: inline-block;
+}
+
+#commerce-pos-transactions-options-wrapper {
+  .commerce-price-formatted-components {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .payment-totals-table {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .views-table {
+    width: 100%;
+    margin-top: 0;
+  }
+}
+
+.commerce-price-formatted-components .component-title, .payment-totals-table .label {
+  font-weight: bold;
+}
+
+#commerce-pos-pay-balance-wrapper .pager {
+  margin: 0 0 20px 0;
+}
