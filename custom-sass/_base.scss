@@ -6,6 +6,153 @@
   font-family: Arial, "Helvetica Neue", Helvetica, sans-serif!important;
 }
 
+
+//Buttons
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info,
+#commerce-pos-location-float-form {
+  .form-submit {
+    background: $primary;
+    border: 0;
+    margin: 0 0 5px 0;
+    border-radius: 2px;
+    padding: 10px 20px;
+    color: #fff;
+    display: block;
+    width: 100%;
+    transition: all .15s ease-in-out;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    text-shadow: none;
+
+    &:hover, &:focus {
+      background: $primary-hover;
+    }
+  }
+}
+
+#commerce-pos-location-float-form .form-submit {
+  width: 100px;
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit:last-of-type {
+  margin-right: 0;
+}
+
+#commerce-pos-transactions-options-wrapper .commerce-pos-btn-pay.form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn {
+  display: block;
+  width: 100%;
+  font-size: 20px;
+  padding: 20px;
+  margin: 0 0 20px 0;
+  background: $secondary;
+
+  &:hover, &:focus {
+    background: $secondary-hover;
+  }
+}
+
+#commerce-pos-sale-wrapper button, #commerce-pos-sale-wrapper input[type="reset"],
+#commerce-pos-sale-wrapper input[type="submit"], #commerce-pos-sale-wrapper input[type="button"],
+#commerce-pos-pay-form-wrapper button, #commerce-pos-pay-form-wrapper input[type="reset"],
+#commerce-pos-pay-form-wrapper input[type="submit"], #commerce-pos-pay-form-wrapper input[type="button"],
+#commerce-pos-report-results-container input[type="submit"] {
+  -webkit-appearance: none;
+  cursor: pointer;
+  color: #333;
+  font-weight: bold;
+  font-size: 12px;
+  outline: 0;
+  overflow: visible;
+  padding: 5px 10px;
+  margin: 0 4px 0 0;
+  width: auto;
+  display: inline-block;
+  border-radius: 2px;
+  border: 1px solid #DADADA;
+  background: #fff;
+  transition: all .15s ease-in-out;
+
+  &:hover, &:focus {
+    background: #f9f9f9;
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  .commerce-pos-col-transaction-info .form-submit.form-button-disabled {
+    background-color: #eee !important;
+    color: #A2A2A2;
+    border-color: #ccc;
+    cursor: default;
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper, #commerce-pos-report-results-container {
+  .button-link, .button-link:hover, button.button-link, input[type="reset"].button-link,
+  input[type="submit"].button-link,input[type="button"].button-link {
+    border: none;
+    background: transparent;
+    font-weight: normal;
+    color: #2698f2;
+    text-decoration: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    font-size: 100%;
+    vertical-align: baseline;
+    font: inherit;
+
+    &:hover, &:focus {
+      text-decoration: underline;
+    }
+  }
+}
+
+#commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit,
+#commerce-pos-location-float-form .form-submit {
+  background: $primary;
+  border: 0;
+  margin: 0 0 5px 0;
+  border-radius: 2px;
+  padding: 10px 20px;
+  color: #fff;
+  display: block;
+  width: 100%;
+  transition: all .15s ease-in-out;
+  -webkit-box-shadow: none;
+  box-shadow: none;
+  text-shadow: none;
+
+  &:hover, &:focus {
+    background: $primary-hover;
+  }
+}
+
+#commerce-pos-transactions-options-wrapper .commerce-pos-btn-pay.form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit:first-of-type,
+#commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .commerce-pos-payment-finish-btn {
+  display: block;
+  width: 100%;
+  font-size: 20px;
+  padding: 20px;
+  margin: 0 0 20px 0;
+  background: $secondary;
+
+  &:hover, &:focus {
+    background: $secondary-hover;
+  }
+}
+
+#commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
+  .button-link.small, input[type="submit"].button-link.small {
+    font-size: 12px;
+  }
+}
+
 //Login
 #pos-login-cont {
   position: relative;

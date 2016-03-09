@@ -347,29 +347,26 @@
   }
 }
 
-#commerce-pos-sale-wrapper, .commerce-pos-discount-wrapper {
-  .form-wrapper input[type="submit"].blue,
-  .form-wrapper input[type="submit"] {
-    background: $primary;
-    color: #fff;
-    border: 1px solid transparent;
-  }
-
-  .form-wrapper input[type="submit"].blue:hover,
-  .form-wrapper input[type="submit"].blue:focus,
-  .form-wrapper input[type="submit"]:hover,
-  .form-wrapper input[type="submit"]:focus {
-    background: $primary-hover;
-  }
-
-  .form-item,
-  .form-item {
-    margin-top: 0;
-    margin-bottom: 0;
-    vertical-align: baseline;
-  }
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue,
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"] {
+  background: $primary;
+  color: #fff;
+  border: 1px solid transparent;
 }
 
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue:hover,
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue:focus,
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:hover,
+.commerce-pos-discount-wrapper .form-wrapper input[type="submit"]:focus {
+  background: $primary-hover;
+}
+
+.commerce-pos-discount-wrapper .form-item,
+#commerce-pos-sale-wrapper .commerce-pos-discount-wrapper .form-item {
+  margin-top: 0;
+  margin-bottom: 0;
+  vertical-align: baseline;
+}
 
 //
 //---NOTES---

@@ -67,18 +67,17 @@
     background-color: #eee !important;
   }
 
-  input {
+  input[type="submit"] {
     background-color: $secondary;
     color: #fff;
     border-color: transparent;
     padding: 15px 25px;
     margin: 0 10px 0 0;
     font-size: 20px;
-  }
 
-  input:hover,
-  input:focus {
-    background-color: $secondary-hover;
+    &:hover, &:focus {
+      background-color: $secondary-hover;
+    }
   }
 }
 
@@ -93,32 +92,34 @@
   }
 }
 
-.commerce-pos-keypad-amount {
-  .form-item-keypad-amount {
-    margin-bottom: 0;
-  }
+#commerce-pos-pay-form-wrapper {
+  .commerce-pos-keypad-amount {
+    .form-item-keypad-amount {
+      margin-bottom: 0;
+    }
 
-  .form-item label {
-    font-size: 24px;
-    margin-bottom: 10px;
-  }
+    .form-item label {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
 
-  .form-item-keypad-amount input {
-    max-width: 100% !important;
-    margin: 0 0 20px 0;
-    padding: 15px 20px;
-    height: auto;
-    background: #FFFFFF !important;
-    color: #000;
-    border: 2px solid #D6D6D6;
-    font-size: 30px;
-    text-align: right;
-    -webkit-box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
-    box-shadow: inset 0 0 6px 2px rgba(0,0,0,.1);
-  }
+    .form-item-keypad-amount input {
+      max-width: 100% !important;
+      margin: 0 0 20px 0;
+      padding: 15px 20px;
+      height: auto;
+      background: #FFFFFF !important;
+      color: #000;
+      border: 2px solid #D6D6D6;
+      font-size: 30px;
+      text-align: right;
+      -webkit-box-shadow: inset 0 0 6px 2px rgba(0, 0, 0, .1);
+      box-shadow: inset 0 0 6px 2px rgba(0, 0, 0, .1);
+    }
 
-  .form-item-keypad-amount input.error {
-    border: 2px solid red;
+    .form-item-keypad-amount input.error {
+      border: 2px solid red;
+    }
   }
 }
 
@@ -229,6 +230,7 @@
     background-color: $primary-hover;
   }
 }
+
 
 //767 and below
 @media screen and (max-width: 767px) {
