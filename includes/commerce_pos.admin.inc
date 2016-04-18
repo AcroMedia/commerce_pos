@@ -37,7 +37,7 @@ function commerce_pos_settings($form, &$form_state) {
     '#title' => t('Available products'),
     '#type' => 'checkboxes',
     '#options' => $product_options,
-    '#default_value' => variable_get('commerce_pos_available_products', array()),
+    '#default_value' => variable_get('commerce_pos_available_products', array('product')),
     '#description' => t('Select the types of products that can be added to POS transactions.'),
   );
 

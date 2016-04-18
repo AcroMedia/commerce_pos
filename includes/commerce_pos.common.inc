@@ -67,21 +67,23 @@ function commerce_pos_product_search_basic($keywords) {
   $allowed_product_types = CommercePosService::allowedProductTypes();
   $results = array();
 
-  $query = 'SELECT product_id FROM {commerce_product}
+  if (!empty($allowed_product_types)) {
+    $query = 'SELECT product_id FROM {commerce_product}
     WHERE
       (sku = :term OR title LIKE :term_like)
       AND type IN (:types)
     ORDER BY title ASC
     LIMIT 5';
 
-  $result = db_query($query, array(
-    ':term' => $keywords,
-    ':term_like' => db_like($keywords) . '%',
-    ':types' => $allowed_product_types,
-  ));
+    $result = db_query($query, array(
+      ':term' => $keywords,
+      ':term_like' => db_like($keywords) . '%',
+      ':types' => $allowed_product_types,
+    ));
 
-  foreach ($result as $row) {
-    $results[] = $row->product_id;
+    foreach ($result as $row) {
+      $results[] = $row->product_id;
+    }
   }
 
   return $results;
