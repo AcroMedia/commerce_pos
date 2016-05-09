@@ -766,12 +766,6 @@ function _commerce_pos_access_check($access_arguments) {
     }
   }
 
-  if (!$access) {
-    // If they're not even logged in, we should take them to our custom
-    // login page.
-    drupal_goto('pos/login');
-  }
-
   return $access;
 }
 
