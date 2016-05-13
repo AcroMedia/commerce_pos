@@ -102,7 +102,7 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['admin/commerce/pos'] = array(
+  $items['admin/commerce/config/pos'] = array(
     'title' => 'Point of Sale',
     'description' => 'Administer POS.',
     'page callback' => 'system_admin_menu_block_page',
@@ -112,7 +112,7 @@ function commerce_pos_menu() {
     'weight' => 10,
   );
 
-  $items['admin/commerce/pos/settings'] = array(
+  $items['admin/commerce/config/pos/settings'] = array(
     'title' => 'Settings',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_settings'),
