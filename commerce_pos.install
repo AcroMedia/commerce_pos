@@ -107,6 +107,30 @@ function commerce_pos_uninstall() {
 }
 
 /**
+ * Implements hook_requirements().
+ */
+function commerce_pos_requirements($phase) {
+  $requirements = array();
+  if ($phase == 'runtime') {
+    $t = get_t();
+    $jquery = drupal_get_library('system', 'jquery');
+    $version = $jquery['version'];
+    $requirements['commerce_pos'] = array(
+      'title' => $t('Commerce Point of Sale'),
+      'severity' => REQUIREMENT_OK,
+      'value' => $t('jQuery %jquery (<a href="@link">configure</a>)', array('%jquery' => $jquery['version'], '@link' => url('admin/config/development/jquery_update'))),
+    );
+
+    if (version_compare($version, '1.7', '<')) {
+      $requirements['commerce_pos']['severity'] = REQUIREMENT_ERROR;
+      $requirements['commerce_pos']['description'] = $t('Commerce Point of Sale requires jQuery 1.7 or higher.');
+    }
+  }
+
+  return $requirements;
+}
+
+/**
  * Change 'type' field from an integer field to a varchar.
  */
 function commerce_pos_update_7001(&$sandbox) {

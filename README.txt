@@ -66,4 +66,17 @@ INSTALLATION
 CONFIGURATION
 -------------
 
-* Configure settings in Administration » Commerce » Point of Sale.
+  * Configure settings in Administration » Point of Sale » Settings. For
+  Commerce Kickstart installations, go to Store Settings » Point of Sale »
+  Settings.
+
+  * Search API Index: If your site has any API indexes installed they will be
+  available here. You can use your API index or Drupal's default search to
+  query the database for products.
+
+  * Select which of the available products you would like to integrate with
+  Commerce Point of Sale.
+
+  * For each selected product you may choose an image field (product must
+  have and image field in its manage fields page). The image field selected
+  will be used when displaying the product on the Point of Sale page.
