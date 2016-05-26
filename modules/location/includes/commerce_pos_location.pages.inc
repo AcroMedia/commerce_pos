@@ -69,7 +69,7 @@ function commerce_pos_location_float_form($form, &$form_state, $location_id = 0)
   );
 
   // Add module CSS
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
   return $form;
 }

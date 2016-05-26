@@ -19,7 +19,7 @@ function commerce_pos_login($form, &$form_state) {
   $form = user_login($form, $form_state);
 
   // Add module CSS
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/style.css';
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
   return $form;
 }
