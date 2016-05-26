@@ -37,9 +37,6 @@ class CommercePosLocationEntityController extends EntityAPIController implements
       if ($location->created === '') {
         unset($location->created);
       }
-      if ($location->uid === '') {
-        unset($location->uid);
-      }
     }
 
     return parent::save($location, $transaction);
