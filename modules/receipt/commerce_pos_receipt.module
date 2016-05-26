@@ -70,7 +70,7 @@ function commerce_pos_receipt_menu() {
     'file' => 'includes/commerce_pos_receipt.pages.inc',
   );
 
-  $items['admin/commerce/pos/receipts'] = array(
+  $items['admin/commerce/config/pos/receipts'] = array(
     'title' => 'Receipts',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_receipt_settings'),

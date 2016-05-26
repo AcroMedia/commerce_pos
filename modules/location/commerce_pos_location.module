@@ -95,7 +95,7 @@ function commerce_pos_location_entity_info() {
     ),
     'load hook' => 'commerce_pos_location_load',
     'admin ui' => array(
-      'path' => 'admin/commerce/pos/locations',
+      'path' => 'admin/commerce/config/pos/locations',
       'controller class' => 'EntityDefaultUIController',
     ),
     'views controller class' => 'EntityDefaultViewsController',
@@ -104,7 +104,7 @@ function commerce_pos_location_entity_info() {
       'commerce_pos_location' => array(
         'label' => t('POS Location'),
         'admin' => array(
-          'path' => 'admin/commerce/pos/locations',
+          'path' => 'admin/commerce/config/pos/locations',
         ),
       ),
     ),
@@ -308,7 +308,7 @@ function commerce_pos_location_form_submit($form, &$form_state) {
   $location = entity_ui_form_submit_build_entity($form, $form_state);
   $location->save();
   drupal_set_message(t('Location "@name" has been saved.', array('@name' => $location->name)));
-  $form_state['redirect'] = 'admin/commerce/pos/locations';
+  $form_state['redirect'] = 'admin/commerce/config/pos/locations';
 }
 
 /**

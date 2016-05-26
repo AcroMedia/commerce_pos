@@ -8,7 +8,7 @@
  * Implements hook_menu().
  */
 function commerce_pos_upc_scan_menu() {
-  $items['admin/commerce/pos/upc'] = array(
+  $items['admin/commerce/config/pos/upc'] = array(
     'title' => 'UPC scanning',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_upc_scan_settings'),

@@ -21,4 +21,4 @@ files[] = classes/CommercePosTransactionBaseInterface.php
 ; Views handlers.
 files[] = includes/views/handlers/commerce_pos_handler_area_balance.inc
 
-configure = admin/commerce/pos
+configure = admin/commerce/config/pos

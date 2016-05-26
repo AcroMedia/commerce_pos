@@ -9,4 +9,4 @@ dependencies[] = commerce_pos
 files[] = classes/CommercePosDiscountBase.php
 files[] = classes/CommercePosDiscountService.php
 
-configure = admin/commerce/pos
+configure = admin/commerce/config/pos
