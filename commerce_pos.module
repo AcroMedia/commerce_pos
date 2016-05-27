@@ -11,7 +11,7 @@
 function commerce_pos_menu() {
   $items = array();
 
-  $items['pos'] = array(
+  $items['admin/commerce/pos'] = array(
     'title' => 'Point of Sale',
     'page callback' => 'commerce_pos_redirect',
     'access arguments' => array(
@@ -22,30 +22,27 @@ function commerce_pos_menu() {
     ),
     'access callback' => '_commerce_pos_access_check',
     'file' => 'includes/commerce_pos.pages.inc',
-    'type' => MENU_CALLBACK,
   );
 
-  $items['pos/sale'] = array(
+  $items['admin/commerce/pos/sale'] = array(
     'title' => 'Sale',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_sale'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
     'file' => 'includes/commerce_pos.transaction.inc',
-    'type' => MENU_CALLBACK,
   );
 
-  $items['pos/sale/payment'] = array(
+  $items['admin/commerce/pos/sale/payment'] = array(
     'title' => 'Pay',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_sale_payment'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
     'file' => 'includes/commerce_pos.payment.inc',
-    'type' => MENU_CALLBACK,
   );
 
-  $items['pos/return'] = array(
+  $items['admin/commerce/pos/return'] = array(
     'title' => 'Return',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_return'),
@@ -55,7 +52,7 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/return/payment'] = array(
+  $items['admin/commerce/pos/return/payment'] = array(
     'title' => 'Refund',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_return_payment'),
@@ -65,7 +62,7 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/login'] = array(
+  $items['admin/commerce/pos/login'] = array(
     'title' => 'Employee Login',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_login'),
@@ -74,7 +71,7 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/product/autocomplete'] = array(
+  $items['admin/commerce/pos/product/autocomplete'] = array(
     'title' => 'Product Autocomplete',
     'page callback' => 'commerce_pos_product_autocomplete',
     'access callback' => '_commerce_pos_access_check',
@@ -88,7 +85,7 @@ function commerce_pos_menu() {
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/user/autocomplete'] = array(
+  $items['admin/commerce/pos/user/autocomplete'] = array(
     'title' => 'User Autocomplete',
     'page callback' => 'commerce_pos_user_autocomplete',
     'access callback' => '_commerce_pos_access_check',

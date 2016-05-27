@@ -54,14 +54,14 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
  * Implements hook_menu().
  */
 function commerce_pos_receipt_menu() {
-  $items['printer-testing'] = array(
+  $items['admin/commerce/pos/printer-testing'] = array(
     'title' => 'Printer testing',
     'page callback' => 'printer_testing_page',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
-  $items['pos/%/print-receipt'] = array(
+  $items['admin/commerce/pos/%/print-receipt'] = array(
     'title' => 'Print Transaction Receipt',
     'page callback' => 'commerce_pos_receipt_print',
     'page arguments' => array(1),
@@ -142,7 +142,7 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
 
   if (isset($_SESSION['commerce_pos_receipt_previous_transaction'])) {
     $form['parked_transactions']['print_previous'] = array(
-      '#markup' => l(t('Print Previous Transaction Receipt'), 'pos/' . $_SESSION['commerce_pos_receipt_previous_transaction'] . '/print-receipt', array(
+      '#markup' => l(t('Print Previous Transaction Receipt'), 'admin/commerce/pos/' . $_SESSION['commerce_pos_receipt_previous_transaction'] . '/print-receipt', array(
         'attributes' => array(
           'class' => array('use-ajax', 'commerce-pos-receipt-print-previous'),
         ),
@@ -153,7 +153,7 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
   if (isset($_SESSION['commerce_pos_print_transaction'])) {
     $js_settings['commercePosReceipt']['printInfo'] = array(
       'transactionId' => $_SESSION['commerce_pos_print_transaction'],
-      'printUrl' => url('pos/' . $_SESSION['commerce_pos_print_transaction'] . '/print-receipt'),
+      'printUrl' => url('admin/commerce/pos/' . $_SESSION['commerce_pos_print_transaction'] . '/print-receipt'),
     );
 
     unset($_SESSION['commerce_pos_print_transaction']);
@@ -224,7 +224,7 @@ function printer_testing_page() {
 
   $output = '';
 
-  $output .= l(t('Click me'), 'pos/1/print-receipt', array('attributes' => array(
+  $output .= l(t('Click me'), 'admin/commerce/pos/1/print-receipt', array('attributes' => array(
     'class' => array('use-ajax'),
   )));
 

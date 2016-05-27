@@ -88,7 +88,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   }
 
   $js_settings = array(
-    'productAutoCompleteUrl' => url('pos/product/autocomplete'),
+    'productAutoCompleteUrl' => url('admin/commerce/pos/product/autocomplete'),
     'focusProductInput' => $focus_product_input,
   );
 
@@ -433,7 +433,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     $transaction_options['customer'] = array(
       '#type' => 'textfield',
       '#title' => t('Customer'),
-      '#autocomplete_path' => 'pos/user/autocomplete',
+      '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
         'callback' => 'commerce_pos_customer_js',
@@ -640,6 +640,6 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
   }
 
   $form_state['transaction']->doAction('save');
-  $form_state['redirect'] = 'pos/' . $form['#redirect_key'] . '/payment';
+  $form_state['redirect'] = 'admin/commerce/pos/' . $form['#redirect_key'] . '/payment';
 }
 

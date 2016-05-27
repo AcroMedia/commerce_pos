@@ -108,7 +108,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
 
     $form['edit_order'] = array(
-      '#markup' => l($return ? t('Edit Return') : t('Edit Order'), 'pos/' . $form['#redirect_key'], array(
+      '#markup' => l($return ? t('Edit Return') : t('Edit Order'), 'admin/commerce/pos/' . $form['#redirect_key'], array(
         'attributes' => array(
           'class' => array('commerce-pos-sale-pay-edit-order'),
         ),
@@ -269,7 +269,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     $form['balance']['actions']['customer'] = array(
       '#type' => 'textfield',
       '#title' => t('Customer'),
-      '#autocomplete_path' => 'pos/user/autocomplete',
+      '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
         'callback' => 'commerce_pos_customer_js',
@@ -359,7 +359,7 @@ function commerce_pos_payment_remove_payment_submit($form, &$form_state){
  */
 function commerce_pos_payment_finish($form, &$form_state) {
   $form_state['transaction']->doAction('completeTransaction');
-  $form_state['redirect'] = 'pos/' . $form['#redirect_key'];
+  $form_state['redirect'] = 'admin/commerce/pos/' . $form['#redirect_key'];
   drupal_set_message(t('Transaction Completed'));
 }
 

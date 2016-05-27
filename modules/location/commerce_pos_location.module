@@ -9,7 +9,7 @@
  * Implements hook_menu().
  */
 function commerce_pos_location_menu() {
-  $items['pos/location/%commerce_pos_location'] = array(
+  $items['admin/commerce/pos/location/%commerce_pos_location'] = array(
     'title' => 'POS location',
     'title callback' => 'commerce_pos_location_title',
     'title arguments' => array(2),
@@ -19,7 +19,7 @@ function commerce_pos_location_menu() {
     'file' => 'includes/commerce_pos_location.pages.inc',
   );
 
-  $items['pos/location-select'] = array(
+  $items['admin/commerce/pos/location-select'] = array(
     'title' => 'Select location',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_location_select'),
@@ -27,7 +27,7 @@ function commerce_pos_location_menu() {
     'access arguments' => array('view commerce pos locations'),
   );
 
-  $items['pos/float/%/select'] = array(
+  $items['admin/commerce/pos/float/%/select'] = array(
     'title' => 'Enter opening float',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_location_float_form', 2),
@@ -209,12 +209,12 @@ function _commerce_pos_location_check_form_alter(&$form, &$form_state) {
 
   // Make sure the current user has a location, otherwise make them select one.
   if (!$current_location) {
-    drupal_goto('pos/location-select', array(
+    drupal_goto('admin/commerce/pos/location-select', array(
       'query' => $destination,
     ));
   }
   else if (!commerce_pos_location_get_float($current_location)) {
-    drupal_goto('pos/float/' . $current_location . '/select', array(
+    drupal_goto('admin/commerce/pos/float/' . $current_location . '/select', array(
       'query' => $destination,
     ));
   }
@@ -355,7 +355,7 @@ function commerce_pos_location_load_multiple($location_ids = array(), $condition
  */
 function commerce_pos_location_uri($location) {
   return array(
-    'path' => 'pos/location/' . $location->location_id,
+    'path' => 'admin/commerce/pos/location/' . $location->location_id,
   );
 }
 

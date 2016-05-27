@@ -43,7 +43,7 @@ function commerce_pos_location_select($form, &$form_state) {
  */
 function commerce_pos_location_select_submit($form, &$form_state) {
   commerce_pos_location_set_current_location($form_state['values']['location']);
-  $form_state['redirect'] = 'pos';
+  $form_state['redirect'] = 'admin/commerce/pos';
 }
 
 /**

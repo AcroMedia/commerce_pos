@@ -8,14 +8,14 @@
  * Implements hook_menu().
  */
 function commerce_pos_report_menu() {
-  $items['pos/end-of-day'] = array(
+  $items['admin/commerce/pos/end-of-day'] = array(
     'title' => 'End of Day Report',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_report_end_of_day'),
     'file' => 'includes/commerce_pos_report.pages.inc',
     'access arguments' => array('view commerce pos reports'),
   );
-  $items['pos/end-of-day/print/%'] = array(
+  $items['admin/commerce/pos/end-of-day/print/%'] = array(
     'title' => 'Print Transaction Receipt',
     'page callback' => 'commerce_pos_report_receipt_print',
     'page arguments' => array(3),

@@ -11,7 +11,7 @@
 function commerce_pos_login($form, &$form_state) {
   // Handle users who are already logged in.
   if (user_is_logged_in()) {
-    drupal_goto('pos');
+    drupal_goto('admin/commerce/pos');
   }
 
   // Just return the normal login form for now. Will probably mess with this
@@ -36,7 +36,7 @@ function commerce_pos_login_submit($form, &$form_state) {
   // user_login_finalize() is expecting the $user global to be a fully-loaded
   // object.
   $user = user_load($form_state['uid']);
-  $form_state['redirect'] = 'pos';
+  $form_state['redirect'] = 'admin/commerce/pos';
 
   user_login_finalize($form_state);
 }
