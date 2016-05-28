@@ -182,21 +182,32 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '<div class="image-wrapper line-item-col">',
       );
 
-      $product = commerce_product_load($line_item_wrapper->commerce_product->product_id->value());
+      //TODO - I think we actually can set this in settings and it shouldn't just try field_images?
+      try {
+        $product_images = $line_item_wrapper->commerce_product->field_images->value();
+      } catch (EntityMetadataWrapperException $exc) {
+        //no image field exists
+      }
 
-      $product_images = $line_item_wrapper->commerce_product->field_images->value();
-      $product_primary_image = $product_images[0];
+      if (isset($product_images)) {
+        $product_primary_image = $product_images[0];
+      }
+      else {
+        $product_primary_image = variable_get('commerce_pos_image_default_' . $line_item_wrapper->commerce_product->type->value());
+      }
 
-      $line_item_element['image'] = array(
-        '#markup' => theme_image_style(array(
-          'style_name' => 'commerce_pos_thumbnail',
-          'path' => $product_primary_image['uri'],
-          'alt' => $product_primary_image['alt'],
-          'title' => $product_primary_image['title'],
-          'width' => $product_primary_image['width'],
-          'height' => $product_primary_image['height'],
-        )),
-      );
+      if ($product_primary_image) {
+        $line_item_element['image'] = array(
+          '#markup' => theme_image_style(array(
+            'style_name' => 'commerce_pos_thumbnail',
+            'path' => $product_primary_image['uri'],
+            'alt' => $product_primary_image['alt'],
+            'title' => $product_primary_image['title'],
+            'width' => $product_primary_image['width'],
+            'height' => $product_primary_image['height'],
+          )),
+        );
+      }
 
       $line_item_element['image_wrapper_close'] = array(
         '#markup' => '</div>',

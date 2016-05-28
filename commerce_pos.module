@@ -428,13 +428,6 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 }
 
 /**
- * Implements template_preprocess_commerce_price_formatted_components().
- */
-function commerce_pos_preprocess_commerce_price_formatted_components(&$variables) {
-  $test = 0;
-}
-
-/**
  * Implements hook_commerce_price_formatted_components_alter().
  */
 function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $entity) {

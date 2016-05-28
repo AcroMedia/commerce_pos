@@ -168,7 +168,7 @@ class CommercePosService {
   public static function allowedProductTypes() {
     $types = array();
 
-    foreach (variable_get('commerce_pos_available_products', array('product')) as $type => $allowed) {
+    foreach (variable_get('commerce_pos_available_products', array('product' => '1')) as $type => $allowed) {
       if ($allowed) {
         $types[] = $type;
       }
