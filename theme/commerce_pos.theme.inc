@@ -36,7 +36,7 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
     $variables['product_display'] = NULL;
   }
 
-  $variables['stock'] = $stock !== NULL ? t('@count in stock', array('@count' => $stock)) : t('null stock');
+  $variables['stock'] = $stock !== NULL ? t('@count in stock', array('@count' => $stock)) : t('stock unknown');
 }
 
 /**
