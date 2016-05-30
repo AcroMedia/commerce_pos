@@ -18,9 +18,9 @@ function commerce_pos_report_menu() {
   $items['admin/commerce/pos/end-of-day/print/%'] = array(
     'title' => 'Print Transaction Receipt',
     'page callback' => 'commerce_pos_report_receipt_print',
-    'page arguments' => array(3),
+    'page arguments' => array(5),
     'access callback' => 'commerce_pos_receipt_print_access',
-    'access arguments' => array(),
+    'access arguments' => array(5),
     'file' => 'includes/commerce_pos_report.pages.inc',
   );
   return $items;

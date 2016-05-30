@@ -64,9 +64,9 @@ function commerce_pos_receipt_menu() {
   $items['admin/commerce/pos/%/print-receipt'] = array(
     'title' => 'Print Transaction Receipt',
     'page callback' => 'commerce_pos_receipt_print',
-    'page arguments' => array(1),
+    'page arguments' => array(3),
     'access callback' => 'commerce_pos_receipt_print_access',
-    'access arguments' => array(1),
+    'access arguments' => array(3),
     'file' => 'includes/commerce_pos_receipt.pages.inc',
   );
 

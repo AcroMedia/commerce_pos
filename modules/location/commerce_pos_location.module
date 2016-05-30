@@ -12,9 +12,9 @@ function commerce_pos_location_menu() {
   $items['admin/commerce/pos/location/%commerce_pos_location'] = array(
     'title' => 'POS location',
     'title callback' => 'commerce_pos_location_title',
-    'title arguments' => array(2),
+    'title arguments' => array(4),
     'page callback' => 'commerce_pos_location_view_location',
-    'page arguments' => array(2),
+    'page arguments' => array(4),
     'access arguments' => array('view commerce pos locations'),
     'file' => 'includes/commerce_pos_location.pages.inc',
   );
@@ -30,7 +30,7 @@ function commerce_pos_location_menu() {
   $items['admin/commerce/pos/float/%/select'] = array(
     'title' => 'Enter opening float',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_location_float_form', 2),
+    'page arguments' => array('commerce_pos_location_float_form', 4),
     'file' => 'includes/commerce_pos_location.pages.inc',
     'access arguments' => array('view commerce pos locations'),
   );
