@@ -19,6 +19,12 @@
     display: inline-block;
     vertical-align: top;
   }
+
+  .form-item div.description {
+    font-size: 13px;
+    color: #666;
+    font-style: italic;
+  }
 }
 
 #commerce-pos-sale-wrapper .commerce-pos-product-search-container .form-item {
