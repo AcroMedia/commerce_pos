@@ -344,7 +344,8 @@ function commerce_pos_report_end_of_day_submit($form, &$form_state) {
   $location = $form_state['values']['location_id'];
 
   // Serialize form data.
-  $data = $form_state['values']['USD']['rows'];
+  $default_currency = commerce_default_currency();
+  $data = $form_state['values'][$default_currency]['rows'];
   $serial_data = serialize($data);
 
   $exists = commerce_pos_report_exists($date, $location);
