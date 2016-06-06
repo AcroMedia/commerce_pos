@@ -1,0 +1,93 @@
+<?php
+
+/**
+ * @file
+ * commerce_pos_register.install
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_register_schema() {
+  $schema['commerce_pos_register'] = array(
+    'description' => 'The base table for the POS Register entity',
+    'fields' => array(
+      'register_id' => array(
+        'description' => 'Primary key of the register entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Register name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the register was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the register was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('register_id'),
+    'indexes' => array(
+      'register_name' => array('name'),
+      'register_created' => array('created'),
+      'register_changed' => array('changed'),
+    ),
+  );
+
+  $schema['commerce_pos_register_float'] = array(
+    'description' => 'The base table for POS register float amounts.',
+    'fields' => array(
+      'float_id' => array(
+        'description' => 'The unique identifier for this float entry.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'register_id' => array(
+        'description' => 'The register this float entry is for.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'amount' => array(
+        'description' => 'The float amount, in cents.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the entry was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+    ),
+    'primary key' => array('float_id'),
+    'indexes' => array(
+      'float_register' => array('register_id'),
+      'float_amount' => array('amount'),
+      'float_created' => array('created'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_enable().
+ */
+function commerce_pos_register_enable() {
+  commerce_pos_register_configure_registers();
+}

@@ -1,11 +1,10 @@
 name = Commerce POS Location
-description = Provides the ability to create physical store locations to assign POS transactions to.
+description = Provides the ability to create physical store locations to registers to.
 core = 7.x
 package = Commerce POS
 
 dependencies[] = commerce_pos
 dependencies[] = addressfield
 
-files[] = classes/CommercePosLocationBase.php
 files[] = includes/commerce_pos_location.controller.inc
 files[] = includes/commerce_pos_location.entity.inc

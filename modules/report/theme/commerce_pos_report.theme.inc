@@ -49,17 +49,17 @@ function theme_commerce_pos_report_end_of_day_receipt(&$variables) {
 function commerce_pos_report_preprocess_commerce_pos_report_receipt(&$variables) {
   $date = $variables['date'];
 
-  // Get location name.
-  $location_id = $variables['location'];
-  $location = commerce_pos_location_load($location_id);
-  $variables['location'] = $location->name;
+  // Get register name.
+  $register_id = $variables['register'];
+  $register = commerce_pos_register_load($register_id);
+  $variables['register'] = $register->name;
 
-  $totals = commerce_pos_report_get_totals($date, $location_id);
-  $results = commerce_pos_report_get_eod_report($location_id, $date);
+  $totals = commerce_pos_report_get_totals($date, $register_id);
+  $results = commerce_pos_report_get_eod_report($register_id, $date);
 
   // Get the float for the day.
-  if (module_exists('commerce_pos_location')) {
-    $float = commerce_pos_location_get_float($location_id, strtotime($date));
+  if (module_exists('commerce_pos_register')) {
+    $float = commerce_pos_register_get_float($register_id, strtotime($date));
   }
   else {
     $float = FALSE;

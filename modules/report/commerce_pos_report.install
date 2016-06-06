@@ -19,7 +19,7 @@ function commerce_pos_report_schema() {
         'unsigned' => TRUE,
         'not null' => TRUE,
       ),
-      'location_id' => array(
+      'register_id' => array(
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -44,7 +44,7 @@ function commerce_pos_report_schema() {
     ),
     'primary key' => array('id'),
     'indexes' => array(
-      'data_location' => array('location_id'),
+      'data_register' => array('register_id'),
       'data_amount' => array('amount'),
       'data_date' => array('date'),
     ),

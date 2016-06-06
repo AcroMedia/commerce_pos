@@ -70,7 +70,7 @@ function commerce_pos_report_form_commerce_pos_transaction_form_alter(&$form, &$
  * Builds a render array of a summary and POS orders, broken down my price
  * component.
  */
-function commerce_pos_report_order_summary($completed_date, $transaction_type, $location_id = 0) {
+function commerce_pos_report_order_summary($completed_date, $transaction_type, $register_id = 0) {
   $output = array();
 
   $query = db_select('commerce_pos_transaction', 't');
@@ -89,8 +89,8 @@ function commerce_pos_report_order_summary($completed_date, $transaction_type, $
     ':completed_date' => $completed_date,
   ));
 
-  if ($location_id) {
-    $query->condition('t.location_id', $location_id);
+  if ($register_id) {
+    $query->condition('t.register_id', $register_id);
   }
 
   $query->condition('t.type', $transaction_type);

@@ -39,8 +39,8 @@ function commerce_pos_schema() {
         'not null' => TRUE,
         'default' => '',
       ),
-      'location_id' => array(
-        'description' => 'The physical location that this transaction was performed at.',
+      'register_id' => array(
+        'description' => 'The physical register that this transaction was performed at.',
         'type' => 'int',
         'unsigned' => TRUE,
         'not null' => TRUE,
@@ -75,6 +75,7 @@ function commerce_pos_schema() {
     'indexes' => array(
       'transaction_order_id' => array('order_id'),
       'transaction_uid' => array('uid'),
+      'register_id' => array('register_id'),
     ),
     'unique keys' => array(
       'order_id_uid' => array('order_id', 'uid'),

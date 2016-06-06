@@ -58,34 +58,34 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     '#element_key' => 'date_completed',
   );
 
-  if (module_exists('commerce_pos_location')) {
-    $current_location = commerce_pos_location_get_current_location();
-    $location_options = commerce_pos_location_options();
+  if (module_exists('commerce_pos_register')) {
+    $current_register = commerce_pos_register_get_current_register();
+    $register_options = commerce_pos_register_options();
 
-    if (isset($form_state['input']['location_id'])) {
-      $location_id = $form_state['input']['location_id'];
+    if (isset($form_state['input']['register_id'])) {
+      $register_id = $form_state['input']['register_id'];
     }
-    elseif ($current_location) {
-      $location_id = $current_location;
+    elseif ($current_register) {
+      $register_id = $current_register;
     }
     else {
-      $location_id = key($location_options);
+      $register_id = key($register_options);
     }
 
-    $form['filters']['location_id'] = array(
+    $form['filters']['register_id'] = array(
       '#type' => 'select',
-      '#title' => t('Location'),
-      '#options' => $location_options,
-      '#default_value' => $location_id,
+      '#title' => t('Register'),
+      '#options' => $register_options,
+      '#default_value' => $register_id,
       '#ajax' => $ajax,
     );
   }
   else {
-    $location_id = 0;
+    $register_id = 0;
   }
 
   // Get saved data for requested date.
-  $report_history = commerce_pos_report_get_eod_report($location_id, $date_filter);
+  $report_history = commerce_pos_report_get_eod_report($register_id, $date_filter);
 
   $form['results'] = array(
     '#type' => 'container',
@@ -102,14 +102,14 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
 
   // Get the float for the day.
-  if (module_exists('commerce_pos_location')) {
-    $float = commerce_pos_location_get_float($location_id, strtotime($date_filter));
+  if (module_exists('commerce_pos_register')) {
+    $float = commerce_pos_register_get_float($register_id, strtotime($date_filter));
   }
   else {
     $float = FALSE;
   }
 
-  $totals = commerce_pos_report_get_totals($date_filter, $location_id);
+  $totals = commerce_pos_report_get_totals($date_filter, $register_id);
 
   foreach ($totals as $currency_code => $currency_totals) {
     $form['results'][$currency_code] = array(
@@ -245,10 +245,10 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
 /**
  * @param $date_filter
- * @param $location_id
+ * @param $register_id
  * @return array
  */
-function commerce_pos_report_get_totals($date_filter, $location_id) {
+function commerce_pos_report_get_totals($date_filter, $register_id) {
   $query = db_select('commerce_pos_transaction', 't');
 
   // Get all POS transactions for the given day.
@@ -278,7 +278,7 @@ function commerce_pos_report_get_totals($date_filter, $location_id) {
   $query->orderBy('t.order_id');
 
   if ($date_filter) {
-    $query->condition('t.location_id', $location_id);
+    $query->condition('t.register_id', $register_id);
   }
 
   $totals = array();
@@ -323,9 +323,9 @@ function commerce_pos_report_end_of_day_save_js($form, &$form_state) {
   $commands = array();
 
   $date = $form_state['values']['date'];
-  $location = $form_state['values']['location_id'];
+  $register = $form_state['values']['register_id'];
 
-  $receipt = theme('commerce_pos_report_receipt', array('date' => $date, 'location' => $location));
+  $receipt = theme('commerce_pos_report_receipt', array('date' => $date, 'register' => $register));
 
   $commands[] = array(
     'command' => 'printWindow',
@@ -340,19 +340,19 @@ function commerce_pos_report_end_of_day_save_js($form, &$form_state) {
  */
 function commerce_pos_report_end_of_day_submit($form, &$form_state) {
   $date = $form_state['values']['date'];
-  // POS location.
-  $location = $form_state['values']['location_id'];
+  // POS register.
+  $register = $form_state['values']['register_id'];
 
   // Serialize form data.
   $default_currency = commerce_default_currency();
   $data = $form_state['values'][$default_currency]['rows'];
   $serial_data = serialize($data);
 
-  $exists = commerce_pos_report_exists($date, $location);
+  $exists = commerce_pos_report_exists($date, $register);
 
   if ($exists) {
     $query = db_update('commerce_pos_report_declared_data')
-      ->condition('location_id', $location, '=')
+      ->condition('register_id', $register, '=')
       ->condition('date', strtotime($date), '=')
       ->fields(array(
         // TODO: There is an amount column - what's it for?
@@ -363,7 +363,7 @@ function commerce_pos_report_end_of_day_submit($form, &$form_state) {
   else {
     $query = db_insert('commerce_pos_report_declared_data')
       ->fields(array(
-        'location_id' => $location,
+        'register_id' => $register,
         // TODO: There is an amount column - what's it for?
         'date' => strtotime($date),
         'data' => $serial_data,
@@ -372,22 +372,22 @@ function commerce_pos_report_end_of_day_submit($form, &$form_state) {
   }
 }
 
-function commerce_pos_report_exists($date, $location) {
+function commerce_pos_report_exists($date, $register) {
   $query = db_select('commerce_pos_report_declared_data', 't')
     ->fields('t')
-    ->condition('location_id', $location, '=')
+    ->condition('register_id', $register, '=')
     ->condition('date', strtotime($date), '=');
   $result = $query->execute()->fetchAssoc();
 
   return !empty($result);
 }
 
-function commerce_pos_report_get_eod_report($location, $date) {
+function commerce_pos_report_get_eod_report($register, $date) {
   $time = strtotime($date);
 
   $result = db_select('commerce_pos_report_declared_data', 't')
     ->fields('t')
-    ->condition('location_id', $location)
+    ->condition('register_id', $register)
     ->condition('date', $time, '=')
     ->execute();
 
@@ -406,10 +406,10 @@ function commerce_pos_report_get_eod_report($location, $date) {
  *
  * @param string $date
  *   The date of the report to print.
- * @param $location
- *   The location to get the report for.
+ * @param $register
+ *   The register to get the report for.
  */
-function commerce_pos_report_receipt_print($date, $location) {
+function commerce_pos_report_receipt_print($date, $register) {
   $commands = array();
 
 //  $transaction = CommercePosService::loadTransaction($transaction_id);

@@ -51,7 +51,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'order_id' => $transaction->orderId,
       'type' => $transaction->type,
       'data' => $transaction->data,
-      'location_id' => $transaction->locationId,
+      'register_id' => $transaction->registerId,
       'changed' => $transaction->changed,
       'created' => $transaction->created,
       'completed' => $transaction->completed,

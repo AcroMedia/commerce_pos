@@ -27,30 +27,7 @@ function commerce_pos_location_menu() {
     'access arguments' => array('view commerce pos locations'),
   );
 
-  $items['admin/commerce/pos/float/%/select'] = array(
-    'title' => 'Enter opening float',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_location_float_form', 4),
-    'file' => 'includes/commerce_pos_location.pages.inc',
-    'access arguments' => array('view commerce pos locations'),
-  );
-
   return $items;
-}
-
-/**
- * Implements hook_commerce_pos_transaction_base_info().
- */
-function commerce_pos_location_commerce_pos_transaction_base_info() {
-  return array(
-    'commerce_pos_location_base' => array(
-      'class' => 'CommercePosLocationBase',
-      'types' => array(
-        CommercePosService::TRANSACTION_TYPE_SALE,
-        CommercePosService::TRANSACTION_TYPE_RETURN,
-      ),
-    ),
-  );
 }
 
 /**
@@ -160,67 +137,6 @@ function commerce_pos_location_entity_property_info_alter(&$info) {
 }
 
 /**
- * Implements hook_form_alter().
- */
-function commerce_pos_location_form_alter(&$form, &$form_state, $form_id) {
-  switch ($form_id) {
-    case 'commerce_pos_login':
-      _commerce_pos_location_login_form_alter($form, $form_state);
-      break;
-
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
-    case 'commerce_pos_sale_payment':
-    case 'commerce_pos_return_payment':
-      // This will make sure a location and float have been entered before
-      // being able to process transactions.
-      _commerce_pos_location_check_form_alter($form, $form_state);
-      break;
-  }
-}
-
-/**
- * Adds a location selection element to the POS login form.
- */
-function _commerce_pos_location_login_form_alter(&$form, &$form_state) {
-  $locations = commerce_pos_location_options();
-
-  if (!empty($locations)) {
-    $current_location = commerce_pos_location_get_current_location();
-
-    $form['location'] = array(
-      '#title' => t('Location'),
-      '#type' => 'select',
-      '#options' => commerce_pos_location_options(),
-      '#required' => TRUE,
-      '#default_value' => $current_location ? $current_location : NULL,
-    );
-
-    $form['#submit'][] = 'commerce_pos_location_login_submit';
-  }
-}
-
-/**
- * Adds a location check to the POS transaction forms.
- */
-function _commerce_pos_location_check_form_alter(&$form, &$form_state) {
-  $current_location = commerce_pos_location_get_current_location();
-  $destination = drupal_get_destination();
-
-  // Make sure the current user has a location, otherwise make them select one.
-  if (!$current_location) {
-    drupal_goto('admin/commerce/pos/location-select', array(
-      'query' => $destination,
-    ));
-  }
-  else if (!commerce_pos_location_get_float($current_location)) {
-    drupal_goto('admin/commerce/pos/float/' . $current_location . '/select', array(
-      'query' => $destination,
-    ));
-  }
-}
-
-/**
  * Implements hook_commerce_pos_transaction_state_alter().
  */
 function commerce_pos_location_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
@@ -233,16 +149,6 @@ function commerce_pos_location_commerce_pos_transaction_state_alter(&$administra
       $administrative_area = $location_administrative_area;
     }
   }
-}
-
-/**
- * Additional submit handler for the POS login form.
- *
- * This will store the selected location in the session, as well as a cookie
- * for longer-lasting purposes.
- */
-function commerce_pos_location_login_submit($form, &$form_state) {
-  commerce_pos_location_set_current_location($form_state['values']['location']);
 }
 
 /**
@@ -450,60 +356,4 @@ function commerce_pos_location_configure_locations() {
 
     field_create_instance($instance);
   }
-}
-
-/**
- * Retrieves a float entry for a location.
- *
- * @param int $location_id
- *   The ID of the location to get the entry for.
- * @param int|bool $date
- *   A timestamp indicating the date to retrieve the float entry for. Any
- *   entries that were created on the same day as $date will be returned.
- *
- * @return array|object
- *   All float entries found. If only one entry is found, it will be returned
- *   by itself instead.
- */
-function commerce_pos_location_get_float($location_id, $date = FALSE) {
-  $entries = array();
-
-  if ($date === FALSE) {
-    $date = REQUEST_TIME;
-  }
-
-  $date = format_date($date, 'custom', 'Y-m-d');
-
-  $result = db_query("SELECT float_id, location_id, amount, created
-    FROM {commerce_pos_location_float}
-    WHERE location_id = :location_id
-    AND DATE_FORMAT(FROM_UNIXTIME(created), '%Y-%m-%d') = :date", array(
-    ':location_id' => $location_id,
-    ':date' => $date,
-  ));
-
-  foreach ($result as $row) {
-    $entries[$row->float_id] = $row;
-  }
-
-  return count($entries) == 1 ? reset($entries) : $entries;
-}
-
-/**
- * Creates a new float entry for a location.
- *
- * @param int $location_id
- *   The ID of the location the float entry is for.
- * @param int $amount
- *   The float amount, in cents.
- */
-function commerce_pos_location_add_float($location_id, $amount) {
-  $record = (object) array(
-    'float_id' => 0,
-    'location_id' => $location_id,
-    'amount' => $amount,
-    'created' => REQUEST_TIME,
-  );
-
-  drupal_write_record('commerce_pos_location_float', $record);
 }

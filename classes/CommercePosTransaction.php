@@ -13,7 +13,7 @@ class CommercePosTransaction {
   public $uid = 0;
   public $orderId = 0;
   public $type = '';
-  public $locationId = 0;
+  public $registerId = 0;
   public $data = array();
   public $created = 0;
   public $changed = 0;
@@ -247,7 +247,7 @@ class CommercePosTransaction {
         $this->uid = $result['uid'];
         $this->orderId = $result['order_id'];
         $this->type = $result['type'];
-        $this->locationId = $result['location_id'];
+        $this->registerId = $result['register_id'];
         $this->created = $result['created'];
         $this->changed = $result['changed'];
         $this->completed = $result['completed'];

@@ -9,8 +9,8 @@
       '@date' => $date,
   )); ?></h1>
 
-  <h2><?php print t('Location: @location', array(
-      '@location' => $location,
+  <h2><?php print t('Register: @register', array(
+      '@register' => $register,
   )); ?></h2>
 
   <?php foreach ($rows as $row): ?>
