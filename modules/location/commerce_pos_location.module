@@ -348,10 +348,9 @@ function commerce_pos_location_load_multiple($location_ids = array(), $condition
 }
 
 /**
- * URI callback for a commerce_pos_location entity.
+ * Implements callback_entity_info_uri().
  *
- * Locations do not currently need any kind of display URL, so this just returns
- * NULL.
+ * URI callback for a commerce_pos_location entity.
  */
 function commerce_pos_location_uri($location) {
   return array(
