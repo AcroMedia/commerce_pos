@@ -73,3 +73,14 @@ function hook_commerce_pos_transaction_state_alter(&$administrative_area, Commer
     $administrative_area = 90;
   }
 }
+
+/**
+ * Allows modules to attempt to act on voiding a transaction.
+ * @param $transaction
+ *   A commerce payment transaction.
+ * @return bool
+ *   Return TRUE if the module was able to void the transaction.
+ */
+function hook_commerce_pos_void_payment_transaction($transaction) {
+  return commerce_pos_void_transaction_example($transaction);
+}

@@ -351,30 +351,30 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#type' => 'action',
     );
 
-    $transaction_options['actions']['remove_payment'] = array(
+    $transaction_options['actions']['void_payment'] = array(
       '#type' => 'submit',
-      '#value' => t('Remove Payment'),
+      '#value' => t('Void Payment'),
       '#attributes' => array(
         'class' => array(
           'commerce-pos-transaction-btn',
-          'commerce-pos-remove-payment'
+          'commerce-pos-void-payment'
         ),
         'style' => array('display: none')
       ),
-      '#submit' => array('commerce_pos_transaction_remove_payment_submit'),
-      '#ajax' => array_merge($wrapper_ajax, array('event' => 'remove_payment')),
+      '#submit' => array('commerce_pos_transaction_void_payment_submit'),
+      '#ajax' => array_merge($wrapper_ajax, array('event' => 'void_payment')),
       '#limit_validation_errors' => array(
-        array('transaction_options', 'remove_payment_text')
+        array('transaction_options', 'void_payment_text')
       ),
-      '#element_key' => 'remove-payment',
+      '#element_key' => 'void-payment',
     );
 
-    $transaction_options['remove_payment_text'] = array(
+    $transaction_options['void_payment_text'] = array(
       '#type' => 'hidden',
       '#default_value' => null,
       '#attributes' => array(
         'class' => array(
-          'commerce-pos-remove-payment-input'
+          'commerce-pos-void-payment-input'
         ),
         'style' => array('display: none')
       ),
@@ -487,10 +487,10 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   }
 }
 
-function commerce_pos_transaction_remove_payment_submit($form, &$form_state){
-  $transaction_id = $form_state['values']['transaction_options']['remove_payment_text'];
+function commerce_pos_transaction_void_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['transaction_options']['void_payment_text'];
 
-  commerce_payment_transaction_delete($transaction_id);
+  commerce_pos_payment_transaction_void($transaction_id);
 
   $form_state['rebuild'] = TRUE;
 }

@@ -5,6 +5,8 @@
  * Hooks and utility functions for commerce_pos.
  */
 
+define('COMMERCE_PAYMENT_STATUS_VOID', 'void');
+
 /**
  * Implements hook_menu().
  */
@@ -240,6 +242,19 @@ function commerce_pos_commerce_payment_method_info() {
     'fieldable' => FALSE,
   );
   return $payment_methods;
+}
+
+/**
+ * Implements hook_commerce_payment_transaction_status_info().
+ */
+function commerce_pos_commerce_payment_transaction_status_info() {
+  $statuses[COMMERCE_PAYMENT_STATUS_VOID] = array(
+    'status' => COMMERCE_PAYMENT_STATUS_VOID,
+    'title' => t('Void'),
+    'icon' => drupal_get_path('module', 'commerce_pos') . '/theme/icon-void.png',
+    'total' => FALSE,
+  );
+  return $statuses;
 }
 
 /**
@@ -878,4 +893,66 @@ function theme_commerce_pos_price_formatted_components($variables) {
   }
 
   return theme('table', array('rows' => $rows, 'attributes' => array('class' => array('commerce-price-formatted-components'))));
+}
+
+/**
+ * Void a commerce payment transaction.
+ * @param $transaction_id
+ *   The id of a commerce payment transaction.
+ */
+function commerce_pos_payment_transaction_void($transaction_id) {
+  $transaction = commerce_payment_transaction_load($transaction_id);
+
+  // Look for which module, if any, processed the transaction and allow it to
+  // void the transaction.
+  $void_callback_exists = FALSE;
+  if (isset($transaction->data['processing_module'])) {
+    $void_callback = $transaction->data['processing_module'] . '_commerce_pos_void_payment_transaction';
+
+    if (function_exists($void_callback)) {
+      $void_callback_exists = TRUE;
+      $successful_void = $void_callback($transaction);
+
+      // Update the transaction if the module was able to void it. Otherwise,
+      // just inform the user.
+      if ($successful_void) {
+        $transaction->status = COMMERCE_PAYMENT_STATUS_VOID;
+        commerce_payment_transaction_save($transaction);
+      }
+      else {
+        drupal_set_message(t('Failed to void transaction @id.@message', array(
+          '@id' => $transaction_id,
+          '@message' => (isset($result['message'])) ? ' ' . $result['message'] : NULL,
+        )), 'error');
+      }
+    }
+  }
+
+  // If there is no callback to void the transaction, just change its status.
+  if (!$void_callback_exists) {
+    $transaction->status = COMMERCE_PAYMENT_STATUS_VOID;
+    commerce_payment_transaction_save($transaction);
+  }
+}
+
+/**
+ * Find commerce payment transactions for the given order.
+ * @param $order_id
+ * @return array
+ *   An array of commerce_payment_transaction ids or an empty array if none
+ *   are found.
+ */
+function commerce_pos_get_order_transactions($order_id) {
+  $transaction_ids = array();
+
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'commerce_payment_transaction')
+    ->propertyCondition('order_id', $order_id)
+    ->execute();
+
+  if (isset($result['commerce_payment_transaction'])) {
+    $transaction_ids = array_keys($result['commerce_payment_transaction']);
+  }
+
+  return $transaction_ids;
 }

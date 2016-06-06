@@ -80,7 +80,7 @@ function commerce_pos_views_default_views() {
   $handler->display->display_options['fields']['nothing']['table'] = 'views';
   $handler->display->display_options['fields']['nothing']['field'] = 'nothing';
   $handler->display->display_options['fields']['nothing']['label'] = '';
-  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="#" class="commerce-pos-remove-payment button-link small" data-transaction-id="[transaction_id]">remove</a>';
+  $handler->display->display_options['fields']['nothing']['alter']['text'] = '<a href="#" class="commerce-pos-void-payment button-link small" data-transaction-id="[transaction_id]">void</a>';
   $handler->display->display_options['fields']['nothing']['element_label_colon'] = FALSE;
   /* Field: Commerce Payment Transaction: Status */
   $handler->display->display_options['fields']['status']['id'] = 'status';

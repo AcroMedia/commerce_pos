@@ -42,11 +42,11 @@
         }
       });
 
-      $('.commerce-pos-remove-payment', context).click(function(event){
+      $('.commerce-pos-void-payment', context).click(function(event){
         event.preventDefault();
 
-        $('.commerce-pos-remove-payment-input').val($(this).data('transaction-id'));
-        $('.commerce-pos-remove-payment').trigger('remove_payment');
+        $('.commerce-pos-void-payment-input').val($(this).data('transaction-id'));
+        $('.commerce-pos-void-payment').trigger('void_payment');
       });
     }
   };

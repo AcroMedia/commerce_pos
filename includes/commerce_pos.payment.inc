@@ -205,29 +205,29 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#type' => 'actions',
     );
 
-    $form['balance']['actions']['remove_payment'] = array(
+    $form['balance']['actions']['void_payment'] = array(
       '#type' => 'submit',
-      '#value' => t('Remove Payment'),
+      '#value' => t('Void Payment'),
       '#attributes' => array(
         'class' => array(
           'commerce-pos-transaction-btn',
-          'commerce-pos-remove-payment'
+          'commerce-pos-void-payment'
         ),
         'style' => array('display: none')
       ),
-      '#submit' => array('commerce_pos_payment_remove_payment_submit'),
-      '#ajax' => array_merge($form_ajax, array('event' => 'remove_payment')),
+      '#submit' => array('commerce_pos_payment_void_payment_submit'),
+      '#ajax' => array_merge($form_ajax, array('event' => 'void_payment')),
       '#limit_validation_errors' => array(
-        array('remove_payment_text')
+        array('void_payment_text')
       ),
-      '#element_key' => 'remove-payment',
+      '#element_key' => 'void-payment',
     );
 
-    $form['balance']['remove_payment_text'] = array(
+    $form['balance']['void_payment_text'] = array(
       '#type' => 'hidden',
       '#attributes' => array(
         'class' => array(
-          'commerce-pos-remove-payment-input'
+          'commerce-pos-void-payment-input'
         ),
         'style' => array('display: none')
       ),
@@ -255,16 +255,46 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#element_key' => 'park-transaction',
     );
 
-    $form['balance']['actions']['void'] = array(
-      '#type' => 'button',
-      '#value' => t('Void'),
-      '#attributes' => array(
-        'class' => array('commerce-pos-transaction-btn'),
-      ),
-      '#ajax' => $form_ajax,
-      '#limit_validation_errors' => array(),
-      '#element_key' => 'void-transaction',
-    );
+    if (isset($form_state['force-void-transaction-prompt']) && $form_state['force-void-transaction-prompt'] === TRUE) {
+      $form['balance']['actions']['void-prompt'] = array(
+        // TODO set sale/return text depending on type of transaction.
+        '#markup' => '<p>' . t('You have payments that have not yet been voided. Are you sure you want to void this @type? The payments will not be voided if you continue.', array('@type' => $transaction_type)) . '</p>',
+      );
+
+      $form['balance']['actions']['void'] = array(
+        '#type' => 'button',
+        '#value' => t('Void'),
+        '#attributes' => array(
+          'class' => array('commerce-pos-transaction-btn'),
+        ),
+        '#ajax' => $form_ajax,
+        '#limit_validation_errors' => array(),
+        '#element_key' => 'force-void-transaction-yes',
+      );
+
+      $form['balance']['actions']['cancel_void'] = array(
+        '#type' => 'button',
+        '#value' => t('Cancel'),
+        '#attributes' => array(
+          'class' => array('commerce-pos-transaction-btn'),
+        ),
+        '#ajax' => $form_ajax,
+        '#limit_validation_errors' => array(),
+        '#element_key' => 'force-void-transaction-no',
+      );
+    }
+    else {
+      $form['balance']['actions']['void'] = array(
+        '#type' => 'button',
+        '#value' => t('Void'),
+        '#attributes' => array(
+          'class' => array('commerce-pos-transaction-btn'),
+        ),
+        '#ajax' => $form_ajax,
+        '#limit_validation_errors' => array(),
+        '#element_key' => 'void-transaction',
+      );
+    }
 
     $form['balance']['actions']['customer'] = array(
       '#type' => 'textfield',
@@ -346,10 +376,13 @@ function commerce_pos_payment_validate($form, &$form_state) {
 
 }
 
-function commerce_pos_payment_remove_payment_submit($form, &$form_state){
-  $transaction_id = $form_state['values']['remove_payment_text'];
+/**
+ * Submit handler for a payment transaction's "void" link.
+ */
+function commerce_pos_payment_void_payment_submit($form, &$form_state){
+  $transaction_id = $form_state['values']['void_payment_text'];
 
-  commerce_payment_transaction_delete($transaction_id);
+  commerce_pos_payment_transaction_void($transaction_id);
 
   $form_state['rebuild'] = TRUE;
 }
@@ -397,7 +430,23 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
           break;
 
         case 'void-transaction':
+          if (commerce_pos_void_transaction_validate($transaction)) {
+            $transaction->void();
+            unset($form_state['transaction']);
+            drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
+          }
+          else {
+            $form_state['force-void-transaction-prompt'] = TRUE;
+          }
+          break;
+
+        case 'force-void-transaction-no':
+          unset($form_state['force-void-transaction-prompt']);
+          break;
+
+        case 'force-void-transaction-yes':
           $transaction->void();
+          unset($form_state['force-void-transaction-prompt']);
           unset($form_state['transaction']);
           drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
           break;
@@ -413,4 +462,30 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
       }
     }
   }
+}
+
+/**
+ * Determine if it's safe to void a transaction or not.
+ *
+ * It is considered unsafe to void a transaction that still have successful
+ * payment transactions on it.
+ *
+ * @param CommercePosTransaction $transaction
+ * @return bool
+ */
+function commerce_pos_void_transaction_validate($transaction) {
+  $valid = TRUE;
+  $order = $transaction->getOrder();
+
+  foreach (commerce_pos_get_order_transactions($order->order_id) as $payment_transaction_id) {
+    $payment_transaction = commerce_payment_transaction_load($payment_transaction_id);
+    if ($payment_transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS) {
+      // It is unnecessary to look at additional transactions after finding a
+      // single successful one.
+      $valid = FALSE;
+      break;
+    }
+  }
+
+  return $valid;
 }
