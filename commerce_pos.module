@@ -251,7 +251,7 @@ function commerce_pos_commerce_payment_transaction_status_info() {
   $statuses[COMMERCE_PAYMENT_STATUS_VOID] = array(
     'status' => COMMERCE_PAYMENT_STATUS_VOID,
     'title' => t('Void'),
-    'icon' => drupal_get_path('module', 'commerce_pos') . '/theme/icon-void.png',
+    'icon' => drupal_get_path('module', 'commerce_pos') . '/images/icon-void.png',
     'total' => FALSE,
   );
   return $statuses;
@@ -911,18 +911,18 @@ function commerce_pos_payment_transaction_void($transaction_id) {
 
     if (function_exists($void_callback)) {
       $void_callback_exists = TRUE;
-      $successful_void = $void_callback($transaction);
+      $void_result = $void_callback($transaction);
 
       // Update the transaction if the module was able to void it. Otherwise,
       // just inform the user.
-      if ($successful_void) {
+      if ($void_result['success']) {
         $transaction->status = COMMERCE_PAYMENT_STATUS_VOID;
         commerce_payment_transaction_save($transaction);
       }
       else {
         drupal_set_message(t('Failed to void transaction @id.@message', array(
           '@id' => $transaction_id,
-          '@message' => (isset($result['message'])) ? ' ' . $result['message'] : NULL,
+          '@message' => (isset($void_result['message'])) ? ' ' . $void_result['message'] : NULL,
         )), 'error');
       }
     }

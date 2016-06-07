@@ -78,9 +78,17 @@ function hook_commerce_pos_transaction_state_alter(&$administrative_area, Commer
  * Allows modules to attempt to act on voiding a transaction.
  * @param $transaction
  *   A commerce payment transaction.
- * @return bool
- *   Return TRUE if the module was able to void the transaction.
+ * @return array
+ *   An array with the following keys:
+ *   - success: bool indicating the success of the void attempt.
+ *   - message: Optional string.
  */
 function hook_commerce_pos_void_payment_transaction($transaction) {
-  return commerce_pos_void_transaction_example($transaction);
+  $voided = commerce_pos_void_transaction_example($transaction);
+  return array(
+    'success' => $voided,
+    'message' => t('It @result!', array(
+      '@result' => ($voided) ? t('worked') : t('failed'),
+    )),
+  );
 }
