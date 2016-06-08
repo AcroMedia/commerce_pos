@@ -334,109 +334,120 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#id' => 'commerce-pos-transactions-options-wrapper',
   );
 
+  $transaction_options = &$form['transaction_options'];
+
   if ($has_active_transaction) {
     $order_total = commerce_pos_price_order_format($order_wrapper, 'commerce_order_total', $return);
-    $transaction_options = &$form['transaction_options'];
 
-    $transaction_options['order_total'] = array(
-      '#markup' => render($order_total),
-    );
-
-    $order_value = $form_state['order_wrapper']->value();
     $transaction_options['balance'] = array(
-      '#markup' => commerce_pos_balance_summary($order_value),
+      '#markup' => commerce_pos_balance_summary($order_wrapper->value()),
+      '#weight' => -9,
     );
+  }
+  else {
+    $order_total = commerce_pos_empty_order_format_total();
+  }
 
-    $transaction_options['actions'] = array(
-      '#type' => 'action',
-    );
+  $transaction_options['order_total'] = array(
+    '#markup' => render($order_total),
+    '#weight' => -10,
+  );
 
-    $transaction_options['actions']['void_payment'] = array(
-      '#type' => 'submit',
-      '#value' => t('Void Payment'),
-      '#attributes' => array(
-        'class' => array(
-          'commerce-pos-transaction-btn',
-          'commerce-pos-void-payment'
-        ),
-        'style' => array('display: none')
-      ),
-      '#submit' => array('commerce_pos_transaction_void_payment_submit'),
-      '#ajax' => array_merge($wrapper_ajax, array('event' => 'void_payment')),
-      '#limit_validation_errors' => array(
-        array('transaction_options', 'void_payment_text')
-      ),
-      '#element_key' => 'void-payment',
-    );
+  $transaction_options['actions'] = array(
+    '#type' => 'action',
+  );
 
-    $transaction_options['void_payment_text'] = array(
-      '#type' => 'hidden',
-      '#default_value' => null,
-      '#attributes' => array(
-        'class' => array(
-          'commerce-pos-void-payment-input'
-        ),
-        'style' => array('display: none')
+  $transaction_options['actions']['void_payment'] = array(
+    '#type' => 'submit',
+    '#value' => t('Void Payment'),
+    '#attributes' => array(
+      'class' => array(
+        'commerce-pos-transaction-btn',
+        'commerce-pos-void-payment'
       ),
-    );
+      'style' => array('display: none')
+    ),
+    '#submit' => array('commerce_pos_transaction_void_payment_submit'),
+    '#ajax' => array_merge($wrapper_ajax, array('event' => 'void_payment')),
+    '#limit_validation_errors' => array(
+      array('transaction_options', 'void_payment_text')
+    ),
+    '#element_key' => 'void-payment',
+  );
 
-    if (module_exists('form_keybinds')) {
-      $button_keybind_text = ' ' .  t('(F4)');
-    }
-    else {
-      $button_keybind_text = '';
-    }
+  $transaction_options['void_payment_text'] = array(
+    '#type' => 'hidden',
+    '#default_value' => null,
+    '#attributes' => array(
+      'class' => array(
+        'commerce-pos-void-payment-input'
+      ),
+      'style' => array('display: none')
+    ),
+  );
 
-    $transaction_options['actions']['pay'] = array(
-      '#type' => 'submit',
-      '#value' => ($return ? t('Refund') : t('Pay')) . $button_keybind_text,
-      '#attributes' => array(
-        'class' => array('commerce-pos-btn-pay'),
-      ),
-      // This won't do anything without form_keybinds installed.
-      '#key_binds' => array('f4'),
-      '#validate' => array('commerce_pos_transaction_pay_validate'),
-      '#submit' => array('commerce_pos_transaction_pay_submit'),
-    );
+  if (module_exists('form_keybinds')) {
+    $button_keybind_text = ' ' .  t('(F4)');
+  }
+  else {
+    $button_keybind_text = '';
+  }
 
-    $transaction_options['actions']['park'] = array(
-      '#type' => 'button',
-      '#value' => t('Park'),
-      '#attributes' => array(
-        'class' => array('commerce-pos-transaction-btn'),
-      ),
-      '#ajax' => $wrapper_ajax,
-      '#limit_validation_errors' => array(),
-      '#element_key' => 'park-transaction',
-    );
+  $transaction_options['actions']['pay'] = array(
+    '#type' => 'submit',
+    '#value' => ($return ? t('Refund') : t('Pay')) . $button_keybind_text,
+    '#attributes' => array(
+      'class' => array('commerce-pos-btn-pay'),
+    ),
+    // This won't do anything without form_keybinds installed.
+    '#key_binds' => array('f4'),
+    '#validate' => array('commerce_pos_transaction_pay_validate'),
+    '#submit' => array('commerce_pos_transaction_pay_submit'),
+  );
 
-    $transaction_options['actions']['void'] = array(
-      '#type' => 'button',
-      '#value' => t('Void'),
-      '#attributes' => array(
-        'class' => array('commerce-pos-transaction-btn'),
-      ),
-      '#ajax' => $wrapper_ajax,
-      '#limit_validation_errors' => array(),
-      '#element_key' => 'void-transaction',
-    );
+  $transaction_options['actions']['park'] = array(
+    '#type' => 'button',
+    '#value' => t('Park'),
+    '#attributes' => array(
+      'class' => array('commerce-pos-transaction-btn'),
+    ),
+    '#ajax' => $wrapper_ajax,
+    '#limit_validation_errors' => array(),
+    '#element_key' => 'park-transaction',
+  );
 
-    $transaction_options['customer'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Customer'),
-      '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
-      '#ajax' => array(
-        'wrapper' => 'commerce-pos-customer-input-wrapper',
-        'callback' => 'commerce_pos_customer_js',
-      ),
-      '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
-      '#suffix' => '</div>',
-      '#element_key' => 'customer-update',
-      '#attributes' => array(
-        'placeholder' => t('email@address.com'),
-      ),
-      '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
-    );
+  $transaction_options['actions']['void'] = array(
+    '#type' => 'button',
+    '#value' => t('Void'),
+    '#attributes' => array(
+      'class' => array('commerce-pos-transaction-btn'),
+    ),
+    '#ajax' => $wrapper_ajax,
+    '#limit_validation_errors' => array(),
+    '#element_key' => 'void-transaction',
+  );
+
+  $transaction_options['customer'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Customer'),
+    '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
+    '#ajax' => array(
+      'wrapper' => 'commerce-pos-customer-input-wrapper',
+      'callback' => 'commerce_pos_customer_js',
+    ),
+    '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
+    '#suffix' => '</div>',
+    '#element_key' => 'customer-update',
+    '#attributes' => array(
+      'placeholder' => t('email@address.com'),
+    ),
+    '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
+  );
+
+  if (!$has_active_transaction) {
+    $transaction_options['actions']['pay']['#disabled'] = TRUE;
+    $transaction_options['actions']['void']['#disabled'] = TRUE;
+    $transaction_options['actions']['park'] ['#disabled'] = TRUE;
   }
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $wrapper_ajax, $has_active_transaction);

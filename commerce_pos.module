@@ -719,6 +719,42 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
 }
 
 /**
+ * Formats an empty order with 0 value as components.
+ *
+ * A customized version of the 'commerce_price_formatted_components' display
+ * from commerce_price_field_formatter_view().
+ *
+ * @param array|null $currency_code
+ *   The currency code of the order
+ *
+ * @return array
+ *   A render array for the formatted price field.
+ */
+function commerce_pos_empty_order_format_total(array $currency_code = NULL) {
+  $currency = empty($currency_code) ? commerce_default_currency() : $currency_code;
+  $formatted_price = commerce_currency_format(0, $currency_code);
+  $price = array(
+    'amount' => 0,
+    'currency_code' => $currency,
+  );
+  $components = array(
+    'commerce_price_formatted_amount' => array(
+      'title' => t('Total'),
+      'price' => $price,
+      'weight' => 1,
+      'formatted_price' => '(' . $formatted_price . ')',
+    ),
+  );
+
+  return array(
+    '#markup' => theme('commerce_pos_price_formatted_components', array(
+      'components' => $components,
+      'price' => $price,
+    )),
+  );
+}
+
+/**
  * Builds an array of product data for the product autocomplete.
  */
 function _commerce_pos_product_autocomplete_build($product_id) {
