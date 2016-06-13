@@ -43,6 +43,7 @@ function commerce_pos_register_select($form, &$form_state) {
  */
 function commerce_pos_register_select_submit($form, &$form_state) {
   commerce_pos_register_set_current_register($form_state['values']['register']);
+  commerce_pos_register_set_current_location($form_state['values']['register']);
   $form_state['redirect'] = 'admin/commerce/pos';
 }
 
