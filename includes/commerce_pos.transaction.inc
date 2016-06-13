@@ -1,7 +1,6 @@
 <?php
 
 
-
 /**
  * @file
  * Common form-based functions for transactions.
@@ -135,7 +134,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#size' => 60,
     '#description' => 'Search by SKU or product title, start typing to begin your search.',
     '#attributes' => array(
-      'class' => array('commerce-pos-product-autocomplete', 'commerce-pos-product-search'),
+      'class' => array(
+        'commerce-pos-product-autocomplete',
+        'commerce-pos-product-search',
+      ),
     ),
     '#element_validate' => array('_commerce_pos_transaction_validate_product_input'),
   );
@@ -198,7 +200,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $line_item_element['title'] = array(
-        '#markup' => '<span class="title">'. $line_item_wrapper->commerce_product->title->value() .'</span>',
+        '#markup' => '<span class="title">' . $line_item_wrapper->commerce_product->title->value() . '</span>',
       );
 
       if ($display_nid = commerce_pos_get_product_display_nid($line_item_wrapper->commerce_product->product_id->value())) {
@@ -238,64 +240,64 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $line_item_element['quantity_wrapper_open'] = array(
-          '#markup' => '<div class="quantity-wrapper line-item-col">',
+        '#markup' => '<div class="quantity-wrapper line-item-col">',
       );
 
       $line_item_element['textbox_wrapper_open'] = array(
-          '#markup' => '<div class="textbox-wrapper">',
+        '#markup' => '<div class="textbox-wrapper">',
       );
 
       $line_item_element['qty'] = array(
-          '#title' => (int) $line_item_wrapper->quantity->value(),
-          '#type' => 'textfield',
-          '#value' => (int) $line_item_wrapper->quantity->value(),
-          '#size' => 4,
-          '#maxlength' => 4,
-          '#ajax' => $wrapper_ajax,
-          '#element_key' => 'line-item-qty',
-          '#line_item_id' => $line_item_id,
-          '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
-          '#attributes' => array(
-              'class' => array('commerce-pos-hidden-element'),
-          ),
+        '#title' => (int) $line_item_wrapper->quantity->value(),
+        '#type' => 'textfield',
+        '#value' => (int) $line_item_wrapper->quantity->value(),
+        '#size' => 4,
+        '#maxlength' => 4,
+        '#ajax' => $wrapper_ajax,
+        '#element_key' => 'line-item-qty',
+        '#line_item_id' => $line_item_id,
+        '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
+        '#attributes' => array(
+          'class' => array('commerce-pos-hidden-element'),
+        ),
       );
 
       $line_item_element['textbox_wrapper_close'] = array(
-          '#markup' => '</div>',
+        '#markup' => '</div>',
       );
 
 
       $line_item_element['add_remove_wrapper_open'] = array(
-          '#markup' => '<div class="add-remove-wrapper line-item-col">',
+        '#markup' => '<div class="add-remove-wrapper line-item-col">',
       );
 
       $line_item_element['add_qty'] = array(
-          '#type' => 'button',
-          '#value' => '+',
-          '#name' => 'line-item-' . $line_item_id . '-plus',
-          '#element_key' => 'line-item-add-qty',
-          '#line_item_id' => $line_item_id,
-          '#ajax' => $wrapper_ajax,
-          '#attributes' => array(
-              'tabindex' => 0,
-          ),
+        '#type' => 'button',
+        '#value' => '+',
+        '#name' => 'line-item-' . $line_item_id . '-plus',
+        '#element_key' => 'line-item-add-qty',
+        '#line_item_id' => $line_item_id,
+        '#ajax' => $wrapper_ajax,
+        '#attributes' => array(
+          'tabindex' => 0,
+        ),
       );
 
       $line_item_element['remove_qty'] = array(
-          '#type' => 'button',
-          '#value' => '-',
-          '#name' => 'line-item-' . $line_item_id . '-minus',
-          '#element_key' => 'line-item-remove-qty',
-          '#line_item_id' => $line_item_id,
-          '#ajax' => $wrapper_ajax,
+        '#type' => 'button',
+        '#value' => '-',
+        '#name' => 'line-item-' . $line_item_id . '-minus',
+        '#element_key' => 'line-item-remove-qty',
+        '#line_item_id' => $line_item_id,
+        '#ajax' => $wrapper_ajax,
       );
 
       $line_item_element['add_remove_wrapper_close'] = array(
-          '#markup' => '</div>',
+        '#markup' => '</div>',
       );
 
       $line_item_element['quantity_wrapper_close'] = array(
-          '#markup' => '</div>',
+        '#markup' => '</div>',
       );
 
       $line_item_element['total_wrapper_open'] = array(
@@ -363,31 +365,31 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#attributes' => array(
       'class' => array(
         'commerce-pos-transaction-btn',
-        'commerce-pos-void-payment'
+        'commerce-pos-void-payment',
       ),
-      'style' => array('display: none')
+      'style' => array('display: none'),
     ),
     '#submit' => array('commerce_pos_transaction_void_payment_submit'),
     '#ajax' => array_merge($wrapper_ajax, array('event' => 'void_payment')),
     '#limit_validation_errors' => array(
-      array('transaction_options', 'void_payment_text')
+      array('transaction_options', 'void_payment_text'),
     ),
     '#element_key' => 'void-payment',
   );
 
   $transaction_options['void_payment_text'] = array(
     '#type' => 'hidden',
-    '#default_value' => null,
+    '#default_value' => NULL,
     '#attributes' => array(
       'class' => array(
-        'commerce-pos-void-payment-input'
+        'commerce-pos-void-payment-input',
       ),
-      'style' => array('display: none')
+      'style' => array('display: none'),
     ),
   );
 
   if (module_exists('form_keybinds')) {
-    $button_keybind_text = ' ' .  t('(F4)');
+    $button_keybind_text = ' ' . t('(F4)');
   }
   else {
     $button_keybind_text = '';
@@ -498,7 +500,7 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   }
 }
 
-function commerce_pos_transaction_void_payment_submit($form, &$form_state){
+function commerce_pos_transaction_void_payment_submit($form, &$form_state) {
   $transaction_id = $form_state['values']['transaction_options']['void_payment_text'];
 
   commerce_pos_payment_transaction_void($transaction_id);

@@ -98,7 +98,10 @@ class CommercePosTransaction {
 
       foreach ($this->events[$event_name]['subscriptions'] as $base_class => $methods) {
         foreach ($methods as $method) {
-          call_user_func_array(array($this->bases[$base_class], $method), $args);
+          call_user_func_array(array(
+            $this->bases[$base_class],
+            $method,
+          ), $args);
         }
       }
     }
@@ -199,7 +202,10 @@ class CommercePosTransaction {
 
       $this->invokeEvent($action_name . 'Before', $arguments);
 
-      $result = call_user_func_array(array($base_class, $action_name), $arguments);
+      $result = call_user_func_array(array(
+        $base_class,
+        $action_name,
+      ), $arguments);
 
       // Add the result of the initial method call to our arguments so that it's
       // always the last argument passed to any 'after' subscriptions.
@@ -226,7 +232,8 @@ class CommercePosTransaction {
   protected function checkOrderWrapper() {
     if ($this->order) {
       if (($this->orderWrapper && $this->orderWrapper !== $this->order) ||
-        (!$this->orderWrapper)) {
+        (!$this->orderWrapper)
+      ) {
         $this->orderWrapper = entity_metadata_wrapper('commerce_order', $this->order);
       }
     }

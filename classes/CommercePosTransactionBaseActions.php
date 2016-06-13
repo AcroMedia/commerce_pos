@@ -522,7 +522,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
           // item or exists on one line item but not the other...
           if ((!isset($matching_line_item_wrapper->value()->{$property}) && isset($line_item_wrapper->value()->{$property})) ||
             (isset($matching_line_item_wrapper->value()->{$property}) && !isset($line_item_wrapper->value()->{$property})) ||
-            $matching_line_item_wrapper->{$property}->raw() != $line_item_wrapper->{$property}->raw()) {
+            $matching_line_item_wrapper->{$property}->raw() != $line_item_wrapper->{$property}->raw()
+          ) {
             // Continue the loop with the next line item.
             continue 2;
           }

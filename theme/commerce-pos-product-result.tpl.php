@@ -18,27 +18,32 @@
     <?php print $image; ?>
   </div>
   <div class="display-add">
-    <?php print l('+', '', array('fragment' => '#', 'external' => TRUE, 'attributes' => array(
-      'class' => array('btn-add'),
-      'data-product-sku' => $product->sku,
-    ))); ?>
+    <?php print l('+', '', array(
+      'fragment' => '#',
+      'external' => TRUE,
+      'attributes' => array(
+        'class' => array('btn-add'),
+        'data-product-sku' => $product->sku,
+      ),
+    )); ?>
   </div>
   <div class="display-details">
     <div class="title">
       <?php print $product->title; ?>
     </div>
     <div class="sku">
-      <?php if ($product_display) { ?>
+      <?php if ($product_display) : ?>
         <?php print l($product->sku, $product_display, array(
           'attributes' => array(
             'target' => '_blank',
-            'onclick' => 'event.stopPropagation();', // because the event is dynamically added to dom we need to prevent bubbling immediately by doing it inline
-          )
+            // because the event is dynamically added to dom we need to prevent bubbling immediately by doing it inline
+            'onclick' => 'event.stopPropagation();',
+          ),
         )); ?>
         <?php print $product_display; ?>
-      <?php }else{ ?>
+      <?php else: ?>
         <?php print $product->sku; ?>
-      <?php } ?>
+      <?php endif; ?>
     </div>
   </div>
   <div class="display-stock">

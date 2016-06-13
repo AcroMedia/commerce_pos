@@ -95,7 +95,7 @@ function commerce_pos_product_search_basic($keywords) {
  * Similar to user_autocomplete(), but we also take a look at user emails.
  * The JSON result is also keyed by email instead of username.
  */
-function commerce_pos_user_autocomplete($string  = '') {
+function commerce_pos_user_autocomplete($string = '') {
   $matches = array();
 
   if ($string) {
@@ -129,8 +129,8 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
       '#type' => 'container',
       '#tree' => TRUE,
       '#attributes' => array(
-        'class' => array('parked-transactions-wrapper')
-      )
+        'class' => array('parked-transactions-wrapper'),
+      ),
     );
 
     $description = format_plural(count($parked_transactions), '1 Transaction Parked', '@count Transactions Parked') . ' - ';

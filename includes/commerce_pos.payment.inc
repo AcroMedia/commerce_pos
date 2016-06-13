@@ -53,7 +53,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     if ($transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid)) {
       $order_wrapper = $transaction->getOrderWrapper();
 
-      if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress' ) {
+      if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress') {
         $form_state['transaction'] = $transaction;
         $form_state['order_wrapper'] = $order_wrapper;
       }
@@ -103,7 +103,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#theme' => 'commerce_pos_product_summary',
       '#order' => $form_state['order_wrapper']->value(),
       '#attributes' => array(
-        'class' => array('element-invisible')
+        'class' => array('element-invisible'),
       ),
     );
 
@@ -155,11 +155,11 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         )),
         '#required' => TRUE,
         '#attributes' => array(
-            'autofocus' => 'autofocus',
-            'autocomplete' => 'off',
-            'class' => array(
-              'commerce-pos-payment-keypad-amount'
-            )
+          'autofocus' => 'autofocus',
+          'autocomplete' => 'off',
+          'class' => array(
+            'commerce-pos-payment-keypad-amount',
+          ),
         ),
       );
 
@@ -181,7 +181,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#submit' => array('commerce_pos_payment_add_payment_submit'),
         '#ajax' => $form_ajax,
         '#payment_method_id' => $method_id,
-        '#element_key' => 'add-payment'
+        '#element_key' => 'add-payment',
       );
     }
 
@@ -211,14 +211,14 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#attributes' => array(
         'class' => array(
           'commerce-pos-transaction-btn',
-          'commerce-pos-void-payment'
+          'commerce-pos-void-payment',
         ),
-        'style' => array('display: none')
+        'style' => array('display: none'),
       ),
       '#submit' => array('commerce_pos_payment_void_payment_submit'),
       '#ajax' => array_merge($form_ajax, array('event' => 'void_payment')),
       '#limit_validation_errors' => array(
-        array('void_payment_text')
+        array('void_payment_text'),
       ),
       '#element_key' => 'void-payment',
     );
@@ -227,9 +227,9 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#type' => 'hidden',
       '#attributes' => array(
         'class' => array(
-          'commerce-pos-void-payment-input'
+          'commerce-pos-void-payment-input',
         ),
-        'style' => array('display: none')
+        'style' => array('display: none'),
       ),
     );
 
@@ -240,8 +240,8 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#validate' => array('commerce_pos_payment_validate'),
       '#submit' => array('commerce_pos_payment_finish'),
       '#attributes' => array(
-        'class' => array('commerce-pos-payment-finish-btn')
-      )
+        'class' => array('commerce-pos-payment-finish-btn'),
+      ),
     );
 
     $form['balance']['actions']['park'] = array(
@@ -321,7 +321,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
 
-    $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.payment.js';
 }
 
@@ -379,7 +379,7 @@ function commerce_pos_payment_validate($form, &$form_state) {
 /**
  * Submit handler for a payment transaction's "void" link.
  */
-function commerce_pos_payment_void_payment_submit($form, &$form_state){
+function commerce_pos_payment_void_payment_submit($form, &$form_state) {
   $transaction_id = $form_state['values']['void_payment_text'];
 
   commerce_pos_payment_transaction_void($transaction_id);

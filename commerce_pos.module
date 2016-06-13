@@ -20,7 +20,7 @@ function commerce_pos_menu() {
       array(
         'process commerce pos sales',
         'process commerce pos returns',
-      )
+      ),
     ),
     'access callback' => '_commerce_pos_access_check',
     'file' => 'includes/commerce_pos.pages.inc',
@@ -81,7 +81,7 @@ function commerce_pos_menu() {
       array(
         'process commerce pos sales',
         'process commerce pos returns',
-      )
+      ),
     ),
     'file' => 'includes/commerce_pos.common.inc',
     'type' => MENU_CALLBACK,
@@ -127,7 +127,7 @@ function commerce_pos_menu() {
  */
 function commerce_pos_permission() {
   return array(
-    'administer commerce pos' =>  array(
+    'administer commerce pos' => array(
       'title' => t('Administer Commerce POS'),
     ),
     'process commerce pos sales' => array(
@@ -180,7 +180,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'rows' => array(),
         'form' => NULL,
         'totals' => array(),
-        'view' => NULL
+        'view' => NULL,
       ),
     ),
     'commerce_pos_header' => array(
@@ -208,7 +208,8 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
     ),
     'commerce_pos_price_formatted_components' => array(
       'variables' => array(
-        'components' => array(), 'price' => array()
+        'components' => array(),
+        'price' => array(),
       ),
     ),
   );
@@ -368,8 +369,14 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('Refund') : t('To pay'), 'class' => array('label')),
-          array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+          array(
+            'data' => $return ? t('Refund') : t('To pay'),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix,
+            'class' => array('balance'),
+          ),
         ),
         'class' => array('order-to-pay'),
         'weight' => 10,
@@ -379,7 +386,10 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
         $rows[] = array(
           'data' => array(
             array('data' => t('Change'), 'class' => array('label')),
-            array('data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+            array(
+              'data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix,
+              'class' => array('balance'),
+            ),
           ),
           'class' => array('order-change'),
           'weight' => 15,
@@ -394,8 +404,14 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     // Add a row for the total amount paid.
     $rows[] = array(
       'data' => array(
-        array('data' => $return ? t('Total Refunded') : t('Total Paid'), 'class' => array('label')),
-        array('data' => $balance_prefix . commerce_currency_format($totals[$currency_code], $currency_code) . $balance_suffix, 'class' => array('total')),
+        array(
+          'data' => $return ? t('Total Refunded') : t('Total Paid'),
+          'class' => array('label'),
+        ),
+        array(
+          'data' => $balance_prefix . commerce_currency_format($totals[$currency_code], $currency_code) . $balance_suffix,
+          'class' => array('total'),
+        ),
       ),
       'class' => array('total-paid'),
       'weight' => 0,
@@ -408,8 +424,14 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('To Refund') : t('To Pay'), 'class' => array('label')),
-          array('data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix, 'class' => array('balance')),
+          array(
+            'data' => $return ? t('To Refund') : t('To Pay'),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix,
+            'class' => array('balance'),
+          ),
         ),
         'class' => array('order-to-pay'),
         'weight' => 10,
@@ -419,7 +441,10 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
         $rows[] = array(
           'data' => array(
             array('data' => t('Change'), 'class' => array('label')),
-            array('data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']), 'class' => array('balance')),
+            array(
+              'data' => commerce_currency_format($balance['amount'] * -1, $balance['currency_code']),
+              'class' => array('balance'),
+            ),
           ),
           'class' => array('order-change'),
           'weight' => 15,
@@ -433,8 +458,14 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     foreach ($totals as $currency_code => $amount) {
       $rows[] = array(
         'data' => array(
-          array('data' => $return ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
-          array('data' => $balance_prefix . commerce_currency_format($amount > 0 ? $amount : 0, $currency_code) . $balance_suffix, 'class' => array('balance')),
+          array(
+            'data' => $return ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)),
+            'class' => array('label'),
+          ),
+          array(
+            'data' => $balance_prefix . commerce_currency_format($amount > 0 ? $amount : 0, $currency_code) . $balance_suffix,
+            'class' => array('balance'),
+          ),
         ),
         'class' => array('order-to-pay', 'order-to-pay-' . $currency_code),
         'weight' => $weight++,
@@ -443,8 +474,14 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($amount < 0) {
         $rows[] = array(
           'data' => array(
-            array('data' => t('Change (@currency_code)', array('@currency_code' => $currency_code)), 'class' => array('label')),
-            array('data' => commerce_currency_format($amount * -1, $currency_code), 'class' => array('balance')),
+            array(
+              'data' => t('Change (@currency_code)', array('@currency_code' => $currency_code)),
+              'class' => array('label'),
+            ),
+            array(
+              'data' => commerce_currency_format($amount * -1, $currency_code),
+              'class' => array('balance'),
+            ),
           ),
           'class' => array('order-change', 'order-change-' . $currency_code),
           'weight' => $weight++,
@@ -589,7 +626,7 @@ function commerce_pos_disable_payment_method($method_id) {
  * @param $order
  *   If available, the order object to which the payments apply.
  *
- * @return
+ * @return array
  *   An array of table row data as expected by theme_table().
  *
  * @see hook_commerce_payment_totals_row_info()
@@ -728,7 +765,10 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
   }
 
   return array(
-    '#markup' => theme('commerce_pos_price_formatted_components', array('components' => $components, 'price' => $price)),
+    '#markup' => theme('commerce_pos_price_formatted_components', array(
+      'components' => $components,
+      'price' => $price,
+    )),
   );
 }
 
@@ -838,7 +878,8 @@ function _commerce_pos_product_thumbnail($product) {
 
   if ($image_fields = variable_get('commerce_pos_image_field_' . $product->type, FALSE)) {
     if (!($uri = _commerce_pos_image_uri('commerce_product', $product, $image_fields))
-     && $nid = commerce_pos_get_product_display_nid($product->product_id)) {
+      && $nid = commerce_pos_get_product_display_nid($product->product_id)
+    ) {
 
       // Try looking for images on the product display node.
       $node = node_load($nid);
@@ -924,13 +965,13 @@ function theme_commerce_pos_price_formatted_components($variables) {
     );
 
     // add action
-    if(isset($component['action'])){
+    if (isset($component['action'])) {
       $row['data'][] = array(
         'data' => $component['action'],
         'class' => array('component-action'),
       );
     }
-    else{
+    else {
       $row['data'][] = array();
     }
 
@@ -942,7 +983,10 @@ function theme_commerce_pos_price_formatted_components($variables) {
     $rows[] = $row;
   }
 
-  return theme('table', array('rows' => $rows, 'attributes' => array('class' => array('commerce-price-formatted-components'))));
+  return theme('table', array(
+    'rows' => $rows,
+    'attributes' => array('class' => array('commerce-price-formatted-components')),
+  ));
 }
 
 /**

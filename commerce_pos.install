@@ -119,7 +119,10 @@ function commerce_pos_requirements($phase) {
     $requirements['commerce_pos'] = array(
       'title' => $t('Commerce Point of Sale'),
       'severity' => REQUIREMENT_OK,
-      'value' => $t('jQuery %jquery (<a href="@link">configure</a>)', array('%jquery' => $jquery['version'], '@link' => url('admin/config/development/jquery_update'))),
+      'value' => $t('jQuery %jquery (<a href="@link">configure</a>)', array(
+        '%jquery' => $jquery['version'],
+        '@link' => url('admin/config/development/jquery_update'),
+      )),
     );
 
     if (version_compare($version, '1.7', '<')) {

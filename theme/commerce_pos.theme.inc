@@ -49,7 +49,8 @@ function theme_commerce_pos_product_summary(&$variables) {
   foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
     if ($line_item_wrapper->getBundle() == 'product'
       && isset($line_item_wrapper->commerce_product)
-      && $line_item_wrapper->commerce_product->getIdentifier()) {
+      && $line_item_wrapper->commerce_product->getIdentifier()
+    ) {
 
       $unit_price = $line_item_wrapper->commerce_unit_price->value();
       $total = $line_item_wrapper->commerce_total->value();
@@ -136,7 +137,7 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
         ),
         array(
           'data' => commerce_currency_format($amount, $currency_code),
-          'class' => array('amount')
+          'class' => array('amount'),
         ),
       ),
     );
@@ -184,7 +185,11 @@ function theme_commerce_pos_transaction_actions($variables) {
   foreach ($actions as $action) {
     $output[] = l($action, '#', array(
       'attributes' => array(
-        'class' => array('commerce-pos-' . $action . '-payment', 'button-link', 'small'),
+        'class' => array(
+          'commerce-pos-' . $action . '-payment',
+          'button-link',
+          'small',
+        ),
         'data-transaction-id' => $transaction->transaction_id,
       ),
     ));

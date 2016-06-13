@@ -19,5 +19,8 @@
  */
 ?>
 <div class="commerce-pos-transaction-balance">
-  <?php print theme('table', array('rows' => $rows, 'attributes' => array('class' => array('payment-totals-table')))); ?>
+  <?php print theme('table', array(
+    'rows' => $rows,
+    'attributes' => array('class' => array('payment-totals-table')),
+  )); ?>
 </div>
