@@ -159,6 +159,20 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'template' => 'commerce-pos-keypad',
       'path' => $path . '/theme',
     ),
+    'commerce_pos_order_balance_summary' => array(
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'order' => NULL,
+      ),
+    ),
+    'commerce_pos_transaction_actions' => array(
+      'file' => 'commerce_pos.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'transaction' => NULL,
+      ),
+    ),
     'commerce_pos_transaction_balance' => array(
       'template' => 'commerce-pos-transaction-balance',
       'path' => $path . '/theme',
@@ -595,7 +609,7 @@ function commerce_pos_balance_summary_rows($totals, $order) {
  * Returns a summary view of a POS transaction's order.
  */
 function commerce_pos_balance_summary($order) {
-  return views_embed_view('pos_balance_summary', 'block_1', $order->order_id);
+  return theme('commerce_pos_order_balance_summary', array('order' => $order));
 }
 
 /**
