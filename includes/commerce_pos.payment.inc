@@ -460,6 +460,9 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
           // If we didn't reach any of the above, it means we don't need to reload the order.
           $form_state['order_updated'] = FALSE;
       }
+
+      // See API documentation for an explanation of this hook.
+      drupal_alter('commerce_pos_sale_form_ajax', $form_state, $triggering_element);
     }
   }
 }

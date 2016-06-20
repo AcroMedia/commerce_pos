@@ -589,7 +589,7 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           $form_state['order_updated'] = FALSE;
       }
 
-      // See API documentation for explain of this hook.
+      // See API documentation for an explanation of this hook.
       drupal_alter('commerce_pos_sale_form_ajax', $form_state, $triggering_element);
     }
   }
