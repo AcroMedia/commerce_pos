@@ -60,10 +60,6 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     }
   }
 
-  $form['header'] = array(
-    '#markup' => theme('commerce_pos_header', array('account' => $user)),
-  );
-
   if (isset($form_state['transaction'])) {
     $order_value = $form_state['order_wrapper']->value();
     $order_balance = commerce_payment_order_balance($order_value);

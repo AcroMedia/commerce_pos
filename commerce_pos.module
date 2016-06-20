@@ -28,7 +28,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos/sale'] = array(
     'title' => 'Sale',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'commerce_pos_page',
     'page arguments' => array('commerce_pos_sale'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
@@ -37,7 +37,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos/sale/payment'] = array(
     'title' => 'Pay',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'commerce_pos_page',
     'page arguments' => array('commerce_pos_sale_payment'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
@@ -46,7 +46,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos/return'] = array(
     'title' => 'Return',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'commerce_pos_page',
     'page arguments' => array('commerce_pos_return'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos returns'),
@@ -56,7 +56,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos/return/payment'] = array(
     'title' => 'Refund',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'commerce_pos_page',
     'page arguments' => array('commerce_pos_return_payment'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos returns'),
@@ -66,7 +66,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos/login'] = array(
     'title' => 'Employee Login',
-    'page callback' => 'drupal_get_form',
+    'page callback' => 'commerce_pos_page',
     'page arguments' => array('commerce_pos_login'),
     'access arguments' => array('access content'),
     'file' => 'includes/commerce_pos.login.inc',
@@ -564,6 +564,30 @@ function commerce_pos_cop_edit_form_submit($form, &$form_state) {
       commerce_pos_disable_payment_method($payment_method_id);
     }
   }
+}
+
+/**
+ * Page callback: Displays the POS user interface.
+ *
+ * @param $form_id
+ *   The ID of the form to load.
+ *
+ * @return array
+ */
+function commerce_pos_page($form_id = NULL) {
+  global $user;
+
+  if (empty($form_id)) {
+    return MENU_NOT_FOUND;
+  }
+
+  $page['header'] = array(
+    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+  );
+
+  $page['form'] = drupal_get_form($form_id);
+
+  return $page;
 }
 
 /**
