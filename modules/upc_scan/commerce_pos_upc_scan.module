@@ -42,9 +42,6 @@ function _commerce_pos_upc_scan_transaction_form_alter(&$form, &$form_state) {
     '#ajax' => array(
       'callback' => 'commerce_pos_transaction_wrapper_js',
       'wrapper' => $form_state['wrapper_id'],
-      'progress' => array(
-        'type' => 'commerce_pos',
-      ),
     ),
     '#element_key' => 'product-upc',
     '#attributes' => array(
