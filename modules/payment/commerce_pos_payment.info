@@ -7,6 +7,7 @@ dependencies[] = commerce_pos
 dependencies[] = commerce_cop
 dependencies[] = commerce_payment
 dependencies[] = rules
+dependencies[] = features
 
 features[commerce_custom_offline_payment][] = credit
 features[commerce_custom_offline_payment][] = debit
