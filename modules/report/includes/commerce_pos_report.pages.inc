@@ -58,18 +58,27 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     '#element_key' => 'date_completed',
   );
 
-  if (module_exists('commerce_pos_register')) {
+  $register_id = 0;
+
+  if (module_exists('commerce_pos_register') && $register_options = commerce_pos_register_options()) {
     $current_register = commerce_pos_register_get_current_register();
-    $register_options = commerce_pos_register_options();
+    $register_ids = array();
+
+    foreach ($register_options as $location_name => $register_info) {
+      foreach ($register_info as $id => $name) {
+        $register_ids[] = $id;
+      }
+    }
 
     if (isset($form_state['input']['register_id'])) {
       $register_id = $form_state['input']['register_id'];
     }
-    elseif ($current_register) {
+    elseif ($current_register && in_array($current_register, $register_ids)) {
       $register_id = $current_register;
     }
     else {
-      $register_id = key($register_options);
+      // Fall back to using the first register ID.
+      $register_id = $register_ids[0];
     }
 
     $form['filters']['register_id'] = array(
@@ -79,9 +88,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       '#default_value' => $register_id,
       '#ajax' => $ajax,
     );
-  }
-  else {
-    $register_id = 0;
   }
 
   // Get saved data for requested date.

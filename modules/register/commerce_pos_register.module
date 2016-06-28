@@ -403,11 +403,13 @@ function commerce_pos_register_options() {
     $location = $register_wrapper->field_location_reference->value();
 
     if ($location) {
-      $registers[$location->name][$register->register_id] = $register->name;
+      $location_name = $location->name;
     }
     else {
-      $registers[t('No Location')] = $register->name;
+      $location_name = t('No Location');
     }
+
+    $registers[$location_name][$register->register_id] = $register->name;
   }
 
   return $registers;
