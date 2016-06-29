@@ -1,0 +1,25 @@
+//
+//---CASHIER---
+//
+.commerce-pos-header-cashier-form {
+  display: inline-block;
+  float: right;
+}
+
+.commerce-pos-cashier-login-form {
+  .form-item-code {
+    display: inline;
+
+    label {
+      display: inline;
+    }
+  }
+
+  .commerce-pos-cashier-code-input {
+    max-width: 100px;
+  }
+
+  .commerce-pos-cashier-login-form-submit {
+    display: none;
+  }
+}

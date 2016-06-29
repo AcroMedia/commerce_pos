@@ -1,0 +1,410 @@
+<?php
+/**
+ * @file
+ * commerce_pos_cashier.module
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_cashier_permission() {
+  return array(
+    'administer commerce pos cashiers' =>  array(
+      'title' => t('Administer POS cashiers'),
+    ),
+    'create commerce pos cashiers' =>  array(
+      'title' => t('Create new POS cashiers'),
+    ),
+    'view commerce pos cashiers' =>  array(
+      'title' => t('View POS cashiers'),
+    ),
+    'edit commerce pos cashiers' =>  array(
+      'title' => t('Edit POS cashiers'),
+    ),
+    'delete commerce pos cashiers' =>  array(
+      'title' => t('Delete POS cashiers'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_entity_info().
+ */
+function commerce_pos_cashier_entity_info() {
+  $info = array();
+
+  $info['commerce_pos_cashier'] = array(
+    'label' => t('POS Cashier'),
+    'entity class' => 'Entity',
+    'controller class' => 'CommercePosCashierEntityController',
+    'base table' => 'commerce_pos_cashier',
+    'access callback' => 'commerce_pos_cashier_entity_access_callback',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'cashier_id',
+      'label' => 'name',
+    ),
+    'load hook' => 'commerce_pos_cashier_load',
+    'admin ui' => array(
+      'path' => 'admin/commerce/config/pos/cashiers',
+      'controller class' => 'EntityDefaultUIController',
+    ),
+    'views controller class' => 'EntityDefaultViewsController',
+    'uri callback' => 'commerce_pos_cashier_uri',
+    'bundles' => array(
+      'commerce_pos_cashier' => array(
+        'label' => t('POS Cashier'),
+        'admin' => array(
+          'path' => 'admin/commerce/config/pos/cashiers',
+        ),
+      ),
+    ),
+  );
+
+  return $info;
+}
+
+/**
+ * Implements callback_entity_info_uri().
+ *
+ * URI callback for a commerce_pos_cashier entity.
+ */
+function commerce_pos_cashier_uri($cashier) {
+  return array(
+    'path' => 'admin/commerce/pos/cashier/' . $cashier->cashier_id,
+  );
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function commerce_pos_cashier_preprocess_commerce_pos_header(&$variables) {
+  // Restrict login form to sale and return pages and not, for example, reports.
+  $path = drupal_get_path_alias();
+  if (preg_match('/pos\/(sale|return)/', $path)) {
+    $variables['cashier_form'] = drupal_get_form('commerce_pos_cashier_login_form');
+  }
+}
+
+/**
+ * Access callback for POS cashier entities.
+ */
+function commerce_pos_cashier_entity_access_callback($op, $cashier = NULL, $account = NULL) {
+  global $user;
+
+  $permission_name = '';
+
+  if (!isset($account)) {
+    $account = $user;
+  }
+
+  switch ($op) {
+    case 'view':
+      $permission_name = 'view commerce pos cashiers';
+      break;
+
+    case 'edit':
+      $permission_name = 'edit commerce pos cashiers';
+      break;
+
+    case 'delete':
+      $permission_name = 'delete commerce pos cashiers';
+      break;
+
+    case 'create':
+      $permission_name = 'create commerce pos cashiers';
+      break;
+  }
+
+  return (user_access('administer commerce pos cashiers', $account) || user_access($permission_name, $account));
+}
+
+/**
+ * Implements hook_commerce_pos_transaction_base_info().
+ */
+function commerce_pos_cashier_commerce_pos_transaction_base_info() {
+  return array(
+    'commerce_pos_cashier_base' => array(
+      'class' => 'CommercePosCashierBase',
+      'types' => array(
+        CommercePosService::TRANSACTION_TYPE_SALE,
+        CommercePosService::TRANSACTION_TYPE_RETURN,
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function commerce_pos_cashier_form_commerce_pos_settings_alter(&$form, &$form_state, $form_id) {
+  $form['cashiers'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Cashiers'),
+  );
+
+  $form['cashiers']['commerce_pos_cashier_transaction_complete_logout'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Log out the cashier when transactions complete.'),
+    '#description' => t('Cashiers may re-enter their code start another transaction.'),
+    '#default_value' => variable_get('commerce_pos_cashier_transaction_complete_logout'),
+  );
+
+  $form['#submit'][] = 'commerce_pos_cashier_commerce_pos_settings_form_submit';
+}
+
+/**
+ * Submit handler for commerce_pos_settings_form().
+ */
+function commerce_pos_cashier_commerce_pos_settings_form_submit($form, &$form_state) {
+  if (isset($form_state['values']['commerce_pos_cashier_transaction_complete_logout'])) {
+    variable_set('commerce_pos_cashier_transaction_complete_logout', $form_state['values']['commerce_pos_cashier_transaction_complete_logout']);
+  }
+}
+
+/**
+ * Callback for the commerce_pos_cashier add/edit form.
+ */
+function commerce_pos_cashier_form($form, &$form_state, $cashier = NULL) {
+  $form['name'] = array(
+    '#title' => t('Cashier name'),
+    '#type' => 'textfield',
+    '#default_value' => isset($cashier->name) ? $cashier->name : '',
+    '#required' => TRUE,
+    '#weight' => -50,
+  );
+
+  $form['code'] = array(
+    '#title' => t('Cashier code'),
+    '#type' => 'textfield',
+    '#description' => t('A password-like code used to authenticate as this cashier.'),
+    '#default_value' => isset($cashier->code) ? $cashier->code : '',
+    '#required' => TRUE,
+    '#weight' => -49,
+  );
+
+  field_attach_form('commerce_pos_cashier', $cashier, $form, $form_state);
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => isset($cashier->cashier_id) ? t('Update Cashier') : t('Save Cashier'),
+    '#weight' => 50,
+  );
+
+  return $form;
+}
+
+/**
+ * Validation callback for the commerce_pos_cashier add/edit form.
+ *
+ * @param $form
+ * @param $form_state
+ */
+function commerce_pos_cashier_form_validate($form, &$form_state) {
+  $cashier = $form_state['commerce_pos_cashier'];
+  $code = $form_state['values']['code'];
+  $cashier_for_code = commerce_pos_cashier_load_cashier_by_code($code);
+
+  // Enforce unique cashier codes.
+  if ($cashier_for_code && $cashier_for_code->cashier_id !== $cashier->cashier_id) {
+    form_set_error('code', t('A cashier code must be unique.'));
+  }
+}
+
+/**
+ * Submit handler for the commerce_pos_cashier add/edit form.
+ */
+function commerce_pos_cashier_form_submit($form, &$form_state) {
+  $cashier = entity_ui_form_submit_build_entity($form, $form_state);
+  $cashier->save();
+  drupal_set_message(t('Cashier "@name" has been saved.', array('@name' => $cashier->name)));
+  $form_state['redirect'] = 'admin/commerce/config/pos/cashiers';
+}
+
+/**
+ * Loads a cashier by ID.
+ */
+function commerce_pos_cashier_load($cashier_id) {
+  if (empty($cashier_id)) {
+    return FALSE;
+  }
+
+  $cashiers = commerce_pos_cashier_load_multiple(array($cashier_id), array());
+  return $cashiers ? reset($cashiers) : FALSE;
+}
+
+/**
+ * Loads multiple cashiers by ID or based on a set of matching conditions.
+ *
+ * @see entity_load()
+ *
+ * @param $cashier_ids
+ *   An array of cashier IDs.
+ * @param $conditions
+ *   An array of conditions on the {commerce_pos_cashier} table in the form
+ *     'field' => $value.
+ * @param $reset
+ *   Whether to reset the internal product loading cache.
+ *
+ * @return array
+ *   An array of cashier objects indexed by cashier_id.
+ */
+function commerce_pos_cashier_load_multiple($cashier_ids = array(), $conditions = array(), $reset = FALSE) {
+  if (empty($cashier_ids) && empty($conditions)) {
+    return array();
+  }
+
+  return entity_load('commerce_pos_cashier', $cashier_ids, $conditions, $reset);
+}
+
+/**
+ * Title callback for a POS cashier display page.
+ */
+function commerce_pos_cashier_title($cashier) {
+  return $cashier->name;
+}
+
+/**
+ * Load a cashier entity by its code.
+ *
+ * @param string $code
+ *
+ * @return Entity|FALSE
+ *   Returns a loaded commerce pos cashier entity or FALSE.
+ */
+function commerce_pos_cashier_load_cashier_by_code($code) {
+  $query = new EntityFieldQuery();
+  $result = $query->entityCondition('entity_type', 'commerce_pos_cashier', '=')
+    ->propertyCondition('code', $code, '=')
+    ->execute();
+
+  if (!empty($result['commerce_pos_cashier'])) {
+    if (count($result['commerce_pos_cashier']) == 1) {
+      $result = reset($result['commerce_pos_cashier']);
+      return commerce_pos_cashier_load($result->cashier_id);
+    }
+  }
+
+  return FALSE;
+}
+
+/**
+ * Form callback for the cashier switch / login form.
+ */
+function commerce_pos_cashier_login_form($form, &$form_state) {
+  $form['#attributes']['class'] = array('commerce-pos-cashier-login-form');
+
+  $form['code'] = array(
+    '#title' => t('Cashier'),
+    '#type' => 'password',
+    '#attributes' => array(
+      'placeholder' => '****',
+      'class' => array('commerce-pos-cashier-code-input'),
+    ),
+  );
+
+  // Display label of current cashier.
+  if ($cashier_id = commerce_pos_cashier_get_current_cashier()) {
+    /** @var Entity $cashier */
+    $cashier = commerce_pos_cashier_load($cashier_id);
+    $form['code']['#title'] = $cashier->label();
+  }
+  else {
+    $form['code']['#attributes']['autofocus'] = TRUE;
+
+    // Warn the user if no cashiers exist yet.
+    if (!commerce_pos_cashier_cashiers_exist()) {
+      drupal_set_message(t('You must create at least one cashier. !create_link.', array(
+        '!create_link' => l('Create cashiers', '/admin/commerce/config/pos/cashiers'),
+      )), 'error');
+    }
+  }
+
+  $form['log_in'] = array(
+    '#type' => 'submit',
+    '#value' => t('Log In'),
+    '#attributes' => array(
+      'class' => array(
+        'commerce-pos-cashier-login-form-submit',
+        'commerce-pos-cashier-login-form-log-in',
+      ),
+    ),
+  );
+
+  $form['log_out'] = array(
+    '#type' => 'submit',
+    '#value' => t('Log out'),
+    '#submit' => array('commerce_pos_cashier_login_form_log_out'),
+    '#limit_validation' => array(),
+    '#attributes' => array(
+      'class' => array(
+        'commerce-pos-cashier-login-form-submit',
+        'commerce-pos-cashier-login-form-log-out',
+      )
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the cashier switch / login form.
+ */
+function commerce_pos_cashier_login_form_submit($form, &$form_state) {
+  $code = $form_state['values']['code'];
+
+  if ($cashier = commerce_pos_cashier_load_cashier_by_code($code)) {
+    commerce_pos_cashier_set_current_cashier($cashier);
+  }
+  else {
+    commerce_pos_cashier_clear_current_cashier();
+  }
+}
+
+/**
+ * Submit handler for the cashier switch / login form.
+ *
+ * Logs out the current cashier.
+ */
+function commerce_pos_cashier_login_form_log_out($form, &$form_state) {
+  commerce_pos_cashier_clear_current_cashier();
+}
+
+/**
+ * Set the current cashier.
+ *
+ * @param $cashier
+ */
+function commerce_pos_cashier_set_current_cashier($cashier) {
+  $_SESSION['commerce_pos_cashier_cashier_id'] = $cashier->cashier_id;
+}
+
+/**
+ * Get the current cashier.
+ *
+ * @return int|FALSE
+ */
+function commerce_pos_cashier_get_current_cashier() {
+  return (isset($_SESSION['commerce_pos_cashier_cashier_id'])) ? $_SESSION['commerce_pos_cashier_cashier_id'] : FALSE;
+}
+
+/**
+ * Unset the current cashier.
+ */
+function commerce_pos_cashier_clear_current_cashier() {
+  unset($_SESSION['commerce_pos_cashier_cashier_id']);
+}
+
+/**
+ * Determine if any cashiers have been created.
+ *
+ * @return bool
+ */
+function commerce_pos_cashier_cashiers_exist() {
+  $num_cashiers = db_select('commerce_pos_cashier', 'c')
+    ->countQuery()
+    ->execute()
+    ->fetchField();
+
+  return $num_cashiers > 0;
+}

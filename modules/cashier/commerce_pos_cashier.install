@@ -1,0 +1,65 @@
+<?php
+/**
+ * @file
+ * Install file for commerce_pos_cashier.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_cashier_schema() {
+  $schema['commerce_pos_cashier'] = array(
+    'description' => 'The base table for the POS Cashier entity',
+    'fields' => array(
+      'cashier_id' => array(
+        'description' => 'Primary key of the cashier entity',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Cashier name.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+        'default' => '',
+      ),
+      'created' => array(
+        'description' => 'The Unix timestamp when the cashier was created.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'changed' => array(
+        'description' => 'The Unix timestamp when the cashier was most recently saved.',
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ),
+      'code' => array(
+        'description' => 'The secret code for the cashier',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array('cashier_id'),
+    'indexes' => array(
+      'cashier_name' => array('name'),
+      'cashier_created' => array('created'),
+      'cashier_changed' => array('changed'),
+    ),
+    'unique keys' => array(
+      'code' => array('code'),
+    ),
+  );
+
+  return $schema;
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_pos_cashier_uninstall() {
+  variable_del('commerce_pos_cashier_transaction_complete_logout');
+}

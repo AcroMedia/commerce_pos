@@ -25,6 +25,13 @@ function commerce_pos_schema() {
         'not null' => TRUE,
         'default' => 0,
       ),
+      'cashier' => array(
+        'description' => 'The ID of the cashier that the transaction belongs to. Generally the last cashier to update the transaction.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ),
       'order_id' => array(
         'description' => 'The order ID for this transaction.',
         'type' => 'int',
@@ -170,5 +177,27 @@ function commerce_pos_update_7002(&$sandbox) {
     'type' => 'int',
     'not null' => TRUE,
     'default' => 0,
+  ));
+}
+
+/**
+ * Enable cashier sub-module.
+ */
+function commerce_pos_update_7203() {
+  $t = get_t();
+
+  db_add_field('commerce_pos_transaction', 'cashier', array(
+    'description' => 'The ID of the cashier that the transaction belongs to. Generally the last cashier to update the transaction.',
+    'type' => 'int',
+    'unsigned' => TRUE,
+    'not null' => TRUE,
+    'default' => 0,
+    'initial' => 0,
+  ));
+
+  module_enable(array('commerce_pos_cashier'));
+
+  return $t('This Point of Sale update introduces Cashiers, which are required to operate the POS. Please go !link to add one or more now.', array(
+    '!link' => l('here', 'admin/commerce/config/pos/cashiers'),
   ));
 }

@@ -28,20 +28,47 @@ function commerce_pos_return($form, &$form_state) {
 function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) {
   global $user;
 
-  commerce_pos_transaction_ajax_check($form, $form_state);
-  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
-
   $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
 
   $form['#theme'] = 'commerce_pos_transaction';
   $form['#redirect_key'] = $return ? 'return' : 'sale';
   $form['#transaction_type'] = $transaction_type;
 
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
+
+  // Attach our CSS and JS
+  $form['#attached']['library'][] = array(
+    'system',
+    'ui.autocomplete',
+  );
+
+  $form['#attached']['library'][] = array(
+    'system',
+    'drupal.ajax',
+  );
+
+  $wrapper_id = 'commerce-pos-sale-wrapper';
+  // Lets other modules easily get the wrapper ID.
+  $form_state['wrapper_id'] = $wrapper_id;
+
+  $cashier_id = commerce_pos_cashier_get_current_cashier();
+  if (!$cashier_id) {
+    drupal_set_message(t('You must log in.'), 'warning');
+    $form['message'] = array(
+      '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',
+    );
+    return;
+  }
+
+  commerce_pos_transaction_ajax_check($form, $form_state);
+
+  form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
+
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
     $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
 
     if (empty($transaction)) {
-      $transaction = new CommercePosTransaction(NULL, $transaction_type, $user->uid);
+      $transaction = new CommercePosTransaction(NULL, $transaction_type, $user->uid, $cashier_id);
     }
 
     $form_state['transaction'] = $transaction;
@@ -67,10 +94,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   else {
     $has_active_transaction = FALSE;
   }
-
-  $wrapper_id = 'commerce-pos-sale-wrapper';
-  // Lets other modules easily get the wrapper ID.
-  $form_state['wrapper_id'] = $wrapper_id;
 
   $wrapper_ajax = array(
     'callback' => 'commerce_pos_transaction_wrapper_js',
@@ -449,14 +472,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   }
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $wrapper_ajax, $has_active_transaction);
-
-  // Attach our CSS and JS
-  $form['#attached']['library'][] = array(
-    'system',
-    'ui.autocomplete',
-  );
-
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.transaction.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';

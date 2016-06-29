@@ -11,6 +11,7 @@ class CommercePosTransaction {
 
   public $transactionId = 0;
   public $uid = 0;
+  public $cashier = 0;
   public $orderId = 0;
   public $type = '';
   public $registerId = 0;
@@ -31,10 +32,11 @@ class CommercePosTransaction {
    * @param $transaction_id
    * @param $type
    * @param $uid
+   * @param $cashier
    *
    * @throws \Exception
    */
-  public function __construct($transaction_id = NULL, $type = NULL, $uid = NULL) {
+  public function __construct($transaction_id = NULL, $type = NULL, $uid = NULL, $cashier = NULL) {
     if ($transaction_id !== NULL && $type == NULL && $uid == NULL) {
       $this->transactionId = $transaction_id;
       $this->load();
@@ -46,6 +48,10 @@ class CommercePosTransaction {
     }
     else {
       throw new Exception(t('Cannot initialize POS transaction: invalid arguments supplied.'));
+    }
+
+    if ($cashier !== NULL) {
+      $this->cashier = $cashier;
     }
 
     $this->collectBases();
@@ -73,6 +79,8 @@ class CommercePosTransaction {
    * @throws \Exception
    */
   public function doAction($action_name) {
+    $this->updateCashier();
+
     $args = array_slice(func_get_args(), 1);
     return $this->invokeAction($action_name, $args);
   }
@@ -173,6 +181,8 @@ class CommercePosTransaction {
    * Switches the transaction order's status back from parked to being created.
    */
   public function unpark() {
+    $this->updateCashier();
+
     $this->getOrder();
     if (!empty($this->order)) {
       $this->order->status = 'commerce_pos_in_progress';
@@ -184,6 +194,8 @@ class CommercePosTransaction {
    * Voids a transaction.
    */
   public function void() {
+    $this->updateCashier();
+
     $this->getOrder();
     if (!empty($this->order)) {
       $this->order->status = 'commerce_pos_voided';
@@ -275,6 +287,18 @@ class CommercePosTransaction {
     }
     else {
       throw new Exception(t('Cannot load POS transaction: it does not have a transaction ID!'));
+    }
+  }
+
+  /**
+   * Determines if the cashier property should be updated and saves the
+   * transaction if an update occurred.
+   */
+  protected function updateCashier() {
+    $current_cashier = commerce_pos_cashier_get_current_cashier();
+    if ($this->cashier !== $current_cashier) {
+      $this->cashier = $current_cashier;
+      $this->doAction('save');
     }
   }
 

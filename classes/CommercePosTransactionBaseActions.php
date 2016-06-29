@@ -48,6 +48,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     $transaction_array = array(
       'transaction_id' => $transaction->transactionId,
       'uid' => $transaction->uid,
+      'cashier' => $transaction->cashier,
       'order_id' => $transaction->orderId,
       'type' => $transaction->type,
       'data' => $transaction->data,

@@ -19,6 +19,11 @@
         <?php endif; ?>
       </ul>
     </div>
+    <?php if (isset($cashier_form)): ?>
+      <div id="commerce-pos-header-cashier-form" class="commerce-pos-header-cashier-form">
+        <?php print render($cashier_form); ?>
+      </div>
+    <?php endif; ?>
   </div>
 
 </div>

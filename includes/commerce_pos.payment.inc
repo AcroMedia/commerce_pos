@@ -26,19 +26,31 @@ function commerce_pos_return_payment($form, &$form_state) {
 function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   global $user;
 
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
+
+  $wrapper_id = 'commerce-pos-pay-form-wrapper';
+  $form_state['wrapper_id'] = $wrapper_id;
+
+  $cashier_id = commerce_pos_cashier_get_current_cashier();
+  if (!$cashier_id) {
+    drupal_set_message(t('You must log in.'), 'warning');
+    $form['message'] = array(
+      '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',
+    );
+    return;
+  }
+
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
   commerce_pos_payment_ajax_check($form, $form_state);
 
   $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
   $payment_methods = commerce_pos_get_payment_methods();
-  $wrapper_id = 'commerce-pos-pay-form-wrapper';
   $form['#theme'] = 'commerce_pos_payment';
   $form['#redirect_key'] = $return ? 'return' : 'sale';
   $form['#transaction_type'] = $transaction_type;
 
   $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
   $form['#suffix'] = '</div>';
-  $form_state['wrapper_id'] = $wrapper_id;
 
   $form_ajax = array(
     'wrapper' => 'commerce-pos-pay-form-wrapper',
@@ -317,7 +329,6 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
 
-  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.payment.js';
 }
 

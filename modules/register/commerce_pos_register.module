@@ -207,14 +207,21 @@ function _commerce_pos_register_check_form_alter(&$form, &$form_state) {
   $current_register = commerce_pos_register_get_current_register();
   $destination = drupal_get_destination();
 
+  $goto = FALSE;
+
   // Make sure the current user has a location, otherwise make them select one.
   if (!$current_register) {
-    drupal_goto('admin/commerce/pos/register-select', array(
-      'query' => $destination,
-    ));
+    $goto = 'admin/commerce/pos/register-select';
   }
-  else if (!commerce_pos_register_get_float($current_register)) {
-    drupal_goto('admin/commerce/pos/float/' . $current_register . '/select', array(
+  elseif (!commerce_pos_register_get_float($current_register)) {
+    $goto = 'admin/commerce/pos/float/' . $current_register . '/select';
+  }
+
+  if ($goto) {
+    // Clear out messages as they won't be relevant to the page we redirect to.
+    drupal_get_messages();
+
+    drupal_goto($goto, array(
       'query' => $destination,
     ));
   }

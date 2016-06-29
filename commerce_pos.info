@@ -13,6 +13,7 @@ dependencies[] = commerce_product_ui
 dependencies[] = jquery_update
 dependencies[] = date
 dependencies[] = rules
+dependencies[] = commerce_pos:commerce_pos_cashier
 
 ; Class definitions
 files[] = classes/CommercePosService.php
