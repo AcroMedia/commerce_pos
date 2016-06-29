@@ -73,7 +73,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     if (isset($form_state['input']['register_id'])) {
       $register_id = $form_state['input']['register_id'];
     }
-    elseif ($current_register && in_array($current_register, $register_ids)) {
+    elseif ($current_register) {
       $register_id = $current_register;
     }
     else {

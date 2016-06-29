@@ -357,8 +357,18 @@ function commerce_pos_register_title($register) {
  * Retrieves the current user's register ID, if they have one.
  */
 function commerce_pos_register_get_current_register() {
-  if (!($register_id = isset($_SESSION['commerce_pos_register_id']) ? $_SESSION['commerce_pos_register_id'] : FALSE)) {
-    $register_id = (isset($_SESSION['commerce_pos_register_id']) ? $_SESSION['commerce_pos_register_id'] : FALSE);
+  $valid_register_ids = commerce_pos_register_get_registers();
+  $register_id = FALSE;
+
+  // We also make sure the current register ID is valid, in case it was deleted.
+  if (isset($_SESSION['commerce_pos_register_id'])) {
+    if (in_array($_SESSION['commerce_pos_register_id'], $valid_register_ids)) {
+      $register_id = $_SESSION['commerce_pos_register_id'];
+    }
+    else {
+      // Register ID is no longer valid, unset it.
+      unset($_SESSION['commerce_pos_register_id']);
+    }
   }
 
   return $register_id;
