@@ -3,7 +3,5 @@ description = Provides a cashier entity and related functionality.
 core = 7.x
 package = Commerce POS
 
-dependencies[] = commerce_pos
-
 files[] = includes/commerce_pos_cashier.controller.inc
 files[] = classes/CommercePosCashierBase.php
