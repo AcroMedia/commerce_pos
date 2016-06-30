@@ -15,6 +15,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos'] = array(
     'title' => 'Point of Sale',
+    'description' => t('Carry out in-person retail transactions.'),
     'page callback' => 'commerce_pos_redirect',
     'access arguments' => array(
       array(
