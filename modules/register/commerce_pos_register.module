@@ -434,18 +434,27 @@ function commerce_pos_register_options() {
 
 /**
  * Get the ids of all registers.
+ *
+ * @param bool $reset
+ *   If TRUE, the static cache will be reset and registers will be loaded fresh
+ *   from the database.
+ *
  * @return array
- *   An array of entity ids.
+ *   An array of register IDs.
  */
-function commerce_pos_register_get_registers() {
-  $register_ids = array();
+function commerce_pos_register_get_registers($reset = FALSE) {
+  $register_ids = &drupal_static(__FUNCTION__, NULL);
 
-  $query = new EntityFieldQuery();
-  $result = $query->entityCondition('entity_type', 'commerce_pos_register')
-    ->execute();
+  if ($register_ids === NULL || $reset) {
+    $register_ids = array();
 
-  if (isset($result['commerce_pos_register'])) {
-    $register_ids = array_keys($result['commerce_pos_register']);
+    $query = new EntityFieldQuery();
+    $result = $query->entityCondition('entity_type', 'commerce_pos_register')
+      ->execute();
+
+    if (isset($result['commerce_pos_register'])) {
+      $register_ids = array_keys($result['commerce_pos_register']);
+    }
   }
 
   return $register_ids;
