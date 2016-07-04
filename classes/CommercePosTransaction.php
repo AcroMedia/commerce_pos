@@ -270,6 +270,7 @@ class CommercePosTransaction {
         $this->created = $result['created'];
         $this->changed = $result['changed'];
         $this->completed = $result['completed'];
+        $this->cashier = $result['cashier'];
 
         if (empty($result['data'])) {
           $this->data = array();
