@@ -1,23 +1,39 @@
 //
 //---PRODUCT SEARCH---
 //
-.commerce-pos-product-search-container {
+
+[id^="commerce-pos-sale"] .commerce-pos-product-search-container {
   padding: 20px;
   margin-bottom: 20px;
   text-align: center;
   background: #f0f0f0;
 
-  label {
-    display: inline-block;
-    margin: 0 10px 0 0;
-    font-size: 21px;
-    text-transform: capitalize;
-    vertical-align: middle;
+  #edit-product-search {
+    position: relative;
+    width: 400px;
+    margin: 0 auto;
   }
 
-  input.form-control {
-    display: inline-block;
-    vertical-align: top;
+  .form-item {
+    margin: 5px 0;
+  }
+
+  //Don't show label, but leave there for screen readers
+  label {
+    display: none;
+  }
+
+  input {
+    position: relative;
+    margin: 0 0 5px 0;
+    height: 40px;
+    width: 400px;
+    color: #000;
+  }
+
+  /* Placeholder */
+  input::-moz-placeholder {  /* Firefox */
+    color: #7D7D7D;
   }
 
   .form-item div.description {
@@ -25,10 +41,39 @@
     color: #666;
     font-style: italic;
   }
-}
 
-#commerce-pos-sale-wrapper .commerce-pos-product-search-container .form-item {
-  margin: 10px 0;
+  input::-webkit-input-placeholder {
+    /* Chrome, Safari, Opera */
+    color:#7D7D7D;
+  }
+
+  input:-ms-input-placeholder {
+    /* IE10–11 */
+    color:#7D7D7D !important;
+  }
+
+  /* Placeholder on input:focus */
+  input:focus::-moz-placeholder {
+    /* Firefox */
+    color:transparent;
+  }
+
+  input:focus::-webkit-input-placeholder {
+    /* Chrome, Safari, Opera */
+    color:transparent;
+
+  }
+
+  input:focus:-ms-input-placeholder {
+    /* IE10–11 */
+    color:transparent !important;
+  }
+
+  .form-item div.description {
+    font-size: 13px;
+    color:#7D7D7D;
+    font-style:italic;
+  }
 }
 
 .commerce-pos-product-display {
