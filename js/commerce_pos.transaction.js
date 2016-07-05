@@ -14,6 +14,15 @@
         });
       });
 
+      // Prevent the form from getting submitted if
+      // the search box is in focus
+      $('.commerce-pos-product-search').keydown(function(event) {
+
+        if (event.keyCode == 13 && $('.commerce-pos-product-search').is(':focus')) {
+          event.preventDefault();
+        }
+      });
+
       $('body', context).each(function () {
         $(this).once('commerce-pos-keybindings')
       });

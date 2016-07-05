@@ -1022,6 +1022,10 @@ function theme_commerce_pos_price_formatted_components($variables) {
 function commerce_pos_payment_transaction_void($transaction_id) {
   $transaction = commerce_payment_transaction_load($transaction_id);
 
+  if ($transaction == null) {
+    return;
+  }
+
   // Look for which module, if any, processed the transaction and allow it to
   // void the transaction.
   $void_callback_exists = FALSE;
