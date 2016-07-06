@@ -5,6 +5,7 @@ package = Commerce POS
 
 dependencies[] = commerce_order
 dependencies[] = commerce_product
+dependencies[] = commerce_product_pricing
 dependencies[] = commerce_cop
 dependencies[] = commerce_payment
 dependencies[] = commerce_cart
