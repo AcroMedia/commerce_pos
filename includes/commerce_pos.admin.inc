@@ -25,7 +25,17 @@ function commerce_pos_settings($form, &$form_state) {
       '#options' => $index_options,
       '#default_value' => variable_get('commerce_pos_search_api_index', NULL),
     );
+
   }
+
+  $form['commerce_pos_search_results_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of search results'),
+    '#size' => 15,
+    '#required' => TRUE,
+    '#description' => t('Set the number of search results to be returned when searching for products in the POS.'),
+    '#default_value' => variable_get('commerce_pos_search_results_count', 5),
+  );
 
   $product_options = array();
 
@@ -122,6 +132,15 @@ function commerce_pos_settings_validate($form, &$form_state) {
 
   $directory = 'public://commerce_pos_default_thumbnails';
   file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
+
+  //Checks that the search results count setting is a positive integer between 1 and 500 inclusive.
+  if ($form_state['values']['commerce_pos_search_results_count'] !== NULL) {
+    $search_count = (int)$form_state['values']['commerce_pos_search_results_count'];
+    if ($search_count < 1 || $search_count > 500) {
+      form_error($form['commerce_pos_search_results_count'], t('You must provide a positive integer between 1 and 500.'));
+    }
+  }
+
 }
 
 /**
@@ -131,6 +150,8 @@ function commerce_pos_settings_submit($form, &$form_state) {
   if (!empty($form_state['values']['commerce_pos_search_api_index'])) {
     variable_set('commerce_pos_search_api_index', $form_state['values']['commerce_pos_search_api_index']);
   }
+
+  variable_set('commerce_pos_search_results_count', $form_state['values']['commerce_pos_search_results_count']);
 
   variable_set('commerce_pos_available_products', $form_state['values']['commerce_pos_available_products']);
 
@@ -174,3 +195,5 @@ function commerce_pos_settings_submit($form, &$form_state) {
     }
   }
 }
+
+

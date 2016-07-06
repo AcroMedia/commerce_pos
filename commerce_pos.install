@@ -100,6 +100,7 @@ function commerce_pos_uninstall() {
   // Clean up variables.
   variable_del('commerce_pos_search_api_index');
   variable_del('commerce_pos_available_products');
+  variable_del('commerce_pos_search_results_count');
 
   foreach (commerce_product_types() as $name => $type) {
     variable_del('commerce_pos_image_field_' . $name);

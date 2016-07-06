@@ -1079,3 +1079,4 @@ function commerce_pos_get_order_transactions($order_id) {
 
   return $transaction_ids;
 }
+

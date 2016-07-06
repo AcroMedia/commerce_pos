@@ -48,7 +48,7 @@ function commerce_pos_product_search_api_search($keywords) {
       $index = search_api_index_load($index_id);
       $query = new SearchApiQuery($index);
       $query->keys($keywords);
-      $query->range(0, 5);
+      $query->range(0, variable_get('commerce_pos_search_results_count', 5));
       $query_results = $query->execute();
 
       if (!empty($query_results['results'])) {
@@ -56,7 +56,6 @@ function commerce_pos_product_search_api_search($keywords) {
       }
     }
   }
-
   return $results;
 }
 
@@ -68,18 +67,16 @@ function commerce_pos_product_search_basic($keywords) {
   $results = array();
 
   if (!empty($allowed_product_types)) {
-    $query = 'SELECT product_id FROM {commerce_product}
-    WHERE
-      (sku = :term OR title LIKE :term_like)
-      AND type IN (:types)
-    ORDER BY title ASC
-    LIMIT 5';
-
-    $result = db_query($query, array(
-      ':term' => $keywords,
-      ':term_like' => db_like($keywords) . '%',
-      ':types' => $allowed_product_types,
-    ));
+    $query = db_select('commerce_product', 'cp');
+    $query->fields('cp', array('product_id', 'title', 'type'));
+    $or = db_or();
+    $or->condition('title', db_like($keywords) . '%', 'LIKE')
+      ->condition('sku', $keywords, '=');
+    $query->condition($or);
+    $query->condition('type', $allowed_product_types, 'IN')
+      ->range(0, variable_get('commerce_pos_search_results_count', 5))
+      ->orderBy('title', 'ASC');
+    $result = $query->execute();
 
     foreach ($result as $row) {
       $results[] = $row->product_id;
@@ -173,3 +170,4 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 function commerce_pos_customer_js($form, &$form_state) {
   return $form['customer'];
 }
+
