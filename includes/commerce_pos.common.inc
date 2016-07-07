@@ -170,4 +170,3 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 function commerce_pos_customer_js($form, &$form_state) {
   return $form['customer'];
 }
-

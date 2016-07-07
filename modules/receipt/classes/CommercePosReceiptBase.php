@@ -4,7 +4,6 @@
  * @file
  * CommercePosReceiptBase.php
  */
-
 class CommercePosReceiptBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
@@ -28,6 +27,9 @@ class CommercePosReceiptBase extends CommercePosTransactionBase implements Comme
     // from triggering a receipt print and redirect via AJAX commands, so we
     // pass this session variable along to the next page instead. A bad hack,
     // but apparently a necessary one.
-    $_SESSION['commerce_pos_print_transaction'] = $this->transaction->transactionId;
+    if (in_array('print', $this->transaction->data)) {
+      $_SESSION['commerce_pos_print_transaction'] = $this->transaction->transactionId;
+    }
   }
+
 }

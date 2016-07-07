@@ -6,7 +6,6 @@
  *
  * @TODO: most of the methods in the CommercePosTransaction class should be moved into here.
  */
-
 class CommercePosTransactionBaseActions extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   public function actions() {
@@ -290,7 +289,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       }
 
       // Make sure the line item actually belongs to the order.
-      if ($new_qty > 0 && ($line_item->order_id == $order->order_id) && ((int) $existing_qty != $new_qty)) {
+      if ($new_qty > 0 && ($line_item->order_id == $order->order_id) && ((int)$existing_qty != $new_qty)) {
         $line_item->quantity = $new_qty;
         commerce_line_item_save($line_item);
         $this->transaction->invokeEvent('lineItemUpdated');
@@ -392,7 +391,6 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       if ($send_email) {
         drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
       }
-
       return $account;
     }
     else {

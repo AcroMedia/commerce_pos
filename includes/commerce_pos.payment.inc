@@ -57,6 +57,10 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     'callback' => 'commerce_pos_payment_wrapper_js',
   );
 
+  $wrapper_id = 'commerce-pos-pay-form-wrapper';
+  // Lets other modules easily get the wrapper ID.
+  $form_state['wrapper_id'] = $wrapper_id;
+
   if (empty($payment_methods)) {
     drupal_set_message(t('No payment methods have been configured for the POS!'), 'error');
   }
@@ -245,7 +249,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#type' => 'submit',
       '#value' => t('Finish'),
       '#disabled' => $order_balance['amount'] > 0,
-      '#validate' => array('commerce_pos_payment_validate'),
+      '#element_validate' => array('commerce_pos_payment_validate'),
       '#submit' => array('commerce_pos_payment_finish'),
       '#attributes' => array(
         'class' => array('commerce-pos-payment-finish-btn'),
@@ -379,8 +383,12 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
 /**
  * Validation handler for the pay form's "Finish" button.
  */
-function commerce_pos_payment_validate($form, &$form_state) {
-
+function commerce_pos_payment_validate($element, &$form_state) {
+  if (isset($form_state['values']['receipt_options']) && !empty($form_state['values']['customer'])) {
+    if (!valid_email_address($form_state['values']['customer'])) {
+      form_error($element, 'A valid email address is required to email receipt');
+    }
+  }
 }
 
 /**
