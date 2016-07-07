@@ -117,21 +117,23 @@ function commerce_pos_report_update_7201() {
     db_add_index('commerce_pos_report_declared_data', 'data_register', array('register_id'));
   }
 
-  // Check for existing data in the location_id column. If there is none, it's
-  // safe to drop it now.
-  $locations = db_select('commerce_pos_report_declared_data', 'rdd')
-    ->condition('rdd.location_id', 0, '!=')
-    ->countQuery()
-    ->execute()
-    ->fetchField();
+  if (db_field_exists('commerce_pos_report_declared_data', 'location_id')) {
+    // Check for existing data in the location_id column. If there is none, it's
+    // safe to drop it now.
+    $locations = db_select('commerce_pos_report_declared_data', 'rdd')
+      ->condition('rdd.location_id', 0, '!=')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
 
-  if (!$locations) {
-    // Ensure old field and index is removed.
-    if (db_index_exists('commerce_pos_report_declared_data', 'data_location')) {
-      db_drop_index('commerce_pos_report_declared_data', 'data_location');
+    if (!$locations) {
+      // Ensure old field and index is removed.
+      if (db_index_exists('commerce_pos_report_declared_data', 'data_location')) {
+        db_drop_index('commerce_pos_report_declared_data', 'data_location');
+      }
+
+      db_drop_field('commerce_pos_report_declared_data', 'location_id');
     }
-
-    db_drop_field('commerce_pos_report_declared_data', 'location_id');
   }
 
 }
