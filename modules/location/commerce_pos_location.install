@@ -50,6 +50,20 @@ function commerce_pos_location_schema() {
 }
 
 /**
+ * Implements hook_install().
+ */
+function commerce_pos_location_install() {
+  // Ensure that location_id is updated to register_id for POS transactions.
+  // @see commerce_pos_update_7204()
+  commerce_pos_location_update_pos_location_id_to_register_id();
+
+  // location_id to register_id updates for report submodule.
+  if (module_exists('commerce_pos_report')) {
+    commerce_pos_location_update_report_location_id_to_register_id();
+  }
+}
+
+/**
  * Implements hook_enable().
  */
 function commerce_pos_location_enable() {
@@ -118,11 +132,11 @@ function commerce_pos_location_update_7202(&$sandbox) {
   }
 
   // Database updates for core module.
-  commerce_pos_location_update_7202_update_pos_module($sandbox);
+  commerce_pos_location_update_pos_location_id_to_register_id($sandbox);
 
   // Database updates for report submodule.
   if (module_exists('commerce_pos_report')) {
-   commerce_pos_location_update_7202_update_report_module($sandbox);
+   commerce_pos_location_update_report_location_id_to_register_id($sandbox);
   }
 }
 
@@ -175,9 +189,9 @@ function commerce_pos_location_update_7202_update_floats(&$sandbox) {
 /**
  * Alter the core commerce_pos module to reference registers on transactions.
  */
-function commerce_pos_location_update_7202_update_pos_module(&$sandbox) {
+function commerce_pos_location_update_pos_location_id_to_register_id(&$sandbox = array()) {
   $spec = array(
-    'description' => 'The register this entry is for.',
+    'description' => 'The physical register that this transaction was performed at.',
     'type' => 'int',
     'not null' => TRUE,
     'default' => 0,
@@ -192,11 +206,15 @@ function commerce_pos_location_update_7202_update_pos_module(&$sandbox) {
   }
 
   if (db_field_exists('commerce_pos_transaction', 'location_id')) {
-    foreach ($sandbox['location_register_map'] as $location_id => $register_id) {
-      db_update('commerce_pos_transaction')
-        ->condition('location_id', $location_id, '=')
-        ->fields(array('register_id' => $register_id))
-        ->execute();
+    // The mapping of locations to registers may or may not be set depending on
+    // whether we've come from install or update.
+    if (isset($sandbox['location_register_map'])) {
+      foreach ($sandbox['location_register_map'] as $location_id => $register_id) {
+        db_update('commerce_pos_transaction')
+          ->condition('location_id', $location_id, '=')
+          ->fields(array('register_id' => $register_id))
+          ->execute();
+      }
     }
 
     db_drop_field('commerce_pos_transaction', 'location_id');
@@ -206,7 +224,7 @@ function commerce_pos_location_update_7202_update_pos_module(&$sandbox) {
 /**
  * Alter commerce_pos_report to use register entities instead of locations.
  */
-function commerce_pos_location_update_7202_update_report_module(&$sandbox) {
+function commerce_pos_location_update_report_location_id_to_register_id(&$sandbox = array()) {
   $spec = array(
     'description' => 'The register this entry is for.',
     'type' => 'int',
@@ -225,11 +243,15 @@ function commerce_pos_location_update_7202_update_report_module(&$sandbox) {
 
   // Migrate location ids to the appropriate new register id.
   if (db_field_exists('commerce_pos_report_declared_data', 'location_id')) {
-    foreach ($sandbox['location_register_map'] as $location_id => $register_id) {
-      db_update('commerce_pos_report_declared_data')
-        ->condition('location_id', $location_id, '=')
-        ->fields(array('register_id' => $register_id))
-        ->execute();
+    // The mapping of locations to registers may or may not be set depending on
+    // whether we've come from install or update.
+    if (isset($sandbox['location_register_map'])) {
+      foreach ($sandbox['location_register_map'] as $location_id => $register_id) {
+        db_update('commerce_pos_report_declared_data')
+          ->condition('location_id', $location_id, '=')
+          ->fields(array('register_id' => $register_id))
+          ->execute();
+      }
     }
 
     // Ensure old field and index is removed.

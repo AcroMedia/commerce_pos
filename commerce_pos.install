@@ -202,3 +202,32 @@ function commerce_pos_update_7203() {
     '!link' => l('here', 'admin/commerce/config/pos/cashiers'),
   ));
 }
+
+/**
+ * Update location_id to register_id
+ */
+function commerce_pos_update_7204() {
+  if(!db_field_exists('commerce_pos_transaction', 'register_id')) {
+    $spec = array(
+      'description' => 'The physical register that this transaction was performed at.',
+      'type' => 'int',
+      'not null' => TRUE,
+      'default' => 0,
+    );
+
+    db_add_field('commerce_pos_transaction', 'register_id', $spec);
+    db_add_index('commerce_pos_transaction', 'register_id', array(array('register_id', 4)));
+
+    // Check for existing data in the location_id column. If there is none, it's
+    // safe to drop it now.
+    $locations = db_select('commerce_pos_transaction', 'cpt')
+      ->condition('cpt.location_id', 0, '!=')
+      ->countQuery()
+      ->execute()
+      ->fetchField();
+
+    if (!$locations) {
+      db_drop_field('commerce_pos_transaction', 'location_id');
+    }
+  }
+}
