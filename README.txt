@@ -6,6 +6,7 @@ CONTENTS OF THIS FILE
  * Recommended modules
  * Installation
  * Configuration
+ * Contributing
 
 
 INTRODUCTION
@@ -80,3 +81,17 @@ CONFIGURATION
   * For each selected product you may choose an image field (product must
   have and image field in its manage fields page). The image field selected
   will be used when displaying the product on the Point of Sale page.
+
+
+CONTRIBUTING
+-------------
+
+If you are contributing to this module and need to make changes to the Sass,
+you will need to make sure that you have Node.js installed and run:
+
+npm install
+
+You can now run the following commands from the command line:
+
+ * npm start - This will watch the Sass files for changes and compile as needed.
+ * npm run build - This will compile all Sass files to CSS.
