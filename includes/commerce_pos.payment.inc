@@ -44,7 +44,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   commerce_pos_payment_ajax_check($form, $form_state);
 
   $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
-  $payment_methods = commerce_pos_get_payment_methods();
+  $payment_options = commerce_pos_get_payment_options();  
   $form['#theme'] = 'commerce_pos_payment';
   $form['#redirect_key'] = $return ? 'return' : 'sale';
   $form['#transaction_type'] = $transaction_type;
@@ -57,12 +57,8 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     'callback' => 'commerce_pos_payment_wrapper_js',
   );
 
-  $wrapper_id = 'commerce-pos-pay-form-wrapper';
-  // Lets other modules easily get the wrapper ID.
-  $form_state['wrapper_id'] = $wrapper_id;
-
-  if (empty($payment_methods)) {
-    drupal_set_message(t('No payment methods have been configured for the POS!'), 'error');
+  if (empty($payment_options)) {
+    drupal_set_message(t('No payment options have been configured for the POS!'), 'error');
   }
 
   if (!isset($form_state['transaction'])) {
@@ -138,13 +134,13 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       'effect' => 'fade',
     );
 
-    foreach ($payment_methods as $payment_method) {
-      $form['payment_options'][$payment_method['id']] = array(
+    foreach ($payment_options as $payment_option) {
+      $form['payment_options'][$payment_option['id']] = array(
         '#type' => 'button',
-        '#value' => $payment_method['title'],
-        '#name' => 'commerce-pos-payment-method-' . $payment_method['id'],
+        '#value' => $payment_option['title'],
+        '#name' => 'commerce-pos-payment-option-' . $payment_option['id'],
         '#ajax' => $payment_ajax,
-        '#payment_method_id' => $payment_method['id'],
+        '#payment_option_id' => $payment_option['id'],
         '#disabled' => $order_balance['amount'] <= 0,
         '#limit_validation_errors' => array(),
       );
@@ -157,13 +153,13 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#theme' => 'commerce_pos_keypad',
     );
 
-    if (!empty($form_state['triggering_element']['#payment_method_id'])) {
-      $method_id = $form_state['triggering_element']['#payment_method_id'];
+    if (!empty($form_state['triggering_element']['#payment_option_id'])) {
+      $option_id = $form_state['triggering_element']['#payment_option_id'];
 
       $form['keypad']['amount'] = array(
         '#type' => 'textfield',
         '#title' => t('Enter @title Amount', array(
-          '@title' => $payment_methods[$method_id]['title'],
+          '@title' => $payment_options[$option_id]['title'],
         )),
         '#required' => TRUE,
         '#attributes' => array(
@@ -192,7 +188,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#validate' => array('commerce_pos_payment_add_payment_validate'),
         '#submit' => array('commerce_pos_payment_add_payment_submit'),
         '#ajax' => $form_ajax,
-        '#payment_method_id' => $method_id,
+        '#payment_method_id' => $option_id,
         '#element_key' => 'add-payment',
       );
     }

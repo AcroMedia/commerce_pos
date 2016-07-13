@@ -6,6 +6,7 @@
  */
 
 define('COMMERCE_PAYMENT_STATUS_VOID', 'void');
+define('COMMERCE_POS_PAYMENT_STATUS_CANCELED', 'commerce_pos_canceled');
 
 /**
  * Implements hook_menu().
@@ -268,6 +269,13 @@ function commerce_pos_commerce_payment_transaction_status_info() {
     'status' => COMMERCE_PAYMENT_STATUS_VOID,
     'title' => t('Void'),
     'icon' => drupal_get_path('module', 'commerce_pos') . '/images/icon-void.png',
+    'total' => FALSE,
+  );
+
+  $statuses[COMMERCE_POS_PAYMENT_STATUS_CANCELED] = array(
+    'status' => COMMERCE_POS_PAYMENT_STATUS_CANCELED,
+    'title' => t('Canceled'),
+    'icon' => drupal_get_path('module', 'commerce_payment') . '/theme/icon-failure.png',
     'total' => FALSE,
   );
   return $statuses;
@@ -608,6 +616,25 @@ function commerce_pos_get_payment_methods() {
   }
 
   return $enabled_pos_methods;
+}
+
+/**
+ * Retrieves a list of payment options for the Point of Sale payment form.
+ */
+function commerce_pos_get_payment_options() {
+  $options = array();
+
+  $methods = commerce_pos_get_payment_methods();
+  foreach ($methods as $method) {
+    $options[$method['id']] = array(
+      'id' => $method['id'],
+      'title' => $method['title'],
+    );
+  }
+
+  $options += module_invoke_all('commerce_pos_payment_options_info');
+
+  return $options;
 }
 
 /**

@@ -1,0 +1,546 @@
+<?php
+
+define('COMMERCE_PAYMENT_STATUS_TERMINAL_TIMED_OUT', 'terminal_timedout');
+define('COMMERCE_POS_TERMINAL_CLEANUP_WAIT_NEVER', -1);
+// 15-minute default wait for request cleanup.
+define('COMMERCE_POS_TERMINAL_CLEANUP_WAIT_DEFAULT', 60 * 15);
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_pos_terminal_menu() {
+  $items = array();
+
+  $items['admin/commerce/config/pos/terminal'] = array(
+    'title' => 'Payment Terminal',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_terminal_settings_form'),
+    'access arguments' => array('administer commerce pos'),
+    'file' => '/includes/commerce_pos_terminal.admin.inc',
+  );
+
+  $items['admin/commerce/pos/terminal/ping/%'] = array(
+    'title' => 'Payment Terminal Pending Transaction Ping',
+    'page callback' => 'commerce_pos_terminal_transaction_ping',
+    'page arguments' => array(5),
+    'access callback' => '_commerce_pos_access_check',
+    'access arguments' => array(
+      'process commerce pos sales',
+      'process commerce pos returns',
+    ),
+    'type' => MENU_CALLBACK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_commerce_payment_method_info().
+ */
+function commerce_pos_terminal_commerce_payment_method_info() {
+  $methods = array();
+
+  $methods['commerce_pos_terminal'] = array(
+    'method_id' => 'commerce_pos_terminal',
+    'title' => t('Payment Terminal'),
+    'description' => t("Payment method used for payment terminal transactions before changing the transaction's method to its final value."),
+    'active' => FALSE,
+    'terminal' => FALSE,
+    'offsite' => FALSE,
+  );
+
+  return $methods;
+}
+
+/**
+ * Implements hook_commerce_payment_transaction_status_info().
+ */
+function commerce_pos_terminal_commerce_payment_transaction_status_info() {
+  $statuses[COMMERCE_PAYMENT_STATUS_TERMINAL_TIMED_OUT] = array(
+    'status' => COMMERCE_PAYMENT_STATUS_TERMINAL_TIMED_OUT,
+    'title' => t('Timed out'),
+    'icon' => drupal_get_path('module', 'commerce_pos_terminal') . '/theme/icon-timedout.png',
+    'total' => FALSE,
+  );
+  return $statuses;
+}
+
+/**
+ * Implements hook_commerce_pos_payment_options_info().
+ */
+function commerce_pos_terminal_commerce_pos_payment_options_info() {
+  $options['commerce_pos_terminal'] = array(
+    'id' => 'commerce_pos_terminal',
+    'title' => t('Terminal'),
+  );
+
+  return $options;
+}
+
+/**
+ * Implements hook_commerce_pos_void_payment_transaction().
+ */
+function commerce_pos_terminal_commerce_pos_void_payment_transaction($transaction) {
+  $pending = $transaction->status === COMMERCE_PAYMENT_STATUS_PENDING;
+
+  // Attempt to void the transaction.
+  $service = commerce_pos_terminal_service_load();
+  $service->setLocation(commerce_pos_location_get_current_location());
+  $service->setRegister(commerce_pos_register_get_current_register());
+  $voided = $service->void($transaction);
+
+  // If the transaction was in pending status, ensure it is removed from the
+  // pending requests queue.
+  if ($pending && $voided['success']) {
+    db_delete('commerce_pos_terminal_pending_requests')
+      ->condition('transaction_id', $transaction->transaction_id, '=')
+      ->execute();
+  }
+
+  return $voided;
+}
+
+/**
+ * Implements hook_cron().
+ */
+function commerce_pos_terminal_cron() {
+  if (module_load_include('inc', 'commerce_pos_terminal', 'includes/commerce_pos_terminal.cron')) {
+    commerce_pos_terminal_request_cleanup();
+  };
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_pos_terminal_form_alter(&$form, &$form_state, $form_id) {
+  if (in_array($form_id, array(
+    'commerce_pos_sale',
+    'commerce_pos_sale_payment',
+    'commerce_pos_return',
+    'commerce_pos_return_payment',
+  ))) {
+
+    $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_terminal') . '/js/commerce_pos_terminal.js';
+
+    commerce_pos_terminal_form_add_pending_check($form, $form_state);
+
+    // Warn on payment pages if no plugin is enabled. Ignore form builds
+    // triggered with AJAX since there will already be a warning from the
+    // initial load.
+    if (strpos($form_id, 'payment') && empty($form_state['triggering_element'])) {
+      if (!commerce_pos_terminal_service_enabled()) {
+        drupal_set_message(t('No terminal service is available for payment terminal transactions.'), 'warning');
+
+        // Disable the Terminal payment button.
+        if (!empty($form['payment_options']['commerce_pos_terminal'])) {
+          $form['payment_options']['commerce_pos_terminal']['#disabled'] = TRUE;
+        }
+      }
+    }
+  }
+
+  if (!empty($form_state['triggering_element']['#payment_option_id']) && $form_state['triggering_element']['#payment_option_id'] == 'commerce_pos_terminal') {
+    $matches = array();
+    if (preg_match('/commerce_pos_(sale|return)_payment/', $form_id, $matches)) {
+      $action = $matches[1];
+      $form['terminal_payment_action'] = array(
+        '#type' => 'value',
+        '#value' => $action,
+      );
+
+      $form['keypad']['add']['#submit'] = array('commerce_pos_terminal_payment_submit');
+      $form['keypad']['add']['#value'] = t('Send to terminal');
+    }
+  }
+}
+
+/**
+ * Submit handler for adding a payment through the Terminal functionality.
+ * @param $form
+ * @param $form_state
+ */
+function commerce_pos_terminal_payment_submit($form, &$form_state) {
+  $form_state['rebuild'] = TRUE;
+  $form_state['input']['keypad']['amount'] = NULL;
+  $form_state['triggering_element']['#payment_method_id'] = NULL;
+
+  if (!commerce_pos_terminal_service_enabled()) {
+    drupal_set_message(t('Unable to process transaction. No terminal service is available.'), 'error');
+    return;
+  }
+
+  $order_wrapper = $form_state['transaction']->getOrderWrapper();
+  $order_id = $order_wrapper->order_id->value();
+
+  $transaction = commerce_payment_transaction_new('commerce_pos_terminal', $order_id);
+  $transaction->amount = $form_state['values']['keypad']['amount'] * 100;
+  $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+  $transaction->status = COMMERCE_PAYMENT_STATUS_PENDING;
+  $transaction->message = '';
+  $transaction->data['processing_module'] = 'commerce_pos_terminal';
+  commerce_payment_transaction_save($transaction);
+
+  // Load the terminal service and write a pending transaction to the database.
+  commerce_pos_terminal_add_pending_transaction($transaction, $order_id, commerce_pos_register_get_current_register());
+
+  // Send the request appropriate for the action type.
+  $action = $form_state['values']['terminal_payment_action'];
+  $submit_function = 'commerce_pos_terminal_' . $action . '_payment_submit';
+
+  // Delegate processing payment to a background process to avoid timing out.
+  $processing_function = 'commerce_pos_terminal_process_payment';
+  if (module_exists('background_process') && variable_get('commerce_pos_terminal_use_background_process', FALSE)) {
+    // These values come from $_SESSION, which will not be available in the
+    // background process.
+    $location = commerce_pos_location_get_current_location();
+    $register = commerce_pos_register_get_current_register();
+    background_process_start($processing_function, $submit_function, $transaction, $location, $register);
+  }
+  else {
+    // Manually add the pending transaction to form state because it wont be
+    // automatically picked up during the form rebuild from the background
+    // process method.
+    $form_state['pending_transactions'] = array($transaction->transaction_id);
+    $processing_function($submit_function, $transaction);
+  }
+}
+
+/**
+ * Process a sale or refund transaction.
+ * @param $submit_function
+ *   The function to call to send the payment or refund request.
+ * @param $transaction
+ *   A commerce payment transaction.
+ * @param $location_id
+ * @param $register_id
+ */
+function commerce_pos_terminal_process_payment($submit_function, $transaction, $location_id = NULL, $register_id = NULL) {
+  try {
+    $service = commerce_pos_terminal_service_load();
+    $service->setLocation($location_id);
+    $service->setRegister($register_id);
+    $submit_function($service, $transaction);
+
+    // Modify the transaction's payment method from "Payment Terminal" to whatever
+    // better reflects the type that took place.
+    if ($payment_method = commerce_pos_terminal_payment_method_for_type($service->getPaymentType())) {
+      $transaction->payment_method = $payment_method;
+    }
+
+    // Notify the user if something went wrong.
+    if ($transaction->status == COMMERCE_PAYMENT_STATUS_FAILURE) {
+      drupal_set_message($service->getTransactionMessage(), 'error');
+    }
+
+    commerce_payment_transaction_save($transaction);
+
+    // Notify the service that the transaction was saved to the database.
+    $service->saved();
+
+  } catch (Exception $e) {
+    $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
+    $transaction->message = $e->getMessage();
+    commerce_payment_transaction_save($transaction);
+  }
+
+  // Update the pending transaction table with the new status.
+  commerce_pos_terminal_update_pending_transaction($transaction);
+}
+
+/**
+ * Submit handler for making a sale payment through the Terminal functionality.
+ * @param CommercePosTerminalServiceInterface $service
+ * @param $transaction
+ *   A commerce transaction.
+ */
+function commerce_pos_terminal_sale_payment_submit($service, $transaction) {
+  $service->purchase($transaction);
+}
+
+/**
+ * Submit handler for making a refund through the Terminal functionality.
+ * @param CommercePosTerminalServiceInterface $service
+ * @param $transaction
+ *   A commerce transaction.
+ */
+function commerce_pos_terminal_return_payment_submit($service, $transaction) {
+  $service->refund($transaction);
+}
+
+/**
+ * Alters a form to add functionality that pings for pending transactions.
+ * @param $form
+ * @param $form_state
+ */
+function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
+  // Make no alterations if there is no order in the form state.
+  if (!isset($form_state['order_wrapper'])) {
+    return;
+  }
+
+  $order_id = $form_state['order_wrapper']->order_id->value();
+  $pending_transactions = commerce_pos_terminal_get_pending_transactions($order_id);
+
+  // Check for transactions that were pending on last form load that aren't
+  // anymore.
+  if (isset($form_state['pending_transactions'])) {
+    $old_pending_transactions = $form_state['pending_transactions'];
+    $updated_transactions = array_diff($old_pending_transactions, $pending_transactions);
+
+    foreach ($updated_transactions as $transaction_id) {
+      $transaction = commerce_payment_transaction_load($transaction_id);
+      if ($transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS) {
+        $action = t('approved');
+        $type = 'status';
+      }
+      else {
+        $action = t('failed');
+        $type = 'error';
+      }
+      drupal_set_message(t('Transaction @transaction_id @action. @message', array(
+        '@transaction_id' => $transaction_id,
+        '@action' => $action,
+        '@message' => $transaction->message,
+      )), $type);
+    }
+  }
+
+  // Store new pending transactions in form state.
+  $form_state['pending_transactions'] = $pending_transactions;
+
+  // Make no alterations if there are no pending transaction requests.
+  if (empty($pending_transactions)) {
+    return;
+  }
+
+  $form['pending_transactions'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'commerce-pos-terminal-pending-transactions-overlay',
+      'class' => array('commerce-pos-terminal-pending-transactions-overlay'),
+    ),
+  );
+
+  $form['pending_transactions']['actions'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'commerce-pos-terminal-pending-transactions-actions',
+      'class' => array('commerce-pos-terminal-pending-transactions-actions'),
+    ),
+  );
+
+  $form['pending_transactions']['actions']['message'] = array(
+    '#markup' => '<p>' . t('Waiting for a payment transaction to complete.') . '</p>',
+  );
+
+  $form['pending_transactions']['actions']['cancel'] = array(
+    '#type' => 'button',
+    '#value' => t('Cancel Transaction'),
+    '#name' => 'commerce-pos-terminal-cancel-transactions',
+    '#element_key' => 'commerce-pos-terminal-cancel-transactions',
+  );
+
+  $form['pending_transactions']['actions']['reload'] = array(
+    '#type' => 'button',
+    '#value' => t('Reload'),
+    '#name' => 'commerce-pos-terminal-transactions-reload',
+    '#attributes' => array(
+      'id' => 'commerce-pos-terminal-transactions-reload',
+    ),
+  );
+
+  $form['pending_transactions']['actions']['warning'] = array(
+    '#markup' => '<p>' . t('Cancel the transaction using the payment terminal instead if possible.') . '</p>',
+  );
+
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => array(
+      'commercePosTerminalPing' => array(
+        'containerId' => 'commerce-pos-terminal-pending-transactions-actions',
+        'pingTimer' => variable_get('commerce_pos_terminal_pending_transaction_ping_timer', 1000),
+        'pingUrl' => url('admin/commerce/pos/terminal/ping/' . $order_id),
+        'reloadButtonId' => 'commerce-pos-terminal-transactions-reload',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_commerce_pos_sale_form_ajax_alter().
+ */
+function commerce_pos_terminal_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_element) {
+  if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'commerce-pos-terminal-cancel-transactions') {
+    /* @var CommercePosTransaction $transaction */
+    $transaction = $form_state['transaction'];
+
+    $order_id = $transaction->getOrder()->order_id;
+    commerce_pos_terminal_cancel_transactions_for_order($order_id);
+  }
+}
+
+/**
+ * Load information about terminal service plugins from other modules.
+ *
+ * @return array
+ */
+function commerce_pos_terminal_services_info() {
+  return module_invoke_all('commerce_pos_terminal_service_info');
+}
+
+/**
+ * Look up the class for the terminal service. Loads from configuration unless
+ * an array of service information is provided.
+ * Includes the required file if necessary.
+ *
+ * @param array $service
+ * @return CommercePosTerminalServiceInterface|string
+ */
+function commerce_pos_terminal_get_service_class($service = array()) {
+  if (empty($service)) {
+    $service = variable_get('commerce_pos_terminal_service');
+  }
+
+  if (empty($service)) {
+    return FALSE;
+  }
+
+  if (isset($service['file'])) {
+    include_once $service['file'];
+  }
+
+  return $service['class'];
+}
+
+/**
+ * Load a class implementing the CommercePosTerminalServiceInterface interface.
+ * Loads a provided service, otherwise loads the configured service.
+ * Returns FALSE if unable to load the class.
+ * @param string $class
+ * @return CommercePosTerminalServiceInterface|FALSE
+ */
+function commerce_pos_terminal_service_load($class = '') {
+  if (!$class) {
+    $class = commerce_pos_terminal_get_service_class();
+  }
+
+  if (!$class) {
+    return FALSE;
+  }
+
+  return new $class();
+}
+
+/**
+ * Indicate whether or not a terminal service plugin is enabled and available.
+ * @return bool
+ */
+function commerce_pos_terminal_service_enabled() {
+  $class = commerce_pos_terminal_get_service_class();
+  return $class && class_exists($class);
+}
+
+/**
+ * Write a record to the pending transaction request table.
+ * @param $transaction
+ * @param $order_id
+ * @param $register_id
+ * @return int
+ *   The id of the inserted record.
+ */
+function commerce_pos_terminal_add_pending_transaction($transaction, $order_id, $register_id) {
+  return db_insert('commerce_pos_terminal_pending_requests')
+    ->fields(array(
+      'transaction_id' => $transaction->transaction_id,
+      'order_id' => $order_id,
+      'register_id' => $register_id,
+      'status' => $transaction->status,
+      'created' => REQUEST_TIME,
+    ))
+    ->execute();
+}
+
+/**
+ * Update the status of a pending transaction request.
+ * @param $transaction
+ *   A commerce_payment_transaction.
+ */
+function commerce_pos_terminal_update_pending_transaction($transaction) {
+  db_update('commerce_pos_terminal_pending_requests')
+    ->condition('transaction_id', $transaction->transaction_id, '=')
+    ->fields(array('status' => $transaction->status))
+    ->execute();
+}
+
+/**
+ * Map a payment type to a payment method as per the module's configuration.
+ * @param string $type
+ * @return string|FALSE
+ *   Returns a string for the payment method name or FALSE if there is no
+ *   mapping.
+ */
+function commerce_pos_terminal_payment_method_for_type($type) {
+  $mapping = variable_get('commerce_pos_terminal_payment_type_map');
+  if (isset($mapping[$type])) {
+    return $mapping[$type];
+  }
+
+  return FALSE;
+}
+
+/**
+ * Get pending payment terminal transaction requests for an order.
+ * @param $order_id
+ * @return array
+ *   An array of transaction ids.
+ */
+function commerce_pos_terminal_get_pending_transactions($order_id) {
+  $transaction_ids = array();
+
+  $query = db_select('commerce_pos_terminal_pending_requests', 'cptpr')
+    ->condition('cptpr.order_id', $order_id, '=')
+    ->condition('cptpr.status', COMMERCE_PAYMENT_STATUS_PENDING, '=')
+    ->fields('cptpr', array('transaction_id'));
+
+  foreach ($query->execute() as $row) {
+    $transaction_ids[] = $row->transaction_id;
+  }
+
+  return $transaction_ids;
+}
+
+/**
+ * Callback for determining if a POS Transaction has pending payment
+ * transactions.
+ * @param $order_id
+ */
+function commerce_pos_terminal_transaction_ping($order_id) {
+  $output = array();
+
+  $pending_transactions = commerce_pos_terminal_get_pending_transactions($order_id);
+  $output['pending_transactions'] = !empty($pending_transactions);
+
+  drupal_json_output($output);
+  drupal_exit();
+}
+
+/**
+ * Cancel the payment transactions on an order.
+ * @param $order_id
+ */
+function commerce_pos_terminal_cancel_transactions_for_order($order_id) {
+  if ($transaction_ids = commerce_pos_terminal_get_pending_transactions($order_id)) {
+    // Update transaction status.
+    $transactions = commerce_payment_transaction_load_multiple($transaction_ids);
+    foreach ($transactions as $transaction) {
+      $transaction->status = COMMERCE_POS_PAYMENT_STATUS_CANCELED;
+      commerce_payment_transaction_save($transaction);
+    }
+
+    // Update pending requests table.
+    db_update('commerce_pos_terminal_pending_requests')
+      ->condition('transaction_id', $transaction_ids, 'IN')
+      ->fields(array('status' => COMMERCE_POS_PAYMENT_STATUS_CANCELED))
+      ->execute();
+  }
+}

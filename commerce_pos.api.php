@@ -75,6 +75,23 @@ function hook_commerce_pos_transaction_state_alter(&$administrative_area, Commer
 }
 
 /**
+ * Allows modules to define payment options available in the Point of Sale.
+ * @return array
+ *   An array of payment options.
+ *   Keys are arbitrary but module short name is suggested. Values are arrays
+ *   with the following key/value pairs:
+ *   - id: An identifier for the payment option.
+ *   - title: A human friendly name for the option.
+ */
+function hook_commerce_pos_payment_options_info() {
+  $options['commerce_pos_example'] = array(
+    'id' => 'commerce_pos_example',
+    'title' => t('Example'),
+  );
+  return $options;
+}
+
+/**
  * Allows modules to attempt to act on voiding a transaction.
  * @param $transaction
  *   A commerce payment transaction.

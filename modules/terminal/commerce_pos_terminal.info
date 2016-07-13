@@ -1,0 +1,9 @@
+name = Commerce POS Terminal
+description = Provides functionality for integrating with payment terminals.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos:commerce_pos
+dependencies[] = commerce_pos:commerce_pos_location
+
+files[] = classes/CommercePosTerminalServiceInterface.php
