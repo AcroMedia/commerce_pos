@@ -25,47 +25,52 @@
     width: 100%;
     font-size: 14px;
     border: 0;
-  }
 
-  tbody {
-    border: 0;
-  }
+    tbody {
+      border: 0;
+    }
 
-  tr.odd, tr.even {
-    padding: 0;
-    width: 100%;
-    background-color: #F0F0F0;
-    color: #333;
-    border: 0;
-    border-bottom: 1px solid #FFFFFF;
-  }
+    tr.odd, tr.even {
+      padding: 0;
+      width: 100%;
+      background-color: #F0F0F0;
+      color: #333;
+      border: 0;
+      border-bottom: 1px solid #FFFFFF;
+    }
 
-  tr.order-to-pay {
-    background: #313131;
-    color: #fff;
-    font-size: 120%;
-  }
+    tr.order-to-pay {
+      background: #313131;
+      font-size: 120%;
 
-  tr.order-change {
-    font-size: 120%;
-    font-style: italic;
-  }
+      td {
+        color: #fff;
+      }
+    }
 
-  td {
-    padding: 15px 10px;
-    border: 0;
-  }
+    tr.order-change {
+      font-size: 120%;
+      font-style: italic;
+    }
 
-  td:nth-child(1) {
-    font-weight: bold;
-  }
+    td:nth-child(1) {
+      font-weight: bold;
+    }
 
-  td:nth-child(2) {
-    text-align: right;
-  }
+    td:nth-child(2) {
+      text-align: right;
+    }
 
-  td.balance {
-    font-weight: bold;
+    td.balance {
+      font-weight: bold;
+    }
+
+    tr {
+      td {
+        padding: 15px 10px;
+        border: 0;
+      }
+    }
   }
 }
 
