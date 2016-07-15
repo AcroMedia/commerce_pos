@@ -36,6 +36,19 @@
   text-transform: uppercase;
 }
 
+.pos-receipt .payment-no-total td .payment-name,
+.pos-receipt .payment-no-total td.component-total {
+  text-decoration: line-through;
+}
+
+.pos-receipt .payment-no-total td span.commerce-pos-receipt-void-message {
+  text-decoration: none;
+}
+
+.pos-receipt .payment-status-void td span.commerce-pos-receipt-void-message {
+  text-decoration: none;
+}
+
 .pos-receipt td.component-total {
   text-align: right;
 }
