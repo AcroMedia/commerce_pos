@@ -505,8 +505,9 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 /**
  * Implements hook_commerce_price_formatted_components_alter().
  */
-function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $entity) {
-  $is_pos_order = (isset($entity->type) && $entity->type == 'commerce_order' && $entity->status == 'commerce_pos_in_progress');
+function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $variables) {
+  $order = $variables['order'];
+  $is_pos_order = (isset($order->type) && $order->type == 'commerce_order' && $order->status == 'commerce_pos_in_progress');
 
   if ($is_pos_order) {
     foreach ($components as $component_name => &$component) {
@@ -758,11 +759,13 @@ function commerce_pos_get_product_display_nid($product_id) {
  *   The name of the price field to format.
  * @param bool $return
  *   A boolean indicating whether this price is being used in a return or not.
+ * @param bool $print
+ *   A boolean indicating if this price is being displayed in a print view.
  *
  * @return array
  *   A render array for the formatted price field.
  */
-function commerce_pos_price_order_format($order_wrapper, $field_name, $return = FALSE) {
+function commerce_pos_price_order_format($order_wrapper, $field_name, $return = FALSE, $print = FALSE) {
   $price = $order_wrapper->{$field_name}->value();
   $components = array();
   $weight = 0;
@@ -795,8 +798,13 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
   );
 
   // Allow other modules to alter the components.
-  $order_value = $order_wrapper->value();
-  drupal_alter('commerce_price_formatted_components', $components, $price, $order_value);
+  $variables = array(
+    'order' => $order_wrapper->value(),
+    'print' => $print,
+    'return' => $return,
+  );
+
+  drupal_alter('commerce_price_formatted_components', $components, $price, $variables);
 
   // Sort the components by weight.
   uasort($components, 'drupal_sort_weight');

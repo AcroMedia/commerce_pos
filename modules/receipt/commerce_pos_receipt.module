@@ -509,7 +509,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
     '#weight' => 5,
   );
 
-  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', $return);
+  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', $return, TRUE);
   $output['total']['#markup'] = render($order_total);
   $output['total']['#weight'] = 10;
 
