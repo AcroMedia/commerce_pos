@@ -67,7 +67,7 @@ function commerce_pos_report_form_commerce_pos_transaction_form_alter(&$form, &$
 }
 
 /**
- * Builds a render array of a summary and POS orders, broken down my price
+ * Builds a render array of a summary and POS orders, broken down by price
  * component.
  */
 function commerce_pos_report_order_summary($completed_date, $transaction_type, $register_id = 0) {
