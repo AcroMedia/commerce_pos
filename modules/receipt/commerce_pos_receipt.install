@@ -15,3 +15,18 @@ function commerce_pos_receipt_uninstall() {
   variable_del('commerce_pos_receipt_visible_payment_status');
 }
 
+/**
+ * Implements hook_enable().
+ */
+function commerce_pos_receipt_enable() {
+  commerce_pos_receipt_configure_fields();
+}
+
+/**
+ * Configure email receipt fields.
+ */
+function commerce_pos_receipt_update_7201(&$sandbox) {
+  // Clear caches to make sure our new default message type is created.
+  cache_clear_all();
+  commerce_pos_receipt_configure_fields();
+}

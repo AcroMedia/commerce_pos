@@ -7,4 +7,6 @@ files[] = classes/CommercePosReceiptBase.php
 
 dependencies[] = commerce_pos
 dependencies[] = libraries
+dependencies[] = message
 dependencies[] = message_notify
+
