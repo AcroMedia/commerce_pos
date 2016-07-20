@@ -143,6 +143,13 @@ function commerce_pos_requirements($phase) {
 }
 
 /**
+ * Implements hook_enable().
+ */
+function commerce_pos_enable() {
+  commerce_pos_user_phone_number_configure();
+}
+
+/**
  * Change 'type' field from an integer field to a varchar.
  */
 function commerce_pos_update_7001(&$sandbox) {
@@ -230,4 +237,11 @@ function commerce_pos_update_7204() {
       db_drop_field('commerce_pos_transaction', 'location_id');
     }
   }
+}
+
+/**
+ * Add 'phone' field to user entity.
+ */
+function commerce_pos_update_7205(&$sandbox) {
+  commerce_pos_user_phone_number_configure();
 }

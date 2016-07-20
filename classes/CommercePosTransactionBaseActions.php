@@ -359,6 +359,11 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
           $order_wrapper->uid->set($account->uid);
         }
       }
+      elseif (($account = user_load($order_uid)) && !empty($this->transaction->data['customer phone'])) {
+        $user_wrapper = entity_metadata_wrapper('user', $account);
+        $user_wrapper->commerce_pos_phone_number->set($this->transaction->data['customer phone']);
+        $user_wrapper->save();
+      }
 
       $this->transaction->completed = REQUEST_TIME;
       $this->transaction->doAction('save');
@@ -374,23 +379,35 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   protected function createNewUser(EntityDrupalWrapper $order_wrapper, $send_email = TRUE) {
     if (!empty($this->transaction->data['customer email'])) {
       $customer_email = $this->transaction->data['customer email'];
-
       $order_wrapper->mail->set($customer_email);
+      $account = user_load_by_mail($customer_email);
+      $new_account = FALSE;
 
-      // Have Commerce create a username for us.
-      $new_username = commerce_order_get_properties($order_wrapper->value(), array(), 'mail_username');
+      if (!$account) {
+        $new_account = TRUE;
+        // Have Commerce create a username for us.
+        $new_username = commerce_order_get_properties($order_wrapper->value(), array(), 'mail_username');
 
-      $account = entity_create('user', array(
-        'name' => $new_username,
-        'mail' => $customer_email,
-        'status' => 1,
-      ));
-
-      user_save($account);
-
-      if ($send_email) {
-        drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account));
+        $account = entity_create('user', array(
+          'name' => $new_username,
+          'mail' => $customer_email,
+          'status' => 1,
+        ));
       }
+
+      $user_wrapper = entity_metadata_wrapper('user', $account);
+
+      if ($user_wrapper && !empty($this->transaction->data['customer phone'])) {
+        $user_wrapper->commerce_pos_phone_number->set($this->transaction->data['customer phone']);
+      }
+
+      $user_wrapper->save();
+
+      if ($new_account && $send_email) {
+        $params['account'] = $account;
+        drupal_mail('user', 'register_admin_created', $account->mail, user_preferred_language($account), $params);
+      }
+
       return $account;
     }
     else {

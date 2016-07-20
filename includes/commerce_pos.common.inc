@@ -89,7 +89,8 @@ function commerce_pos_product_search_basic($keywords) {
 /**
  * Autocomplete callback for the POS customer textfield.
  *
- * Similar to user_autocomplete(), but we also take a look at user emails.
+ * Similar to user_autocomplete(), but we also take a look at user emails and
+ * phone number.
  * The JSON result is also keyed by email instead of username.
  */
 function commerce_pos_user_autocomplete($string = '') {
@@ -98,19 +99,39 @@ function commerce_pos_user_autocomplete($string = '') {
   if ($string) {
     $or = db_or()
       ->condition('name', db_like($string) . '%', 'LIKE')
-      ->condition('mail', db_like($string) . '%', 'LIKE');
+      ->condition('mail', db_like($string) . '%', 'LIKE')
+      ->condition('commerce_pos_phone_number_value', db_like($string) . '%', 'LIKE');
 
-    $result = db_select('users')
-      ->fields('users', array('name', 'mail'))
+    $query = db_select('users', 'u');
+    $query->leftjoin('field_data_commerce_pos_phone_number', 'f', 'f.entity_id = u.uid');
+    $result = $query
+      ->fields('u', array('name', 'mail'))
+      ->fields('f', array('commerce_pos_phone_number_value'))
       ->condition($or)
       ->range(0, 10)->execute();
 
-    foreach ($result as $user) {
-      $matches[$user->mail] = check_plain($user->name . ' (' . $user->mail . ')');
-    }
+    $matches = commerce_pos_format_autocomplete_results($result);
   }
 
   drupal_json_output($matches);
+}
+
+/**
+ * Formats auto complete search results as a string
+ */
+function commerce_pos_format_autocomplete_results($result) {
+  $matches = array();
+  if ($result) {
+    foreach ($result as $row) {
+      if (empty($row->commerce_pos_phone_number_value)) {
+        $matches[$row->mail] = check_plain($row->name . ' (' . $row->mail . ')');
+      }
+      else {
+        $matches[$row->mail] = check_plain($row->name . ' (' . $row->mail . ')' . ' (' . $row->commerce_pos_phone_number_value . ')');
+      }
+    }
+  }
+  return $matches;
 }
 
 /**

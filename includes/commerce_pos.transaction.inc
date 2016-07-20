@@ -269,9 +269,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $line_item_element['qty'] = array(
-        '#title' => (int) $line_item_wrapper->quantity->value(),
+        '#title' => (int)$line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
-        '#value' => (int) $line_item_wrapper->quantity->value(),
+        '#value' => (int)$line_item_wrapper->quantity->value(),
         '#size' => 4,
         '#maxlength' => 4,
         '#ajax' => $wrapper_ajax,
@@ -451,20 +451,32 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   );
 
   $transaction_options['customer'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Customer'),
-    '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
-    '#ajax' => array(
-      'wrapper' => 'commerce-pos-customer-input-wrapper',
-      'callback' => 'commerce_pos_customer_js',
+    'email' => array(
+      '#type' => 'textfield',
+      '#title' => t('Customer'),
+      '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
+      '#ajax' => array(
+        'wrapper' => 'commerce-pos-customer-input-wrapper',
+        'callback' => 'commerce_pos_customer_transaction_js',
+      ),
+      '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
+      '#element_key' => 'customer-update',
+      '#description' => t('Enter an email address or phone number to lookup a customer'),
+      '#attributes' => array(
+        'placeholder' => t('email@address.com'),
+      ),
+      '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
     ),
-    '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
-    '#suffix' => '</div>',
-    '#element_key' => 'customer-update',
-    '#attributes' => array(
-      'placeholder' => t('email@address.com'),
-    ),
-    '#default_value' => !empty($transaction->data['customer email']) ? $transaction->data['customer email'] : NULL,
+    'phone' => array(
+      '#type' => 'textfield',
+      '#title' => t('Phone Number'),
+      '#suffix' => '</div>',
+      '#element_key' => 'customer-update',
+      '#attributes' => array(
+        'placeholder' => t('Phone Number'),
+      ),
+      '#default_value' => !empty($transaction->data['customer phone']) ? $transaction->data['customer phone'] : NULL
+    )
   );
 
   if (!$has_active_transaction) {
@@ -620,6 +632,13 @@ function commerce_pos_transaction_line_item_remove_submit($form, &$form_state) {
 }
 
 /**
+ * AJAX callback for the customer section.
+ */
+function commerce_pos_customer_transaction_js($form, &$form_state) {
+  return $form['transaction_options']['customer'];
+}
+
+/**
  * AJAX callback for returning the sale form's wrapper.
  */
 function commerce_pos_transaction_wrapper_js($form, &$form_state) {
@@ -630,11 +649,14 @@ function commerce_pos_transaction_wrapper_js($form, &$form_state) {
  * Validation handler for the Sale form's "Pay" button.
  */
 function commerce_pos_transaction_pay_validate($form, &$form_state) {
-  if (!empty($form_state['values']['transaction_options']['customer'])) {
-    $email_address = $form_state['values']['transaction_options']['customer'];
-
-    if (!valid_email_address($email_address)) {
-      form_error($form['transaction_options']['customer'], t('Invalid customer email address.'));
+  if (empty($form_state['values']['transaction_options']['customer']['email'])) {
+    if (!empty($form_state['values']['transaction_options']['customer']['phone'])) {
+      form_error($form['transaction_options']['customer']['email'], t('Please provide an email address with phone number.'));
+    }
+  }
+  else {
+    if (!valid_email_address($form_state['values']['transaction_options']['customer']['email'])) {
+      form_error($form['transaction_options']['customer']['email'], t('Invalid customer email address.'));
     }
   }
 }
@@ -645,11 +667,16 @@ function commerce_pos_transaction_pay_validate($form, &$form_state) {
 function commerce_pos_transaction_pay_submit($form, &$form_state) {
   if (!empty($form_state['values']['transaction_options']['customer'])) {
     // Attempt to associate the transaction with a customer.
-    $email_address = $form_state['values']['transaction_options']['customer'];
+    $email_address = $form_state['values']['transaction_options']['customer']['email'];
+
+    //Pass the phone number along to the payment form.
+    if (isset($form_state['values']['transaction_options']['customer']['phone'])) {
+      $form_state['transaction']->data['customer phone'] = $form_state['values']['transaction_options']['customer']['phone'];
+    }
 
     if ($user = user_load_by_mail($email_address)) {
       if ($form_state['transaction']->doAction('setOrderCustomer', $user)) {
-        // Only save if if the order customer was actually updated.
+        // Only save if the order customer was actually updated.
         $form_state['transaction']->doAction('saveOrder');
       }
     }
@@ -658,4 +685,3 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
   $form_state['transaction']->doAction('save');
   $form_state['redirect'] = 'admin/commerce/pos/' . $form['#redirect_key'] . '/payment';
 }
-
