@@ -505,9 +505,8 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 /**
  * Implements hook_commerce_price_formatted_components_alter().
  */
-function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $variables) {
-  $order = $variables['order'];
-  $is_pos_order = (isset($order->type) && $order->type == 'commerce_order' && $order->status == 'commerce_pos_in_progress');
+function commerce_pos_commerce_price_formatted_components_alter(&$components, $price, $entity) {
+  $is_pos_order = (isset($entity->type) && $entity->type == 'commerce_order' && $entity->status == 'commerce_pos_in_progress');
 
   if ($is_pos_order) {
     foreach ($components as $component_name => &$component) {
@@ -871,14 +870,10 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
     'weight' => $weight + 1,
   );
 
-  // Allow other modules to alter the components.
-  $variables = array(
-    'order' => $order_wrapper->value(),
-    'print' => $print,
-    'return' => $return,
-  );
+  $price['#commerce_pos_print'] = $print;
+  $order = $order_wrapper->value();
 
-  drupal_alter('commerce_price_formatted_components', $components, $price, $variables);
+  drupal_alter('commerce_price_formatted_components', $components, $price, $order);
 
   // Sort the components by weight.
   uasort($components, 'drupal_sort_weight');
