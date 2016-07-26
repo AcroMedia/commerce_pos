@@ -137,21 +137,6 @@ function commerce_pos_location_entity_property_info_alter(&$info) {
 }
 
 /**
- * Implements hook_commerce_pos_transaction_state_alter().
- */
-function commerce_pos_location_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
-  if (!empty($transaction->locationId)) {
-    // Grab the location's administrative area from its address
-    $location = commerce_pos_location_load($transaction->locationId);
-    $location_wrapper = entity_metadata_wrapper('commerce_pos_location', $location);
-
-    if ($location_administrative_area = $location_wrapper->commerce_pos_location_address->administrative_area->value()) {
-      $administrative_area = $location_administrative_area;
-    }
-  }
-}
-
-/**
  * Access callback for POS location entities.
  */
 function commerce_pos_location_entity_access_callback($op, $location = NULL, $account = NULL) {

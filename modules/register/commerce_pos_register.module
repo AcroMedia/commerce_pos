@@ -160,6 +160,21 @@ function commerce_pos_register_entity_property_info_alter(&$info) {
 }
 
 /**
+ * Implements hook_commerce_pos_transaction_state_alter().
+ */
+function commerce_pos_register_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
+  if (!empty($transaction->registerId)) {
+    // Grab the location's administrative area from its address
+    $location = commerce_pos_register_get_location_for_register($transaction->registerId);
+    $location_wrapper = entity_metadata_wrapper('commerce_pos_location', $location);
+
+    if ($location_administrative_area = $location_wrapper->commerce_pos_location_address->administrative_area->value()) {
+      $administrative_area = $location_administrative_area;
+    }
+  }
+}
+
+/**
  * Implements hook_form_alter().
  */
 function commerce_pos_register_form_alter(&$form, &$form_state, $form_id) {
