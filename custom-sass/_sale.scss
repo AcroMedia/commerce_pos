@@ -145,6 +145,7 @@
 
 .commerce-pos-transaction-line-items > .form-wrapper > .form-wrapper label {
   padding: 8px 5px 7px;
+  margin: 0;
   color: $primary;
   border: 1px solid transparent;
   transition: all .15s ease-in-out;
@@ -190,6 +191,7 @@
     height: 38px;
     line-height: 38px;
     padding: 0 2px;
+    margin: 0;
     width: 100%;
     text-align: center;
   }

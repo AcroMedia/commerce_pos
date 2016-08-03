@@ -1114,7 +1114,7 @@ function theme_commerce_pos_price_formatted_components($variables) {
 
   return theme('table', array(
     'rows' => $rows,
-    'attributes' => array('class' => array('commerce-price-formatted-components')),
+    'attributes' => array('class' => array('commerce-pos-sidebar-table','commerce-price-formatted-components')),
   ));
 }
 

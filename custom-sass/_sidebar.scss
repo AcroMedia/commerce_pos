@@ -12,16 +12,25 @@
 }
 
 .commerce-pos-col-transaction-info {
+  .label {
+    font-size: inherit;
+    border-radius: 0;
+    color: inherit;
+  }
+
   .btn {
     margin-bottom: 5px;
   }
 
-  .table-striped > tbody > tr:nth-of-type(2n+1),
-  .table-striped > tbody > tr {
-    background: #fff;
+  table.commerce-pos-sidebar-table tr * {
+    background: #f0f0f0;
   }
 
-  table {
+  table.commerce-pos-sidebar-table > tbody > tr > td {
+    border: 0;
+  }
+
+  table.commerce-pos-sidebar-table {
     width: 100%;
     font-size: 14px;
     border: 0;
@@ -44,6 +53,7 @@
       font-size: 120%;
 
       td {
+        background: #313131;
         color: #fff;
       }
     }

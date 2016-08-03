@@ -21,6 +21,6 @@
 <div class="commerce-pos-transaction-balance">
   <?php print theme('table', array(
     'rows' => $rows,
-    'attributes' => array('class' => array('payment-totals-table')),
+    'attributes' => array('class' => array('commerce-pos-sidebar-table','payment-totals-table')),
   )); ?>
 </div>
