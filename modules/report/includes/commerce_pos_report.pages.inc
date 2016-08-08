@@ -5,11 +5,21 @@
  */
 
 /**
+ * Callback for the POS reports page.
+ */
+function commerce_pos_reports_page() {
+  drupal_goto('admin/commerce/pos/reports/end-of-day');
+}
+
+/**
  * Form callback for the end of day report.
  */
 function commerce_pos_report_end_of_day($form, &$form_state) {
-  $default_date = format_date(REQUEST_TIME, 'custom', 'Y-m-d');
   global $user;
+
+  $default_date = format_date(REQUEST_TIME, 'custom', 'Y-m-d');
+
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report.css';
 
   if (!isset($form_state['results_container_id'])) {
     $form_state['results_container_id'] = 'commerce-pos-report-results-container';
@@ -23,6 +33,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   else {
     $date_filter = $default_date;
   }
+
+  $can_save = commerce_pos_report_before_end_of_day(strtotime($date_filter . ' ' . date('H:i:s')));
 
   $js_settings = array(
     'commercePosReport' => array(
@@ -38,6 +50,9 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     'effect' => 'fade',
   );
 
+  $form['#prefix'] = '<div id="commerce-pos-report-eod-form-container">';
+  $form['#suffix'] = '</div>';
+
   $form['#attached']['libraries_load'][] = array('jquery-print');
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
   $form['#attached']['js'][] = array(
@@ -45,8 +60,12 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     'data' => $js_settings,
   );
 
+  if (!isset($form_state['header'])) {
+    $form_state['header'] = theme('commerce_pos_header', array('account' => $user));
+  }
+
   $form['header'] = array(
-    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+    '#markup' => $form_state['header'],
   );
 
   $form['filters']['date'] = array(
@@ -90,6 +109,14 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     );
   }
 
+  if (!isset($form_state['report_options'])) {
+    $form_state['report_options'] = theme('commerce_pos_report_options');
+  }
+
+  $form['report-options'] = array(
+    '#markup' => $form_state['report_options'],
+  );
+
   // Get saved data for requested date.
   $report_history = commerce_pos_report_get_eod_report($register_id, $date_filter);
 
@@ -99,7 +126,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   );
 
   $headers = array(
-    t('Count Group'),
+    t('Payment Type'),
     t('Declared Amount'),
     t('POS expected Amount'),
     t('Over/Short'),
@@ -115,7 +142,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     $float = FALSE;
   }
 
-  $totals = commerce_pos_report_get_totals($date_filter, $register_id);
+  list($totals, $transaction_counts) = commerce_pos_report_get_totals($date_filter, $register_id);
 
   foreach ($totals as $currency_code => $currency_totals) {
     $form['results'][$currency_code] = array(
@@ -134,23 +161,38 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       }
 
       $is_cash = $payment_method_id == 'commerce_pos_payment_cash';
-
+      $currency = commerce_currency_load($currency_code);
       $payment_method = commerce_payment_method_load($payment_method_id);
       $row = array();
 
       $expected_amount = $amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $amounts[CommercePosService::TRANSACTION_TYPE_RETURN];
+      $input_prefix = '';
+      $input_suffix = '';
 
-      if ($is_cash && isset($currency_totals['commerce_pos_change'])) {
-        $change_amounts = &$currency_totals['commerce_pos_change'];
+      if (!empty($currency['symbol'])) {
+        switch ($currency['symbol_placement']) {
+          case 'before':
+            $input_prefix = $currency['symbol'];
+            break;
 
-        // The change amount reflects the change we GAVE BACK, so we have to add
-        // it to the expected amount of cash.
-        $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN]);
-        unset($change_amounts);
+          case 'after':
+            $input_suffix = $currency['symbol'];
+        }
       }
 
-      if ($float) {
-        $expected_amount += $float->amount;
+      if ($is_cash) {
+        if (isset($currency_totals['commerce_pos_change'])) {
+          $change_amounts = &$currency_totals['commerce_pos_change'];
+
+          // The change amount reflects the change we GAVE BACK, so we have to add
+          // it to the expected amount of cash.
+          $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN]);
+          unset($change_amounts);
+        }
+
+        if ($float) {
+          $expected_amount += $float->amount;
+        }
       }
 
       // Count group
@@ -159,7 +201,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       );
 
       // Declared amount
-      $row['declared'] = array(
+      $declared = array(
         '#type' => 'textfield',
         '#size' => 5,
         '#maxlength' => 10,
@@ -174,7 +216,18 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
         ),
         '#element_validate' => array('_commerce_pos_report_validate_amount'),
         '#required' => TRUE,
+        '#disabled' => !$can_save,
+        '#field_prefix' => $input_prefix,
+        '#field_suffix' => $input_suffix,
       );
+
+      if ($is_cash) {
+        $declared['#commerce_pos_cash_input'] = array(
+          'currency_code' => $currency_code,
+        );
+      }
+
+      $row['declared'] = $declared;
 
       if (!empty($report_history['data'][$payment_method_id]['declared'])) {
         $row['declared']['#default_value'] = $report_history['data'][$payment_method_id]['declared'];
@@ -182,7 +235,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
       // Expected amount
       $row[] = array(
-        '#markup' => '<div class="commerce-pos-report-expected-amount">'
+        '#markup' => '<div class="commerce-pos-report-expected-amount" data-payment-method-id="' . $payment_method_id . '">'
           . commerce_pos_report_currency_format($expected_amount, $currency_code)
           . '</div>',
       );
@@ -202,6 +255,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
           '#maxlength' => 10,
           '#title' => t('Cash Deposit'),
           '#title_display' => 'invisible',
+          '#field_prefix' => $input_prefix,
+          '#field_suffix' => $input_suffix,
         );
 
         if (!empty($report_history['data'][$payment_method_id]['cash_deposit'])) {
@@ -236,18 +291,43 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       '#type' => 'actions',
     );
 
-    $form['results']['actions']['save'] = array(
+    if ($can_save) {
+      $form['results']['actions']['save'] = array(
+        '#type' => 'submit',
+        '#value' => t('Save'),
+        '#validate' => array('commerce_pos_report_end_of_day_save_validate'),
+        '#submit' => array('commerce_pos_report_end_of_day_save_submit'),
+        '#disabled' => !$can_save,
+      );
+    }
+
+    $form['results']['actions']['print'] = array(
       '#type' => 'submit',
-      '#value' => t('Save and Print'),
+      '#value' => t('Print'),
       '#ajax' => array(
-        'callback' => 'commerce_pos_report_end_of_day_save_js',
-        'wrapper' => '',
+        'callback' => 'commerce_pos_report_end_of_day_print_js',
+        'wrapper' => 'commerce-pos-report-eod-form-container',
       ),
     );
+
+    if ($can_save) {
+      $form['results']['actions']['print']['#validate'][] = 'commerce_pos_report_end_of_day_save_validate';
+      $form['results']['actions']['print']['#submit'][] = 'commerce_pos_report_end_of_day_save_submit';
+    }
+
+    if (strtotime($date_filter) >= strtotime('00:00:00')) {
+      $form['results']['end_of_day_notice'] = array(
+        '#markup' => t('End of Day is at @time.', array(
+            '@time' => format_date(commerce_pos_report_end_of_day_timestamp(), 'custom', 'g:i a T')
+          )) . '<br><br>' . t('Changes cannot be saved after that time.'),
+        '#weight' => 200,
+      );
+    }
   }
 
   return $form;
 }
+
 
 /**
  * @param $date_filter
@@ -256,6 +336,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
  */
 function commerce_pos_report_get_totals($date_filter, $register_id) {
   $query = db_select('commerce_pos_transaction', 't');
+
+  $query->fields('t');
 
   // Get all POS transactions for the given day.
   $query->fields('ct', array(
@@ -267,6 +349,7 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
   $query->fields('pt', array(
     'amount',
     'payment_method',
+    'status',
   ));
 
   $query->addField('t', 'type');
@@ -277,9 +360,9 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
 
   $query->join('commerce_payment_transaction', 'pt', 'pt.order_id = t.order_id');
 
-  $query->where("DATE_FORMAT(FROM_UNIXTIME(t.completed), '%Y-%m-%d') = :completed_date", array(
-    ':completed_date' => $date_filter,
-  ));
+  $date_timestamp = strtotime($date_filter);
+  $query->condition('t.completed', $date_timestamp, '>=');
+  $query->condition('t.completed', strtotime('+1 day', $date_timestamp), '<');
 
   $query->orderBy('t.order_id');
 
@@ -288,6 +371,11 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
   }
 
   $totals = array();
+  $transaction_counts = array();
+  $transaction_summary = array();
+
+  $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array('success', 'void'));
+  $statuses = commerce_payment_transaction_statuses();
 
   foreach ($query->execute() as $row) {
 
@@ -299,9 +387,36 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
     }
     $method = &$totals[$row->commerce_order_total_currency_code][$row->payment_method];
     $method[$row->type] += $row->amount;
+
+    if (in_array($row->status, $visible_statuses)) {
+      if (!isset($transaction_counts[$row->payment_method])) {
+        $transaction_counts[$row->payment_method] = 0;
+      }
+
+      $transaction_counts[$row->payment_method]++;
+
+      if (!isset($transaction_summary[$row->payment_method])) {
+        $transaction_summary[$row->payment_method] = array();
+      }
+
+      if (!empty($row->cashier) && $cashier = commerce_pos_cashier_load($row->cashier)) {
+        $cashier_name = $cashier->name;
+      }
+      else {
+        $cashier_name = t('Unknown');
+      }
+
+      $transaction_summary[$row->payment_method][] = array(
+        'order_id' => $row->order_id,
+        'completed' => $row->completed,
+        'cashier' => $cashier_name,
+        'amount' => commerce_pos_report_currency_format($row->amount, $row->commerce_order_total_currency_code),
+        'status' => $statuses[$row->status]['title'],
+      );
+    }
   }
 
-  return $totals;
+  return array($totals, $transaction_counts, $transaction_summary);
 }
 
 /**
@@ -310,7 +425,7 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
  * @param $form
  */
 function _commerce_pos_report_validate_amount($element, &$form_state, $form) {
-  if (!is_numeric($element['#value'])) {
+  if (!is_numeric($element['#value']) && empty($element['#disabled'])) {
     form_error($element, t('Amount must be a number'));
   }
 }
@@ -323,28 +438,41 @@ function commerce_pos_report_end_of_day_results_js($form, &$form_state) {
 }
 
 /**
- * AJAX callback for the report "save" button.
+ * AJAX callback for the report "print" button.
  */
-function commerce_pos_report_end_of_day_save_js($form, &$form_state) {
+function commerce_pos_report_end_of_day_print_js($form, &$form_state) {
   $commands = array();
 
-  $date = $form_state['values']['date'];
-  $register = $form_state['values']['register_id'];
+  $commands[] = ajax_command_replace(NULL, render($form));
+  $commands[] = ajax_command_prepend(NULL, theme('status_messages'));
 
-  $receipt = theme('commerce_pos_report_receipt', array('date' => $date, 'register' => $register));
+  if (!form_get_errors()) {
+    $date = $form_state['values']['date'];
+    $register = $form_state['values']['register_id'];
 
-  $commands[] = array(
-    'command' => 'printWindow',
-    'content' => $receipt,
-  );
+    $commands[] = array(
+      'command' => 'printWindow',
+      'content' => theme('commerce_pos_report_receipt', array('date' => $date, 'register' => $register)),
+    );
+  }
 
   return array('#type' => 'ajax', '#commands' => $commands);
 }
 
 /**
- * Submit handler for the End of Day report form.
+ * Validation handler for the End of Day report "save" button.
  */
-function commerce_pos_report_end_of_day_submit($form, &$form_state) {
+function commerce_pos_report_end_of_day_save_validate($form, &$form_state) {
+  // Make sure we're not past the end of the day.
+  if (time() >= commerce_pos_report_end_of_day_timestamp()) {
+    form_error($form['results']['actions']['save'], t('Unable to save, it is past the end of the day.'));
+  }
+}
+
+/**
+ * Submit handler for the End of Day report "save" button.
+ */
+function commerce_pos_report_end_of_day_save_submit($form, &$form_state) {
   $date = $form_state['values']['date'];
   // POS register.
   $register = $form_state['values']['register_id'];
@@ -427,4 +555,397 @@ function commerce_pos_report_receipt_print($date, $register) {
   );
 
   ajax_deliver(array('#type' => 'ajax', '#commands' => $commands));
+}
+
+/**
+ * Callback for the Journal Role form/report.
+ */
+function commerce_pos_report_journal_role($form, &$form_state) {
+  global $user;
+
+  $form['#tree'] = TRUE;
+  $form['header'] = array(
+    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+  );
+
+  $query_filter_defaults = array(
+    'date' => format_date(REQUEST_TIME, 'custom', 'Y-m-d'),
+    'register' => commerce_pos_register_get_current_register(),
+    'payment_type' => 'all',
+    'cashier' => 'all',
+    'results_per_page' => COMMERCE_POS_REPORT_JOURNAL_ROLE_DEFAULT_ITEMS_PER_PAGE,
+  );
+
+  $query_params = drupal_get_query_parameters() +$query_filter_defaults;
+
+  $form['filters'] = array(
+    '#type' => 'container',
+  );
+
+  if (!isset($form_state['results_container_id'])) {
+    $form_state['results_container_id'] = 'commerce-pos-report-journal-role-container';
+  }
+
+  $js_settings = array(
+    'commercePosReport' => array(
+      'cssUrl' => url(drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report_receipt.css', array(
+        'absolute' => TRUE,
+      )),
+    ),
+  );
+
+  $form['#attached']['libraries_load'][] = array('jquery-print');
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report.css';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.journal_role.js';
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => $js_settings,
+  );
+
+  $form['filters']['date'] = array(
+    '#type' => 'date_select',
+    '#title' => t('Transaction Date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => $query_params['date'],
+    '#element_key' => 'date_completed',
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+  );
+
+  if (module_exists('commerce_pos_register')) {
+    $register_options = commerce_pos_register_options();
+
+    $form['filters']['register'] = array(
+      '#type' => 'select',
+      '#title' => t('Register'),
+      '#options' => $register_options,
+      '#default_value' => $query_params['register'],
+      '#attributes' => array(
+        'class' => array('commerce-pos-report-journal-role-filter'),
+      ),
+    );
+  }
+
+  $form['report-options'] = array(
+    '#theme' => 'commerce_pos_report_options',
+  );
+
+  $form['options'] = array(
+    '#type' => 'container',
+    '#id' => 'commerce-pos-report-journal-role-options-container',
+  );
+
+  $payment_filter_options = array(
+    'all' => t('All'),
+  );
+
+  foreach (commerce_pos_get_payment_methods() as $key => $payment_method) {
+    $payment_filter_options[$key] = $payment_method['title'];
+  }
+
+  $form['options']['payment_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Payment'),
+    '#options' => $payment_filter_options,
+    '#default_value' => $query_params['payment_type'],
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+  );
+
+  $cashier_options = array(
+    'all' => t('All'),
+  );
+
+  $cashier_options += commerce_pos_cashiers_get_cashiers();
+
+  $form['options']['cashier'] = array(
+    '#type' => 'select',
+    '#title' => t('Cashier'),
+    '#default_value' => $query_params['cashier'],
+    '#options' => $cashier_options,
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+  );
+
+  $form['options']['results_per_page'] = array(
+    '#type' => 'select',
+    '#title' => t('Items per page'),
+    '#options' => array(
+      25 => '25',
+      50 => '50',
+      100 => '100',
+      500 => '500',
+      -1 => t('all'),
+    ),
+    '#default_value' => $query_params['results_per_page'],
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+  );
+
+  $form['results'] = array(
+    '#type' => 'container',
+    '#id' => $form_state['results_container_id'],
+  );
+
+  $form['results']['table'] = commerce_pos_report_build_journal_role_table($query_params);
+
+  // Pager has to come after we've build the journal role table.
+  $form['options']['pager'] = array('#theme' => 'pager');
+  $form['results']['pager'] = array('#theme' => 'pager');
+
+  $form['submit'] = array(
+    '#value' => t('Submit'),
+    '#type' => 'submit',
+    '#weight' => -50,
+    '#attributes' => array(
+      'class' => array('element-invisible', 'commerce-pos-report-journal-role-submit'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the journal role report form.
+ */
+function commerce_pos_report_journal_role_submit($form, &$form_state) {
+  $query_params = array_merge(drupal_get_query_parameters(), $form_state['values']['filters'], $form_state['values']['options']);
+  $form_state['redirect'] = array(current_path(), array('query' => $query_params));
+}
+
+/**
+ * Builds a Journal Role result table.
+ *
+ * @param array $filters
+ *   An array of filters for the query. Can include any of the following:
+ *   'register' - The register ID of the transactions.
+ *   'date' - The date of the transactions in the format of YYYY-MM-DD.
+ *   'cashier' - The cashier who performed the transactions.
+ *   'payment_type' - The type of payment the transactions had.
+ *   'results_per_page' - The number of results per page.
+ *
+ * @return array
+ *   A render array for the result table.
+ */
+function commerce_pos_report_build_journal_role_table($filters = array()) {
+
+  $header = array(
+    array('data' => t('Order No.'), 'field' => 't.order_id'),
+    array('data' => t('Time'), 'field' => 't.completed'),
+    array('data' => t('Payment')),
+    array('data' => t('Cashier'), 'field' => 'u.name'),
+    array('data' => t('Customer')),
+    array('data' => t('Purchased')),
+    array('data' => t('Returned')),
+    array('data' => t('Discount')),
+    array(
+      'data' => t('Order Total'),
+      'field' => 'ot.commerce_order_total_amount'
+    ),
+  );
+
+  $query = db_select('commerce_pos_transaction', 't')
+    ->extend('PagerDefault')
+    ->extend('TableSort');
+
+  $query->limit($filters['results_per_page']);
+
+  $query->fields('t', array('order_id', 'completed', 'uid', 'type'));
+
+  // Cashier data
+  // We left join because legacy transactions may not have a cashier.
+  $query->leftJoin('commerce_pos_cashier', 'cashier', 'cashier.cashier_id = t.cashier');
+  $query->addField('cashier', 'name', 'cashier');
+
+  // Payment transaction data
+  $query->join('commerce_payment_transaction', 'pt', 'pt.order_id = t.order_id');
+  $query->fields('pt', array('transaction_id'));
+
+  // Join order data.
+  $query->join('commerce_order', 'o', 'o.order_id = t.order_id');
+  $query->leftJoin('users', 'customer', 'customer.uid = o.uid');
+  $query->addField('customer', 'mail', 'customer_mail');
+
+  // Join order total data.
+  $query->join('field_data_commerce_order_total', 'ot', 't.order_id = ot.entity_id AND ot.entity_type = :commerce_order', array(
+    ':commerce_order' => 'commerce_order',
+  ));
+  $query->fields('ot', array(
+    'commerce_order_total_amount',
+    'commerce_order_total_currency_code',
+    'commerce_order_total_data'
+  ));
+
+  // Join line item data.
+  $query->join('commerce_line_item', 'l', 'l.order_id = t.order_id');
+  $query->addExpression('COUNT(DISTINCT l.line_item_id)', 'item_count');
+
+  $product_types = CommercePosService::allowedProductTypes();
+  $query->condition('l.type', $product_types, 'IN');
+
+  // Make sure line item count is aggregated.
+  $query->groupBy('l.order_id');
+
+  // Set up our filters/conditions.
+  if (!empty($filters['register'])) {
+    $query->condition('t.register_id', $filters['register']);
+  }
+
+  if (!empty($filters['date'])) {
+    $date_timestamp = strtotime($filters['date']);
+    $query->condition('completed', $date_timestamp, '>=');
+    $query->condition('completed', strtotime('+1 day', $date_timestamp), '<');
+  }
+
+  if (!empty($filters['payment_type']) && $filters['payment_type'] != 'all') {
+    $query->condition('pt.payment_method', $filters['payment_type']);
+  }
+
+  if (!empty($filters['cashier']) && $filters['cashier'] != 'all') {
+    $query->condition('cashier.cashier_id', $filters['cashier']);
+  }
+
+  $query->condition('completed', '0', '>');
+  $query->orderByHeader($header);
+
+  $result = $query->execute();
+
+  $rows = array();
+  $totals = array(
+    'purchased' => 0,
+    'returned' => 0,
+    'order_total' => array(),
+  );
+
+  if ($result->rowCount() > 0) {
+    foreach ($result as $row) {
+      $table_row = array();
+
+      $return_count = 0;
+      $purchase_count = 0;
+
+      switch ($row->type) {
+        case CommercePosService::TRANSACTION_TYPE_RETURN:
+          $return_count = $row->item_count;
+          break;
+
+        default:
+          $purchase_count = $row->item_count;
+          break;
+      }
+
+      // Build order ID link
+      $table_row[] = l($row->order_id, '/admin/commerce/pos/report/ajax/order-details/' . $row->order_id, array(
+        'external' => TRUE,
+        'attributes' => array(
+          'class' => array('commerce-pos-report-journal-role-order use-ajax'),
+          'data-order-id' => $row->order_id,
+        )
+      ));
+
+      $table_row[] = format_date($row->completed, 'custom', 'g:i a');
+
+      // Payment type
+      $table_row[] = commerce_pos_report_payment_types($row->order_id);
+
+      // Cashier
+      $table_row[] = $row->cashier;
+
+      $table_row[] = !empty($row->customer_mail) ? $row->customer_mail : t('Anonymous');
+
+      // Purchased
+      $table_row[] = $purchase_count;
+
+      // Returned
+      $table_row[] = $return_count;
+
+      // Discount flag
+      $order_total_data = unserialize($row->commerce_order_total_data);
+      $has_discount = FALSE;
+
+      if (!empty($order_total_data['components'])) {
+        foreach ($order_total_data['components'] as $component) {
+          if (!empty($component['name']) && strpos($component['name'], 'discount|') === 0) {
+            $has_discount = TRUE;
+            break;
+          }
+        }
+      }
+
+      $table_row[] = $has_discount ? '<span class="commerce-pos-report-ico-checked"></span>' : '';
+
+      // Order total
+      $table_row[] = commerce_currency_format($row->commerce_order_total_amount, $row->commerce_order_total_currency_code);
+
+      $rows[] = array(
+        'data' => $table_row,
+        'class' => array('commerce-pos-transaction-type-' . $row->type),
+      );
+
+      // Add another row right below that will serve as a placeholder for loading
+      // in order data.
+      $rows[] = array(
+        array(
+          'colspan' => count($table_row),
+          'class' => array('commerce-pos-report-journal-role-order-info', 'element-invisible'),
+          'data-order-id' => $row->order_id,
+        ),
+      );
+
+      $totals['purchased'] += $purchase_count;
+      $totals['returned'] += $return_count;
+
+      if (!isset($totals['order_total'][$row->commerce_order_total_currency_code])) {
+        $totals['order_total'][$row->commerce_order_total_currency_code] = $row->commerce_order_total_amount;
+      }
+      else {
+        $totals['order_total'][$row->commerce_order_total_currency_code] += $row->commerce_order_total_amount;
+      }
+    }
+
+    // Add a row for some totals
+    $order_totals_summary = array();
+
+    foreach ($totals['order_total'] as $currency_code => $amount) {
+      $order_totals_summary[] = commerce_currency_format($amount, $currency_code);
+    }
+
+    $rows[] = array(
+      '',
+      '',
+      '',
+      '',
+      '',
+      $totals['purchased'],
+      $totals['returned'],
+      '',
+      implode('<br>', $order_totals_summary),
+    );
+
+    $table = array(
+      '#theme' => 'table',
+      '#rows' => $rows,
+      '#header' => $header,
+      '#attached' => array(
+        'js' => array(
+          drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.journal_role.js',
+        ),
+        'library' => array(
+          array('system', 'drupal.ajax'),
+        ),
+      ),
+    );
+
+    return $table;
+  }
+  else {
+    return array(
+      '#markup' => t('No transactions found'),
+    );
+  }
 }

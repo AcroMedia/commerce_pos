@@ -1,10 +1,155 @@
 <?php
 
 /**
+ * Abstract class for Commerce POS testing. All Commerce POS tests should
+ * extend this.
+ */
+abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
+
+  /**
+   * Creates a dummy POS transaction for use in other tests.
+   *
+   * @param string $type
+   *   The type of transaction to create.
+   * @param int $uid
+   *   A user ID to associate the transaction to.
+   *
+   * @return CommercePosTransaction
+   *   The dummy transaction.
+   */
+  public function createDummyTransaction($type, $uid) {
+    $transaction = new CommercePosTransaction(NULL, $type, $uid);
+    $transaction->doAction('save');
+
+    return $transaction;
+  }
+
+  /**
+   * Creates a dummy POS location for use in other tests.
+   *
+   * @return
+   *   The dummy location, or FALSE if the appropriate modules weren't enabled.
+   */
+  public function createDummyLocation() {
+    if (module_exists('commerce_pos_location')) {
+      $location = entity_create('commerce_pos_location', array(
+        'name' => $this->randomName(),
+      ));
+
+      $address_info = $this->generateAddressInformation();
+      $address_info['country'] = 'US';
+      $location->commerce_pos_location_address[LANGUAGE_NONE][] = $address_info;
+
+      entity_save('commerce_pos_location', $location);
+
+      return $location;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Creates a dummy POS register for use in other tests.
+   *
+   * @param int $location_id
+   *   The ID of the POS location to assign the register to.
+   *
+   * @return bool|stdClass
+   *   The the dummy register, or FALSE if the appropriate modules weren't
+   *   enabled.
+   */
+  public function createDummyRegister($location_id) {
+    if (module_exists('commerce_pos_register')) {
+      $register = entity_create('commerce_pos_register', array(
+        'name' => $this->randomName(),
+      ));
+
+      $register->field_location_reference[LANGUAGE_NONE][]['target_id'] = $location_id;
+
+      entity_save('commerce_pos_register', $register);
+      return $register;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Creates a dummy float record for use in other tests.
+   *
+   * @param $register_id
+   *   The register to create the float for.
+   * @param $amount
+   *   The float amount.
+   *
+   * @return bool
+   *   A boolean indicating if the float was created or not.
+   */
+  public function createDummyFloat($register_id, $amount) {
+    if (module_exists('commerce_pos_register')) {
+      commerce_pos_register_add_float($register_id, $amount);
+      return TRUE;
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Creates a dummy POS cashier for use in other tests.
+   *
+   * @return bool|stdClass
+   *   The ID of the dummy cashier, or FALSE if the appropriate modules weren't
+   *   enabled.
+   */
+  public function createDummyCashier() {
+    if (module_exists('commerce_pos_cashier')) {
+      return entity_create('commerce_pos_cashier', array(
+        'name' => $this->randomName(),
+        'code' => $this->randomName(),
+      ));
+    }
+    else {
+      return FALSE;
+    }
+  }
+
+  /**
+   * Creates a dummy Commerce payment transaction on a POS transaction.
+   *
+   * @param \CommercePosTransaction $transaction
+   *   The POS transaction.
+   * @param $method_id
+   *   The payment method ID.
+   * @param $amount
+   *   The amount that the payment transaction is for.
+   */
+  public function createDummyPayment(CommercePosTransaction $transaction, $method_id, $amount) {
+    if (module_exists('commerce_pos_payment')) {
+      $payment_method = commerce_payment_method_load($method_id);
+      $order_wrapper = $transaction->getOrderWrapper();
+      $order_id = $order_wrapper->order_id->value();
+      $transaction = commerce_payment_transaction_new($method_id, $order_id);
+      $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
+      $transaction->amount = $amount;
+      $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
+      $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
+      $transaction->message = '';
+      commerce_payment_transaction_save($transaction);
+      return $transaction;
+    }
+    else {
+      return FALSE;
+    }
+  }
+}
+
+/**
  * Class CommerceXlsImportTestCase.
  *
  */
-class CommercePosTestCase extends CommerceBaseTestCase {
+class CommercePosTestCase extends CommercePosBaseTestCase {
   protected $adminUser;
   protected $privilegedUser;
   protected $normalUser;

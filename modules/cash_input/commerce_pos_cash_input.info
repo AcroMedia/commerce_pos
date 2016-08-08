@@ -1,0 +1,20 @@
+name = Commerce POS cash input
+description = Provides a cash input form API widget.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_discount
+dependencies[] = commerce_pos
+dependencies[] = ctools
+
+files[] = classes/CommercePosDiscountBase.php
+files[] = classes/CommercePosDiscountService.php
+
+configure = admin/commerce/config/pos
+
+; Information added by Drupal.org packaging script on 2016-06-07
+version = "7.x-2.0-beta3+7-dev"
+core = "7.x"
+project = "commerce_pos"
+datestamp = "1465323841"
+

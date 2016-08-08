@@ -54,6 +54,15 @@ function commerce_pos_report_schema() {
 }
 
 /**
+ * Implements hook_uninstall().
+ */
+function commerce_pos_report_uninstall() {
+  // Variable cleanup.
+  variable_delete('commerce_pos_report_end_of_day_hour');
+  variable_delete('commerce_pos_report_end_of_day_minute');
+}
+
+/**
  * Create commerce_pos_report_declared_data table.
  */
 function commerce_pos_report_update_7001(&$sandbox) {

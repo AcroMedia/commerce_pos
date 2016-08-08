@@ -408,3 +408,25 @@ function commerce_pos_cashier_cashiers_exist() {
 
   return $num_cashiers > 0;
 }
+
+/**
+ * Retrieves a list of all cashiers.
+ *
+ * @param bool $reset
+ *  If TRUE, the static cache will be reset and fresh results from the database
+ *  will be returned.
+ *
+ * @return array
+ *   A list of cashier names, keyed by their cashier ID.
+ */
+function commerce_pos_cashiers_get_cashiers($reset = FALSE) {
+  $cashiers = &drupal_static(__FUNCTION__, NULL);
+
+  if ($cashiers === NULL || $reset) {
+    $result = db_query('SELECT cashier_id, `name` FROM {commerce_pos_cashier} ORDER BY `name` DESC');
+    $cashiers = $result->fetchAllKeyed();
+  }
+
+  return $cashiers;
+}
+

@@ -8,7 +8,7 @@
 
   Drupal.behaviors.commercePosReceipt = {
     attach: function (context, settings) {
-      if (Drupal.settings.commercePosReceipt.printInfo) {
+      if (Drupal.settings.commercePosReceipt && Drupal.settings.commercePosReceipt.printInfo) {
         printReceiptRequest(Drupal.settings.commercePosReceipt.printInfo);
         Drupal.settings.commercePosReceipt.printInfo = false;
       }

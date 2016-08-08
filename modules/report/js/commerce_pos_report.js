@@ -7,31 +7,43 @@
         element.data('balance-area',  $('.commerce-pos-report-balance').filter('[data-payment-method-id=' + paymentMethodId + ']'));
 
         element.keyup(function (e) {
-          var element = $(this);
-          var value = element.val();
-
-          if (!isNaN(value)) {
-            var balance = (value * 100) - element.data('expected-amount');
-
-            $(this).data('balance-area').html(
-              Drupal.CommercePosReport.currencyFormat(balance, element.data('currency-code'))
-            );
-          }
+          Drupal.CommercePosReport.calculateDeclared($(this));
         });
+
+        // Calculate the declared amount once upon page load.
+        Drupal.CommercePosReport.calculateDeclared($(this));
       });
     }
   };
 
   Drupal.ajax.prototype.commands.printWindow = function (ajax, response, status) {
-    //window.print();
     $(response.content).print({
       globalStyles: false,
       stylesheet: Drupal.settings.commercePosReport.cssUrl
     });
-
   };
 
   Drupal.CommercePosReport = {};
+
+  Drupal.CommercePosReport.calculateDeclared = function (element) {
+    var value = element.val();
+
+    if (!isNaN(value)) {
+      var balance = (value * 100) - element.data('expected-amount');
+      var balanceArea = element.data('balance-area');
+
+      balanceArea.html(
+        Drupal.CommercePosReport.currencyFormat(balance, element.data('currency-code'))
+      );
+
+      if (balance < 0) {
+        balanceArea.addClass('commerce-pos-report-negative');
+      }
+      else {
+        balanceArea.removeClass('commerce-pos-report-negative');
+      }
+    }
+  };
 
   Drupal.CommercePosReport.currencyFormat = function (amount, currencyCode, convert) {
     var currency = Drupal.settings.commercePosReport.currencies[currencyCode];
@@ -44,7 +56,7 @@
       amount = amount / currency['divisor'];
     }
 
-    var price = Drupal.CommercePosReport.currencyRound(amount, currency);
+    var price = Drupal.CommercePosReport.currencyRound(Math.abs(amount), currency);
 
     var replacements = {
       '@code_before': currency['code_placement'] == 'before' ? currency['code'] : '',
@@ -55,20 +67,33 @@
       '@negative_before': amount < 0 ? '(' : '',
       '@negative_after': amount < 0 ? ')' : '',
       '@symbol_spacer': currency['symbol_spacer'],
-      '@code_spacer': currency['code_spacer']
+      '@code_spacer': currency['code_spacer'],
+      '@code_spacer2': currency['code_spacer']
     };
 
-    return Drupal.t('@code_before@code_spacer@negative_before@symbol_before@price@negative_after@symbol_spacer@symbol_after@code_spacer@code_after', replacements);
+    return Drupal.t('@code_before@code_spacer@negative_before@symbol_before@price@negative_after@symbol_spacer@symbol_after@code_spacer2@code_after', replacements);
   };
 
-  Drupal.CommercePosReport.currencyRound = function (amount, currency) {
+  Drupal.CommercePosReport.currencyRound = function (amount, currency, convert) {
+    if (typeof convert === 'undefined') {
+      convert = false;
+    }
+
+    if (typeof currency == 'string') {
+      currency = Drupal.settings.commercePosReport.currencies[currency];
+    }
+
+    if (convert) {
+      amount = amount / currency['divisor'];
+    }
+
     if (!currency['rounding_step']) {
-      return Drupal.CommercePosReport.round(amount, currency['decimals']);
+      return Drupal.CommercePosReport.round(amount, currency['decimals']).toFixed(currency['decimals']);
     }
 
     var modifier = 1 / currency['rounding_step'];
 
-    return Drupal.CommercePosReport.round(amount * modifier) / modifier;
+    return (Drupal.CommercePosReport.round(amount * modifier) / modifier).toFixed(currency['decimals']);
   };
 
   Drupal.CommercePosReport.round = function (value, precision, mode) {

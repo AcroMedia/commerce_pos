@@ -166,6 +166,8 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'variables' => array(
         'order' => NULL,
+        'display_only' => FALSE,
+        'include_balance' => TRUE,
       ),
     ),
     'commerce_pos_transaction_actions' => array(
@@ -187,6 +189,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
     ),
     'commerce_pos_header' => array(
       'template' => 'commerce-pos-header',
+      'file' => 'commerce_pos.theme.inc',
       'path' => $path . '/theme',
       'variables' => array(
         'account' => NULL,
@@ -771,8 +774,12 @@ function commerce_pos_balance_summary_rows($totals, $order) {
 /**
  * Returns a summary view of a POS transaction's order.
  */
-function commerce_pos_balance_summary($order) {
-  return theme('commerce_pos_order_balance_summary', array('order' => $order));
+function commerce_pos_balance_summary($order, $display_only = FALSE, $include_balance = TRUE) {
+  return theme('commerce_pos_order_balance_summary', array(
+    'order' => $order,
+    'display_only' => $display_only,
+    'include_balance' => $include_balance
+  ));
 }
 
 /**
@@ -1184,3 +1191,40 @@ function commerce_pos_get_order_transactions($order_id) {
   return $transaction_ids;
 }
 
+/**
+ * Retrieves a Commerce POS transaction by its order ID.
+ * @param $order_id
+ *
+ * @return CommercePosTransaction|bool
+ */
+function commerce_pos_get_pos_transaction_by_order_id($order_id) {
+  $query = 'SELECT transaction_id FROM {commerce_pos_transaction} WHERE order_id = :order_id';
+  if ($transaction_id = $result = db_query($query, array(':order_id' => $order_id))->fetchField()) {
+     return CommercePosService::loadTransaction($transaction_id);
+  }
+  else {
+    return FALSE;
+  }
+}
+
+/**
+ * Checks whether an item is in the active trail.
+ *
+ * @return bool
+ *   TRUE when path is in the active trail, FALSE if not.
+ */
+function commerce_pos_in_active_trail($path) {
+  $active_paths = &drupal_static(__FUNCTION__);
+
+  // Gather active paths.
+  if (!isset($active_paths)) {
+    $active_paths = array();
+    $trail = menu_get_active_trail();
+    foreach ($trail as $item) {
+      if (!empty($item['href'])) {
+        $active_paths[] = $item['href'];
+      }
+    }
+  }
+  return in_array($path, $active_paths);
+}

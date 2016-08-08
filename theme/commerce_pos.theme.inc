@@ -40,6 +40,30 @@ function commerce_pos_preprocess_commerce_pos_product_result(&$variables) {
 }
 
 /**
+ * Implements hook_preprocess_HOOK().
+ */
+function commerce_pos_preprocess_commerce_pos_header(&$variables) {
+  $variables['links'] = array();
+
+  $links = array(
+    'admin/commerce/pos/sale' => t('Sale'),
+    'admin/commerce/pos/return' => t('Return'),
+  );
+
+  drupal_alter('commerce_pos_header_links', $links);
+
+  foreach ($links as $path => $title) {
+    $link_attributes = array();
+
+    if (commerce_pos_in_active_trail($path)) {
+      $link_attributes['class'][] = 'active';
+    }
+
+    $variables['links'][] = l($title, $path, array('attributes' => $link_attributes));
+  }
+}
+
+/**
  * Theme callback for the POS product summary.
  */
 function theme_commerce_pos_product_summary(&$variables) {
@@ -127,19 +151,24 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
           'data' => $payment_method['title'],
           'class' => array('payment-method'),
         ),
-        array(
-          'data' => theme('commerce_pos_transaction_actions', array('transaction' => $transaction)),
-          'class' => array('actions'),
-        ),
-        array(
-          'data' => theme('commerce_payment_transaction_status_icon', array('transaction_status' => $transaction_statuses[$status])),
-          'class' => array('status'),
-        ),
-        array(
-          'data' => commerce_currency_format($amount, $currency_code),
-          'class' => array('amount'),
-        ),
       ),
+    );
+
+    if (empty($variables['display_only'])) {
+      $row['data'][] = array(
+        'data' => theme('commerce_pos_transaction_actions', array('transaction' => $transaction)),
+        'class' => array('actions'),
+      );
+
+      $row['data'][] = array(
+        'data' => theme('commerce_payment_transaction_status_icon', array('transaction_status' => $transaction_statuses[$status])),
+        'class' => array('status'),
+      );
+    }
+
+    $row['data'][] = array(
+      'data' => commerce_currency_format($amount, $currency_code),
+      'class' => array('amount'),
     );
 
     $rows[] = $row;
@@ -165,11 +194,17 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
     ),
   ));
 
-  $transaction_balance = theme('commerce_pos_transaction_balance', array(
-    'rows' => commerce_pos_balance_summary_rows($totals, $order),
-  ));
+  $output = $transaction_summary;
 
-  return $transaction_summary . $transaction_balance;
+  if (!empty($variables['include_balance'])) {
+    $transaction_balance = theme('commerce_pos_transaction_balance', array(
+      'rows' => commerce_pos_balance_summary_rows($totals, $order),
+    ));
+
+    $output .= $transaction_balance;
+  }
+
+  return $output;
 }
 
 /**

@@ -109,3 +109,14 @@ function hook_commerce_pos_void_payment_transaction($transaction) {
     )),
   );
 }
+
+/**
+ * Allows modules to change/add to the links output in the POS header.
+ *
+ * @param $links
+ *   An array of links. The key is the path and the value is the title of the
+ *   link.
+ */
+function hook_commerce_pos_header_links_alter(&$links) {
+  $links['admin/commerce/pos/sales'] = t('Sales');
+}
