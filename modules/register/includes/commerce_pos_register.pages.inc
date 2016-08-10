@@ -51,13 +51,23 @@ function commerce_pos_register_select_submit($form, &$form_state) {
  * Callback for the POS register float form.
  */
 function commerce_pos_register_float_form($form, &$form_state, $register_id = 0) {
+  $register = commerce_pos_register_load($register_id);
+
   $form['#register_id'] = $register_id;
+  $default_float = 0;
+
+  if ($field_default_float = field_get_items('commerce_pos_register', $register, 'commerce_pos_default_float')) {
+    if (!empty($field_default_float[0]['value'])) {
+      $default_float = $field_default_float[0]['value'];
+    }
+  }
 
   $form['amount'] = array(
     '#type' => 'textfield',
     '#title' => t('Amount'),
     '#required' => TRUE,
-    '#size' => 10
+    '#size' => 10,
+    '#default_value' => $default_float,
   );
 
   $form['actions'] = array(

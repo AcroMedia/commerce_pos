@@ -513,6 +513,80 @@ function commerce_pos_register_configure_registers() {
 
     field_create_instance($instance);
   }
+
+  // Default Float
+  $field_name = 'commerce_pos_default_float';
+  $field = field_info_field($field_name);
+  $instance = field_info_instance('commerce_pos_register', $field_name, 'commerce_pos_register');
+
+  if (empty($field)) {
+    $field = array(
+      'active' => 1,
+      'cardinality' => 1,
+      'deleted' => 0,
+      'entity_types' => array(),
+      'field_name' => $field_name,
+      'indexes' => array(),
+      'locked' => 0,
+      'module' => 'number',
+      'settings' => array(
+        'decimal_separator' => '.',
+        'precision' => 10,
+        'scale' => 2,
+      ),
+      'translatable' => 0,
+      'type' => 'number_decimal',
+    );
+
+    field_create_field($field);
+  }
+
+  if (empty($instance)) {
+    $instance = array(
+      'bundle' => 'commerce_pos_register',
+      'default_value' => array(
+        0 => array(
+          'value' => 100,
+        ),
+      ),
+      'deleted' => 0,
+      'description' => '',
+      'display' => array(
+        'default' => array(
+          'label' => 'above',
+          'module' => 'number',
+          'settings' => array(
+            'decimal_separator' => '.',
+            'prefix_suffix' => TRUE,
+            'scale' => 2,
+            'thousand_separator' => '',
+          ),
+          'type' => 'number_decimal',
+          'weight' => 1,
+        ),
+      ),
+      'entity_type' => 'commerce_pos_register',
+      'field_name' => $field_name,
+      'label' => 'Default float',
+      'required' => 1,
+      'settings' => array(
+        'max' => '',
+        'min' => '',
+        'prefix' => '',
+        'suffix' => '',
+        'user_register_form' => FALSE,
+      ),
+      'widget' => array(
+        'active' => 0,
+        'module' => 'number',
+        'settings' => array(),
+        'type' => 'number',
+        'weight' => 1,
+      ),
+    );
+
+    field_create_instance($instance);
+  }
 }
 
 /**

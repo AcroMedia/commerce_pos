@@ -91,3 +91,10 @@ function commerce_pos_register_schema() {
 function commerce_pos_register_enable() {
   commerce_pos_register_configure_registers();
 }
+
+/**
+ * Create default float fields.
+ */
+function commerce_pos_register_update_7201(&$sandbox) {
+  commerce_pos_register_configure_registers();
+}
