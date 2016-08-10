@@ -47,6 +47,14 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
         'transacton' => NULL,
       ),
     ),
+    'commerce_pos_receipt_payments_table' => array(
+      'file' => 'commerce_pos_receipt.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'order_id' => 0,
+        'return' => FALSE,
+      ),
+    ),
   );
 }
 
@@ -457,7 +465,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
         array(
           'data' => t('@sku x@qty @ @price', array(
             '@sku' => $line_item->commerce_product->sku->value(),
-            '@qty' => (int)$line_item->quantity->value(),
+            '@qty' => (int) $line_item->quantity->value(),
             '@price' => $price_prefix . commerce_currency_format(
                 $line_item->commerce_unit_price->amount->raw(),
                 $line_item->commerce_unit_price->currency_code->raw(),
@@ -484,38 +492,6 @@ function commerce_pos_receipt_build_receipt_body($order) {
 
   $rows[count($rows) - 1]['class'][] = 'last';
 
-  $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $order->order_id));
-  $payment_rows = array();
-  $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array('success', 'void'));
-
-  foreach ($payments as $payment) {
-    if (in_array($payment->status, $visible_statuses)) {
-      $status = commerce_payment_transaction_status_load($payment->status);
-      $method_name = '<span class="payment-name">' . commerce_payment_method_get_title('title', $payment->payment_method) . '</span>';
-      $row_classes = array('payment');
-
-      if (!$status['total']) {
-        $method_name .= '&nbsp;-&nbsp;<span class="commerce-pos-receipt-void-message">' . $status['title'] . '</span>';
-        $row_classes[] = 'payment-no-total';
-      }
-
-      $row = array(
-        array(
-          'data' => $method_name,
-          'class' => array('component-label'),
-        ),
-        array(
-          'data' => $price_prefix . commerce_currency_format($payment->amount, $payment->currency_code, $payment) . $price_suffix,
-          'class' => array('component-total'),
-        ),
-      );
-      $payment_rows[] = array(
-        'data' => $row,
-        'class' => $row_classes,
-      );
-    }
-  }
-
   $output['info'] = array(
     '#theme' => 'commerce_pos_receipt_order_info',
     '#order' => $order,
@@ -537,9 +513,9 @@ function commerce_pos_receipt_build_receipt_body($order) {
   $output['total']['#weight'] = 10;
 
   $output['payments'] = array(
-    '#theme' => 'table',
-    '#rows' => $payment_rows,
-    '#attributes' => array('class' => array('commerce-pos-order')),
+    '#theme' => 'commerce_pos_receipt_payments_table',
+    '#order_id' => $order->order_id,
+    '#return' => $return,
     '#weight' => 15,
   );
 
@@ -564,7 +540,7 @@ function commerce_pos_receipt_default_message_type() {
     "arguments" : null,
     "message_text" : { "und" : [
         {
-          "value" : "Thank you for your recent order",
+          "value" : "Thanks for stopping by!",
           "format" : "commerce_order_message"
         }
       ]
