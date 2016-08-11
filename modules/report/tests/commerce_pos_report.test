@@ -1,6 +1,6 @@
 <?php
 
-class CommercePOsReportTestCase extends CommercePosBaseTestCase {
+class CommercePosReportTestCase extends CommercePosBaseTestCase {
   protected $adminUser;
   protected $privilegedUser;
 
