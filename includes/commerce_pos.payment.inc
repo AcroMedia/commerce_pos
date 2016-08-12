@@ -372,6 +372,19 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
   if (!is_numeric($form_state['values']['keypad']['amount'])) {
     form_set_error('keypad][amount', t('Payment amount must be a number.'));
   }
+  if ($form_state['transaction']->type === 'return'){
+    $keyed_amount = $form_state['values']['keypad']['amount'] * 100;
+    $order_amount = $form_state['transaction']->getOrderWrapper()->commerce_order_total->amount->value();
+    $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $form_state['transaction']->getOrderWrapper()->order_id->value()));
+    foreach($payments as $payment) {
+      if($payment->status !== 'void') {
+        $order_amount -= $payment->amount;
+      }
+    }
+    if($keyed_amount > $order_amount) {
+      form_set_error('keypad][amount', t('Refund must not be greater than order total.'));
+    }
+  }
 }
 
 /**
