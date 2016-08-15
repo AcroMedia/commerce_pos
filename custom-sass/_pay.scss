@@ -121,6 +121,40 @@
       border: 2px solid red;
     }
   }
+
+  .commerce-pos-keypad-quick-pay {
+    margin-bottom: 15px;
+
+    &::after {
+      clear: both;
+      content: '';
+      display: block;
+    }
+
+    .commerce-pos-keypad-quick-pay-button {
+      float: left;
+      margin-right: 10px;
+
+      &:last-of-type {
+        margin-right: 0;
+      }
+    }
+
+    input[type="submit"] {
+      background-color: $primary;
+      color: #fff;
+      border-color: transparent;
+      padding: 15px 20px;
+      font-size: 20px;
+      margin-right: 0;
+
+      &:hover, &:focus {
+        background-color: $primary-hover;
+      }
+    }
+
+  }
+
 }
 
 .commerce-pos-keypad {

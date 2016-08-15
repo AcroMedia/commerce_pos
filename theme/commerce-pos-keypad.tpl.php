@@ -13,6 +13,12 @@
 <?php if (!empty($element['amount'])) { ?>
   <div class="commerce-pos-keypad">
     <div class="commerce-pos-keypad-top">
+      <div class="commerce-pos-keypad-quick-pay">
+        <?php if (!empty($element['quick_pay'])): ?>
+          <label>Quick Pay</label>
+          <?php print render($element['quick_pay']); ?>
+        <?php endif; ?>
+      </div>
       <div class="commerce-pos-keypad-title"></div>
       <div class="commerce-pos-keypad-close"></div>
       <div class="commerce-pos-keypad-amount">
@@ -39,5 +45,6 @@
         <?php print render($element['add']); ?>
       </div>
     </div>
+    <?php print drupal_render_children($element); ?>
   </div>
 <?php } ?>

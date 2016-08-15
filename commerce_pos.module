@@ -1228,3 +1228,29 @@ function commerce_pos_in_active_trail($path) {
   }
   return in_array($path, $active_paths);
 }
+
+/**
+ * Round an amount to the nearest step.
+ *
+ * @param array $amount
+ *   An array with the following keys and values:
+ *   - amount: A numeric value for the amount.
+ *   - currency_code: The currency code for the amount.
+ * @param int $step
+ *   A step to round to, such as "1", "5", etc.
+ *
+ * @return int
+ *   The amount, rounded.
+ */
+function commerce_pos_round_nearest($amount, $step) {
+  $decimal = commerce_currency_amount_to_decimal($amount['amount'], $amount['currency_code']);
+
+  // Module operator does not work with floats.
+  // http://php.net/manual/en/function.fmod.php
+  $difference = fmod($decimal, $step);
+  if ($difference === 0.0) {
+    return $decimal;
+  }
+
+  return $decimal - $difference + $step;
+}

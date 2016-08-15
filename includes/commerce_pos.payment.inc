@@ -44,7 +44,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   commerce_pos_payment_ajax_check($form, $form_state);
 
   $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
-  $payment_options = commerce_pos_get_payment_options();  
+  $payment_options = commerce_pos_get_payment_options();
   $form['#theme'] = 'commerce_pos_payment';
   $form['#redirect_key'] = $return ? 'return' : 'sale';
   $form['#transaction_type'] = $transaction_type;
@@ -156,12 +156,36 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     if (!empty($form_state['triggering_element']['#payment_option_id'])) {
       $option_id = $form_state['triggering_element']['#payment_option_id'];
 
+      if ($option_id == 'commerce_pos_payment_cash') {
+
+        $form['keypad']['quick_pay'] = array(
+          '#type' => 'container',
+        );
+
+        foreach (array(1, 5, 20) as $step) {
+          $rounded = commerce_pos_round_nearest($order_balance, $step);
+          $form['keypad']['quick_pay'][$rounded] = array(
+            '#type' => 'submit',
+            '#prefix' => '<div class="commerce-pos-keypad-quick-pay-button">',
+            '#suffix' => '</div>',
+            '#value' => commerce_currency_format($rounded * 100, $order_balance['currency_code']),
+            '#amount' => $rounded,
+            '#ajax' => $form_ajax,
+            '#payment_method_id' => $option_id,
+            '#element_key' => 'add-payment',
+            '#limit_validation_errors' => array(),
+            '#submit' => array('commerce_pos_payment_add_payment_submit'),
+          );
+        }
+      }
+
       $form['keypad']['amount'] = array(
         '#type' => 'textfield',
         '#title' => t('Enter @title Amount', array(
           '@title' => $payment_options[$option_id]['title'],
         )),
         '#required' => TRUE,
+        '#default_value' => commerce_currency_amount_to_decimal($order_balance['amount'], $order_balance['currency_code']),
         '#attributes' => array(
           'autofocus' => 'autofocus',
           'autocomplete' => 'off',
@@ -392,11 +416,15 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
  */
 function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
+
+  $entered_pay_value = !empty($form_state['triggering_element']['#amount']) ? $form_state['triggering_element']['#amount'] : $form_state['values']['keypad']['amount'];
+  $entered_pay_value *= 100;
+
   $order_wrapper = $form_state['transaction']->getOrderWrapper();
   $order_id = $order_wrapper->order_id->value();
   $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_id);
   $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
-  $transaction->amount = $form_state['values']['keypad']['amount'] * 100;
+  $transaction->amount = $entered_pay_value;
   $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
   $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
   $transaction->message = '';
