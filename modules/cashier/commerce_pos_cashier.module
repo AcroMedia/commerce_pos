@@ -301,6 +301,14 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
       'placeholder' => '****',
       'class' => array('commerce-pos-cashier-code-input'),
     ),
+    '#commerce_pos_keypad' => array(
+      'type' => 'keypad',
+      'events' => array(
+        '.commerce-pos-cashier-login-form-log-in' => array(
+          'click' => array(),
+        ),
+      ),
+    ),
   );
 
   // Display label of current cashier.

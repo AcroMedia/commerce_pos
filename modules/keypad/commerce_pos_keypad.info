@@ -1,0 +1,6 @@
+name = Commerce POS Keypad
+description = Provides a keypad widget for entering values in form fields.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos

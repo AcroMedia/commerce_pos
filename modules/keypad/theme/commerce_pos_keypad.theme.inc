@@ -6,9 +6,9 @@
  */
 
 /**
- * Implements template_preprocess_commerce_pos_cash_input_box().
+ * Implements template_preprocess_commerce_pos_keypad_cash_input_box().
  */
-function commerce_pos_cash_input_preprocess_commerce_pos_cash_input_box(&$variables) {
+function commerce_pos_keypad_preprocess_commerce_pos_keypad_cash_input_box(&$variables) {
   $variables['inputs'] = array(
     'penny' => array(
       'title' => t('Penny'),

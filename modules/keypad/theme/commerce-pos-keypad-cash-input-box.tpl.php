@@ -1,21 +1,24 @@
 <?php
-
 /**
  * @file
  * Default template for a Commerce POS Cash Input box.
+ *
+ * Variables:
+ * - $currency_code: The currency code in use.
+ * - $inputs: The input elements available.
+ *   - An array of arrays, each with a 'title' and 'amount' key.
  */
 
-$test = 0;
 ?>
 
-<div id="commerce-pos-cash-input-box" style="display: none;" class="commerce-pos-cash-input-box-wrap">
-  <div class="commerce-pos-cash-input-box-container">
-    <div class="commerce-pos-cash-input-box-content">
-      <div class="commerce-pos-cash-input-box-popup-block">
+<div id="commerce-pos-keypad-cash-input-box" style="display: none;" class="commerce-pos-keypad-cash-input-box-wrap">
+  <div class="commerce-pos-keypad-cash-input-box-container">
+    <div class="commerce-pos-keypad-cash-input-box-content">
+      <div class="commerce-pos-keypad-cash-input-box-popup-block">
         <div class="title"><?php print t('Cash Count'); ?></div>
 
         <table>
-          <?php foreach ($variables['inputs'] as $key => $input) { ?>
+          <?php foreach ($inputs as $key => $input) { ?>
             <tr>
               <td><?php print $input['title']; ?></td>
               <td>

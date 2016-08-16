@@ -222,7 +222,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       );
 
       if ($is_cash) {
-        $declared['#commerce_pos_cash_input'] = array(
+        $declared['#commerce_pos_keypad'] = array(
+          'type' => 'cash input',
           'currency_code' => $currency_code,
         );
       }

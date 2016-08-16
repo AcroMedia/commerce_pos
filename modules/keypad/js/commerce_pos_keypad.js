@@ -1,20 +1,126 @@
 (function ($) {
   var inputBox = null;
 
-  Drupal.behaviors.commercePosCashInput = {
+  Drupal.behaviors.commercePosKeypadKeypad = {
     attach: function (context, settings) {
-      if (Drupal.settings.commercePosCashInput.inputBox) {
-        $('body').once('commerce-pos-cash-input', function() {
+      if (Drupal.settings.commercePosKeypadKeypad && Drupal.settings.commercePosKeypadKeypad.inputBox) {
+        $('body').once('commerce-pos-keypad-keypad', function() {
+          inputBox = new KeypadInputBox();
+        });
+      }
+
+      $('.commerce-pos-keypad-keypad', context).each(function() {
+        var _this = $(this);
+        _this.once('commerce-pos-keypad-keypad-processed', function () {
+          _this.after('<div class="commerce-pos-keypad-keypad-icon">&#9000;</div>');
+
+          _this.siblings('.commerce-pos-keypad-keypad-icon').click(function () {
+            inputBox.setTextInput(_this);
+            inputBox.toggle();
+          });
+        });
+      });
+    }
+  };
+
+  var KeypadInputBox = function() {
+    this.output = '';
+    this.submitEvents = [];
+    this.construct();
+  };
+
+  KeypadInputBox.prototype.setTextInput = function (element) {
+    this.textInput = element;
+  };
+
+  KeypadInputBox.prototype.toggle = function toggle() {
+    this.inputBox.toggle();
+  };
+
+  KeypadInputBox.prototype.show = function show() {
+    this.inputBox.show();
+  };
+
+  KeypadInputBox.prototype.hide = function hide() {
+    this.inputBox.hide();
+  };
+
+  KeypadInputBox.prototype.submit = function submit() {
+    if (this.submitEvents) {
+      this.textInput.val(this.output);
+
+      this.submitEvents.forEach(function (eventInfo) {
+        var e = jQuery.Event(eventInfo.name, eventInfo.properties);
+        $(eventInfo.selector).trigger(e);
+      });
+
+      this.hide();
+    }
+  };
+
+  KeypadInputBox.prototype.construct = function construct() {
+    $('body').prepend(Drupal.settings.commercePosKeypadKeypad.inputBox);
+    this.inputBox = $('#commerce-pos-keypad-keypad');
+    // The element to update with the current value of what is entered by the
+    // keypad.
+    this.valueElement = this.inputBox.find('input');
+    var self = this;
+
+    $('.commerce-pos-keypad-close').on('click', function(e) {
+      self.hide();
+      e.preventDefault();
+      return false;
+    });
+
+    if (Drupal.settings.commercePosKeypadKeypad.events) {
+      Drupal.settings.commercePosKeypadKeypad.events.forEach(function (item) {
+        self.submitEvents.push({selector: item.selector, name: item.name, properties: item.properties});
+      });
+    }
+
+    this.inputBox.find('.commerce-pos-keypad-key').each(function() {
+      var _this = $(this);
+      _this.click(function() {
+        var _this = $(this);
+
+        if (_this.data('keybind')) {
+          self.output += _this.data('keybind');
+        }
+
+        if (_this.data('key-action')) {
+          switch (_this.data('key-action')) {
+            case 'backspace':
+              self.output = self.output.slice(0, -1);
+              break;
+            case 'submit':
+              self.submit();
+              break;
+          }
+        }
+
+        self.updateValue();
+      });
+    });
+  };
+
+  KeypadInputBox.prototype.updateValue = function() {
+    this.valueElement.val(this.output);
+  };
+
+  Drupal.behaviors.commercePosKeypadCashInput = {
+    attach: function (context, settings) {
+      if (Drupal.settings.commercePosKeypadCashInput && Drupal.settings.commercePosKeypadCashInput.inputBox) {
+        $('body').once('commerce-pos-keypad-cash-input', function() {
           inputBox = new CashInputBox();
         });
       }
 
-      $('.commerce-pos-cash-input', context).each(function() {
+      $('.commerce-pos-keypad-cash-input', context).each(function() {
         var _this = $(this);
-        _this.once('commerce-pos-cash-input-processed', function () {
-          _this.after('<div class="commerce-pos-cash-input-icon"></div>');
+        _this.once('commerce-pos-keypad-cash-input-processed', function () {
+          _this.after('<div class="commerce-pos-keypad-cash-input-icon"></div>');
 
-          _this.siblings('.commerce-pos-cash-input-icon').click(function () {
+          _this.siblings('.commerce-pos-keypad-cash-input-icon').click(function () {
             inputBox.setTextInput(_this);
             inputBox.show();
           });
@@ -99,9 +205,9 @@
   };
 
   CashInputBox.prototype.construct = function() {
-    $('body').prepend(Drupal.settings.commercePosCashInput.inputBox);
+    $('body').prepend(Drupal.settings.commercePosKeypadCashInput.inputBox);
 
-    this.inputBox = $('#commerce-pos-cash-input-box');
+    this.inputBox = $('#commerce-pos-keypad-cash-input-box');
     this.totalInput = this.inputBox.find('.input-total');
 
     var self = this;
