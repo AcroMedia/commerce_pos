@@ -2,32 +2,31 @@
 //---SIDEBAR---
 //
 
-
-#commerce-pos-pay-balance-wrapper .form-actions {
-  margin: 20px 0;
-}
-
-.commerce-price-formatted-components {
-  margin-top: 0;
-}
-
-.commerce-pos-col-transaction-info {
-  .label {
-    font-size: inherit;
-    border-radius: 0;
-    color: inherit;
+.commerce-pos-col-transaction-info #commerce-pos-pay-balance-wrapper,
+.commerce-pos-col-transaction-info #commerce-pos-transactions-options-wrapper {
+  .commerce-price-formatted-components {
+    margin-top: 0;
   }
 
-  .btn {
-    margin-bottom: 5px;
+  table > tbody {
+    border: 0;
+  }
+
+  table > tbody > tr {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  table > tbody > tr > td {
+    border: 0;
+  }
+
+  table > tbody > tr > td:last-of-type {
+    text-align: right;
   }
 
   table.commerce-pos-sidebar-table tr * {
     background: #f0f0f0;
-  }
-
-  table.commerce-pos-sidebar-table > tbody > tr > td {
-    border: 0;
   }
 
   table.commerce-pos-sidebar-table {
@@ -35,11 +34,7 @@
     font-size: 14px;
     border: 0;
 
-    tbody {
-      border: 0;
-    }
-
-    tr.odd, tr.even {
+    tr, tr.odd, tr.even {
       padding: 0;
       width: 100%;
       background-color: #F0F0F0;
@@ -60,15 +55,10 @@
 
     tr.order-change {
       font-size: 120%;
-      font-style: italic;
     }
 
     td:nth-child(1) {
       font-weight: bold;
-    }
-
-    td:nth-child(2) {
-      text-align: right;
     }
 
     td.balance {
@@ -79,42 +69,99 @@
       td {
         padding: 15px 10px;
         border: 0;
+
+        &.status,
+        &.actions {
+          text-align: center;
+        }
+      }
+
+      td,
+      td.status img {
+        vertical-align: middle;
+      }
+
+      td.status img {
+        border-radius: 50%;
       }
     }
   }
+
+  .label {
+    font-size: inherit;
+    border-radius: 0;
+    color: inherit;
+  }
+
+  .btn {
+    margin-bottom: 5px;
+  }
+
+  input,
+  select {
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 2px;
+  }
+
+  .form-item {
+    padding: 0;
+    margin: 0 0 20px 0;
+  }
+
+  #commerce-pos-customer-input-wrapper {
+    border-top: 1px solid #eee;
+    margin: 25px 0 0 0;
+    padding: 20px 0 0 0;
+  }
 }
 
+//Discount
 #commerce-pos-sale-wrapper #commerce-pos-discount-add-order-discount-wrapper {
   margin: 20px 0;
+  font-size: 0;
+
+  .form-item.form-item-transaction-options-actions-add-order-discount-amount {
+    font-size: 0;
+  }
 
   .form-text {
-    padding: 9px;
-    height: 34px;
-    margin: 0 2px 0 0;
-    vertical-align: middle;
+    width: calc(33.33% - 4px);
+    padding: 10px;
+    margin: 0 4px 0 0;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1.3;
+    height: 35px;
   }
 
   .form-submit {
-    margin: 0 5px 0 0;
+    width: calc(33.33% - 2px);
+    padding: 10px;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  #edit-transaction-options-actions-add-order-discount-percent.form-submit {
+    margin: 0 2px 0 0;
+  }
+
+  #edit-transaction-options-actions-add-order-discount-fixed.form-submit {
+    margin: 0 0 0 2px;
   }
 }
 
-.form-item-transaction-options-customer label {
+#commerce-pos-transactions-options-wrapper .form-item label {
   margin-bottom: 5px;
+  font-size: 14px;
+  font-weight: bold;
 }
 
-.form-item-transaction-options-actions-add-order-discount-amount {
+.form-item.form-item-transaction-options-actions-add-order-discount-amount {
   margin-bottom: 5px;
   display: inline;
-
-  label {
-    margin-bottom: 5px;
-  }
-}
-
-#commerce-pos-sale-wrapper #commerce-pos-discount-add-order-discount-wrapper input[type="submit"] {
-  width: auto;
-  display: inline-block;
 }
 
 #commerce-pos-transactions-options-wrapper {
