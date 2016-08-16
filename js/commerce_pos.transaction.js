@@ -103,6 +103,14 @@
           });
 
           return product;
+        };
+        // Overide renderMenu to sort the list of autocomplete results
+        element.data('ui-autocomplete')._renderMenu = function (ul, items) {
+          // Sort the items by title in an inline comparison function
+          items.sort(function (a,b) {return a.title.localeCompare(b.title)});
+          $.each(items, function(index, item){
+            element.data('ui-autocomplete')._renderItemData(ul, item);
+          });
         }
       });
     });

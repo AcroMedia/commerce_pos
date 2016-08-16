@@ -954,6 +954,7 @@ function _commerce_pos_product_autocomplete_build($product_id) {
 
     $data = array(
       'markup' => theme('commerce_pos_product_result', array('product' => $product)),
+      'title' => $product->title,
     );
   }
 
