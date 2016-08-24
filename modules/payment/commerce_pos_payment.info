@@ -4,8 +4,9 @@ core = 7.x
 package = Commerce POS
 
 dependencies[] = commerce_pos
+dependencies[] = entity:entity_token
 dependencies[] = commerce_cop
-dependencies[] = commerce_payment
+dependencies[] = commerce:commerce_payment
 dependencies[] = rules
 dependencies[] = features
 

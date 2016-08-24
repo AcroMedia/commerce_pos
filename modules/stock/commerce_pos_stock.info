@@ -5,6 +5,6 @@ package = Commerce POS
 
 dependencies[] = commerce_pos
 dependencies[] = commerce_stock
-dependencies[] = commerce_ss
+dependencies[] = commerce_stock:commerce_ss
 dependencies[] = entity
 dependencies[] = rules
