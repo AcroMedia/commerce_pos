@@ -150,6 +150,19 @@ function commerce_pos_cashier_form_commerce_pos_settings_alter(&$form, &$form_st
     '#default_value' => variable_get('commerce_pos_cashier_transaction_complete_logout'),
   );
 
+  $form['cashiers']['commerce_pos_cashier_show_login_button'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show the login button on the cashier login form.'),
+    '#description' => t('The login button on the cashier form is visible.'),
+    '#default_value' => variable_get('commerce_pos_cashier_show_login_button'),
+  );
+  $form['cashiers']['commerce_pos_cashier_show_logout_button'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Show the logout button on the cashier login form.'),
+    '#description' => t('The logout button on the cashier form is visible.'),
+    '#default_value' => variable_get('commerce_pos_cashier_show_logout_button'),
+  );
+
   $form['#submit'][] = 'commerce_pos_cashier_commerce_pos_settings_form_submit';
 }
 
@@ -159,6 +172,12 @@ function commerce_pos_cashier_form_commerce_pos_settings_alter(&$form, &$form_st
 function commerce_pos_cashier_commerce_pos_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['commerce_pos_cashier_transaction_complete_logout'])) {
     variable_set('commerce_pos_cashier_transaction_complete_logout', $form_state['values']['commerce_pos_cashier_transaction_complete_logout']);
+  }
+  if (isset($form_state['values']['commerce_pos_cashier_show_login_button'])) {
+    variable_set('commerce_pos_cashier_show_login_button', $form_state['values']['commerce_pos_cashier_show_login_button']);
+  }
+  if (isset($form_state['values']['commerce_pos_cashier_show_logout_button'])) {
+    variable_set('commerce_pos_cashier_show_logout_button', $form_state['values']['commerce_pos_cashier_show_logout_button']);
   }
 }
 
@@ -331,6 +350,7 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
   $form['log_in'] = array(
     '#type' => 'submit',
     '#value' => t('Log In'),
+    '#prefix' => '<div class="commerce-pos-cashier-form-submit-wrapper">',
     '#attributes' => array(
       'class' => array(
         'commerce-pos-cashier-login-form-submit',
@@ -339,11 +359,16 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
     ),
   );
 
+  if(variable_get('commerce_pos_cashier_show_login_button')){
+    $form['log_in']['#attributes']['class'][] = 'commerce-pos-cashier-login-form-log-in-visible';
+  }
+
   $form['log_out'] = array(
     '#type' => 'submit',
     '#value' => t('Log out'),
     '#submit' => array('commerce_pos_cashier_login_form_log_out'),
     '#limit_validation' => array(),
+    '#suffix' => '</div>',
     '#attributes' => array(
       'class' => array(
         'commerce-pos-cashier-login-form-submit',
@@ -351,6 +376,10 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
       )
     ),
   );
+
+  if(variable_get('commerce_pos_cashier_show_logout_button')){
+    $form['log_out']['#attributes']['class'][] = 'commerce-pos-cashier-login-form-log-in-visible';
+  }
 
   return $form;
 }

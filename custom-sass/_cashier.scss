@@ -9,7 +9,7 @@
 .commerce-pos-cashier-login-form {
   .form-item-code {
     display: inline;
-
+    float: right;
     label {
       display: inline;
     }
@@ -23,5 +23,32 @@
 
   .commerce-pos-cashier-login-form-submit {
     display: none;
+    &.commerce-pos-cashier-login-form-log-in-visible {
+      position: relative;
+      outline: none;
+      display: inline-block;
+      margin: auto;
+      margin-top: 10px;
+      margin-right: 0;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-weight: bold;
+      color: #fff;
+      text-decoration: none;
+      text-transform: uppercase;
+      background: #337ab7;
+      border: 2px solid transparent;
+      border-radius: 2px;
+      transition: all .15s ease-in-out;
+      box-shadow: none;
+      &:hover, &:focus {
+        text-shadow: none;
+        background: #2e6da4;
+      }
+    }
+    &.commerce-pos-cashier-login-form-log-out {
+      margin-left: 10px;
+      float: right;
+    }
   }
 }
