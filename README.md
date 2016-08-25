@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/AcroMedia/commerce_pos.svg?branch=7.x-2.x)](https://travis-ci.org/AcroMedia/commerce_pos)
+
 CONTENTS OF THIS FILE
 ---------------------
 
@@ -86,6 +88,21 @@ CONFIGURATION
 CONTRIBUTING
 -------------
 
+## Development
+
+Please use the Drupal.org issue queue to submit all issues and feature requests.
+
+If you would like to contribute to the development of the module, you will need 
+to create a fork of the repository on Github and submit a pull request. Please 
+link to your pull request in the corresponding issue on Drupal.org and set the 
+status to "Needs Review" like you normally would. 
+
+If you submit a patch, you will be asked to create and link to a pull request
+instead.
+
+The repository can be found at: https://github.com/AcroMedia/commerce_pos 
+
+## SASS
 If you are contributing to this module and need to make changes to the Sass,
 you will need to make sure that you have Node.js installed and run:
 
