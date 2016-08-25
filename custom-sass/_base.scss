@@ -31,6 +31,16 @@
   }
 }
 
+#commerce-pos-sale-wrapper {
+  input[type="submit"] {
+    -moz-box-shadow: none;
+    -webkit-box-shadow: none;
+    -o-box-shadow: none;
+    box-shadow: none;
+    text-shadow: none;
+  }
+}
+
 #commerce-pos-location-float-form .form-submit {
   width: 100px;
 }
@@ -54,10 +64,14 @@
   }
 }
 
-#commerce-pos-sale-wrapper button, #commerce-pos-sale-wrapper input[type="reset"],
-#commerce-pos-sale-wrapper input[type="submit"], #commerce-pos-sale-wrapper input[type="button"],
-#commerce-pos-pay-form-wrapper button, #commerce-pos-pay-form-wrapper input[type="reset"],
-#commerce-pos-pay-form-wrapper input[type="submit"], #commerce-pos-pay-form-wrapper input[type="button"],
+#commerce-pos-sale-wrapper button,
+#commerce-pos-sale-wrapper input[type="reset"],
+#commerce-pos-sale-wrapper input[type="submit"],
+#commerce-pos-sale-wrapper input[type="button"],
+#commerce-pos-pay-form-wrapper button,
+#commerce-pos-pay-form-wrapper input[type="reset"],
+#commerce-pos-pay-form-wrapper input[type="submit"],
+#commerce-pos-pay-form-wrapper input[type="button"],
 #commerce-pos-report-results-container input[type="submit"] {
   -webkit-appearance: none;
   cursor: pointer;
