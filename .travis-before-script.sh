@@ -18,3 +18,4 @@ mkdir -p "$DRUPAL_TI_DRUPAL_DIR/$DRUPAL_TI_MODULES_PATH"
 drush en -y commerce_pos_cashier commerce_pos_discount commerce_pos_keypad commerce_pos_location
 drush en -y commerce_pos_messages commerce_pos_payment commerce_pos_receipt commerce_pos_register
 drush en -y commerce_pos_report commerce_pos_stock commerce_pos_terminal commerce_pos_upc_scan
+drush en -y commerce_pos_label

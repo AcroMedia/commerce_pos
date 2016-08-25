@@ -1,0 +1,25 @@
+<?php
+
+/**
+ * @file
+ * Install hooks and update functions for Commerce POS Labels.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+/*function commerce_pos_label_schema() {
+  $schema['commerce_pos_label_job'] = array(
+    'fields' => array(
+      'job_id' => array(
+        'description' => 'The primary identifier for a label job.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ),
+
+    ),
+  );
+
+  return $schema;
+}*/
