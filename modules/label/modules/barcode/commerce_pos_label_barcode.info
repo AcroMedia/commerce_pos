@@ -1,0 +1,7 @@
+name = Commerce POS Label Barcodes
+description = Provides the ability to generate barcodes for POS product labels.
+core = 7.x
+package = Commerce POS
+
+dependencies[] = commerce_pos:commerce_pos_label
+dependencies[] = composer_manager

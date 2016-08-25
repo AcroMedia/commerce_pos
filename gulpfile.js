@@ -6,6 +6,7 @@ var sourcemaps = require('gulp-sourcemaps');
 
 var config = {
   'sassDirectories': [
+    { src: './modules/label/sass/**/*.scss', dest: './modules/label/css'},
     { src: './custom-sass/**/*.scss', dest: './css' }
   ]
 };

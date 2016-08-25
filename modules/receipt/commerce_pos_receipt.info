@@ -9,4 +9,4 @@ dependencies[] = commerce_pos
 dependencies[] = libraries
 dependencies[] = message
 dependencies[] = message_notify
-
+dependencies[] = jquery_print

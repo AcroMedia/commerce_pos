@@ -1,0 +1,106 @@
+<?php
+
+class CommercePosLabelTestCase extends CommercePosBaseTestCase {
+
+  protected $adminUser;
+  protected $privilegedUser;
+
+  /**
+   * GetInfo().
+   *
+   * @{inheritdoc}
+   */
+  public static function getInfo() {
+    return array(
+      'name' => 'Commerce POS Label Tests',
+      'description' => 'Ensure Commerce POS Label functions properly',
+      'group' => 'Commerce POS',
+    );
+  }
+
+  /**
+   * Setup().
+   *
+   * @{inheritdoc}
+   */
+  public function setUp() {
+    parent::setUp(array('commerce_pos_label'));
+
+    $this->adminUser = $this->drupalCreateUser(array(
+      'commerce pos print labels',
+      'administer commerce pos labels',
+    ));
+
+    $this->privilegedUser = $this->drupalCreateUser(array(
+      'commerce pos print labels',
+    ));
+  }
+
+  public function testLabelFormMenu() {
+    $this->drupalLogin($this->adminUser);
+    $this->drupalGet('admin/commerce/pos/labels');
+    $this->assertResponse(200, 'Admin user should be able to access labels tab.');
+
+    $this->drupalLogin($this->privilegedUser);
+    $this->drupalGet('admin/commerce/pos/labels');
+    $this->assertResponse(200, 'Privileged user should be able to access labels tab.');
+  }
+
+  public function testLabelFormErrors() {
+    $this->drupalLogin($this->privilegedUser);
+    $this->drupalGet('admin/commerce/pos/labels');
+
+    $this->assertFieldByName('product_search', '', 'Should have a product search input.');
+    $this->assertFieldByName('label_format', '', 'Should have a label format select box.');
+
+    $this->drupalPost('admin/commerce/pos/labels', array(), t('Add'));
+
+    $this->assertText(t('Label format field is required.'), 'Should have label format error.');
+    $this->assertText(t('Invalid product.'), 'Should have invalid product error.');
+  }
+
+  public function testLabelFormAdd() {
+    $this->drupalLogin($this->privilegedUser);
+    $product = $this->createDummyProduct();
+
+    $formats = commerce_pos_label_get_label_formats();
+
+    $this->assertTrue(!empty($formats), 'Should have label formats available.');
+
+    $edit = array(
+      'label_format' => key($formats),
+      'product_search' => $product->sku,
+    );
+
+    $this->drupalPost('admin/commerce/pos/labels', $edit, t('Add'));
+
+    $this->assertFieldByName('label_list[' . $product->product_id . '][title]', $product->title, 'Should have a title field with product title.');
+    $this->assertFieldByName('label_list[' . $product->product_id . '][quantity]', 1, 'Should have a quantity field.');
+
+    $expected_price = commerce_currency_amount_to_decimal($product->commerce_price[LANGUAGE_NONE][0]['amount'], $product->commerce_price[LANGUAGE_NONE][0]['currency_code']);
+    $this->assertFieldByName('label_list[' . $product->product_id . '][price]', $expected_price, 'Should have a price field.');
+
+    $this->assertFieldById('edit-print-labels', t('Print'), 'Should have a print button.');
+  }
+
+  public function testLabelTab() {
+    $product = $this->createDummyProduct();
+    $this->drupalLogin($this->adminUser);
+    $this->drupalGet('admin/commerce/products/' . $product->product_id . '/labels');
+    $this->assertResponse(200, 'Admin user should be able to access labels tab.');
+
+    $this->drupalLogin($this->privilegedUser);
+    $this->drupalGet('admin/commerce/products/' . $product->product_id . '/labels');
+    $this->assertResponse(200, 'Privileged user should be able to access labels tab.');
+
+    $this->assertNoFieldByName('product_search', '', 'Should not have a product search field.');
+
+    $this->assertFieldByName('label_list[' . $product->product_id . '][title]', $product->title, 'Should have a title field with product title.');
+    $this->assertFieldByName('label_list[' . $product->product_id . '][quantity]', 1, 'Should have a quantity field.');
+
+    $expected_price = commerce_currency_amount_to_decimal($product->commerce_price[LANGUAGE_NONE][0]['amount'], $product->commerce_price[LANGUAGE_NONE][0]['currency_code']);
+    $this->assertFieldByName('label_list[' . $product->product_id . '][price]', $expected_price, 'Should have a price field.');
+
+    $this->assertFieldById('edit-print-labels', t('Print'), 'Should have a print button.');
+  }
+}

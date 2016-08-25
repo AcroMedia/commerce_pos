@@ -1,0 +1,235 @@
+<?php
+
+/**
+ * @file
+ * Hook implementations and utility functions for Commerce POS Labels.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function commerce_pos_label_menu() {
+  $items['admin/commerce/pos/labels'] = array(
+    'title' => 'Print labels',
+    'page callback' => 'commerce_pos_label_labels_form_page',
+    'access arguments' => array('commerce pos print labels'),
+    'file' => 'includes/commerce_pos_label.admin.inc',
+  );
+  $items['admin/commerce/products/%commerce_product/labels'] = array(
+    'title' => 'Labels',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_label_labels_form', 3),
+    'access arguments' => array('commerce pos print labels'),
+    'file' => 'includes/commerce_pos_label.admin.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+
+  return $items;
+}
+
+/**
+ * Implements hook_permission().
+ */
+function commerce_pos_label_permission() {
+  return array(
+    'commerce pos print labels' =>  array(
+      'title' => t('Print product labels'),
+    ),
+    'administer commerce pos labels' => array(
+      'title' => t('Administer Commerce POS Labels'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_label_theme($existing, $type, $theme, $path) {
+  return array(
+    'commerce_pos_label_labels_form' => array(
+      'render element' => 'form',
+      'path' => $path . '/theme',
+      'file' => 'commerce_pos_label.theme.inc',
+    ),
+    'commerce_pos_label_print' => array(
+      'path' => $path . '/theme',
+      'file' => 'commerce_pos_label.theme.inc',
+      'variables' => array(
+        'product_ids' => array(),
+        'format' => NULL,
+      ),
+    ),
+    'commerce_pos_label' => array(
+      'template' => 'commerce-pos-label',
+      'file' => 'commerce_pos_label.theme.inc',
+      'path' => $path . '/theme',
+      'variables' => array(
+        'format' => NULL,
+        'barcode' => NULL,
+        'product' => NULL,
+        'price' => 0,
+        'description' => '',
+      ),
+    ),
+  );
+}
+
+/**
+ * Implements hook_form_alter().
+ */
+function commerce_pos_label_form_alter(&$form, &$form_state, $form_id) {
+  if (in_array($form_id, array('commerce_pos_sale', 'commerce_pos_return'))) {
+    $form['#attached']['library'][] = array('system', 'drupal.ajax');
+    $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_label') . '/js/commerce_pos_label.js';
+  }
+
+  if ($form_id == 'commerce_pos_settings') {
+    $format_options = array();
+
+    foreach (commerce_pos_label_get_label_formats() as $name => $format) {
+      $format_options[$name] = $format['title'];
+    }
+
+    $form['label_settings'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('Labels'),
+    );
+
+    $form['label_settings']['commerce_pos_label_default_format'] = array(
+      '#type' => 'select',
+      '#title' => t('Default format'),
+      '#required' => TRUE,
+      '#options' => $format_options,
+      '#default_value' => variable_get('commerce_pos_label_default_format', NULL),
+    );
+
+    $form['#submit'][] = 'commerce_pos_label_form_settings_form_submit';
+  }
+}
+
+/**
+ * Additional submit handler for the POS settings form.
+ */
+function commerce_pos_label_form_settings_form_submit_submit($form, &$form_state) {
+  variable_set('commerce_pos_label_default_format', $form_state['values']['commerce_pos_label_default_format']);
+}
+
+/**
+ * Implements hook_commerce_pos_header_links_alter().
+ */
+function commerce_pos_label_commerce_pos_header_links_alter(&$links) {
+  $links['admin/commerce/pos/labels'] = t('Print labels');
+}
+
+/**
+ * Retrieves a list of possible formats that labels can be printed in.
+ *
+ * @param bool $reset
+ *   If TRUE, the cache will be rebuilt.
+ *
+ * @return array
+ *   A list of label formats.
+ */
+function commerce_pos_label_get_label_formats($reset = FALSE) {
+  if ($reset) {
+    $cache = cache_clear_all(__FUNCTION__, 'cache');
+  }
+  else {
+    $cache = cache_get(__FUNCTION__, 'cache');
+  }
+
+  if ($cache === NULL || empty($cache->data)) {
+    $formats = module_invoke_all('commerce_pos_label_format_info');
+
+    // Allow other modules to alter the label format info.
+    drupal_alter('commerce_pos_label_format_info', $formats);
+
+    cache_set(__FUNCTION__, $formats);
+  }
+  else {
+    $formats = $cache->data;
+  }
+
+  return $formats;
+}
+
+/**
+ * Implements hook_commerce_pos_label_format_info().
+ */
+function commerce_pos_label_commerce_pos_label_format_info() {
+  return array(
+    'commerce_pos_label_30334' => array(
+      'title' => t('Dymo 30334 - 1 1/4" x 2 1/4"'),
+      'css' => FALSE,
+      'dimensions' => array(
+        'width' => 2.25,
+        'height' => 1.0,
+      ),
+    ),
+  );
+}
+
+/**
+ * Retrieves the definition for a specific label format.
+ */
+function commerce_pos_label_format_load($format_name) {
+  $formats = commerce_pos_label_get_label_formats();
+  return (isset($formats[$format_name]) ? $formats[$format_name] : FALSE);
+}
+
+/**
+ * Retrieve a list of fields on a product type that are for attributes.
+ */
+function commerce_pos_label_attribute_fields($type, $reset = FALSE) {
+  $attribute_fields = &drupal_static(__FUNCTION__, NULL);
+
+  if ($reset) {
+    $attribute_fields = NULL;
+  }
+
+  if ($attribute_fields === NULL) {
+    $attribute_fields = array();
+
+    foreach (field_info_instances('commerce_product', $type) as $field_name => $instance) {
+      if (commerce_cart_field_instance_is_attribute($instance)) {
+        $attribute_fields[$type][] = $field_name;
+      }
+    }
+  }
+
+  return isset($attribute_fields[$type]) ? $attribute_fields[$type] : array();
+}
+
+/**
+ * Builds a string of product attributes for display in a label.
+ *
+ * @param object $product
+ *   The product to generate the attribute string for.
+ *
+ * @return string
+ */
+function commerce_pos_label_attributes_string($product) {
+  $attribute_fields = commerce_pos_label_attribute_fields($product->type);
+  $attribute_string = '';
+
+  if (!empty($attribute_fields)) {
+    $attributes = array();
+    $wrapper = entity_metadata_wrapper('commerce_product', $product);
+
+    foreach ($attribute_fields as $field_name) {
+      $field_info = field_info_instance('commerce_product', $field_name, $product->type);
+
+      if (isset($wrapper->{$field_name}) && $attribute_value = $wrapper->{$field_name}->value()) {
+        if (is_array($attribute_value)) {
+          $attribute_value = implode(', ', $attribute_value);
+        }
+
+        $attributes[] = $field_info['label'] . ': ' . $attribute_value;
+      }
+    }
+
+    $attribute_string = implode(', ', $attributes);
+  }
+
+  return $attribute_string;
+}

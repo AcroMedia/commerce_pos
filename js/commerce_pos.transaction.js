@@ -78,7 +78,14 @@
             ui.item.element.addClass('selected');
           },
           select: function(event, ui){
-            addProductSku(ui.item.element.find('.btn-add').attr('data-product-sku'));
+            var sku = ui.item.element.find('.btn-add').attr('data-product-sku');
+
+            if (Drupal.settings.commercePosSale.autoCompleteCallback) {
+              Drupal[Drupal.settings.commercePosSale.autoCompleteNamespace][Drupal.settings.commercePosSale.autoCompleteCallback](sku);
+            }
+            else {
+              addProductSku(sku);
+            }
           },
           context: this
         });
@@ -97,7 +104,15 @@
               e.preventDefault();
               e.stopPropagation(); // prevent product from being added via bubbling
 
-              addProductSku($(this).attr('data-product-sku'));
+              var sku = $(this).attr('data-product-sku');
+
+              if (Drupal.settings.commercePosSale.autoCompleteCallback) {
+                Drupal[Drupal.settings.commercePosSale.autoCompleteNamespace][Drupal.settings.commercePosSale.autoCompleteCallback](sku);
+              }
+              else {
+                addProductSku(sku);
+              }
+
               element.data('ui-autocomplete').close();
 
           });

@@ -51,9 +51,9 @@ function commerce_pos_settings($form, &$form_state) {
     '#description' => t('Select the types of products that can be added to POS transactions.'),
   );
 
-  $form['image_fields'] = array(
+  $form['field_settings'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Image settings'),
+    '#title' => t('Field settings'),
   );
 
   $options = array(NULL => t('No field'));
@@ -67,7 +67,7 @@ function commerce_pos_settings($form, &$form_state) {
   foreach (commerce_product_types() as $name => $type) {
     $variable_name = 'commerce_pos_image_field_' . $name;
 
-    $form['image_fields'][$name] = array(
+    $form['field_settings'][$name] = array(
       '#type' => 'fieldset',
       '#title' => $type['name'],
       '#states' => array(
@@ -77,9 +77,10 @@ function commerce_pos_settings($form, &$form_state) {
       ),
     );
 
-    $form['image_fields'][$name][$variable_name] = array(
+    $form['field_settings'][$name][$variable_name] = array(
       '#type' => 'select',
-      '#title' => t('Fields'),
+      '#title' => t('Image field(s)'),
+      '#description '=> t('Select fields that will be used to find an image if your products in the POS.'),
       '#options' => $options,
       '#default_value' => variable_get($variable_name, NULL),
       '#multiple' => TRUE,
@@ -87,7 +88,7 @@ function commerce_pos_settings($form, &$form_state) {
 
     $variable_name = 'commerce_pos_image_default_' . $name;
 
-    $form['image_fields'][$name][$variable_name] = array(
+    $form['field_settings'][$name][$variable_name] = array(
       '#type' => 'managed_file',
       '#title' => t('Default image'),
       '#description' => t('You may provide a default image for when no other image is available.'),

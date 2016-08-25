@@ -6,25 +6,6 @@
  */
 
 /**
- * Implements hook_libraries_info().
- */
-function commerce_pos_receipt_libraries_info() {
-  $libraries['jquery-print'] = array(
-    'name' => 'jQuery Print Plugin',
-    'vendor url' => 'https://github.com/DoersGuild/jQuery.print',
-    'version arguments' => array(
-      'file' => 'jQuery.print.js',
-      'pattern' => '/version\s+([0-9a-zA-Z\.-]+)/',
-    ),
-    'files' => array(
-      'js' => array('jQuery.print.js'),
-    ),
-  );
-
-  return $libraries;
-}
-
-/**
  * Implements hook_theme().
  */
 function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
