@@ -103,11 +103,19 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
  * Implements hook_form_alter().
  */
 function commerce_pos_discount_form_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array('commerce_pos_sale', 'commerce_pos_return'))) {
-    _commerce_pos_discount_transaction_form_alter($form, $form_state);
-  }
-  elseif (in_array($form_id, array('commerce_pos_sale_payment'))) {
-    _commerce_pos_discount_payment_form_alter($form, $form_state);
+  switch ($form_id) {
+    case 'commerce_pos_sale':
+    case 'commerce_pos_return':
+      _commerce_pos_discount_transaction_form_alter($form, $form_state);
+      break;
+
+    case 'commerce_pos_sale_payment':
+      _commerce_pos_discount_payment_form_alter($form, $form_state);
+      break;
+
+    case 'commerce_pos_settings':
+      _commerce_pos_discount_settings_form_alter($form, $form_state);
+      break;
   }
 }
 
@@ -208,6 +216,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#title' => NULL,
           '#size' => 2,
           '#default_value' => $discount_default_value,
+          '#element_validate' => array('commerce_pos_discount_validate_product_discount'),
         );
 
         $line_item_element['discounts']['add_discount']['percent'] = array(
@@ -326,6 +335,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
               'autofocus' => 'autofocus',
           ),
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
+          '#element_validate' => array('commerce_pos_discount_validate_order_discount'),
         );
 
         $form['transaction_options']['actions']['add_order_discount']['percent'] = array(
@@ -353,6 +363,124 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
 }
 
 /**
+ * Validates the discount being added to a line item in the order.
+ */
+function commerce_pos_discount_validate_product_discount($element, &$form_state, $form) {
+  $line_item_price = $form_state['values']['line_items'][$form_state['triggering_element']['#line_item_id']]['price_edit'];
+  $discount_amount = $element['#value'];
+
+  // If this is a fixed discount figure out the percentage that's being discounted from the price.
+  if ($form_state['triggering_element']['#element_key'] == 'add-fixed-discount') {
+    $discount_amount = ($discount_amount / $line_item_price) * 100;
+  }
+
+  // Check that the discount amount doesn't exceed the limit if one is set.
+  $max_discount = variable_get('commerce_pos_discount_max_product_discount', NULL);
+
+  if ($max_discount && $discount_amount > $max_discount) {
+    form_error($element, t('Product discounts can not exceed @percent% of the product price.',
+      array('@percent' => $max_discount)));
+  }
+}
+
+/**
+ * Validates the discount being added to an order.
+ */
+function commerce_pos_discount_validate_order_discount($element, &$form_state, $form) {
+  $discount_amount = $element['#value'];
+
+  // If this is a fixed discount figure out the percentage that's being discounted from the price.
+  if ($form_state['triggering_element']['#element_key'] == 'add-order-fixed-discount') {
+    $order_total_amount = _commerce_pos_discount_order_total($form_state);
+    $discount_amount = ($discount_amount / $order_total_amount) * 100;
+  }
+
+  // Check that the discount amount doesn't exceed the limit if one is set.
+  $max_discount = variable_get('commerce_pos_discount_max_order_discount', NULL);
+
+  if ($max_discount && $discount_amount > $max_discount) {
+    form_error($element, t('Order discounts can not exceed @percent% of the order total.',
+      array('@percent' => $max_discount)));
+  }
+}
+
+/**
+ * Gets the order total without any current order discounts.
+ */
+function _commerce_pos_discount_order_total($form_state) {
+  $line_items = $form_state['order_wrapper']->commerce_line_items->value();
+
+  // Calculate the order total minus any current order discount.
+  foreach ($line_items as $key => $line_item) {
+    if ($line_item->type == 'commerce_pos_discount') {
+      unset($line_items[$key]);
+    }
+  }
+
+  // Calculate the order total from the remaining line items.
+  $order_total = commerce_line_items_total($line_items);
+
+  return $order_total['amount'] / 100;
+}
+
+/**
+ * Adds a discount settings pane to the main POS settings form.
+ */
+function _commerce_pos_discount_settings_form_alter(&$form, &$form_state) {
+  $form['discounts'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Discounts'),
+  );
+
+  $form['discounts']['commerce_pos_discount_max_product_discount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum product discount value.'),
+    '#description' => t('Limit the % amount that products can be discounted. This limit will apply to both percentage and fixed discounts. Leave blank to impose no limits.'),
+    '#default_value' => variable_get('commerce_pos_discount_max_product_discount', NULL),
+    '#maxlength' => 3,
+    '#size' => 3,
+    '#field_suffix' => '%',
+  );
+
+  $form['discounts']['commerce_pos_discount_max_order_discount'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Maximum order discount value.'),
+    '#description' => t('Limit the % amount that orders can be discounted. This limit will apply to both percentage and fixed discounts. Leave blank to impose no limits.'),
+    '#default_value' => variable_get('commerce_pos_discount_max_order_discount', NULL),
+    '#maxlength' => 3,
+    '#size' => 3,
+    '#field_suffix' => '%',
+  );
+
+  $form['#submit'][] = 'commerce_pos_discount_settings_form_validate';
+  $form['#submit'][] = 'commerce_pos_discount_settings_form_submit';
+}
+
+/**
+ * Validation callback for the discount settings form.
+ */
+function commerce_pos_discount_settings_form_validate($form, &$form_state) {
+  // Make sure an integer was entered.
+  if (!empty($form_state['values']['commerce_pos_discount_max_product_discount']) &&
+    !is_numeric($form_state['values']['commerce_pos_discount_max_product_discount'])) {
+    form_set_error('commerce_pos_discount_max_product_discount', t('Product discount maximum needs to be an integer.'));
+  }
+  if (!empty($form_state['values']['commerce_pos_discount_max_order_discount']) &&
+    !is_numeric($form_state['values']['commerce_pos_discount_max_order_discount'])) {
+    form_set_error('commerce_pos_discount_max_order_discount', t('Order discount maximum needs to be an integer.'));
+  }
+}
+
+/**
+ * Submission callback for the discount settings form.
+ */
+function commerce_pos_discount_settings_form_submit($form, &$form_state) {
+  // Drop any decimal values to keep things simple.
+  variable_set('commerce_pos_discount_max_product_discount', floor($form_state['values']['commerce_pos_discount_max_product_discount']));
+  variable_set('commerce_pos_discount_max_order_discount', floor($form_state['values']['commerce_pos_discount_max_order_discount']));
+}
+
+/**
  * Implements hook_commerce_pos_sale_form_ajax_alter().
  */
 function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_element) {
@@ -374,7 +502,34 @@ function commerce_pos_discount_commerce_pos_sale_form_ajax_alter(&$form_state, $
           $discount_amount *= 100;
         }
 
+        $max_order_discount = variable_get('commerce_pos_discount_max_order_discount', NULL);
+
+        // Grabbing the current order discount needs to happen before the new line item discount is applied.
+        if ($max_order_discount) {
+          $current_order_discount = $form_state['transaction']->doAction('getExistingOrderDiscountAmount');
+        }
+
         $form_state['transaction']->doAction('addLineItemDiscount', $discount_type, $form_state['triggering_element']['#line_item_id'], $discount_amount);
+
+        // Make sure if the order has a fixed order discount that it's adjusted to its max if the new line item
+        // discount causes its current value to be greater than its percentage limit.
+        if ($max_order_discount) {
+          if (isset($current_order_discount) && $current_order_discount['type'] == 'fixed') {
+            // Get the order total less any current order discounts and the percentage the fixed discount is of
+            // the new order total.
+            $order_total_amount = _commerce_pos_discount_order_total($form_state);
+            $order_discount_amount = ($current_order_discount['amount'] / $order_total_amount) * 100;
+
+            // If the discount amount is greater than the maximum allowed then adjust the fixed discount to be the new max.
+            if ($order_discount_amount > $max_order_discount) {
+              $max_discount_value = $max_order_discount / 100;
+              $new_order_discount = round(($order_total_amount * $max_discount_value) * 100);
+
+              $form_state['transaction']->doAction('addOrderDiscount', 'fixed', $new_order_discount);
+            }
+          }
+        }
+
         $form_state['order_updated'] = TRUE;
         break;
 
