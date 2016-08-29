@@ -100,7 +100,7 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
       ),
       '#ajax' => array(
         'wrapper' => $form_wrapper_id,
-        'callback' => 'commerce_pos_label_labels_form_add_js',
+        'callback' => 'commerce_pos_label_labels_form_js',
       ),
     );
   }
@@ -154,8 +154,8 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
           '#product_id' => $product_id,
           '#submit' => array('commerce_pos_label_labels_form_remove_submit'),
           '#ajax' => array(
-            'callback' => 'commerce_pos_labels_remove_js',
-            'wrapper' => 'commerce-pos-label-label-options-container',
+            'wrapper' => $form_wrapper_id,
+            'callback' => 'commerce_pos_label_labels_form_js',
           ),
         );
       }
@@ -218,9 +218,9 @@ function commerce_pos_label_labels_form_remove_submit($form, &$form_state) {
 }
 
 /**
- * AJAX callback for the label form's "Add" button.
+ * Main AJAX callback for the label form.
  */
-function commerce_pos_label_labels_form_add_js($form, &$form_state) {
+function commerce_pos_label_labels_form_js($form, &$form_state) {
   return $form;
 }
 
@@ -276,13 +276,6 @@ function commerce_pos_label_labels_form_print_submit($form, &$form_state) {
   foreach ($form_state['values']['label_list'] as $product_id => $values) {
     $form_state['storage']['labels_to_print']['products'][$product_id] = $values;
   }
-}
-
-/**
- * AJAX handler for the label form's "Remove" buttons.
- */
-function commerce_pos_labels_remove_js($form, &$form_state) {
-  return $form['label_options'];
 }
 
 /**
