@@ -14,6 +14,7 @@ function theme_commerce_pos_label_print(&$variables) {
 
   foreach ($variables['product_ids'] as $product_id => $info) {
     $product = commerce_product_load($product_id);
+    $barcode = FALSE;
 
     if (!empty($format['barcode']) && module_exists('commerce_pos_label_barcode')) {
       if ($barcode = commerce_pos_label_barcode_generate($product, $format)) {

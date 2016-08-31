@@ -10,7 +10,8 @@
 //Buttons
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info,
 #commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info,
-#commerce-pos-location-float-form {
+#commerce-pos-location-float-form,
+.commerce-pos-form-container {
   .form-submit {
     background: $primary;
     border: 0;
@@ -27,6 +28,18 @@
 
     &:hover, &:focus {
       background: $primary-hover;
+    }
+
+    &.fixed-width {
+      width: auto;
+    }
+
+    &.btn-success {
+      background: $secondary;
+    }
+
+    &.btn-danger {
+      background: $button-danger;
     }
   }
 }

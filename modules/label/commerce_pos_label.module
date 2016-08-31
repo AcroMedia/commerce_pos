@@ -78,11 +78,6 @@ function commerce_pos_label_theme($existing, $type, $theme, $path) {
  * Implements hook_form_alter().
  */
 function commerce_pos_label_form_alter(&$form, &$form_state, $form_id) {
-  if (in_array($form_id, array('commerce_pos_sale', 'commerce_pos_return'))) {
-    $form['#attached']['library'][] = array('system', 'drupal.ajax');
-    $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_label') . '/js/commerce_pos_label.js';
-  }
-
   if ($form_id == 'commerce_pos_settings') {
     $format_options = array();
 

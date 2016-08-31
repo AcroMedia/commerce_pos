@@ -63,7 +63,7 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
 
   $form_wrapper_id = 'commerce-pos-label-form-container';
 
-  $form['#prefix'] = '<div id="' . $form_wrapper_id . '">';
+  $form['#prefix'] = '<div id="' . $form_wrapper_id . '" class="commerce-pos-form-container">';
   $form['#suffix'] = '</div>';
 
   $form['label_format'] = array(
@@ -96,7 +96,7 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
       '#validate' => array('commerce_pos_label_labels_form_add_validate'),
       '#submit' => array('commerce_pos_label_labels_form_add_submit'),
       '#attributes' => array(
-        'class' => array('commerce-pos-label-btn-add'),
+        'class' => array('commerce-pos-label-btn-add commerce-pos-btn fixed-width btn-success'),
       ),
       '#ajax' => array(
         'wrapper' => $form_wrapper_id,
@@ -108,6 +108,7 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
   $form['label_options'] = array(
     '#type' => 'container',
     '#id' => 'commerce-pos-label-label-options-container',
+    '#prefix' => '<br>',
   );
 
   $form['label_options']['label_list'] = array(
@@ -117,6 +118,14 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
 
   if (!empty($form_state['labels_to_create'])) {
     foreach ($form_state['labels_to_create'] as $product_id => $label_info) {
+      $form['label_options']['label_list'][$product_id]['quantity'] = array(
+        '#type' => 'textfield',
+        '#title' => t('Quantity'),
+        '#default_value' => $label_info['quantity'],
+        '#required' => TRUE,
+        '#size' => 5,
+      );
+
       $form['label_options']['label_list'][$product_id]['title'] = array(
         '#title' => t('Title'),
         '#type' => 'textfield',
@@ -128,14 +137,6 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
         '#title' => t('Description'),
         '#type' => 'textfield',
         '#default_value' => $label_info['description'],
-      );
-
-      $form['label_options']['label_list'][$product_id]['quantity'] = array(
-        '#type' => 'textfield',
-        '#title' => t('Quantity'),
-        '#default_value' => $label_info['quantity'],
-        '#required' => TRUE,
-        '#size' => 5,
       );
 
       $form['label_options']['label_list'][$product_id]['price'] = array(
@@ -157,6 +158,9 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
             'wrapper' => $form_wrapper_id,
             'callback' => 'commerce_pos_label_labels_form_js',
           ),
+          '#attributes' => array(
+            'class' => array('commerce-pos-btn fixed-width btn-danger'),
+          ),
         );
       }
     }
@@ -168,6 +172,9 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
       '#ajax' => array(
         'wrapper' => $form_wrapper_id,
         'callback' => 'commerce_pos_labels_labels_print_js',
+      ),
+      '#attributes' => array(
+        'class' => array('commerce-pos-btn fixed-width'),
       ),
     );
   }
