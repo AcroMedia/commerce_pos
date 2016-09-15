@@ -58,7 +58,9 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   );
 
   if (empty($payment_options)) {
-    drupal_set_message(t('No payment options have been configured for the POS!'), 'error');
+    $link = l(t('click here'), '/admin/commerce/config/custom-offline-payments');
+    drupal_set_message(t('No payment options have been configured for the POS! Enable Commerce POS Payment for default payment methods or !link to configure a payment method.',
+      array ('!link' => $link)), 'error');
   }
 
   if (!isset($form_state['transaction'])) {

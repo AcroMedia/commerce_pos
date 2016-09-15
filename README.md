@@ -84,6 +84,11 @@ CONFIGURATION
   have and image field in its manage fields page). The image field selected
   will be used when displaying the product on the Point of Sale page.
 
+  * To configure payment methods navigate to Administration » Custom Offline Payments.
+  For Commerce Kickstart installations, go to Store Settings » Custom Offline Payments.
+
+  * To enable the default payment methods enable the Commerce POS Payments module.
+
 
 CONTRIBUTING
 -------------
