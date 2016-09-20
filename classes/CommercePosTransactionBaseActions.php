@@ -522,7 +522,8 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
       // Allow other modules to specify what properties should be compared when
       // determining whether or not to combine line items.
-      drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, clone($line_item));
+      $cloned_line_item = clone($line_item);
+      drupal_alter('commerce_cart_product_comparison_properties', $comparison_properties, $cloned_line_item);
 
       // Loop over each line item on the order.
       foreach ($order_wrapper->commerce_line_items as $delta => $matching_line_item_wrapper) {
