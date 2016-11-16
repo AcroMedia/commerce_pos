@@ -273,7 +273,7 @@ function commerce_pos_label_labels_form_build_info_array($product) {
  * Submit handler for the label form's "Print" button.
  */
 function commerce_pos_label_labels_form_print_submit($form, &$form_state) {
-  $format = $form_state['values']['label_format'];
+  $format = commerce_pos_label_format_load($form_state['values']['label_format']);
 
   $form_state['storage']['labels_to_print'] = array(
     'format' => $format,
