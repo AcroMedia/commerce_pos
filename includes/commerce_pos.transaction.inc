@@ -453,7 +453,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   $transaction_options['customer'] = array(
     'email' => array(
       '#type' => 'textfield',
-      '#title' => t('Customer'),
+      '#title' => t('Customer Lookup'),
       '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
@@ -461,7 +461,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       ),
       '#prefix' => '<div id="commerce-pos-customer-input-wrapper">',
       '#element_key' => 'customer-update',
-      '#description' => t('Enter an email address or phone number to lookup a customer'),
+      '#description' => t('Email or phone number'),
       '#attributes' => array(
         'placeholder' => t('email@address.com'),
       ),
@@ -472,6 +472,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#title' => t('Phone Number'),
       '#suffix' => '</div>',
       '#element_key' => 'customer-update',
+      '#description' => t('Record the customers phone number'),
       '#attributes' => array(
         'placeholder' => t('Phone Number'),
       ),
