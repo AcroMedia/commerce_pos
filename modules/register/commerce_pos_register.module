@@ -609,15 +609,21 @@ function commerce_pos_register_get_float($register_id, $date = FALSE) {
     $date = REQUEST_TIME;
   }
 
-  $date = format_date($date, 'custom', 'Y-m-d');
+  $start_of_day = strtotime('midnight', $date);
+  $end_of_day = strtotime('tomorrow', $start_of_day) - 1;
 
-  $result = db_query("SELECT float_id, register_id, amount, created
-    FROM {commerce_pos_register_float}
-    WHERE register_id = :register_id
-    AND DATE_FORMAT(FROM_UNIXTIME(created), '%Y-%m-%d') = :date", array(
-    ':register_id' => $register_id,
-    ':date' => $date,
-  ));
+  $query = db_select('commerce_pos_register_float', 'cprf');
+  $query->fields('cprf', array(
+    'float_id',
+    'register_id',
+    'amount',
+    'created',
+  ))
+    ->condition('register_id', $register_id, '=')
+    ->condition('created', $start_of_day, '>=')
+    ->condition('created', $end_of_day, '<=');
+
+  $result = $query->execute();
 
   foreach ($result as $row) {
     $entries[$row->float_id] = $row;
