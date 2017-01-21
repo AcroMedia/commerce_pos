@@ -310,7 +310,7 @@ function commerce_pos_location_configure_locations() {
       'translatable' => FALSE,
     );
 
-    $field = field_create_field($field);
+    field_create_field($field);
   }
 
   if (empty($instance)) {

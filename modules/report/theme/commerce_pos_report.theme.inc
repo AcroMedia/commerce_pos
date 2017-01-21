@@ -60,10 +60,6 @@ function theme_commerce_pos_report_options(&$variables) {
   ));
 }
 
-function theme_commerce_pos_report_end_of_day_receipt(&$variables) {
-  $form = $variables;
-}
-
 /**
  * Implements template_preprocess_commerce_pos_report_receipt().
  */

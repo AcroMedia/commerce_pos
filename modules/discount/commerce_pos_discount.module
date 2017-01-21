@@ -249,10 +249,10 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       }
       else {
         if (!empty($discount_data) && isset($discount_data['amount']) & !empty($discount_data['amount'])) {
-          $discount_price = '';
           if (isset($discount_data['type']) && $discount_data['type'] == 'percent') {
             $discount_price = $discount_data['amount'] . '%';
-          } else {
+          }
+          else {
             $discount_price = commerce_currency_format(($discount_data['amount'] * 100), $discount_data['currency_code']);
           }
 

@@ -207,6 +207,9 @@ class CommercePosTransaction {
    *
    * @param $action_name
    * @param $arguments
+   *
+   * @return
+   *    The results of the invoked action, throws exception on error
    */
   protected function invokeAction($action_name, $arguments) {
     if (isset($this->actions[$action_name]['class'])) {

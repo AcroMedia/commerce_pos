@@ -202,7 +202,7 @@ a:hover .commerce-pos-report-ico-journal-role {
 
 .page-admin-commerce-pos-journal-role ul.pager li.last,
 .page-admin-commerce-pos-journal-role ul.pager li.last a {
-  border-right: 0px;
+  border-right: 0;
 }
 
 /* -- Report Table -- */

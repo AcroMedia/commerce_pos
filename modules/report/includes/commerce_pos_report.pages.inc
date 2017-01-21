@@ -493,7 +493,7 @@ function commerce_pos_report_end_of_day_save_submit($form, &$form_state) {
         // TODO: There is an amount column - what's it for?
         'data' => $serial_data,
       ));
-    $id = $query->execute();
+    $query->execute();
   }
   else {
     $query = db_insert('commerce_pos_report_declared_data')
@@ -503,7 +503,7 @@ function commerce_pos_report_end_of_day_save_submit($form, &$form_state) {
         'date' => strtotime($date),
         'data' => $serial_data,
       ));
-    $id = $query->execute();
+    $query->execute();
   }
 }
 

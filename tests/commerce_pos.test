@@ -124,6 +124,9 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
    *   The payment method ID.
    * @param $amount
    *   The amount that the payment transaction is for.
+   *
+   * @return bool|object
+   *    The transaction object, or FALSE if it can't be loaded
    */
   public function createDummyPayment(CommercePosTransaction $transaction, $method_id, $amount) {
     if (module_exists('commerce_pos_payment')) {
@@ -137,6 +140,7 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
       $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
       $transaction->message = '';
       commerce_payment_transaction_save($transaction);
+
       return $transaction;
     }
     else {

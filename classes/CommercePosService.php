@@ -46,29 +46,6 @@ class CommercePosService {
   }
 
   /**
-   * Sets the current transaction for a user.
-   *
-   * @param \CommercePosTransaction $transaction
-   *
-   * @throws \Exception
-   */
-  public static function setCurrentTransaction(CommercePosTransaction $transaction) {
-    $current_transaction = self::getCurrentTransaction($transaction->type, $transaction->uid);
-
-    if ($current_transaction->transactionId != $transaction->transactionId) {
-      throw new Exception(t('Cannot set current @type transaction for @uid, the user already has one.', array(
-        '@uid' => $transaction->uid,
-        '@type' => $transaction->type,
-      )));
-    }
-    else {
-      if (empty($transaction->transactionId)) {
-        $current_transaction = $transaction;
-      }
-    }
-  }
-
-  /**
    * Load a Commerce POS transaction.
    */
   public static function loadTransaction($transaction_id, $reset = FALSE) {
