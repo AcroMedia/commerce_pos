@@ -9,4 +9,3 @@ dependencies[] = entityreference:entityreference
 
 files[] = classes/CommercePosRegisterBase.php
 files[] = includes/commerce_pos_register.controller.inc
-files[] = includes/commerce_pos_register.entity.inc

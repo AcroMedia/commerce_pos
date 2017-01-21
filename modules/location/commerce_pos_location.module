@@ -19,14 +19,6 @@ function commerce_pos_location_menu() {
     'file' => 'includes/commerce_pos_location.pages.inc',
   );
 
-  $items['admin/commerce/pos/location-select'] = array(
-    'title' => 'Select location',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('commerce_pos_location_select'),
-    'file' => 'includes/commerce_pos_location.pages.inc',
-    'access arguments' => array('view commerce pos locations'),
-  );
-
   return $items;
 }
 
@@ -258,18 +250,14 @@ function commerce_pos_location_title($location) {
 
 /**
  * Retrieves the current user's location ID, if they have one.
+ *
+ * @return int|FALSE
+ *   The ID of a commerce_pos_location entity or FALSE.
  */
 function commerce_pos_location_get_current_location() {
-  if (!($location_id = isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE)) {
-    $location_id = (isset($_SESSION['commerce_pos_location_id']) ? $_SESSION['commerce_pos_location_id'] : FALSE);
-  }
+  $location = commerce_pos_register_get_location_for_register(commerce_pos_register_get_current_register());
 
-  return $location_id;
-}
-
-function commerce_pos_location_set_current_location($location_id) {
-  $_SESSION['commerce_pos_location_id'] = $location_id;
-  setcookie('commerce_pos_location_id', $location_id, strtotime('+30 days'));
+  return !empty($location->location_id) ? $location->location_id : FALSE;
 }
 
 /**
