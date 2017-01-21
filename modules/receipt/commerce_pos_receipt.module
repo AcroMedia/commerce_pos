@@ -43,13 +43,6 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
  * Implements hook_menu().
  */
 function commerce_pos_receipt_menu() {
-  $items['admin/commerce/pos/printer-testing'] = array(
-    'title' => 'Printer testing',
-    'page callback' => 'printer_testing_page',
-    'access arguments' => array('access content'),
-    'type' => MENU_CALLBACK,
-  );
-
   $items['admin/commerce/pos/%/print-receipt'] = array(
     'title' => 'Print Transaction Receipt',
     'page callback' => 'commerce_pos_receipt_print',
@@ -367,30 +360,6 @@ function commerce_pos_receipt_print_access($transaction_id) {
   }
 
   return $access;
-}
-
-function printer_testing_page() {
-  drupal_add_library('system', 'drupal.ajax');
-  drupal_add_js(drupal_get_path('module', 'commerce_pos_receipt') . '/js/commerce_pos_receipt.js');
-  libraries_load('jquery-print');
-
-  $js_settings = array(
-    'commercePosReceipt' => array(
-      'cssUrl' => url(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array(
-        'absolute' => TRUE,
-      )),
-    ),
-  );
-
-  drupal_add_js($js_settings, 'setting');
-
-  $output = '';
-
-  $output .= l(t('Click me'), 'admin/commerce/pos/1/print-receipt', array('attributes' => array(
-    'class' => array('use-ajax'),
-  )));
-
-  return $output;
 }
 
 /**
