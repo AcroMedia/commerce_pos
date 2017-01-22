@@ -249,18 +249,6 @@ function commerce_pos_location_title($location) {
 }
 
 /**
- * Retrieves the current user's location ID, if they have one.
- *
- * @return int|FALSE
- *   The ID of a commerce_pos_location entity or FALSE.
- */
-function commerce_pos_location_get_current_location() {
-  $location = commerce_pos_register_get_location_for_register(commerce_pos_register_get_current_register());
-
-  return !empty($location->location_id) ? $location->location_id : FALSE;
-}
-
-/**
  * Retrieves a list of POS location names, keyed by location_id.
  */
 function commerce_pos_location_options() {

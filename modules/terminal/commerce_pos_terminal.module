@@ -85,7 +85,7 @@ function commerce_pos_terminal_commerce_pos_void_payment_transaction($transactio
 
   // Attempt to void the transaction.
   $service = commerce_pos_terminal_service_load();
-  $service->setLocation(commerce_pos_location_get_current_location());
+  $service->setLocation(commerce_pos_register_get_current_location());
   $service->setRegister(commerce_pos_register_get_current_register());
   $voided = $service->void($transaction);
 
@@ -192,7 +192,7 @@ function commerce_pos_terminal_payment_submit($form, &$form_state) {
   if (module_exists('background_process') && variable_get('commerce_pos_terminal_use_background_process', FALSE)) {
     // These values come from $_SESSION, which will not be available in the
     // background process.
-    $location = commerce_pos_location_get_current_location();
+    $location = commerce_pos_register_get_current_location();
     $register = commerce_pos_register_get_current_register();
     background_process_start($processing_function, $submit_function, $transaction, $location, $register);
   }
