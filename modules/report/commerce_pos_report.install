@@ -58,8 +58,8 @@ function commerce_pos_report_schema() {
  */
 function commerce_pos_report_uninstall() {
   // Variable cleanup.
-  variable_delete('commerce_pos_report_end_of_day_hour');
-  variable_delete('commerce_pos_report_end_of_day_minute');
+  variable_del('commerce_pos_report_end_of_day_hour');
+  variable_del('commerce_pos_report_end_of_day_minute');
 }
 
 /**
