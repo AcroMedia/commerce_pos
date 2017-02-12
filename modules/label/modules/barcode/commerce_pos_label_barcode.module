@@ -14,7 +14,10 @@ use Picqer\Barcode\Exceptions\BarcodeException;
 function commerce_pos_label_barcode_form_commerce_pos_settings_alter(&$form, &$form_state, $form_id) {
   foreach (commerce_product_types() as $name => $type) {
     $variable_name = 'commerce_pos_label_barcode_upc_field_' . $name;
-    $options = array('' => t('None'));
+    $options = array(
+      '' => t('None'),
+      'sku' => t('Base SKU field'),
+    );
 
     foreach (field_info_instances('commerce_product', $name) as $field_name => $field) {
       $options[$field_name] = $field_name;
@@ -69,21 +72,26 @@ function commerce_pos_label_barcode_commerce_pos_label_format_info_alter(&$forma
  */
 function commerce_pos_label_barcode_generate($product, $format) {
   $generator = new BarcodeGeneratorPNG();
+  $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
   $upc_field = variable_get('commerce_pos_label_barcode_upc_field_' . $product->type, FALSE);
 
-  if (!empty($upc_field) && $field_upc = field_get_items('commerce_product', $product, $upc_field)) {
-    try {
-      $barcode_settings = $format['barcode'];
+  if (!empty($upc_field)) {
 
-      $barcode =  $generator->getBarcode($field_upc[0]['value'], $barcode_settings['type'], $barcode_settings['widthFactor'], $barcode_settings['totalHeight'], $barcode_settings['color']);
-      return $barcode;
-    }
-    catch (BarcodeException $e) {
-      watchdog('commerce_pos_label', 'Unable to generate barcode for product @sku. @exception: @message', array(
-        '@exception' => get_class($e),
-        '@sku' => $product->sku,
-        '@message' => $e->getMessage(),
-      ), WATCHDOG_ERROR);
+    $upc_field_value = $product_wrapper->{$upc_field}->value();
+
+    if ($upc_field_value) {
+      try {
+        $barcode_settings = $format['barcode'];
+        $barcode =  $generator->getBarcode($upc_field_value, $barcode_settings['type'], $barcode_settings['widthFactor'], $barcode_settings['totalHeight'], $barcode_settings['color']);
+        return $barcode;
+      }
+      catch (BarcodeException $e) {
+        watchdog('commerce_pos_label', 'Unable to generate barcode for product @sku. @exception: @message', array(
+          '@exception' => get_class($e),
+          '@sku' => $product->sku,
+          '@message' => $e->getMessage(),
+        ), WATCHDOG_ERROR);
+      }
     }
   }
 
