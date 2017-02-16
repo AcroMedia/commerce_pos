@@ -48,7 +48,7 @@ function commerce_pos_stock_default_rules_configuration() {
             "USING" : { "list" : [ "order:commerce-line-items" ] },
             "ITEM" : { "list_item" : "Current list item" },
             "DO" : [
-              { "commerce_ss_increase_by_line_item" : { "commerce_line_item" : [ "list-item" ] } }
+              { "commerce_pos_stock_increase_by_line_item" : { "commerce_line_item" : [ "list-item" ] } }
             ]
           }
         }

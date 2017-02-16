@@ -4,8 +4,7 @@
 .commerce-pos-col-products {
   width: 100%;
   box-sizing: border-box;
-  *
-  {
+  * {
     box-sizing: border-box;
   }
 }
@@ -174,6 +173,11 @@
   }
 }
 
+.commerce-pos-transaction-line-items > .form-wrapper .stock-wrapper label {
+  color: #000;
+  font-weight: normal;
+}
+
 //
 //---PRICE EDIT WRAPPER---
 //
@@ -206,7 +210,7 @@
 //---QUANTITY WRAPPER---
 //
 .commerce-pos-transaction-line-items .quantity-wrapper .add-remove-wrapper {
-  display: inline-block!important;
+  display: inline-block !important;
   width: 20px;
   margin: 0;
   font-size: 0;
@@ -286,7 +290,7 @@
     border: 1px solid $border-color;
     width: 100%;
     text-align: center;
-    margin: 0!important;
+    margin: 0 !important;
     border-radius: 2px 0 0 2px;
   }
 
@@ -354,7 +358,7 @@
     margin: 0 2px 0 10px;
     width: auto;
     border: 1px solid $border-color;
-    font-size: 12px!important;
+    font-size: 12px !important;
   }
 
   .form-submit {

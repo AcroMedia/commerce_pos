@@ -270,9 +270,9 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $line_item_element['qty'] = array(
-        '#title' => (int)$line_item_wrapper->quantity->value(),
+        '#title' => (int) $line_item_wrapper->quantity->value(),
         '#type' => 'textfield',
-        '#value' => (int)$line_item_wrapper->quantity->value(),
+        '#value' => (int) $line_item_wrapper->quantity->value(),
         '#size' => 4,
         '#maxlength' => 4,
         '#ajax' => $wrapper_ajax,
@@ -324,12 +324,14 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
       $line_item_element['total_wrapper_open'] = array(
         '#markup' => '<div class="total-wrapper line-item-col">',
+        '#weight' => 100,
       );
 
       $line_item_total = $line_item_wrapper->commerce_total->value();
 
       $line_item_element['total'] = array(
         '#markup' => '<strong>' . $total_prefix . commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . $total_suffix . '</strong>',
+        '#weight' => 100,
       );
 
       $line_item_element['remove'] = array(
@@ -339,14 +341,17 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
         '#line_item_id' => $line_item_id,
         '#ajax' => $wrapper_ajax,
+        '#weight' => 100,
       );
 
       $line_item_element['total_wrapper_close'] = array(
         '#markup' => '</div>',
+        '#weight' => 100,
       );
 
       $line_item_element['line_item_row_wrapper_close'] = array(
         '#markup' => '</div>',
+        '#weight' => 100,
       );
     }
   }
@@ -477,8 +482,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#attributes' => array(
         'placeholder' => t('Phone Number'),
       ),
-      '#default_value' => !empty($transaction->data['customer phone']) ? $transaction->data['customer phone'] : NULL
-    )
+      '#default_value' => !empty($transaction->data['customer phone']) ? $transaction->data['customer phone'] : NULL,
+    ),
   );
 
   if (!$has_active_transaction) {
@@ -685,6 +690,14 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
       if ($form_state['transaction']->doAction('setOrderCustomer', $user)) {
         // Only save if the order customer was actually updated.
         $form_state['transaction']->doAction('saveOrder');
+      }
+    }
+    if (module_exists('commerce_pos_stock') && $form['#form_id'] === 'commerce_pos_return') {
+      $order = commerce_order_load($form_state['transaction']->orderId);
+      $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+      foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
+        $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
+        commerce_line_item_save($line_item);
       }
     }
   }
