@@ -1,5 +1,9 @@
 <?php
 
+/**
+ * @file
+ */
+
 define('COMMERCE_PAYMENT_STATUS_TERMINAL_TIMED_OUT', 'terminal_timedout');
 define('COMMERCE_POS_TERMINAL_CLEANUP_WAIT_NEVER', -1);
 // 15-minute default wait for request cleanup.
@@ -156,6 +160,7 @@ function commerce_pos_terminal_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Submit handler for adding a payment through the Terminal functionality.
+ *
  * @param $form
  * @param $form_state
  */
@@ -207,6 +212,7 @@ function commerce_pos_terminal_payment_submit($form, &$form_state) {
 
 /**
  * Process a sale or refund transaction.
+ *
  * @param $submit_function
  *   The function to call to send the payment or refund request.
  * @param $transaction
@@ -237,7 +243,8 @@ function commerce_pos_terminal_process_payment($submit_function, $transaction, $
     // Notify the service that the transaction was saved to the database.
     $service->saved();
 
-  } catch (Exception $e) {
+  }
+  catch (Exception $e) {
     $transaction->status = COMMERCE_PAYMENT_STATUS_FAILURE;
     $transaction->message = $e->getMessage();
     commerce_payment_transaction_save($transaction);
@@ -249,6 +256,7 @@ function commerce_pos_terminal_process_payment($submit_function, $transaction, $
 
 /**
  * Submit handler for making a sale payment through the Terminal functionality.
+ *
  * @param CommercePosTerminalServiceInterface $service
  * @param $transaction
  *   A commerce transaction.
@@ -259,6 +267,7 @@ function commerce_pos_terminal_sale_payment_submit($service, $transaction) {
 
 /**
  * Submit handler for making a refund through the Terminal functionality.
+ *
  * @param CommercePosTerminalServiceInterface $service
  * @param $transaction
  *   A commerce transaction.
@@ -269,6 +278,7 @@ function commerce_pos_terminal_return_payment_submit($service, $transaction) {
 
 /**
  * Alters a form to add functionality that pings for pending transactions.
+ *
  * @param $form
  * @param $form_state
  */
@@ -394,6 +404,7 @@ function commerce_pos_terminal_services_info() {
  * Includes the required file if necessary.
  *
  * @param array $service
+ *
  * @return CommercePosTerminalServiceInterface|string
  */
 function commerce_pos_terminal_get_service_class($service = array()) {
@@ -416,8 +427,10 @@ function commerce_pos_terminal_get_service_class($service = array()) {
  * Load a class implementing the CommercePosTerminalServiceInterface interface.
  * Loads a provided service, otherwise loads the configured service.
  * Returns FALSE if unable to load the class.
+ *
  * @param string $class
- * @return CommercePosTerminalServiceInterface|FALSE
+ *
+ * @return CommercePosTerminalServiceInterface|false
  */
 function commerce_pos_terminal_service_load($class = '') {
   if (!$class) {
@@ -433,6 +446,7 @@ function commerce_pos_terminal_service_load($class = '') {
 
 /**
  * Indicate whether or not a terminal service plugin is enabled and available.
+ *
  * @return bool
  */
 function commerce_pos_terminal_service_enabled() {
@@ -442,9 +456,11 @@ function commerce_pos_terminal_service_enabled() {
 
 /**
  * Write a record to the pending transaction request table.
+ *
  * @param $transaction
  * @param $order_id
  * @param $register_id
+ *
  * @return int
  *   The id of the inserted record.
  */
@@ -462,6 +478,7 @@ function commerce_pos_terminal_add_pending_transaction($transaction, $order_id, 
 
 /**
  * Update the status of a pending transaction request.
+ *
  * @param $transaction
  *   A commerce_payment_transaction.
  */
@@ -474,8 +491,10 @@ function commerce_pos_terminal_update_pending_transaction($transaction) {
 
 /**
  * Map a payment type to a payment method as per the module's configuration.
+ *
  * @param string $type
- * @return string|FALSE
+ *
+ * @return string|false
  *   Returns a string for the payment method name or FALSE if there is no
  *   mapping.
  */
@@ -490,7 +509,9 @@ function commerce_pos_terminal_payment_method_for_type($type) {
 
 /**
  * Get pending payment terminal transaction requests for an order.
+ *
  * @param $order_id
+ *
  * @return array
  *   An array of transaction ids.
  */
@@ -512,6 +533,7 @@ function commerce_pos_terminal_get_pending_transactions($order_id) {
 /**
  * Callback for determining if a POS Transaction has pending payment
  * transactions.
+ *
  * @param $order_id
  */
 function commerce_pos_terminal_transaction_ping($order_id) {
@@ -526,6 +548,7 @@ function commerce_pos_terminal_transaction_ping($order_id) {
 
 /**
  * Cancel the payment transactions on an order.
+ *
  * @param $order_id
  */
 function commerce_pos_terminal_cancel_transactions_for_order($order_id) {

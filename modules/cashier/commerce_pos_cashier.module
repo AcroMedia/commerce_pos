@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_cashier.module
@@ -9,19 +10,19 @@
  */
 function commerce_pos_cashier_permission() {
   return array(
-    'administer commerce pos cashiers' =>  array(
+    'administer commerce pos cashiers' => array(
       'title' => t('Administer POS cashiers'),
     ),
-    'create commerce pos cashiers' =>  array(
+    'create commerce pos cashiers' => array(
       'title' => t('Create new POS cashiers'),
     ),
-    'view commerce pos cashiers' =>  array(
+    'view commerce pos cashiers' => array(
       'title' => t('View POS cashiers'),
     ),
-    'edit commerce pos cashiers' =>  array(
+    'edit commerce pos cashiers' => array(
       'title' => t('Edit POS cashiers'),
     ),
-    'delete commerce pos cashiers' =>  array(
+    'delete commerce pos cashiers' => array(
       'title' => t('Delete POS cashiers'),
     ),
   );
@@ -288,7 +289,7 @@ function commerce_pos_cashier_title($cashier) {
  *
  * @param string $code
  *
- * @return Entity|FALSE
+ * @return Entity|false
  *   Returns a loaded commerce pos cashier entity or FALSE.
  */
 function commerce_pos_cashier_load_cashier_by_code($code) {
@@ -359,7 +360,7 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
     ),
   );
 
-  if(variable_get('commerce_pos_cashier_show_login_button')){
+  if (variable_get('commerce_pos_cashier_show_login_button')) {
     $form['log_in']['#attributes']['class'][] = 'commerce-pos-cashier-login-form-log-in-visible';
   }
 
@@ -377,7 +378,7 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
     ),
   );
 
-  if(variable_get('commerce_pos_cashier_show_logout_button')){
+  if (variable_get('commerce_pos_cashier_show_logout_button')) {
     $form['log_out']['#attributes']['class'][] = 'commerce-pos-cashier-login-form-log-in-visible';
   }
 
@@ -419,7 +420,7 @@ function commerce_pos_cashier_set_current_cashier($cashier) {
 /**
  * Get the current cashier.
  *
- * @return int|FALSE
+ * @return int|false
  */
 function commerce_pos_cashier_get_current_cashier() {
   return (isset($_SESSION['commerce_pos_cashier_cashier_id'])) ? $_SESSION['commerce_pos_cashier_cashier_id'] : FALSE;
@@ -450,8 +451,8 @@ function commerce_pos_cashier_cashiers_exist() {
  * Retrieves a list of all cashiers.
  *
  * @param bool $reset
- *  If TRUE, the static cache will be reset and fresh results from the database
- *  will be returned.
+ *   If TRUE, the static cache will be reset and fresh results from the database
+ *   will be returned.
  *
  * @return array
  *   A list of cashier names, keyed by their cashier ID.
@@ -466,4 +467,3 @@ function commerce_pos_cashiers_get_cashiers($reset = FALSE) {
 
   return $cashiers;
 }
-

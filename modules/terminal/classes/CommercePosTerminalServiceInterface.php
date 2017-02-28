@@ -1,7 +1,12 @@
 <?php
 
 /**
+ * @file
  * An interface for terminal functionality in commerce_pos_terminal.
+ */
+
+/**
+ *
  */
 interface CommercePosTerminalServiceInterface {
 
@@ -16,7 +21,7 @@ interface CommercePosTerminalServiceInterface {
    * @param $transaction
    *   A commerce transaction.
    *
-   * @return stdClass
+   * @return object
    *   A commerce transaction object.
    */
   public function purchase($transaction);
@@ -27,7 +32,7 @@ interface CommercePosTerminalServiceInterface {
    * @param $transaction
    *   A commerce transaction.
    *
-   * @return stdClass
+   * @return object
    *   A commerce transaction object.
    */
   public function refund($transaction);
@@ -103,4 +108,5 @@ interface CommercePosTerminalServiceInterface {
    *   name as the value.
    */
   public static function getPaymentTypes();
+
 }

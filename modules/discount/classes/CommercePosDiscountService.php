@@ -5,6 +5,9 @@
  * CommercePosDiscountService.php
  */
 
+/**
+ *
+ */
 class CommercePosDiscountService {
 
   // Used to keep track of whether or not a discount has already been applied
@@ -21,7 +24,7 @@ class CommercePosDiscountService {
    * @return array|bool
    *   The price component, or FALSE if none was found.
    */
-  static function getPosDiscountComponent($price_wrapper, $discount_name) {
+  static public function getPosDiscountComponent($price_wrapper, $discount_name) {
     $data = (array) $price_wrapper->data->value() + array('components' => array());
 
     // Look for our discount in each of the price components.
@@ -43,7 +46,7 @@ class CommercePosDiscountService {
    * method(s) to call, rather than each individual piece of coding having to
    * determine where to call applyPercentDiscount or applyFixedDiscount.
    */
-  static function applyDiscount($wrapper, $type, $rate) {
+  static public function applyDiscount($wrapper, $type, $rate) {
     switch ($type) {
       case 'percent':
         CommercePosDiscountService::applyPercentDiscount($wrapper, $rate);
@@ -58,7 +61,7 @@ class CommercePosDiscountService {
   /**
    * A modified version of commerce_discount_percentage().
    */
-  static function applyPercentDiscount($wrapper, $rate) {
+  static public function applyPercentDiscount($wrapper, $rate) {
     // Get the line item types to apply the discount to.
     $line_item_types = variable_get('commerce_discount_line_item_types', array('product' => 'product'));
 
@@ -130,7 +133,7 @@ class CommercePosDiscountService {
   /**
    * A modified version of commerce_discount_fixed_amount().
    */
-  static function applyFixedDiscount(EntityMetadataWrapper $wrapper, $discount_amount) {
+  static public function applyFixedDiscount(EntityMetadataWrapper $wrapper, $discount_amount) {
     $discount_price['amount'] = -$discount_amount;
     $line_item_types = variable_get('commerce_discount_line_item_types', array('product' => 'product'));
 
@@ -210,7 +213,7 @@ class CommercePosDiscountService {
    * @return bool
    *   TRUE if an existing line item was successfully modified, FALSE otherwise.
    */
-  static function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_price, $component_data = array()) {
+  static public function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_price, $component_data = array()) {
     $modified_existing = FALSE;
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
       if ($line_item_wrapper->getBundle() == 'commerce_pos_discount') {
@@ -240,7 +243,7 @@ class CommercePosDiscountService {
    * @param array $component_data
    *   Any price data to merge into the component.
    */
-  static function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount, $component_data = array()) {
+  static public function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount, $component_data = array()) {
     $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
     // Currencies don't match, abort.
     if ($discount_amount['currency_code'] != $unit_price['currency_code']) {
@@ -272,7 +275,7 @@ class CommercePosDiscountService {
   /**
    * Retrieves a display name for a specific discount type.
    */
-  static function getDiscountComponentTitle($discount_name) {
+  static public function getDiscountComponentTitle($discount_name) {
     switch ($discount_name) {
       case self::LINE_ITEM_DISCOUNT_NAME:
         return t('Product Discount');
@@ -297,7 +300,7 @@ class CommercePosDiscountService {
    * @param array $data
    *   Any additional data to be added to the price component.
    */
-  static function addLineItem(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_amount, $data) {
+  static public function addLineItem(EntityDrupalWrapper $order_wrapper, $discount_name, $discount_amount, $data) {
     // Create a new line item.
     $values = array(
       'type' => 'commerce_pos_discount',
@@ -346,7 +349,7 @@ class CommercePosDiscountService {
    *   Any additional data to be merged into the new price component's data
    *   array.
    */
-  static function addPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount, $data) {
+  static public function addPriceComponent(EntityDrupalWrapper $line_item_wrapper, $discount_name, $discount_amount, $data) {
     $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
     $current_amount = $unit_price['amount'];
     // Currencies don't match, abort.
@@ -387,7 +390,7 @@ class CommercePosDiscountService {
    * To have the order total refreshed without saving the line item.
    * Taken from CommerceLineItemEntityController::save().
    */
-  static function updateLineItemTotal($line_item_wrapper) {
+  static public function updateLineItemTotal($line_item_wrapper) {
     $quantity = $line_item_wrapper->quantity->value();
 
     // Update the total of the line item based on the quantity and unit price.
@@ -415,7 +418,7 @@ class CommercePosDiscountService {
   /**
    * Removes all POS discount line items from an order.
    */
-  static function removeOrderDiscountLineItems($order_wrapper) {
+  static public function removeOrderDiscountLineItems($order_wrapper) {
     $line_items_to_delete = array();
 
     foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {
@@ -456,7 +459,7 @@ class CommercePosDiscountService {
    * @param object $price_wrapper
    *   Wrapped commerce price.
    */
-  static function removeDiscountComponents($price_wrapper, $discount_name_to_remove) {
+  static public function removeDiscountComponents($price_wrapper, $discount_name_to_remove) {
     $discount_amounts = 0;
 
     $data = (array) $price_wrapper->data->value() + array('components' => array());
@@ -513,4 +516,5 @@ class CommercePosDiscountService {
       }
     }
   }
+
 }

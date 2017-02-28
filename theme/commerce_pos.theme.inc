@@ -5,7 +5,6 @@
  * Theme callbacks for commerce_pos.
  */
 
-
 /**
  * Implements template_preprocess_commerce_pos_product_result().
  *
@@ -190,7 +189,7 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
   $transaction_summary = theme('table', array(
     'rows' => $rows,
     'attributes' => array(
-      'class' => array('commerce-pos-sidebar-table','commerce-pos-order-balance-summary'),
+      'class' => array('commerce-pos-sidebar-table', 'commerce-pos-order-balance-summary'),
     ),
   ));
 

@@ -1,7 +1,8 @@
 <?php
+
 /**
  * @file
  * commerce_pos_payment.module
  */
 
-require_once('commerce_pos_payment.features.inc');
+require_once 'commerce_pos_payment.features.inc';

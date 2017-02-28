@@ -43,7 +43,7 @@
 }
 
 .commerce-pos-keypad-cash-input-box-popup-block {
-  background: #FFF;
+  background: #fff;
   padding: 20px 60px;
   text-align: left;
   max-width: 650px;
@@ -177,7 +177,7 @@
 }
 
 .commerce-pos-keypad-keypad-popup-block {
-  background: #FFF;
+  background: #fff;
   padding: 20px 60px;
   text-align: left;
   max-width: 650px;
@@ -190,8 +190,8 @@
 }
 
 .commerce-pos-keypad-keypad-value {
-  background-color: #F0F0F0;
-  border: 1px solid #D6D6D6;
+  background-color: #f0f0f0;
+  border: 1px solid #d6d6d6;
   color: #000000;
   display: block;
   font-size: 22px;
@@ -212,12 +212,12 @@
   display: block;
   float: left;
   padding: 14px;
-  border: 1px solid #D6D6D6;
+  border: 1px solid #d6d6d6;
   border-right: 0;
   border-bottom: 0;
   font-size: 22px;
   text-align: center;
-  background-color: #F0F0F0;
+  background-color: #f0f0f0;
   color: #000000;
   cursor: pointer;
   transition: all .1s ease 0s;
@@ -225,7 +225,7 @@
 
 .commerce-pos-keypad-key:hover {
   cursor: pointer;
-  background-color: #E4E4E4;
+  background-color: #e4e4e4;
 }
 
 .commerce-pos-keypad-action {
@@ -234,7 +234,7 @@
   display: block;
   float: left;
   padding: 14px;
-  border: 1px solid #D6D6D6;
+  border: 1px solid #d6d6d6;
   border-right: 0;
   border-bottom: 0;
   font-size: 22px;

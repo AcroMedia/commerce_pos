@@ -12,11 +12,11 @@ function commerce_pos_report_settings($form, &$form_state) {
   $hour_options = array();
   $minute_options = array();
 
-  for ($i = 0; $i <= 23; $i ++) {
+  for ($i = 0; $i <= 23; $i++) {
     $hour_options[$i] = $i;
   }
 
-  for ($i = 1; $i <= 59; $i ++) {
+  for ($i = 1; $i <= 59; $i++) {
     $minute_options[$i] = $i;
   }
 

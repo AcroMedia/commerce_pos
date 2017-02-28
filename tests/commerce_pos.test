@@ -1,8 +1,13 @@
 <?php
 
 /**
+ * @file
  * Abstract class for Commerce POS testing. All Commerce POS tests should
  * extend this.
+ */
+
+/**
+ *
  */
 abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
 
@@ -55,7 +60,7 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
    * @param int $location_id
    *   The ID of the POS location to assign the register to.
    *
-   * @return bool|stdClass
+   * @return bool|object
    *   The the dummy register, or FALSE if the appropriate modules weren't
    *   enabled.
    */
@@ -99,7 +104,7 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
   /**
    * Creates a dummy POS cashier for use in other tests.
    *
-   * @return bool|stdClass
+   * @return bool|object
    *   The ID of the dummy cashier, or FALSE if the appropriate modules weren't
    *   enabled.
    */
@@ -147,11 +152,11 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
       return FALSE;
     }
   }
+
 }
 
 /**
  * Class CommerceXlsImportTestCase.
- *
  */
 class CommercePosTestCase extends CommercePosBaseTestCase {
   protected $adminUser;
@@ -192,6 +197,9 @@ class CommercePosTestCase extends CommercePosBaseTestCase {
     $this->normalUser = $this->drupalCreateUser();
   }
 
+  /**
+   *
+   */
   public function testCommercePosMenu() {
     $this->drupalLogin($this->privilegedUser);
 
@@ -259,6 +267,9 @@ class CommercePosTestCase extends CommercePosBaseTestCase {
     $this->assertResponse('403', 'Unprivileged user was unable to access the pos config settings page');
   }
 
+  /**
+   *
+   */
   public function testCommercePosAddProduct() {
     $sku = 'PROD-01';
     $product_name = 'Product One';

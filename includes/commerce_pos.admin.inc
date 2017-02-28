@@ -80,7 +80,7 @@ function commerce_pos_settings($form, &$form_state) {
     $form['field_settings'][$name][$variable_name] = array(
       '#type' => 'select',
       '#title' => t('Image field(s)'),
-      '#description '=> t('Select fields that will be used to find an image if your products in the POS.'),
+      '#description ' => t('Select fields that will be used to find an image if your products in the POS.'),
       '#options' => $options,
       '#default_value' => variable_get($variable_name, NULL),
       '#multiple' => TRUE,
@@ -134,9 +134,9 @@ function commerce_pos_settings_validate($form, &$form_state) {
   $directory = 'public://commerce_pos_default_thumbnails';
   file_prepare_directory($directory, FILE_MODIFY_PERMISSIONS | FILE_CREATE_DIRECTORY);
 
-  //Checks that the search results count setting is a positive integer between 1 and 500 inclusive.
+  // Checks that the search results count setting is a positive integer between 1 and 500 inclusive.
   if ($form_state['values']['commerce_pos_search_results_count'] !== NULL) {
-    $search_count = (int)$form_state['values']['commerce_pos_search_results_count'];
+    $search_count = (int) $form_state['values']['commerce_pos_search_results_count'];
     if ($search_count < 1 || $search_count > 500) {
       form_error($form['commerce_pos_search_results_count'], t('You must provide a positive integer between 1 and 500.'));
     }
@@ -196,5 +196,3 @@ function commerce_pos_settings_submit($form, &$form_state) {
     }
   }
 }
-
-

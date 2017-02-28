@@ -5,6 +5,9 @@
  * commerce_pos_receipt.admin.inc
  */
 
+/**
+ *
+ */
 function commerce_pos_receipt_settings($form, &$form_state) {
   $header = variable_get('commerce_pos_receipt_header', NULL);
   $footer = variable_get('commerce_pos_receipt_footer', NULL);

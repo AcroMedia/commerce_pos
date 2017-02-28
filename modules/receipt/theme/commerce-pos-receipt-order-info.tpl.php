@@ -9,7 +9,6 @@
  * - $return: A boolean indicating if this is a return or not.
  * - $transaction: The POS transaction object.
  */
-
 ?>
 
 <div class="pos-order-info">

@@ -683,7 +683,7 @@ function commerce_pos_user_phone_number_configure() {
   $instance = field_info_instance('user', $field_name, 'user');
 
   if (empty($field)) {
-    //Create the base field first
+    // Create the base field first.
     $field = array(
       'active' => 1,
       'cardinality' => 1,
@@ -708,7 +708,7 @@ function commerce_pos_user_phone_number_configure() {
   }
 
   if (empty($instance)) {
-    //Create the field instance.
+    // Create the field instance.
     $instance = array(
       'bundle' => 'user',
       'default_value' => NULL,
@@ -915,7 +915,7 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
  * from commerce_price_field_formatter_view().
  *
  * @param array|null $currency_code
- *   The currency code of the order
+ *   The currency code of the order.
  *
  * @return array
  *   A render array for the formatted price field.
@@ -1101,7 +1101,7 @@ function theme_commerce_pos_price_formatted_components($variables) {
       'class' => array('component-title'),
     );
 
-    // add action
+    // Add action.
     if (isset($component['action'])) {
       $row['data'][] = array(
         'data' => $component['action'],
@@ -1122,19 +1122,20 @@ function theme_commerce_pos_price_formatted_components($variables) {
 
   return theme('table', array(
     'rows' => $rows,
-    'attributes' => array('class' => array('commerce-pos-sidebar-table','commerce-price-formatted-components')),
+    'attributes' => array('class' => array('commerce-pos-sidebar-table', 'commerce-price-formatted-components')),
   ));
 }
 
 /**
  * Void a commerce payment transaction.
+ *
  * @param $transaction_id
  *   The id of a commerce payment transaction.
  */
 function commerce_pos_payment_transaction_void($transaction_id) {
   $transaction = commerce_payment_transaction_load($transaction_id);
 
-  if ($transaction == null) {
+  if ($transaction == NULL) {
     return;
   }
 
@@ -1172,7 +1173,9 @@ function commerce_pos_payment_transaction_void($transaction_id) {
 
 /**
  * Find commerce payment transactions for the given order.
+ *
  * @param $order_id
+ *
  * @return array
  *   An array of commerce_payment_transaction ids or an empty array if none
  *   are found.
@@ -1194,6 +1197,7 @@ function commerce_pos_get_order_transactions($order_id) {
 
 /**
  * Retrieves a Commerce POS transaction by its order ID.
+ *
  * @param $order_id
  *
  * @return CommercePosTransaction|bool
@@ -1201,7 +1205,7 @@ function commerce_pos_get_order_transactions($order_id) {
 function commerce_pos_get_pos_transaction_by_order_id($order_id) {
   $query = 'SELECT transaction_id FROM {commerce_pos_transaction} WHERE order_id = :order_id';
   if ($transaction_id = $result = db_query($query, array(':order_id' => $order_id))->fetchField()) {
-     return CommercePosService::loadTransaction($transaction_id);
+    return CommercePosService::loadTransaction($transaction_id);
   }
   else {
     return FALSE;

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Default template for a Commerce POS Cash Input box.
@@ -8,7 +9,6 @@
  * - $inputs: The input elements available.
  *   - An array of arrays, each with a 'title' and 'amount' key.
  */
-
 ?>
 
 <div id="commerce-pos-keypad-cash-input-box" style="display: none;" class="commerce-pos-keypad-cash-input-box-wrap">

@@ -28,7 +28,7 @@ function commerce_pos_label_barcode_form_commerce_pos_settings_alter(&$form, &$f
       '#title' => t('UPC field'),
       '#options' => $options,
       '#default_value' => variable_get($variable_name, ''),
-      '#description '=> t('Select the field that stores your product UPCs.'),
+      '#description ' => t('Select the field that stores your product UPCs.'),
     );
   }
 
@@ -60,7 +60,7 @@ function commerce_pos_label_barcode_commerce_pos_label_format_info_alter(&$forma
 /**
  * Generates a barcode image for a product.
  *
- * @param stdClass $product
+ * @param object $product
  *   The Commerce Product to generate a barcode for.
  *
  * @param array $format
@@ -82,7 +82,7 @@ function commerce_pos_label_barcode_generate($product, $format) {
     if ($upc_field_value) {
       try {
         $barcode_settings = $format['barcode'];
-        $barcode =  $generator->getBarcode($upc_field_value, $barcode_settings['type'], $barcode_settings['widthFactor'], $barcode_settings['totalHeight'], $barcode_settings['color']);
+        $barcode = $generator->getBarcode($upc_field_value, $barcode_settings['type'], $barcode_settings['widthFactor'], $barcode_settings['totalHeight'], $barcode_settings['color']);
         return $barcode;
       }
       catch (BarcodeException $e) {

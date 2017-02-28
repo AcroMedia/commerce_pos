@@ -1,3 +1,7 @@
+/**
+ * @file
+ */
+
 'use strict';
 
 var gulp = require('gulp');
@@ -11,8 +15,8 @@ var config = {
   ]
 };
 
-gulp.task('sass', function() {
-  config.sassDirectories.map(function(dirInfo) {
+gulp.task('sass', function () {
+  config.sassDirectories.map(function (dirInfo) {
     gulp.src(dirInfo.src)
       .pipe(sourcemaps.init())
       .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
@@ -21,16 +25,16 @@ gulp.task('sass', function() {
   });
 });
 
-gulp.task('sass:watch', function() {
-  config.sassDirectories.map(function(dirInfo) {
+gulp.task('sass:watch', function () {
+  config.sassDirectories.map(function (dirInfo) {
     gulp.watch(dirInfo.src, ['sass']);
   });
 });
 
-gulp.task('build', function() {
+gulp.task('build', function () {
   gulp.start(['sass']);
 });
 
-gulp.task('watch', function() {
+gulp.task('watch', function () {
   gulp.start(['sass:watch']);
 });

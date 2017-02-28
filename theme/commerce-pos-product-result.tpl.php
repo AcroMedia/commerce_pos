@@ -36,7 +36,7 @@
         <?php print l($product->sku, $product_display, array(
           'attributes' => array(
             'target' => '_blank',
-            // because the event is dynamically added to dom we need to prevent bubbling immediately by doing it inline
+            // Because the event is dynamically added to dom we need to prevent bubbling immediately by doing it inline.
             'onclick' => 'event.stopPropagation();',
           ),
         )); ?>

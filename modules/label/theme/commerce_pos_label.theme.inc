@@ -31,7 +31,7 @@ function theme_commerce_pos_label_print(&$variables) {
       'description' => $info['description'],
     ));
 
-    for ($i = 0; $i < $info['quantity']; $i ++) {
+    for ($i = 0; $i < $info['quantity']; $i++) {
       $output .= $label;
     }
   }

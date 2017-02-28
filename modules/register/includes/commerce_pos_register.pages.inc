@@ -78,7 +78,7 @@ function commerce_pos_register_float_form($form, &$form_state, $register_id = 0)
     '#value' => t('Continue')
   );
 
-  // Add module CSS
+  // Add module CSS.
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
   return $form;

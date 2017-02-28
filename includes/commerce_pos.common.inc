@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Common callbacks and functionality for commerce_pos.
  */
 
@@ -117,7 +118,7 @@ function commerce_pos_user_autocomplete($string = '') {
 }
 
 /**
- * Formats auto complete search results as a string
+ * Formats auto complete search results as a string.
  */
 function commerce_pos_format_autocomplete_results($result) {
   $matches = array();
@@ -191,4 +192,3 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 function commerce_pos_customer_js($form, &$form_state) {
   return $form['customer'];
 }
-

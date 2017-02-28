@@ -2,7 +2,7 @@
 
 /**
  * @file
- * AJAX callbacks for Commerce POS Report
+ * AJAX callbacks for Commerce POS Report.
  */
 
 /**

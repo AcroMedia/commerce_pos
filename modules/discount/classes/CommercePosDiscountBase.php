@@ -12,8 +12,14 @@
  * be used without modifications.
  */
 
+/**
+ *
+ */
 class CommercePosDiscountBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
+  /**
+   *
+   */
   public function actions() {
     $actions = parent::actions();
 
@@ -27,6 +33,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
     return $actions;
   }
 
+  /**
+   *
+   */
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
     $subscriptions['deleteLineItemAfter'][] = 'afterDeleteLineItem';
@@ -129,6 +138,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
     return FALSE;
   }
 
+  /**
+   *
+   */
   protected function getLineItemDiscountData($line_item_wrapper, $discount_name) {
     $data = array(
       'type' => '',
@@ -150,4 +162,5 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
 
     return $data;
   }
+
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_messages.module
@@ -33,7 +34,6 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_messages') . '/js/commerce_pos_messages.js';
 
   if (!empty($form_state['order_wrapper'])) {
-    // Check to see if we should be adding a
     if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'submit-note') {
       $message_text = $form_state['values']['messages']['add']['note_text'];
       commerce_pos_messages_add_message($message_text, $form_state['order_wrapper']);
@@ -67,18 +67,18 @@ function _commerce_pos_messages_transaction_form_alter(&$form, &$form_state) {
     );
 
     if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'add-note') {
-      // change add note button into label
+      // Change add note button into label.
       $form['messages']['add']['add_note'] = array(
         '#markup' => '<div class="commerce-pos-note-title">' . $form['messages']['add']['add_note']['#value'] . '</div>',
       );
 
       $form['messages']['add']['#attached']['js'][] = array(
-          'type' => 'setting',
-          'data' => array(
-              'commercePosMessages' => array(
-                'focusInput' => TRUE,
-              ),
+        'type' => 'setting',
+        'data' => array(
+          'commercePosMessages' => array(
+            'focusInput' => TRUE,
           ),
+        ),
       );
 
       $form['messages']['add']['note_text'] = array(

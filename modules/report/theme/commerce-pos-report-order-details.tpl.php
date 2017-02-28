@@ -5,7 +5,6 @@
  * Default template file for order details on the Commerce POS Report journal
  * role.
  */
-
 ?>
 
 <div class="commerce-pos-report-order-details-container">

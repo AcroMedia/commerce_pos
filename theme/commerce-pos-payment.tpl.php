@@ -7,7 +7,6 @@
  * Available variables:
  *  $form
  */
-
 ?>
 
 <?php print render($form['header']); ?>

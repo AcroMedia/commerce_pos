@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file
+ */
+
+/**
+ *
+ */
 class CommercePosLabelTestCase extends CommercePosBaseTestCase {
 
   protected $adminUser;
@@ -36,6 +43,9 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
     ));
   }
 
+  /**
+   *
+   */
   public function testLabelFormMenu() {
     $this->drupalLogin($this->adminUser);
     $this->drupalGet('admin/commerce/pos/labels');
@@ -46,6 +56,9 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
     $this->assertResponse(200, 'Privileged user should be able to access labels tab.');
   }
 
+  /**
+   *
+   */
   public function testLabelFormErrors() {
     $this->drupalLogin($this->privilegedUser);
     $this->drupalGet('admin/commerce/pos/labels');
@@ -59,6 +72,9 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
     $this->assertText(t('Invalid product.'), 'Should have invalid product error.');
   }
 
+  /**
+   *
+   */
   public function testLabelFormAdd() {
     $this->drupalLogin($this->privilegedUser);
     $product = $this->createDummyProduct();
@@ -83,6 +99,9 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
     $this->assertFieldById('edit-print-labels', t('Print'), 'Should have a print button.');
   }
 
+  /**
+   *
+   */
   public function testLabelTab() {
     $product = $this->createDummyProduct();
     $this->drupalLogin($this->adminUser);
@@ -103,4 +122,5 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
 
     $this->assertFieldById('edit-print-labels', t('Print'), 'Should have a print button.');
   }
+
 }

@@ -7,7 +7,6 @@
  * Available variables:
  *   $element - The render array for the keypad's form element.
  */
-
 ?>
 
 <?php if (!empty($element['amount'])) { ?>

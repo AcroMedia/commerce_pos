@@ -1,7 +1,17 @@
 <?php
 
+/**
+ * @file
+ */
+
+/**
+ *
+ */
 class CommercePosCashierEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 
+  /**
+   *
+   */
   public function create(array $values = array()) {
     $values += array(
       'cashier_id' => NULL,
@@ -15,6 +25,9 @@ class CommercePosCashierEntityController extends EntityAPIController implements 
     return parent::create($values);
   }
 
+  /**
+   *
+   */
   public function save($cashier, DatabaseTransaction $transaction = NULL) {
     $cashier->changed = REQUEST_TIME;
 
@@ -36,4 +49,5 @@ class CommercePosCashierEntityController extends EntityAPIController implements 
 
     return parent::save($cashier, $transaction);
   }
+
 }

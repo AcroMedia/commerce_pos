@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Functions used in cron runs.
@@ -6,9 +7,11 @@
 
 /**
  * Remove old records from the pending requests table.
+ *
  * @param int $time
  *   Allows a calling function to override the amount of time to wait before
  *   cleaning up transactions.
+ *
  * @return int
  */
 function commerce_pos_terminal_request_cleanup($time = NULL) {
@@ -46,7 +49,9 @@ function commerce_pos_terminal_request_cleanup($time = NULL) {
  * Perform cleanup on a request.
  * - Modify the transaction referred to by the record if necessary.
  * - Decide if the record should be deleted.
+ *
  * @param $record
+ *
  * @return bool
  *   TRUE if the record should be removed from the database.
  */

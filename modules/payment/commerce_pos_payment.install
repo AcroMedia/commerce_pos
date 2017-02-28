@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_payment.install
@@ -39,18 +40,19 @@ function commerce_pos_payment_requirements($phase) {
   $requirements = array();
   $payments_available = commerce_pos_get_payment_options();
   if ($phase == 'runtime') {
-    if($payments_available) {
+    if ($payments_available) {
       $requirements['commerce_pos_payment'] = array(
         'title' => t('Commerce Point of Sale Payment'),
         'severity' => REQUIREMENT_OK,
         'value' => t('Payment Methods Configured'),
       );
-    } else {
+    }
+    else {
       $link  = l(t('configure payment methods here.'), '/admin/commerce/config/custom-offline-payments');
       $requirements['commerce_pos_payment'] = array(
         'title' => t('Commerce Point of Sale Payment'),
         'severity' => REQUIREMENT_WARNING,
-        'value' => t("No payment methods configured. Enable Commerce POS Payments for default payment methods or !link", array ('!link' => $link)),
+        'value' => t("No payment methods configured. Enable Commerce POS Payments for default payment methods or !link", array('!link' => $link)),
       );
     }
   }

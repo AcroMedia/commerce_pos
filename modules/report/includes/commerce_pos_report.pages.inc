@@ -133,7 +133,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     t('Cash Deposit'),
   );
 
-
   // Get the float for the day.
   if (module_exists('commerce_pos_register')) {
     $float = commerce_pos_register_get_float($register_id, strtotime($date_filter));
@@ -195,12 +194,12 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
         }
       }
 
-      // Count group
+      // Count group.
       $row['title'] = array(
         '#markup' => $payment_method['title'],
       );
 
-      // Declared amount
+      // Declared amount.
       $declared = array(
         '#type' => 'textfield',
         '#size' => 5,
@@ -234,21 +233,21 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
         $row['declared']['#default_value'] = $report_history['data'][$payment_method_id]['declared'];
       }
 
-      // Expected amount
+      // Expected amount.
       $row[] = array(
         '#markup' => '<div class="commerce-pos-report-expected-amount" data-payment-method-id="' . $payment_method_id . '">'
-          . commerce_pos_report_currency_format($expected_amount, $currency_code)
-          . '</div>',
+        . commerce_pos_report_currency_format($expected_amount, $currency_code)
+        . '</div>',
       );
 
-      // Over/short
+      // Over/short.
       $row[] = array(
         '#markup' => '<div class="commerce-pos-report-balance" data-payment-method-id="' . $payment_method_id . '">'
-          . commerce_pos_report_currency_format(0, $currency_code)
-          . '</div>',
+        . commerce_pos_report_currency_format(0, $currency_code)
+        . '</div>',
       );
 
-      // Cash Deposit
+      // Cash Deposit.
       if ($is_cash) {
         $row['cash_deposit'] = array(
           '#type' => 'textfield',
@@ -328,7 +327,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
   return $form;
 }
-
 
 /**
  * @param $date_filter
@@ -507,6 +505,9 @@ function commerce_pos_report_end_of_day_save_submit($form, &$form_state) {
   }
 }
 
+/**
+ *
+ */
 function commerce_pos_report_exists($date, $register) {
   $query = db_select('commerce_pos_report_declared_data', 't')
     ->fields('t')
@@ -517,6 +518,9 @@ function commerce_pos_report_exists($date, $register) {
   return !empty($result);
 }
 
+/**
+ *
+ */
 function commerce_pos_report_get_eod_report($register, $date) {
   $time = strtotime($date);
 
@@ -547,7 +551,7 @@ function commerce_pos_report_get_eod_report($register, $date) {
 function commerce_pos_report_receipt_print($date, $register) {
   $commands = array();
 
-//  $transaction = CommercePosService::loadTransaction($transaction_id);
+  // $transaction = CommercePosService::loadTransaction($transaction_id);
   $receipt = theme('commerce_pos_report_receipt', array('date' => $date));
 
   $commands[] = array(
@@ -577,7 +581,7 @@ function commerce_pos_report_journal_role($form, &$form_state) {
     'results_per_page' => COMMERCE_POS_REPORT_JOURNAL_ROLE_DEFAULT_ITEMS_PER_PAGE,
   );
 
-  $query_params = drupal_get_query_parameters() +$query_filter_defaults;
+  $query_params = drupal_get_query_parameters() + $query_filter_defaults;
 
   $form['filters'] = array(
     '#type' => 'container',
@@ -763,7 +767,7 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
   $query->leftJoin('commerce_pos_cashier', 'cashier', 'cashier.cashier_id = t.cashier');
   $query->addField('cashier', 'name', 'cashier');
 
-  // Payment transaction data
+  // Payment transaction data.
   $query->join('commerce_payment_transaction', 'pt', 'pt.order_id = t.order_id');
   $query->fields('pt', array('transaction_id'));
 
@@ -840,7 +844,7 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
           break;
       }
 
-      // Build order ID link
+      // Build order ID link.
       $table_row[] = l($row->order_id, '/admin/commerce/pos/report/ajax/order-details/' . $row->order_id, array(
         'external' => TRUE,
         'attributes' => array(
@@ -851,21 +855,21 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
 
       $table_row[] = format_date($row->completed, 'custom', 'g:i a');
 
-      // Payment type
+      // Payment type.
       $table_row[] = commerce_pos_report_payment_types($row->order_id);
 
-      // Cashier
+      // Cashier.
       $table_row[] = $row->cashier;
 
       $table_row[] = !empty($row->customer_mail) ? $row->customer_mail : t('Anonymous');
 
-      // Purchased
+      // Purchased.
       $table_row[] = $purchase_count;
 
-      // Returned
+      // Returned.
       $table_row[] = $return_count;
 
-      // Discount flag
+      // Discount flag.
       $order_total_data = unserialize($row->commerce_order_total_data);
       $has_discount = FALSE;
 
@@ -880,7 +884,7 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
 
       $table_row[] = $has_discount ? '<span class="commerce-pos-report-ico-checked"></span>' : '';
 
-      // Order total
+      // Order total.
       $table_row[] = commerce_currency_format($row->commerce_order_total_amount, $row->commerce_order_total_currency_code);
 
       $rows[] = array(
@@ -909,7 +913,7 @@ function commerce_pos_report_build_journal_role_table($filters = array()) {
       }
     }
 
-    // Add a row for some totals
+    // Add a row for some totals.
     $order_totals_summary = array();
 
     foreach ($totals['order_total'] as $currency_code => $amount) {

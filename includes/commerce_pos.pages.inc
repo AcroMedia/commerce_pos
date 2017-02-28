@@ -1,12 +1,12 @@
 <?php
 
 /**
+ * @file
  * Page and form callbacks for the "frontend" side of commerce_pos.
  *
  * In this scenario, frontend simply means the actual POS terminal. Whereas
  * admin pages for the POS are considered backend.
  */
-
 
 /**
  * Page callback for the main POS page.

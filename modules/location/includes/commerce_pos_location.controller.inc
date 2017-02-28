@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file
+ */
+
+/**
+ *
+ */
 class CommercePosLocationEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 
   /**
@@ -41,4 +48,5 @@ class CommercePosLocationEntityController extends EntityAPIController implements
 
     return parent::save($location, $transaction);
   }
+
 }

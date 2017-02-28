@@ -1,6 +1,10 @@
 <?php
 
 /**
+ * @file
+ */
+
+/**
  * Implements hook_schema().
  */
 function commerce_pos_terminal_schema() {

@@ -58,19 +58,19 @@ function commerce_pos_register_commerce_pos_transaction_base_info() {
  */
 function commerce_pos_register_permission() {
   return array(
-    'administer commerce pos registers' =>  array(
+    'administer commerce pos registers' => array(
       'title' => t('Administer POS registers'),
     ),
-    'create commerce pos registers' =>  array(
+    'create commerce pos registers' => array(
       'title' => t('Create new POS registers'),
     ),
-    'view commerce pos registers' =>  array(
+    'view commerce pos registers' => array(
       'title' => t('View POS registers'),
     ),
-    'edit commerce pos registers' =>  array(
+    'edit commerce pos registers' => array(
       'title' => t('Edit POS registers'),
     ),
-    'delete commerce pos registers' =>  array(
+    'delete commerce pos registers' => array(
       'title' => t('Delete POS registers'),
     ),
   );
@@ -164,7 +164,7 @@ function commerce_pos_register_entity_property_info_alter(&$info) {
  */
 function commerce_pos_register_commerce_pos_transaction_state_alter(&$administrative_area, CommercePosTransaction $transaction) {
   if (!empty($transaction->registerId)) {
-    // Grab the location's administrative area from its address
+    // Grab the location's administrative area from its address.
     $location = commerce_pos_register_get_location_for_register($transaction->registerId);
     $location_wrapper = entity_metadata_wrapper('commerce_pos_location', $location);
 
@@ -358,8 +358,8 @@ function commerce_pos_register_load_multiple($register_ids = array(), $condition
  * URI callback for a commerce_pos_register entity.
  *
  * @return array
- * Registers do not currently need any kind of display URL, so this just returns
- * NULL.
+ *   Registers do not currently need any kind of display URL, so this just returns
+ *   NULL.
  */
 function commerce_pos_register_uri($register) {
   return array(
@@ -395,13 +395,16 @@ function commerce_pos_register_get_current_register() {
   return $register_id;
 }
 
+/**
+ *
+ */
 function commerce_pos_register_set_current_register($register_id) {
   $_SESSION['commerce_pos_register_id'] = $register_id;
 }
 
 /**
  * @param $register_id
- * @return Entity|NULL
+ * @return Entity|null
  *   A commerce_pos_location entity or NULL.
  */
 function commerce_pos_register_get_location_for_register($register_id) {
@@ -501,7 +504,7 @@ function commerce_pos_register_configure_registers() {
     field_create_instance($instance);
   }
 
-  // Default Float
+  // Default Float.
   $field_name = 'commerce_pos_default_float';
   $field = field_info_field($field_name);
   $instance = field_info_instance('commerce_pos_register', $field_name, 'commerce_pos_register');
@@ -641,7 +644,7 @@ function commerce_pos_register_add_float($register_id, $amount) {
 /**
  * Retrieves the current user's location ID, if they have one.
  *
- * @return int|FALSE
+ * @return int|false
  *   The ID of a commerce_pos_location entity or FALSE.
  */
 function commerce_pos_register_get_current_location() {

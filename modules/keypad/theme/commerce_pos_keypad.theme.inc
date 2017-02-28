@@ -2,7 +2,7 @@
 
 /**
  * @file
- * Theme callbacks for Commerce POS Cash Input
+ * Theme callbacks for Commerce POS Cash Input.
  */
 
 /**

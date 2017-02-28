@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_stock.rules_defaults.inc

@@ -4,6 +4,10 @@
  * @file
  * CommercePosReceiptBase.php
  */
+
+/**
+ *
+ */
 class CommercePosReceiptBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**

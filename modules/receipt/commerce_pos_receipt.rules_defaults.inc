@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_receipt.rules_defaults.inc
@@ -46,4 +47,3 @@ function commerce_pos_receipt_default_rules_configuration() {
   $configs['rules_commerce_pos_send_email_receipt'] = rules_import($rule);
   return $configs;
 }
-

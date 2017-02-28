@@ -92,7 +92,7 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
       $components[$component['name']]['title'] = $component['price']['data']['pos_discount_component_title'];
 
       if (empty($price['#commerce_pos_print']) && strpos($component['name'], 'pos_order_discount') !== FALSE) {
-        // add action button for removing order discount
+        // Add action button for removing order discount.
         $components[$component['name']]['action'] = '<a href="#" class="commerce-pos-remove-order-discount button-link small">' . t('remove') . '</a>';
       }
     }
@@ -119,6 +119,9 @@ function commerce_pos_discount_form_alter(&$form, &$form_state, $form_id) {
   }
 }
 
+/**
+ *
+ */
 function _commerce_pos_discount_payment_form_alter(&$form, $form_state) {
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_discount') . '/js/commerce_pos_discount.js';
 
@@ -127,7 +130,7 @@ function _commerce_pos_discount_payment_form_alter(&$form, $form_state) {
     'callback' => 'commerce_pos_payment_wrapper_js',
   );
 
-  if(isset($form['balance']) && isset($form['balance']['actions'])) {
+  if (isset($form['balance']) && isset($form['balance']['actions'])) {
     $form['balance']['actions']['remove_order_discount'] = array(
       '#type' => 'submit',
       '#value' => t('Remove Order Discount'),
@@ -202,12 +205,9 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           ),
         );
 
-        $line_item_element['discounts']['add_discount']['description'] = array(
-          //'#markup' => t('Discount:'),
-        );
-
         $discount_default_value = NULL;
-        if($discount_data && !empty($discount_data['amount'])){ // make sure 0 gets set as NULL
+        // Make sure 0 gets set as NULL.
+        if ($discount_data && !empty($discount_data['amount'])) {
           $discount_default_value = $discount_data['amount'];
         }
 
@@ -257,11 +257,11 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           }
 
           $line_item_element['discounts']['discount_description'] = array(
-              '#markup' => $discount_price,
-              '#prefix' => '<span class="discount-description">',
-              '#suffix' => '</span>',
-              '#line_item_id' => $line_item_id,
-              '#element_key' => 'discount-description',
+            '#markup' => $discount_price,
+            '#prefix' => '<span class="discount-description">',
+            '#suffix' => '</span>',
+            '#line_item_id' => $line_item_id,
+            '#element_key' => 'discount-description',
           );
 
           $line_item_element['discounts']['remove_discount'] = array(
@@ -285,7 +285,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
 
     // Add a section for order discounts.
     if (!empty($form['transaction_options']['actions'])) {
-      // add remove order discount hidden button
+      // Add remove order discount hidden button.
       $form['transaction_options']['actions']['remove_order_discount'] = array(
         '#type' => 'submit',
         '#value' => t('Remove Order Discount'),
@@ -324,7 +324,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
       if (!empty($form_state['triggering_element']['#element_key']) && $form_state['triggering_element']['#element_key'] == 'toggle-order-discount') {
         $discount_data = $form_state['transaction']->doAction('getExistingOrderDiscountAmount');
 
-        // change discount button to toggle
+        // Change discount button to toggle.
         $form['transaction_options']['actions']['discount']['#element_key'] = 'toggle-order-discount-hide';
 
         $form['transaction_options']['actions']['add_order_discount']['amount'] = array(
@@ -332,7 +332,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#type' => 'textfield',
           '#size' => 5,
           '#attributes' => array(
-              'autofocus' => 'autofocus',
+            'autofocus' => 'autofocus',
           ),
           '#default_value' => $discount_data ? $discount_data['amount'] : NULL,
           '#element_validate' => array('commerce_pos_discount_validate_order_discount'),
@@ -587,8 +587,11 @@ function commerce_pos_discount_wrapper_js($form, &$form_state) {
   return $form;
 }
 
-function commerce_pos_transaction_remove_order_discount_submit($form, &$form_state){
-  // setting a discount of 0 removes it
+/**
+ *
+ */
+function commerce_pos_transaction_remove_order_discount_submit($form, &$form_state) {
+  // Setting a discount of 0 removes it.
   $form_state['transaction']->doAction('addOrderDiscount', 'fixed', 0);
 
   $form_state['rebuild'] = TRUE;

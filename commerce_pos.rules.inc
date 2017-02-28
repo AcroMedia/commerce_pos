@@ -26,4 +26,3 @@ function commerce_pos_rules_event_info() {
     ),
   );
 }
-

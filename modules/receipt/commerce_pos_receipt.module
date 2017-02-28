@@ -15,7 +15,7 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
       'file' => 'commerce_pos_receipt.theme.inc',
       'path' => $path . '/theme',
       'variables' => array(
-        'transaction' => null,
+        'transaction' => NULL,
       ),
     ),
     'commerce_pos_receipt_order_info' => array(
@@ -111,12 +111,13 @@ function commerce_pos_receipt_rules_condition_info() {
 }
 
 /**
- * Callback for commerce_pos_receipt_rules condition
+ * Callback for commerce_pos_receipt_rules condition.
  */
 function commerce_pos_receipt_rules_condition_check_email_receipt($order) {
   $query = db_query('SELECT data FROM {commerce_pos_transaction} c
                       WHERE c.order_id = :order_id', array(
-    ':order_id' => $order->order_id));
+                        ':order_id' => $order->order_id
+));
   $result = $query->fetchAssoc();
 
   if ($result) {
@@ -258,7 +259,7 @@ function _commerce_pos_receipt_payment_form_alter(&$form, &$form_state) {
     ),
   );
 
-  //Adds the print option to the transaction data array.
+  // Adds the print option to the transaction data array.
   if (isset($form_state['values']['receipt_options'])) {
     if (strpos($form_state['values']['receipt_options'], 'Print') !== FALSE) {
       if (!in_array('print', $form_state['transaction']->data)) {
@@ -266,9 +267,9 @@ function _commerce_pos_receipt_payment_form_alter(&$form, &$form_state) {
       }
     }
     else {
-      //Remove print from the data array to prevent printing receipt.
+      // Remove print from the data array to prevent printing receipt.
       $key = array_search('print', $form_state['transaction']->data);
-      if ($key !== false) {
+      if ($key !== FALSE) {
         unset($form_state['transaction']->data[$key]);
       }
     }
@@ -395,7 +396,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
             $line_item->commerce_total->amount->raw(),
             $line_item->commerce_total->currency_code->raw(),
             $line_item
-          ) . $price_suffix,
+        ) . $price_suffix,
         'class' => array('component-total'),
       ),
     );
@@ -420,7 +421,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
                 $line_item->commerce_unit_price->amount->raw(),
                 $line_item->commerce_unit_price->currency_code->raw(),
                 $line_item
-              ) . $price_suffix,
+            ) . $price_suffix,
           )),
           'colspan' => 2,
         ),

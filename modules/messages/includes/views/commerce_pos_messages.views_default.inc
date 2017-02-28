@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * commerce_pos_messages.views_default.inc

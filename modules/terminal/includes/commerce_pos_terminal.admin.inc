@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Administrative forms for commerce_pos_terminal.
@@ -10,8 +11,10 @@
  * - Select which terminal service to use.
  * - Map the payment types provided by that service to payment methods known by
  * commerce_pos.
+ *
  * @param $form
  * @param $form_state
+ *
  * @return array
  */
 function commerce_pos_terminal_settings_form($form, &$form_state) {
@@ -113,7 +116,7 @@ function commerce_pos_terminal_settings_form($form, &$form_state) {
     '#type' => 'textfield',
     '#title' => t('Minimum wait for transaction request cleanup'),
     '#description' => t('The minimum amount of time in seconds to wait before removing a record from the list of pending requests.') .
-  '<br>' . t('This value should be longer than the maximum amount of time it could take a person to complete a transaction at the payment terminal or for the request to time out.') . '<br> ' . t('If not set, 15 minutes is used. Use -1 to never clean up.') . '<br>' . t('The cleanup occurs on cron so the actual time to clean up may be different.'),
+    '<br>' . t('This value should be longer than the maximum amount of time it could take a person to complete a transaction at the payment terminal or for the request to time out.') . '<br> ' . t('If not set, 15 minutes is used. Use -1 to never clean up.') . '<br>' . t('The cleanup occurs on cron so the actual time to clean up may be different.'),
     '#default_value' => variable_get('commerce_pos_terminal_transaction_cleanup_wait', COMMERCE_POS_TERMINAL_CLEANUP_WAIT_DEFAULT),
   );
 
@@ -127,6 +130,7 @@ function commerce_pos_terminal_settings_form($form, &$form_state) {
 
 /**
  * Validation callback for commerce_pos_terminal_settings_form().
+ *
  * @param $form
  * @param $form_state
  */
@@ -141,6 +145,7 @@ function commerce_pos_terminal_settings_form_validate($form, &$form_state) {
 
 /**
  * Submit handler for commerce_pos_terminal_settings_form().
+ *
  * @param $form
  * @param $form_state
  */
@@ -161,7 +166,7 @@ function commerce_pos_terminal_settings_form_submit($form, &$form_state) {
     'commerce_pos_terminal_transaction_cleanup_wait',
     'commerce_pos_terminal_pending_transaction_ping_timer',
     'commerce_pos_terminal_use_background_process',
-    ) as $setting) {
+  ) as $setting) {
     if (isset($form_state['values'][$setting])) {
       variable_set($setting, $form_state['values'][$setting]);
     }
@@ -172,8 +177,10 @@ function commerce_pos_terminal_settings_form_submit($form, &$form_state) {
 /**
  * Ajax callback for selecting a terminal service in
  * commerce_pos_terminal_settings_form().
+ *
  * @param $form
  * @param $form_state
+ *
  * @return array
  */
 function commerce_pos_terminal_settings_form_service_callback($form, $form_state) {
@@ -183,7 +190,9 @@ function commerce_pos_terminal_settings_form_service_callback($form, $form_state
 /**
  * Provide a value for the #options element of a form api element.
  * Provides terminal service options.
+ *
  * @param array $services
+ *
  * @return array
  */
 function commerce_pos_terminal_settings_service_options($services) {

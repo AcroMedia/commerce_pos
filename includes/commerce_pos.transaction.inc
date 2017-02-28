@@ -1,6 +1,5 @@
 <?php
 
-
 /**
  * @file
  * Common form-based functions for transactions.
@@ -36,7 +35,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
-  // Attach our CSS and JS
+  // Attach our CSS and JS.
   $form['#attached']['library'][] = array(
     'system',
     'ui.autocomplete',
@@ -288,7 +287,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#markup' => '</div>',
       );
 
-
       $line_item_element['add_remove_wrapper_open'] = array(
         '#markup' => '<div class="add-remove-wrapper line-item-col">',
       );
@@ -489,7 +487,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   if (!$has_active_transaction) {
     $transaction_options['actions']['pay']['#disabled'] = TRUE;
     $transaction_options['actions']['void']['#disabled'] = TRUE;
-    $transaction_options['actions']['park'] ['#disabled'] = TRUE;
+    $transaction_options['actions']['park']['#disabled'] = TRUE;
   }
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $wrapper_ajax, $has_active_transaction);
@@ -531,6 +529,9 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   }
 }
 
+/**
+ *
+ */
 function commerce_pos_transaction_void_payment_submit($form, &$form_state) {
   $transaction_id = $form_state['values']['transaction_options']['void_payment_text'];
 
@@ -609,7 +610,7 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
         case 'line-item-change-price':
           // First load the currency array.
           $currency = commerce_currency_load();
-          // strip anything from the input other than numbers or the currency decimal separator
+          // Strip anything from the input other than numbers or the currency decimal separator.
           $pattern = "/[^0-9" . $currency['decimal_separator'] . "]/";
           $triggering_element['#value'] = preg_replace($pattern, "", $triggering_element['#value']);
           $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value'] * 100);
@@ -681,7 +682,7 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
     // Attempt to associate the transaction with a customer.
     $email_address = $form_state['values']['transaction_options']['customer']['email'];
 
-    //Pass the phone number along to the payment form.
+    // Pass the phone number along to the payment form.
     if (isset($form_state['values']['transaction_options']['customer']['phone'])) {
       $form_state['transaction']->data['customer phone'] = $form_state['values']['transaction_options']['customer']['phone'];
     }

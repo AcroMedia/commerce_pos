@@ -1,9 +1,9 @@
 <?php
 
 /**
+ * @file
  * Callbacks specific to the POS login.
  */
-
 
 /**
  * Form callback for the custom POS login.
@@ -15,10 +15,10 @@ function commerce_pos_login($form, &$form_state) {
   }
 
   // Just return the normal login form for now. Will probably mess with this
-  // more later
+  // more later.
   $form = user_login($form, $form_state);
 
-  // Add module CSS
+  // Add module CSS.
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
   return $form;

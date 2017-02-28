@@ -67,7 +67,7 @@ function commerce_pos_report_theme($existing, $type, $theme, $path) {
       'file' => 'commerce_pos_report.theme.inc',
       'path' => $path . '/theme',
       'variables' => array(
-        'transaction' => null,
+        'transaction' => NULL,
       ),
     ),
     'commerce_pos_report_end_of_day_result_table' => array(
@@ -96,11 +96,11 @@ function commerce_pos_report_theme($existing, $type, $theme, $path) {
  */
 function commerce_pos_report_permission() {
   return array(
-    'view commerce pos reports' =>  array(
+    'view commerce pos reports' => array(
       'title' => t('View Commerce POS Report'),
       'description' => t('View reports provided by Commerce POS Report.'),
     ),
-    'administer commerce pos report' =>  array(
+    'administer commerce pos report' => array(
       'title' => t('Administer Commerce POS Report'),
       'description' => t('Perform administration tasks for Commerce POS Report.'),
     ),
@@ -368,7 +368,7 @@ function commerce_pos_report_end_of_day_timestamp($time = FALSE) {
  * @return string
  */
 function commerce_pos_report_payment_types($order_id) {
-  // Payment type
+  // Payment type.
   $payment_types = array();
   $payment_results = db_query('SELECT * FROM {commerce_payment_transaction} t WHERE t.order_id = :order_id', array(
     ':order_id' => $order_id,

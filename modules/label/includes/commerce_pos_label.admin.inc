@@ -5,6 +5,9 @@
  * Admin form and page callbacks for Commerce POS Labels.
  */
 
+/**
+ *
+ */
 function commerce_pos_label_labels_form_page() {
   global $user;
   $page = array();
@@ -179,7 +182,7 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
     );
   }
 
-  // Attach our CSS and JS
+  // Attach our CSS and JS.
   $form['#attached']['library'][] = array(
     'system',
     'ui.autocomplete',

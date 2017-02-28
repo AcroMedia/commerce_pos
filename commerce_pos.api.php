@@ -5,7 +5,6 @@
  * API documentation for commerce_pos.
  */
 
-
 /**
  * Allows modules to define custom POS Transaction Base classes.
  *
@@ -76,6 +75,7 @@ function hook_commerce_pos_transaction_state_alter(&$administrative_area, Commer
 
 /**
  * Allows modules to define payment options available in the Point of Sale.
+ *
  * @return array
  *   An array of payment options.
  *   Keys are arbitrary but module short name is suggested. Values are arrays
@@ -93,8 +93,10 @@ function hook_commerce_pos_payment_options_info() {
 
 /**
  * Allows modules to attempt to act on voiding a transaction.
+ *
  * @param $transaction
  *   A commerce payment transaction.
+ *
  * @return array
  *   An array with the following keys:
  *   - success: bool indicating the success of the void attempt.

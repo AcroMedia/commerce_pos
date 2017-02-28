@@ -6,8 +6,15 @@
  *
  * @TODO: most of the methods in the CommercePosTransaction class should be moved into here.
  */
+
+/**
+ *
+ */
 class CommercePosTransactionBaseActions extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
+  /**
+   *
+   */
   public function actions() {
     $actions = parent::actions();
 
@@ -29,6 +36,9 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     return $actions;
   }
 
+  /**
+   *
+   */
   public function events() {
     $events = parent::events();
     $events += array(
@@ -82,7 +92,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Creates a commerce order for this transaction.
    */
-  function createNewOrder() {
+  public function createNewOrder() {
     $transaction = $this->transaction;
 
     if (!empty($transaction->orderId)) {
@@ -259,7 +269,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
         $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
         $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
 
-        // Change the base_price
+        // Change the base_price.
         $unit_price['amount'] = $price;
         $unit_price['data']['components'][0]['amount'] = $price;
 
@@ -276,7 +286,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Updates the quantity of a line item in the transactions' order.
    */
-  function updateLineItemQuantity($line_item_id, $qty, $method = 'replace') {
+  public function updateLineItemQuantity($line_item_id, $qty, $method = 'replace') {
     if ($order = $this->transaction->getOrder()) {
       $line_item = commerce_line_item_load($line_item_id);
       $existing_qty = $line_item->quantity;
@@ -289,7 +299,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       }
 
       // Make sure the line item actually belongs to the order.
-      if ($new_qty > 0 && ($line_item->order_id == $order->order_id) && ((int)$existing_qty != $new_qty)) {
+      if ($new_qty > 0 && ($line_item->order_id == $order->order_id) && ((int) $existing_qty != $new_qty)) {
         $line_item->quantity = $new_qty;
         commerce_line_item_save($line_item);
         $this->transaction->invokeEvent('lineItemUpdated');
@@ -469,7 +479,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
    *   data from the incoming line item, giving precedence to the most recent data.
    *
    * @return null The new or updated line item object or FALSE on failure.
-   * The new or updated line item object or FALSE on failure.
+   *   The new or updated line item object or FALSE on failure.
    *
    * @throws \EntityMetadataWrapperException
    * @throws \Exception
@@ -580,10 +590,11 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
     // Invoke the product add event with the newly saved or updated line item.
     // @TODO: should we invoke this? Thinking no.
-    //rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);
+    // rules_invoke_all('commerce_cart_product_add', $order, $product, $quantity, $line_item);.
 
     // Return the line item.
     $this->transaction->invokeEvent('lineItemUpdated');
     return $line_item;
   }
+
 }

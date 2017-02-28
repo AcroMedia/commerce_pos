@@ -136,10 +136,13 @@ function commerce_pos_location_update_7202(&$sandbox) {
 
   // Database updates for report submodule.
   if (module_exists('commerce_pos_report')) {
-   commerce_pos_location_update_report_location_id_to_register_id($sandbox);
+    commerce_pos_location_update_report_location_id_to_register_id($sandbox);
   }
 }
 
+/**
+ *
+ */
 function commerce_pos_location_update_7202_create_registers(&$sandbox) {
   // Create register for every location (attach registers to locations).
   $results = db_select('commerce_pos_location', 'cpl')

@@ -7,7 +7,6 @@
  * Available variables:
  *   - $form: The form API array.
  */
-
 ?>
 
 <?php print render($form['header']); ?>

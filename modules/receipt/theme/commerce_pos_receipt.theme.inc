@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Theme callbacks and preprocess hooks for commerce_pos_receipt.
  */
 

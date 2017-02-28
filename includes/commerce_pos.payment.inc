@@ -1,6 +1,7 @@
 <?php
 
 /**
+ * @file
  * Payment functionality for POS returns and sales.
  */
 
@@ -60,7 +61,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   if (empty($payment_options)) {
     $link = l(t('click here'), '/admin/commerce/config/custom-offline-payments');
     drupal_set_message(t('No payment options have been configured for the POS! Enable Commerce POS Payment for default payment methods or !link to configure a payment method.',
-      array ('!link' => $link)), 'error');
+      array('!link' => $link)), 'error');
   }
 
   if (!isset($form_state['transaction'])) {
@@ -398,16 +399,16 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
   if (!is_numeric($form_state['values']['keypad']['amount'])) {
     form_set_error('keypad][amount', t('Payment amount must be a number.'));
   }
-  if ($form_state['transaction']->type === 'return'){
+  if ($form_state['transaction']->type === 'return') {
     $keyed_amount = $form_state['values']['keypad']['amount'] * 100;
     $order_amount = $form_state['transaction']->getOrderWrapper()->commerce_order_total->amount->value();
     $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $form_state['transaction']->getOrderWrapper()->order_id->value()));
-    foreach($payments as $payment) {
-      if($payment->status !== 'void') {
+    foreach ($payments as $payment) {
+      if ($payment->status !== 'void') {
         $order_amount -= $payment->amount;
       }
     }
-    if($keyed_amount > $order_amount) {
+    if ($keyed_amount > $order_amount) {
       form_set_error('keypad][amount', t('Refund must not be greater than order total.'));
     }
   }
@@ -503,6 +504,7 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
 
           drupal_set_message(t('Transaction @id retrieved.', array('@id' => $parked_transaction->transactionId)));
           break;
+
         case 'park-transaction':
           $transaction->doAction('park');
           unset($form_state['transaction']);
@@ -554,6 +556,7 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
  * payment transactions on it.
  *
  * @param CommercePosTransaction $transaction
+ *
  * @return bool
  */
 function commerce_pos_void_transaction_validate($transaction) {

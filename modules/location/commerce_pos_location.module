@@ -27,19 +27,19 @@ function commerce_pos_location_menu() {
  */
 function commerce_pos_location_permission() {
   return array(
-    'administer commerce pos locations' =>  array(
+    'administer commerce pos locations' => array(
       'title' => t('Administer POS locations'),
     ),
-    'create commerce pos locations' =>  array(
+    'create commerce pos locations' => array(
       'title' => t('Create new POS locations'),
     ),
-    'view commerce pos locations' =>  array(
+    'view commerce pos locations' => array(
       'title' => t('View POS locations'),
     ),
-    'edit commerce pos locations' =>  array(
+    'edit commerce pos locations' => array(
       'title' => t('Edit POS locations'),
     ),
-    'delete commerce pos locations' =>  array(
+    'delete commerce pos locations' => array(
       'title' => t('Delete POS locations'),
     ),
   );

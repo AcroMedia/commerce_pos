@@ -32,7 +32,7 @@ function commerce_pos_label_menu() {
  */
 function commerce_pos_label_permission() {
   return array(
-    'commerce pos print labels' =>  array(
+    'commerce pos print labels' => array(
       'title' => t('Print product labels'),
     ),
     'administer commerce pos labels' => array(

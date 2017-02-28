@@ -5,6 +5,9 @@
  * CommercePosCashierBase.php
  */
 
+/**
+ *
+ */
 class CommercePosCashierBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
@@ -27,4 +30,5 @@ class CommercePosCashierBase extends CommercePosTransactionBase implements Comme
   public function logOutCashier() {
     commerce_pos_cashier_clear_current_cashier();
   }
+
 }

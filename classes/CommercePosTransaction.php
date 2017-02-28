@@ -5,6 +5,9 @@
  * PosTransaction class definition.
  */
 
+/**
+ *
+ */
 class CommercePosTransaction {
 
   const TABLE_NAME = 'commerce_pos_transaction';
@@ -76,6 +79,7 @@ class CommercePosTransaction {
    *
    * @return mixed
    *   Whatever the result of the invoked method is.
+   *
    * @throws \Exception
    */
   public function doAction($action_name) {
@@ -384,4 +388,5 @@ class CommercePosTransaction {
       }
     }
   }
+
 }

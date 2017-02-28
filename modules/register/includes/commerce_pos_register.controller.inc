@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * @file
+ */
+
+/**
+ *
+ */
 class CommercePosRegisterEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 
   /**
@@ -41,4 +48,5 @@ class CommercePosRegisterEntityController extends EntityAPIController implements
 
     return parent::save($register, $transaction);
   }
+
 }

@@ -4,6 +4,9 @@
  * @file
  */
 
+/**
+ *
+ */
 class CommercePosRegisterBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
@@ -29,4 +32,5 @@ class CommercePosRegisterBase extends CommercePosTransactionBase implements Comm
       }
     }
   }
+
 }

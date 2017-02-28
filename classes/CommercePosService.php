@@ -5,6 +5,9 @@
  * PosService class definition.
  */
 
+/**
+ *
+ */
 class CommercePosService {
   const TRANSACTION_TYPE_SALE = 'sale';
   const TRANSACTION_TYPE_RETURN = 'return';
@@ -66,8 +69,8 @@ class CommercePosService {
   public static function getOrderTransaction($order_id) {
     $result = db_query('SELECT transaction_id FROM {commerce_pos_transaction}
       WHERE order_id = :order_id', array(
-      ':order_id' => $order_id,
-    ));
+        ':order_id' => $order_id,
+      ));
 
     if ($transaction_id = $result->fetchField()) {
       return self::loadTransaction($transaction_id);
@@ -163,4 +166,5 @@ class CommercePosService {
       self::TRANSACTION_TYPE_RETURN => t('Return'),
     );
   }
+
 }

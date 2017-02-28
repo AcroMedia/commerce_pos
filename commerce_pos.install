@@ -211,10 +211,10 @@ function commerce_pos_update_7203() {
 }
 
 /**
- * Update location_id to register_id
+ * Update location_id to register_id.
  */
 function commerce_pos_update_7204() {
-  if(!db_field_exists('commerce_pos_transaction', 'register_id')) {
+  if (!db_field_exists('commerce_pos_transaction', 'register_id')) {
     $spec = array(
       'description' => 'The physical register that this transaction was performed at.',
       'type' => 'int',
