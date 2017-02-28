@@ -212,11 +212,27 @@ function commerce_pos_label_attributes_string($product) {
     $wrapper = entity_metadata_wrapper('commerce_product', $product);
 
     foreach ($attribute_fields as $field_name) {
-      $field_info = field_info_instance('commerce_product', $field_name, $product->type);
+      if (isset($wrapper->{$field_name}) && $attribute_value = $wrapper->{$field_name}->raw()) {
+        // Values of fields can be a string, taxonomy term, or other unexpected
+        // data types. We don't necessarily know how to render those as a string
+        // but any field that is a commerce_cart attribute field must implement
+        // hook_options_list, and we can use those options to get a
+        // human-readable string for the field.
+        $field = field_info_field($field_name);
+        $field_info = field_info_instance('commerce_product', $field_name, $product->type);
+        $properties = _options_properties('select', FALSE, TRUE, TRUE);
+        $options = _options_get_options($field, $field_info, $properties, 'commerce_product', $product);
 
-      if (isset($wrapper->{$field_name}) && $attribute_value = $wrapper->{$field_name}->value()) {
+        // Despite multi-value fields not being eligible to be attribute fields,
+        // a user could configure them as one anyway.
         if (is_array($attribute_value)) {
+          $attribute_value = array_map(function ($item) use ($options) {
+            return $options[$item];
+          }, $attribute_value);
           $attribute_value = implode(', ', $attribute_value);
+        }
+        else {
+          $attribute_value = $options[$attribute_value];
         }
 
         $attributes[] = $field_info['label'] . ': ' . $attribute_value;
