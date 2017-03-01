@@ -21,7 +21,7 @@ function commerce_pos_receipt_settings($form, &$form_state) {
     '#type' => 'checkboxes',
     '#title' => t('Visible payment transaction statuses'),
     '#options' => $status_options,
-    '#default_value' => variable_get('commerce_pos_receipt_visible_payment_status', array('success', 'void')),
+    '#default_value' => variable_get('commerce_pos_receipt_visible_payment_status', array(COMMERCE_PAYMENT_STATUS_SUCCESS, COMMERCE_PAYMENT_STATUS_VOID)),
     '#multiple' => TRUE,
     '#description' => t('The payment statuses that should show up on a receipt'),
   );

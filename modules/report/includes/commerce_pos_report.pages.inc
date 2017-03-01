@@ -373,7 +373,7 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
   $transaction_counts = array();
   $transaction_summary = array();
 
-  $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array('success', 'void'));
+  $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array(COMMERCE_PAYMENT_STATUS_SUCCESS, COMMERCE_PAYMENT_STATUS_VOID));
   $statuses = commerce_payment_transaction_statuses();
 
   foreach ($query->execute() as $row) {
