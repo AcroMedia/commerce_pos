@@ -235,7 +235,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Retrieves a specific line item from the transaction's order.
    *
-   * @param $line_item_id
+   * @param int $line_item_id
    *   The line ID to look for in the order.
    *
    * @return bool|object
@@ -349,8 +349,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   }
 
   /**
-   * Completes a transaction by updating its order status and make any other
-   * adjustments as needed.
+   * Completes a transaction by updating its order status and make any other adjustments as needed.
    */
   public function completeTransaction() {
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
@@ -454,7 +453,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Adds the specified product to the transaction's order.
    *
-   * @param $line_item
+   * @param object $line_item
    *   An unsaved product line item to be added to the cart with the following data
    *   on the line item being used to determine how to add the product to the cart:
    *   - $line_item->commerce_product: reference to the product to add to the cart.
@@ -469,7 +468,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
    *   whether or not line items can be combined in the cart. This includes the
    *   line item type, referenced product, and any line item fields that have been
    *   exposed on the Add to Cart form.
-   * @param $combine
+   * @param bool $combine
    *   Boolean indicating whether or not to combine like products on the same line
    *   item, incrementing an existing line item's quantity instead of adding a
    *   new line item to the cart order. When the incoming line item is combined
@@ -478,7 +477,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
    *   will be updated by merging the data from the existing line item onto the
    *   data from the incoming line item, giving precedence to the most recent data.
    *
-   * @return null The new or updated line item object or FALSE on failure.
+   * @return null
    *   The new or updated line item object or FALSE on failure.
    *
    * @throws \EntityMetadataWrapperException

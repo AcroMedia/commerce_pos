@@ -12,7 +12,7 @@ class CommercePosService {
   const TRANSACTION_TYPE_SALE = 'sale';
   const TRANSACTION_TYPE_RETURN = 'return';
 
-  static $transactions = array();
+  static private $transactions = array();
 
   /**
    * Retrieves the current POS transaction for a user.
@@ -27,6 +27,8 @@ class CommercePosService {
    *   If TRUE, the static cache will be reset.
    *
    * @return object|bool
+   *   The current transaction if available or false if not available
+   *
    */
   public static function getCurrentTransaction($type, $uid, $reset = FALSE) {
     $current_transactions = &drupal_static('commerce_pos_current_transactions', array());
@@ -88,8 +90,7 @@ class CommercePosService {
   }
 
   /**
-   * Retrieves a list of all POS transactions for a user that are either parked
-   * or are currently being created.
+   * Retrieves all POS transactions for a user that are either parked or are currently being created.
    *
    * @param int $uid
    *   The user ID to retrieve transactions for.
@@ -97,6 +98,7 @@ class CommercePosService {
    *   If TRUE, the static cache will be reset.
    *
    * @return array
+   *   all the current active transaction ids, grouped by type and status
    */
   protected static function getAllActiveTransactions($uid, $reset = FALSE) {
     $transactions = &drupal_static('commerce_pos_all_active_transactions', array());
@@ -142,8 +144,7 @@ class CommercePosService {
   }
 
   /**
-   * Retrieves a list of commerce_product types that can be added to a POS
-   * transaction.
+   * Retrieves a list of commerce_product types that can be added to a POS transaction.
    */
   public static function allowedProductTypes() {
     $types = array();

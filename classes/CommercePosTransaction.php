@@ -32,10 +32,14 @@ class CommercePosTransaction {
   /**
    * Constructor.
    *
-   * @param $transaction_id
-   * @param $type
-   * @param $uid
-   * @param $cashier
+   * @param int $transaction_id
+   *   The transaction id to pass in loading an existing transaction
+   * @param string $type
+   *   the type of transaction you want to load
+   * @param int $uid
+   *   The uid of the transaction you want to load
+   * @param int $cashier
+   *   The id of the cashier you want to load the transaction of
    *
    * @throws \Exception
    */

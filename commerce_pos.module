@@ -16,7 +16,7 @@ function commerce_pos_menu() {
 
   $items['admin/commerce/pos'] = array(
     'title' => 'Point of Sale',
-    'description' => t('Carry out in-person retail transactions.'),
+    'description' => 'Carry out in-person retail transactions.',
     'page callback' => 'commerce_pos_redirect',
     'access arguments' => array(
       array(
@@ -581,10 +581,11 @@ function commerce_pos_cop_edit_form_submit($form, &$form_state) {
 /**
  * Page callback: Displays the POS user interface.
  *
- * @param $form_id
+ * @param int $form_id
  *   The ID of the form to load.
  *
  * @return array
+ *   renderable array
  */
 function commerce_pos_page($form_id = NULL) {
   global $user;
@@ -657,6 +658,10 @@ function commerce_pos_enable_payment_method($method_id) {
 
 /**
  * Disables a Commerce Custom Offline Payment method from use in the POS.
+ *
+ * @param int $method_id
+ *   COP method to be disabled
+ *
  */
 function commerce_pos_disable_payment_method($method_id) {
   $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
@@ -749,10 +754,10 @@ function commerce_pos_user_phone_number_configure() {
 /**
  * Returns a sorted array of POS balance table rows.
  *
- * @param $totals
+ * @param array $totals
  *   An array of payment totals whose keys are currency codes and values are the
  *     total amount paid in each currency.
- * @param $order
+ * @param object $order
  *   If available, the order object to which the payments apply.
  *
  * @return array
@@ -946,6 +951,10 @@ function commerce_pos_empty_order_format_total(array $currency_code = NULL) {
 
 /**
  * Builds an array of product data for the product autocomplete.
+ *
+ * @param int $product_id
+ *   product id of the product to build
+ *
  */
 function _commerce_pos_product_autocomplete_build($product_id) {
   $data = FALSE;
