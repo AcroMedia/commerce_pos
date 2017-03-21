@@ -556,10 +556,12 @@ function commerce_pos_payment_ajax_check($form, &$form_state) {
  * payment transactions on it.
  *
  * @param CommercePosTransaction $transaction
+ *   The transaction object to validate.
  *
  * @return bool
+ *   Whether the transaction is valid or not.
  */
-function commerce_pos_void_transaction_validate($transaction) {
+function commerce_pos_void_transaction_validate(CommercePosTransaction $transaction) {
   $valid = TRUE;
   $order = $transaction->getOrder();
 

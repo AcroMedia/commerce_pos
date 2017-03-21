@@ -50,7 +50,7 @@ function hook_commerce_pos_transaction_base_info() {
  *   The element that triggered the AJAX submission. Available directly in the
  *   $form_state variable, but provided for ease-of-use.
  */
-function hook_commerce_pos_sale_form_ajax_alter(&$form_state, $triggering_element) {
+function hook_commerce_pos_sale_form_ajax_alter(array &$form_state, array $triggering_element) {
 
 }
 
@@ -94,7 +94,7 @@ function hook_commerce_pos_payment_options_info() {
 /**
  * Allows modules to attempt to act on voiding a transaction.
  *
- * @param $transaction
+ * @param CommercePosTransaction $transaction
  *   A commerce payment transaction.
  *
  * @return array
@@ -102,7 +102,7 @@ function hook_commerce_pos_payment_options_info() {
  *   - success: bool indicating the success of the void attempt.
  *   - message: Optional string.
  */
-function hook_commerce_pos_void_payment_transaction($transaction) {
+function hook_commerce_pos_void_payment_transaction(CommercePosTransaction $transaction) {
   $voided = commerce_pos_void_transaction_example($transaction);
   return array(
     'success' => $voided,
@@ -115,10 +115,10 @@ function hook_commerce_pos_void_payment_transaction($transaction) {
 /**
  * Allows modules to change/add to the links output in the POS header.
  *
- * @param $links
+ * @param array $links
  *   An array of links. The key is the path and the value is the title of the
  *   link.
  */
-function hook_commerce_pos_header_links_alter(&$links) {
+function hook_commerce_pos_header_links_alter(array &$links) {
   $links['admin/commerce/pos/sales'] = t('Sales');
 }

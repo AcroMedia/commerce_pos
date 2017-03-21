@@ -530,7 +530,7 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
 }
 
 /**
- *
+ * Submit handler for voiding a payment.
  */
 function commerce_pos_transaction_void_payment_submit($form, &$form_state) {
   $transaction_id = $form_state['values']['transaction_options']['void_payment_text'];

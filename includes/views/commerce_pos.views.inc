@@ -2,14 +2,11 @@
 
 /**
  * @file
+ * Setup for transactions views data.
  */
 
 /**
  * Implements hook_views_data().
- */
-
-/**
- *
  */
 function commerce_pos_views_data() {
   $data['commerce_pos_transaction']['table']['group'] = t('Commerce POS Transaction');

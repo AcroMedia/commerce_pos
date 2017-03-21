@@ -18,7 +18,7 @@
     <?php print $image; ?>
   </div>
   <div class="display-add">
-    <?php print l('+', '', array(
+    <?php print l(t('+'), '', array(
       'fragment' => '#',
       'external' => TRUE,
       'attributes' => array(

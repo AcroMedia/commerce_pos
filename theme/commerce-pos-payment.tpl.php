@@ -5,7 +5,7 @@
  * Default template for the POS "Pay" form.
  *
  * Available variables:
- *  $form
+ *  $form - Render array of the POS payment form.
  */
 ?>
 
