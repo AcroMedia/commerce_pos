@@ -83,7 +83,7 @@
       _this.click(function() {
         var _this = $(this);
 
-        if (_this.data('keybind')) {
+        if (_this.data('keybind') !== undefined) {
           self.output += _this.data('keybind');
         }
 
