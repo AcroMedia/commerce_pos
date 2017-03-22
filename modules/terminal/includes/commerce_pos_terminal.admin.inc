@@ -99,7 +99,7 @@ function commerce_pos_terminal_settings_form($form, &$form_state) {
     '#type' => 'checkbox',
     '#title' => t('Process transactions in background process'),
     '#description' => t('Use Background Process to process transactions. Helps avoid timeouts. Requires the !url module.', array(
-      '!url' => l('Background Process', 'https://www.drupal.org/project/background_process'),
+      '!url' => l(t('Background Process'), 'https://www.drupal.org/project/background_process'),
     )),
     '#default_value' => variable_get('commerce_pos_terminal_use_background_process'),
     '#disabled' => !module_exists('background_process'),
@@ -175,8 +175,7 @@ function commerce_pos_terminal_settings_form_submit($form, &$form_state) {
 }
 
 /**
- * Ajax callback for selecting a terminal service in
- * commerce_pos_terminal_settings_form().
+ * Ajax callback for selecting a terminal service in commerce_pos_terminal_settings_form().
  *
  * @param $form
  * @param $form_state
@@ -189,20 +188,23 @@ function commerce_pos_terminal_settings_form_service_callback($form, $form_state
 
 /**
  * Provide a value for the #options element of a form api element.
+ *
  * Provides terminal service options.
  *
  * @param array $services
+ *   List of services to load options for.
  *
  * @return array
+ *   available service options
  */
-function commerce_pos_terminal_settings_service_options($services) {
+function commerce_pos_terminal_settings_service_options(array $services) {
   $options = array();
 
   foreach ($services as $service => $service_info) {
     $options[$service_info['name']] = $service_info['label'];
 
     if (isset($service_info['configure'])) {
-      $options[$service_info['name']] .= ' (' . l('configure', $service_info['configure']) . ')';
+      $options[$service_info['name']] .= ' (' . l(t('configure'), $service_info['configure']) . ')';
     }
   }
 

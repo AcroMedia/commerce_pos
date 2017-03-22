@@ -202,6 +202,7 @@ function commerce_pos_label_attribute_fields($type, $reset = FALSE) {
  *   The product to generate the attribute string for.
  *
  * @return string
+ *   Product attributes imploded into a comma separated string
  */
 function commerce_pos_label_attributes_string($product) {
   $attribute_fields = commerce_pos_label_attribute_fields($product->type);

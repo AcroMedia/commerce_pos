@@ -62,7 +62,6 @@ function commerce_pos_label_barcode_commerce_pos_label_format_info_alter(&$forma
  *
  * @param object $product
  *   The Commerce Product to generate a barcode for.
- *
  * @param array $format
  *   A label format array, as provided by hook_commerce_pos_label_format_info().
  *
@@ -70,7 +69,7 @@ function commerce_pos_label_barcode_commerce_pos_label_format_info_alter(&$forma
  *   A string with the image data for a barcode, or FALSE if the bar code could
  *   not be generated.
  */
-function commerce_pos_label_barcode_generate($product, $format) {
+function commerce_pos_label_barcode_generate($product, array $format) {
   $generator = new BarcodeGeneratorPNG();
   $product_wrapper = entity_metadata_wrapper('commerce_product', $product);
   $upc_field = variable_get('commerce_pos_label_barcode_upc_field_' . $product->type, FALSE);

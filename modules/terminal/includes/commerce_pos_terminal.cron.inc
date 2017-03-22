@@ -47,6 +47,7 @@ function commerce_pos_terminal_request_cleanup($time = NULL) {
 
 /**
  * Perform cleanup on a request.
+ *
  * - Modify the transaction referred to by the record if necessary.
  * - Decide if the record should be deleted.
  *

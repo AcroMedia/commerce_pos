@@ -181,7 +181,7 @@ function commerce_pos_report_preprocess_commerce_pos_report_order_details(&$vari
   $variables['order_total'] = commerce_pos_report_build_price_array($order_total, $transaction->type);
 
   if (module_exists('commerce_pos_receipt')) {
-    $variables['print_link'] = l('Print View', 'admin/commerce/pos/' . $transaction->transactionId . '/print-receipt', array(
+    $variables['print_link'] = l(t('Print View'), 'admin/commerce/pos/' . $transaction->transactionId . '/print-receipt', array(
       'attributes' => array(
         'class' => array('use-ajax'),
       ),

@@ -21,6 +21,7 @@ class CommercePosReceiptBase extends CommercePosTransactionBase implements Comme
 
   /**
    * Stores the transaction's ID in the session.
+   *
    * This is used so that we can add "Print previous transaction receipt" links
    * on various forms.
    */

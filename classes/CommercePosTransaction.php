@@ -33,13 +33,13 @@ class CommercePosTransaction {
    * Constructor.
    *
    * @param int $transaction_id
-   *   The transaction id to pass in loading an existing transaction
+   *   The transaction id to pass in loading an existing transaction.
    * @param string $type
-   *   the type of transaction you want to load
+   *   The type of transaction you want to load.
    * @param int $uid
-   *   The uid of the transaction you want to load
+   *   The uid of the transaction you want to load.
    * @param int $cashier
-   *   The id of the cashier you want to load the transaction of
+   *   The id of the cashier you want to load the transaction of.
    *
    * @throws \Exception
    */
@@ -74,8 +74,6 @@ class CommercePosTransaction {
   }
 
   /**
-   * // @TODO: this needs to be documented better.
-   *
    * @param string $action_name
    *   The name of the action to invoke.
    * @param ...
@@ -94,8 +92,7 @@ class CommercePosTransaction {
   }
 
   /**
-   * Allows Base Classes to notify other Base Classes when specific events
-   * occur.
+   * Allows Base Classes to notify other Base Classes when specific events occur.
    *
    * This will invoke the defined methods of any base classes that have
    * subscribed to specific events.
@@ -213,8 +210,8 @@ class CommercePosTransaction {
 
   /**
    *
-   * @param $action_name
-   * @param $arguments
+   * @param string $action_name
+   * @param array $arguments
    *
    * @return
    *    The results of the invoked action, throws exception on error

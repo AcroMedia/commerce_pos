@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Callback to generate the print labels page.
  */
 function commerce_pos_label_labels_form_page() {
   global $user;

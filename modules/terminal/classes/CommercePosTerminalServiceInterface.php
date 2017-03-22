@@ -18,7 +18,7 @@ interface CommercePosTerminalServiceInterface {
   /**
    * Create a new purchase transaction.
    *
-   * @param $transaction
+   * @param object $transaction
    *   A commerce transaction.
    *
    * @return object
@@ -29,7 +29,7 @@ interface CommercePosTerminalServiceInterface {
   /**
    * Create a new refund transaction.
    *
-   * @param $transaction
+   * @param object $transaction
    *   A commerce transaction.
    *
    * @return object
@@ -40,7 +40,7 @@ interface CommercePosTerminalServiceInterface {
   /**
    * Create a new void transaction.
    *
-   * @param $transaction
+   * @param object $transaction
    *   A commerce transaction.
    *
    * @return array
@@ -52,6 +52,7 @@ interface CommercePosTerminalServiceInterface {
 
   /**
    * Called after the commerce transaction is saved.
+   *
    * Useful to a service that needs, for example, to send a message that the
    * transaction was committed.
    */
@@ -60,7 +61,7 @@ interface CommercePosTerminalServiceInterface {
   /**
    * Set the location for the transaction.
    *
-   * @param $location_id
+   * @param int $location_id
    *
    * @return $this
    */
@@ -69,7 +70,7 @@ interface CommercePosTerminalServiceInterface {
   /**
    * Set the register for the transaction.
    *
-   * @param $register_id
+   * @param int $register_id
    *
    * @return $this
    */

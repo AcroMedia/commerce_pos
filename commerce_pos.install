@@ -206,7 +206,7 @@ function commerce_pos_update_7203() {
   module_enable(array('commerce_pos_cashier'));
 
   return $t('This Point of Sale update introduces Cashiers, which are required to operate the POS. Please go !link to add one or more now.', array(
-    '!link' => l('here', 'admin/commerce/config/pos/cashiers'),
+    '!link' => l(t('here'), 'admin/commerce/config/pos/cashiers'),
   ));
 }
 

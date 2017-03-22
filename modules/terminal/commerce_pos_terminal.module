@@ -213,12 +213,12 @@ function commerce_pos_terminal_payment_submit($form, &$form_state) {
 /**
  * Process a sale or refund transaction.
  *
- * @param $submit_function
+ * @param string $submit_function
  *   The function to call to send the payment or refund request.
- * @param $transaction
+ * @param object $transaction
  *   A commerce payment transaction.
- * @param $location_id
- * @param $register_id
+ * @param int $location_id
+ * @param int $register_id
  */
 function commerce_pos_terminal_process_payment($submit_function, $transaction, $location_id = NULL, $register_id = NULL) {
   try {
@@ -258,10 +258,10 @@ function commerce_pos_terminal_process_payment($submit_function, $transaction, $
  * Submit handler for making a sale payment through the Terminal functionality.
  *
  * @param CommercePosTerminalServiceInterface $service
- * @param $transaction
+ * @param object $transaction
  *   A commerce transaction.
  */
-function commerce_pos_terminal_sale_payment_submit($service, $transaction) {
+function commerce_pos_terminal_sale_payment_submit(CommercePosTerminalServiceInterface $service, $transaction) {
   $service->purchase($transaction);
 }
 
@@ -269,7 +269,7 @@ function commerce_pos_terminal_sale_payment_submit($service, $transaction) {
  * Submit handler for making a refund through the Terminal functionality.
  *
  * @param CommercePosTerminalServiceInterface $service
- * @param $transaction
+ * @param object $transaction
  *   A commerce transaction.
  */
 function commerce_pos_terminal_return_payment_submit($service, $transaction) {
@@ -399,15 +399,16 @@ function commerce_pos_terminal_services_info() {
 }
 
 /**
- * Look up the class for the terminal service. Loads from configuration unless
- * an array of service information is provided.
+ * Look up the class for the terminal service.
+ *
+ * Loads from configuration unless an array of service information is provided.
  * Includes the required file if necessary.
  *
  * @param array $service
  *
  * @return CommercePosTerminalServiceInterface|string
  */
-function commerce_pos_terminal_get_service_class($service = array()) {
+function commerce_pos_terminal_get_service_class(array $service = array()) {
   if (empty($service)) {
     $service = variable_get('commerce_pos_terminal_service');
   }
@@ -425,12 +426,13 @@ function commerce_pos_terminal_get_service_class($service = array()) {
 
 /**
  * Load a class implementing the CommercePosTerminalServiceInterface interface.
+ *
  * Loads a provided service, otherwise loads the configured service.
- * Returns FALSE if unable to load the class.
  *
  * @param string $class
  *
  * @return CommercePosTerminalServiceInterface|false
+ *   False if unable to load object
  */
 function commerce_pos_terminal_service_load($class = '') {
   if (!$class) {
@@ -457,9 +459,10 @@ function commerce_pos_terminal_service_enabled() {
 /**
  * Write a record to the pending transaction request table.
  *
- * @param $transaction
- * @param $order_id
- * @param $register_id
+ * @param object $transaction
+ *   A commerce_payment_transaction.
+ * @param int $order_id
+ * @param int $register_id
  *
  * @return int
  *   The id of the inserted record.
@@ -479,7 +482,7 @@ function commerce_pos_terminal_add_pending_transaction($transaction, $order_id, 
 /**
  * Update the status of a pending transaction request.
  *
- * @param $transaction
+ * @param object $transaction
  *   A commerce_payment_transaction.
  */
 function commerce_pos_terminal_update_pending_transaction($transaction) {
@@ -510,7 +513,7 @@ function commerce_pos_terminal_payment_method_for_type($type) {
 /**
  * Get pending payment terminal transaction requests for an order.
  *
- * @param $order_id
+ * @param int $order_id
  *
  * @return array
  *   An array of transaction ids.
@@ -531,10 +534,9 @@ function commerce_pos_terminal_get_pending_transactions($order_id) {
 }
 
 /**
- * Callback for determining if a POS Transaction has pending payment
- * transactions.
+ * Callback for determining if a POS Transaction has pending payment transactions.
  *
- * @param $order_id
+ * @param int $order_id
  */
 function commerce_pos_terminal_transaction_ping($order_id) {
   $output = array();

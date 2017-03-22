@@ -94,8 +94,7 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   * Generates POS transactions and payments for all of the default payment
-   * methods.
+   * Generates POS transactions and payments for all of the default payment methods.
    *
    * @return array
    *   An associative array of generated totals, keyed by payment method and

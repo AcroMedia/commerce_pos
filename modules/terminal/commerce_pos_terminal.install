@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Creates a scheme on install and removes variables on uninstall.
  */
 
 /**

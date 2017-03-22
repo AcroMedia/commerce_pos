@@ -26,13 +26,12 @@ function commerce_pos_stock_rules_action_info() {
 }
 
 /**
- * Adds the sold amount in a line item to stock, if
- * $line_item->data['commerce_pos_stock_add_to_stock'] is set.
+ * Adds the sold amount in a line item to stock, if $line_item->data['commerce_pos_stock_add_to_stock'] is set.
  *
  * Typically used when a line item is removed from an order (as when items are
  * added to and removed from cart).
  *
- * @param $line_item
+ * @param object $line_item
  *   A line item object.
  *
  * @see commerce_ss_increase_by_line_item()

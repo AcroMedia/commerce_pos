@@ -209,20 +209,20 @@ function commerce_pos_location_load($location_id) {
 /**
  * Loads multiple locations by ID or based on a set of matching conditions.
  *
- * @see entity_load()
- *
- * @param $location_ids
+ * @param array $location_ids
  *   An array of location IDs.
- * @param $conditions
+ * @param array $conditions
  *   An array of conditions on the {commerce_pos_location} table in the form
  *     'field' => $value.
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the internal product loading cache.
  *
- * @return
+ * @return object|bool
  *   An array of location objects indexed by location_id.
+ *
+ * @see entity_load()
  */
-function commerce_pos_location_load_multiple($location_ids = array(), $conditions = array(), $reset = FALSE) {
+function commerce_pos_location_load_multiple(array $location_ids = array(), array $conditions = array(), $reset = FALSE) {
   if (empty($location_ids) && empty($conditions)) {
     return array();
   }

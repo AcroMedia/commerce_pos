@@ -42,6 +42,6 @@ function hook_commerce_pos_label_format_info() {
  * @param array $formats
  *   An array of label formats.
  */
-function hook_commerce_pos_label_format_info_alter(&$formats) {
+function hook_commerce_pos_label_format_info_alter(array &$formats) {
   // No example.
 }

@@ -231,8 +231,7 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
 }
 
 /**
- * Checks to see if order has line items and returns true if it does, or
- * false otherwise.
+ * Checks to see if order has line items and returns true if it does, or false otherwise.
  */
 function _commerce_pos_receipt_check_order_for_line_items($order_wrapper) {
   $has_line_items = FALSE;

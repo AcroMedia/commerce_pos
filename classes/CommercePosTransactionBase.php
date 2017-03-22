@@ -11,7 +11,7 @@
 class CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
-   * @var CommercePosTransaction $transaction
+   * @var CommercePosTransaction
    */
   protected $transaction;
 

@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * UPC settings page.
  */
 
 /**

@@ -256,20 +256,20 @@ function commerce_pos_cashier_load($cashier_id) {
 /**
  * Loads multiple cashiers by ID or based on a set of matching conditions.
  *
- * @see entity_load()
- *
- * @param $cashier_ids
+ * @param array $cashier_ids
  *   An array of cashier IDs.
- * @param $conditions
+ * @param array $conditions
  *   An array of conditions on the {commerce_pos_cashier} table in the form
  *     'field' => $value.
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the internal product loading cache.
  *
  * @return array
  *   An array of cashier objects indexed by cashier_id.
+ *
+ * @see entity_load()
  */
-function commerce_pos_cashier_load_multiple($cashier_ids = array(), $conditions = array(), $reset = FALSE) {
+function commerce_pos_cashier_load_multiple(array $cashier_ids = array(), array $conditions = array(), $reset = FALSE) {
   if (empty($cashier_ids) && empty($conditions)) {
     return array();
   }
@@ -343,7 +343,7 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
     // Warn the user if no cashiers exist yet.
     if (!commerce_pos_cashier_cashiers_exist()) {
       drupal_set_message(t('You must create at least one cashier. !create_link.', array(
-        '!create_link' => l('Create cashiers', '/admin/commerce/config/pos/cashiers'),
+        '!create_link' => l(t('Create cashiers'), '/admin/commerce/config/pos/cashiers'),
       )), 'error');
     }
   }

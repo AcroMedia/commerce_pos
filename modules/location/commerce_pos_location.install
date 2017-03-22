@@ -141,7 +141,7 @@ function commerce_pos_location_update_7202(&$sandbox) {
 }
 
 /**
- *
+ * Registers didn't exist prior to this update, so we create a default one for every location.
  */
 function commerce_pos_location_update_7202_create_registers(&$sandbox) {
   // Create register for every location (attach registers to locations).
@@ -151,7 +151,7 @@ function commerce_pos_location_update_7202_create_registers(&$sandbox) {
 
   foreach ($results as $result) {
     $location = commerce_pos_location_load($result->location_id);
-    /** @var $register Entity */
+    /* @var $register Entity */
     $register = entity_create('commerce_pos_register', array(
       'name' => $location->name,
     ));

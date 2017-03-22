@@ -604,8 +604,7 @@ function commerce_pos_page($form_id = NULL) {
 }
 
 /**
- * Retrieves a list of Commerce Custom Offline Payment methods that are enabled
- * on the POS.
+ * Retrieves a list of Commerce Custom Offline Payment methods that are enabled on the POS.
  */
 function commerce_pos_get_payment_methods() {
   // First get a list of all offline payment methods.
@@ -660,8 +659,7 @@ function commerce_pos_enable_payment_method($method_id) {
  * Disables a Commerce Custom Offline Payment method from use in the POS.
  *
  * @param int $method_id
- *   COP method to be disabled
- *
+ *   COP method to be disabled.
  */
 function commerce_pos_disable_payment_method($method_id) {
   $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
@@ -765,7 +763,7 @@ function commerce_pos_user_phone_number_configure() {
  *
  * @see hook_commerce_payment_totals_row_info()
  */
-function commerce_pos_balance_summary_rows($totals, $order) {
+function commerce_pos_balance_summary_rows(array $totals, $order) {
   // Retrieve rows defined by the hook and allow other modules to alter them.
   $rows = module_invoke_all('commerce_pos_balance_summary_row_info', $totals, $order);
   drupal_alter('commerce_pos_balance_summary_row_info', $rows, $totals, $order);
@@ -953,8 +951,7 @@ function commerce_pos_empty_order_format_total(array $currency_code = NULL) {
  * Builds an array of product data for the product autocomplete.
  *
  * @param int $product_id
- *   product id of the product to build
- *
+ *   Product id of the product to build.
  */
 function _commerce_pos_product_autocomplete_build($product_id) {
   $data = FALSE;
@@ -977,6 +974,7 @@ function _commerce_pos_product_autocomplete_build($product_id) {
  *   A list of permissions to check against.
  *
  * @return bool
+ *   True if access allowed, false if not.
  */
 function _commerce_pos_access_check($access_arguments) {
   $access = FALSE;
@@ -1089,10 +1087,10 @@ function _commerce_pos_product_default_image($product_type) {
  * A customized version of the 'theme_commerce_price_formatted_components' display
  * from commerce_price.module.
  *
- * @param $variables
+ * @param array $variables
  *   Includes the 'components' array and original 'price' array.
  */
-function theme_commerce_pos_price_formatted_components($variables) {
+function theme_commerce_pos_price_formatted_components(array $variables) {
   // Add the CSS styling to the table.
   drupal_add_css(drupal_get_path('module', 'commerce_price') . '/theme/commerce_price.theme.css');
 
@@ -1138,7 +1136,7 @@ function theme_commerce_pos_price_formatted_components($variables) {
 /**
  * Void a commerce payment transaction.
  *
- * @param $transaction_id
+ * @param int $transaction_id
  *   The id of a commerce payment transaction.
  */
 function commerce_pos_payment_transaction_void($transaction_id) {
@@ -1183,7 +1181,8 @@ function commerce_pos_payment_transaction_void($transaction_id) {
 /**
  * Find commerce payment transactions for the given order.
  *
- * @param $order_id
+ * @param int $order_id
+ *   Order ID of the order to load transactions from.
  *
  * @return array
  *   An array of commerce_payment_transaction ids or an empty array if none
@@ -1207,9 +1206,11 @@ function commerce_pos_get_order_transactions($order_id) {
 /**
  * Retrieves a Commerce POS transaction by its order ID.
  *
- * @param $order_id
+ * @param int $order_id
+ *   Order ID of the order to load transactions from.
  *
  * @return CommercePosTransaction|bool
+ *   The transaction object or false if no object found.
  */
 function commerce_pos_get_pos_transaction_by_order_id($order_id) {
   $query = 'SELECT transaction_id FROM {commerce_pos_transaction} WHERE order_id = :order_id';
@@ -1256,7 +1257,7 @@ function commerce_pos_in_active_trail($path) {
  * @return int
  *   The amount, rounded.
  */
-function commerce_pos_round_nearest($amount, $step) {
+function commerce_pos_round_nearest(array $amount, $step) {
   $decimal = commerce_currency_amount_to_decimal($amount['amount'], $amount['currency_code']);
 
   // Module operator does not work with floats.

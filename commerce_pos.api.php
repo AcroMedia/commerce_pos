@@ -62,7 +62,7 @@ function hook_commerce_pos_sale_form_ajax_alter(array &$form_state, array $trigg
  * The administrative_area of the order's billing information will be set to
  * whatever $administrative_area is set to.
  *
- * @param $administrative_area
+ * @param int $administrative_area
  *   The administrative_area to use on the transaction order.
  * @param CommercePosTransaction $transaction
  *   The POS transaction object containing the order.

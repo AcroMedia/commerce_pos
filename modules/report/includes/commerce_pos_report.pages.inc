@@ -737,7 +737,7 @@ function commerce_pos_report_journal_role_submit($form, &$form_state) {
  * @return array
  *   A render array for the result table.
  */
-function commerce_pos_report_build_journal_role_table($filters = array()) {
+function commerce_pos_report_build_journal_role_table(array $filters = array()) {
 
   $header = array(
     array('data' => t('Order No.'), 'field' => 't.order_id'),

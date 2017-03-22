@@ -115,8 +115,7 @@ function commerce_pos_report_commerce_pos_header_links_alter(&$links) {
 }
 
 /**
- * Builds a render array of a summary and POS orders, broken down by price
- * component.
+ * Builds a render array of a summary and POS orders, broken down by price component.
  */
 function commerce_pos_report_order_summary($completed_date, $transaction_type, $register_id = 0) {
   $output = array();
@@ -267,15 +266,14 @@ function commerce_pos_report_build_price_array($price, $transaction_type) {
 }
 
 /**
- * Prepares an array of JavaScript settings that contain instructions on how
- * to format currencies via a JavaScript function call.
+ * Prepares an array of JavaScript settings that contain instructions on how to format currencies via a JavaScript function call.
  *
  * @param array $currencies
  *   An array of currency codes to provide formatting settings for.
  *
  * @return array
  */
-function commerce_pos_report_currency_js($currencies) {
+function commerce_pos_report_currency_js(array $currencies) {
   $settings = array();
 
   foreach ($currencies as $currency_code) {

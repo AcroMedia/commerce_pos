@@ -83,7 +83,7 @@ function commerce_pos_keypad_pre_render($element) {
  * @return array
  *   The altered element.
  */
-function commerce_pos_keypad_pre_render_cash_input($element) {
+function commerce_pos_keypad_pre_render_cash_input(array $element) {
   $element['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => array(
@@ -108,7 +108,7 @@ function commerce_pos_keypad_pre_render_cash_input($element) {
  * @return array
  *   The altered element.
  */
-function commerce_pos_keypad_pre_render_keypad($element) {
+function commerce_pos_keypad_pre_render_keypad(array $element) {
   $js = array(
     'type' => 'setting',
     'data' => array(

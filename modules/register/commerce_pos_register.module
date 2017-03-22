@@ -333,20 +333,20 @@ function commerce_pos_register_load($register_id) {
 /**
  * Loads multiple registers by ID or based on a set of matching conditions.
  *
- * @see entity_load()
- *
- * @param $register_ids
+ * @param array $register_ids
  *   An array of register IDs.
- * @param $conditions
+ * @param array $conditions
  *   An array of conditions on the {commerce_pos_register} table in the form
  *     'field' => $value.
- * @param $reset
+ * @param bool $reset
  *   Whether to reset the internal product loading cache.
  *
  * @return array
  *   An array of register objects indexed by register_id.
+ *
+ * @see entity_load()
  */
-function commerce_pos_register_load_multiple($register_ids = array(), $conditions = array(), $reset = FALSE) {
+function commerce_pos_register_load_multiple(array $register_ids = array(), array $conditions = array(), $reset = FALSE) {
   if (empty($register_ids) && empty($conditions)) {
     return array();
   }

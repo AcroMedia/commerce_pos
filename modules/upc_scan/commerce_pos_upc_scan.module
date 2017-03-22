@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Main UPC scan file, menu hooks and form alters for using UPC scanner to input text.
  */
 
 /**

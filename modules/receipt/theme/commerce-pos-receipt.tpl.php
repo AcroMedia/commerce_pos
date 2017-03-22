@@ -5,9 +5,9 @@
  * Default template for a POS receipt.
  *
  * Available variables:
- *   - $receipt_header
- *   - $receipt_body
- *   - $receipt_footer
+ *   - $receipt_header - customizable header info.
+ *   - $receipt_body - line items and totals.
+ *   - $receipt_footer - customizable footer info.
  */
 ?>
 <div class="pos-receipt">

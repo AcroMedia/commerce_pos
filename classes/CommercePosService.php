@@ -28,7 +28,6 @@ class CommercePosService {
    *
    * @return object|bool
    *   The current transaction if available or false if not available
-   *
    */
   public static function getCurrentTransaction($type, $uid, $reset = FALSE) {
     $current_transactions = &drupal_static('commerce_pos_current_transactions', array());

@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Callback for the Commerce POS Receipt settings form.
  */
 function commerce_pos_receipt_settings($form, &$form_state) {
   $header = variable_get('commerce_pos_receipt_header', NULL);

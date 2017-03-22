@@ -37,10 +37,26 @@
 
           <tr>
             <td>
-              <?php print l(t('Cancel'), '', array('external' => TRUE, 'fragment' => 'cancel', 'attributes' => array('class' => array('cancel-total')))); ?>
+              <?php print l(t('Cancel'), '', array(
+                'external' => TRUE,
+                'fragment' => 'cancel',
+                'attributes' => array(
+                  'class' => array(
+                    'cancel-total'
+                  )
+                )
+              )); ?>
             </td>
             <td colspan="2">
-              <?php print l(t('Add'), '', array('external' => TRUE, 'fragment' => 'add', 'attributes' => array('class' => array('add-total')))); ?>
+              <?php print l(t('Add'), '', array(
+                'external' => TRUE,
+                'fragment' => 'add',
+                'attributes' => array(
+                  'class' => array(
+                    'add-total'
+                  )
+                )
+              )); ?>
             </td>
           </tr>
         </table>

@@ -2,8 +2,7 @@
 
 /**
  * @file
- * Default template file for order details on the Commerce POS Report journal
- * role.
+ * Default template file for order details on the Commerce POS Report journal role.
  */
 ?>
 
