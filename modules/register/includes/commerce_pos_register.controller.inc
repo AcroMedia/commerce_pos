@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * Controller file for the CommercePOSRegister Entity.
  */
 
 /**
- *
+ * Controller for the CommercePOSRegister Entity.
  */
 class CommercePosRegisterEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 

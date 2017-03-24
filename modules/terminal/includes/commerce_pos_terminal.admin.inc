@@ -7,15 +7,11 @@
 
 /**
  * Settings for commerce_pos_terminal.
+ *
  * The administrator can:
  * - Select which terminal service to use.
  * - Map the payment types provided by that service to payment methods known by
  * commerce_pos.
- *
- * @param $form
- * @param $form_state
- *
- * @return array
  */
 function commerce_pos_terminal_settings_form($form, &$form_state) {
   $form = array();
@@ -130,9 +126,6 @@ function commerce_pos_terminal_settings_form($form, &$form_state) {
 
 /**
  * Validation callback for commerce_pos_terminal_settings_form().
- *
- * @param $form
- * @param $form_state
  */
 function commerce_pos_terminal_settings_form_validate($form, &$form_state) {
   if (isset($form_state['values']['commerce_pos_terminal_pending_transaction_ping_timer'])) {
@@ -145,9 +138,6 @@ function commerce_pos_terminal_settings_form_validate($form, &$form_state) {
 
 /**
  * Submit handler for commerce_pos_terminal_settings_form().
- *
- * @param $form
- * @param $form_state
  */
 function commerce_pos_terminal_settings_form_submit($form, &$form_state) {
   if (isset($form_state['values']['service'])) {
@@ -176,11 +166,6 @@ function commerce_pos_terminal_settings_form_submit($form, &$form_state) {
 
 /**
  * Ajax callback for selecting a terminal service in commerce_pos_terminal_settings_form().
- *
- * @param $form
- * @param $form_state
- *
- * @return array
  */
 function commerce_pos_terminal_settings_form_service_callback($form, $form_state) {
   return $form['services'];

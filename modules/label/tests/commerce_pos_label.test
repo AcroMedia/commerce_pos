@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * Commerce POS label tests.
  */
 
 /**
- *
+ * Labels test suite, handles all basic label functions.
  */
 class CommercePosLabelTestCase extends CommercePosBaseTestCase {
 
@@ -44,7 +45,7 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Loads up the menu_hooks and makes sure they return valid pages.
    */
   public function testLabelFormMenu() {
     $this->drupalLogin($this->adminUser);
@@ -57,7 +58,7 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Submits empty labels form forms and checks for the correct errors.
    */
   public function testLabelFormErrors() {
     $this->drupalLogin($this->privilegedUser);
@@ -73,7 +74,7 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Submits a valid labelForm and confirms success options show.
    */
   public function testLabelFormAdd() {
     $this->drupalLogin($this->privilegedUser);
@@ -100,7 +101,7 @@ class CommercePosLabelTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Test the label view page to make sure the right fields are showing.
    */
   public function testLabelTab() {
     $product = $this->createDummyProduct();

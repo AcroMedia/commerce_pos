@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Page output functions for Commerce POS Report module.
  */
 
 /**
@@ -118,7 +119,7 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   );
 
   // Get saved data for requested date.
-  $report_history = commerce_pos_report_get_eod_report($register_id, $date_filter);
+  $report_history = commerce_pos_report_get_eod_report($date_filter, $register_id);
 
   $form['results'] = array(
     '#type' => 'container',
@@ -329,9 +330,15 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 }
 
 /**
- * @param $date_filter
- * @param $register_id
+ * Get the reports for the specified day of a single register.
+ *
+ * @param string $date_filter
+ *   The date range to filter by in compatible strtotime format. Will search this time +1day.
+ * @param int $register_id
+ *   The id of the register to get totals for.
+ *
  * @return array
+ *   Total, Count and Summary
  */
 function commerce_pos_report_get_totals($date_filter, $register_id) {
   $query = db_select('commerce_pos_transaction', 't');
@@ -419,9 +426,7 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
 }
 
 /**
- * @param $element
- * @param $form_state
- * @param $form
+ * Used to validate that the declared amount is set if not disabled.
  */
 function _commerce_pos_report_validate_amount($element, &$form_state, $form) {
   if (!is_numeric($element['#value']) && empty($element['#disabled'])) {
@@ -506,12 +511,20 @@ function commerce_pos_report_end_of_day_save_submit($form, &$form_state) {
 }
 
 /**
+ * Checks if a report already exists, used to determine update or insert.
  *
+ * @param string $date
+ *   A strtotime compatible date, will search this date exactly.
+ * @param int $register_id
+ *   Id of the register to load the report for.
+ *
+ * @return bool
+ *   True if the report exists, false if it doesn't.
  */
-function commerce_pos_report_exists($date, $register) {
+function commerce_pos_report_exists($date, $register_id) {
   $query = db_select('commerce_pos_report_declared_data', 't')
     ->fields('t')
-    ->condition('register_id', $register, '=')
+    ->condition('register_id', $register_id, '=')
     ->condition('date', strtotime($date), '=');
   $result = $query->execute()->fetchAssoc();
 
@@ -519,14 +532,22 @@ function commerce_pos_report_exists($date, $register) {
 }
 
 /**
+ * Loads the EOD report for a specific register and date.
  *
+ * @param string $date
+ *   A strtotime compatible date, will search this date exactly.
+ * @param int $register_id
+ *   Id of the register to load the report for.
+ *
+ * @return array
+ *   Report metainfo and data.
  */
-function commerce_pos_report_get_eod_report($register, $date) {
+function commerce_pos_report_get_eod_report($date, $register_id) {
   $time = strtotime($date);
 
   $result = db_select('commerce_pos_report_declared_data', 't')
     ->fields('t')
-    ->condition('register_id', $register)
+    ->condition('register_id', $register_id)
     ->condition('date', $time, '=')
     ->execute();
 
@@ -545,13 +566,10 @@ function commerce_pos_report_get_eod_report($register, $date) {
  *
  * @param string $date
  *   The date of the report to print.
- * @param $register
- *   The register to get the report for.
  */
-function commerce_pos_report_receipt_print($date, $register) {
+function commerce_pos_report_receipt_print($date) {
   $commands = array();
 
-  // $transaction = CommercePosService::loadTransaction($transaction_id);
   $receipt = theme('commerce_pos_report_receipt', array('date' => $date));
 
   $commands[] = array(

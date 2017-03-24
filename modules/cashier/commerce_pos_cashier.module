@@ -216,9 +216,6 @@ function commerce_pos_cashier_form($form, &$form_state, $cashier = NULL) {
 
 /**
  * Validation callback for the commerce_pos_cashier add/edit form.
- *
- * @param $form
- * @param $form_state
  */
 function commerce_pos_cashier_form_validate($form, &$form_state) {
   $cashier = $form_state['commerce_pos_cashier'];
@@ -288,6 +285,7 @@ function commerce_pos_cashier_title($cashier) {
  * Load a cashier entity by its code.
  *
  * @param string $code
+ *   The short code that identifies the casher and is used to login.
  *
  * @return Entity|false
  *   Returns a loaded commerce pos cashier entity or FALSE.
@@ -411,7 +409,8 @@ function commerce_pos_cashier_login_form_log_out($form, &$form_state) {
 /**
  * Set the current cashier.
  *
- * @param $cashier
+ * @param object $cashier
+ *   The cashier object of the cashier you wish to set as current.
  */
 function commerce_pos_cashier_set_current_cashier($cashier) {
   $_SESSION['commerce_pos_cashier_cashier_id'] = $cashier->cashier_id;
@@ -421,6 +420,7 @@ function commerce_pos_cashier_set_current_cashier($cashier) {
  * Get the current cashier.
  *
  * @return int|false
+ *   The id of the current cashier if set or false if not set.
  */
 function commerce_pos_cashier_get_current_cashier() {
   return (isset($_SESSION['commerce_pos_cashier_cashier_id'])) ? $_SESSION['commerce_pos_cashier_cashier_id'] : FALSE;
@@ -434,9 +434,10 @@ function commerce_pos_cashier_clear_current_cashier() {
 }
 
 /**
- * Determine if any cashiers have been created.
+ * Determine if any cashiers have been created, used as a warning when the module is first enabled usually.
  *
  * @return bool
+ *   Returns true if any cashiers exist of false if none.
  */
 function commerce_pos_cashier_cashiers_exist() {
   $num_cashiers = db_select('commerce_pos_cashier', 'c')

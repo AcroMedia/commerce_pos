@@ -396,14 +396,18 @@ function commerce_pos_register_get_current_register() {
 }
 
 /**
- *
+ * Takes a register_id and sets it as the current/active register.
  */
 function commerce_pos_register_set_current_register($register_id) {
   $_SESSION['commerce_pos_register_id'] = $register_id;
 }
 
 /**
- * @param $register_id
+ * Gets the location of a register.
+ *
+ * @param int $register_id
+ *   The id of the register to get the location of.
+ *
  * @return Entity|null
  *   A commerce_pos_location entity or NULL.
  */

@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Main file for the Commerce POS Terminal module.
  */
 
 define('COMMERCE_PAYMENT_STATUS_TERMINAL_TIMED_OUT', 'terminal_timedout');
@@ -160,9 +161,6 @@ function commerce_pos_terminal_form_alter(&$form, &$form_state, $form_id) {
 
 /**
  * Submit handler for adding a payment through the Terminal functionality.
- *
- * @param $form
- * @param $form_state
  */
 function commerce_pos_terminal_payment_submit($form, &$form_state) {
   $form_state['rebuild'] = TRUE;
@@ -218,7 +216,9 @@ function commerce_pos_terminal_payment_submit($form, &$form_state) {
  * @param object $transaction
  *   A commerce payment transaction.
  * @param int $location_id
+ *   Id of the location for the payment, will default to current if not provided.
  * @param int $register_id
+ *   Id for the register of the payment, will default to current if not provided.
  */
 function commerce_pos_terminal_process_payment($submit_function, $transaction, $location_id = NULL, $register_id = NULL) {
   try {
@@ -258,6 +258,7 @@ function commerce_pos_terminal_process_payment($submit_function, $transaction, $
  * Submit handler for making a sale payment through the Terminal functionality.
  *
  * @param CommercePosTerminalServiceInterface $service
+ *   TerminalService object to use for the purchase transaction.
  * @param object $transaction
  *   A commerce transaction.
  */
@@ -269,18 +270,16 @@ function commerce_pos_terminal_sale_payment_submit(CommercePosTerminalServiceInt
  * Submit handler for making a refund through the Terminal functionality.
  *
  * @param CommercePosTerminalServiceInterface $service
+ *   TerminalService object to use for the refund transaction.
  * @param object $transaction
  *   A commerce transaction.
  */
-function commerce_pos_terminal_return_payment_submit($service, $transaction) {
+function commerce_pos_terminal_return_payment_submit(CommercePosTerminalServiceInterface $service, $transaction) {
   $service->refund($transaction);
 }
 
 /**
  * Alters a form to add functionality that pings for pending transactions.
- *
- * @param $form
- * @param $form_state
  */
 function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
   // Make no alterations if there is no order in the form state.
@@ -393,6 +392,7 @@ function commerce_pos_terminal_commerce_pos_sale_form_ajax_alter(&$form_state, $
  * Load information about terminal service plugins from other modules.
  *
  * @return array
+ *   All the return values for any implementations of this hook.
  */
 function commerce_pos_terminal_services_info() {
   return module_invoke_all('commerce_pos_terminal_service_info');
@@ -405,8 +405,10 @@ function commerce_pos_terminal_services_info() {
  * Includes the required file if necessary.
  *
  * @param array $service
+ *   The specific service you want to get extract the class for, or the default service if none provided.
  *
  * @return CommercePosTerminalServiceInterface|string
+ *   Either the name of the class or an instantiated instance of the class, depending what was provided.
  */
 function commerce_pos_terminal_get_service_class(array $service = array()) {
   if (empty($service)) {
@@ -430,6 +432,8 @@ function commerce_pos_terminal_get_service_class(array $service = array()) {
  * Loads a provided service, otherwise loads the configured service.
  *
  * @param string $class
+ *   The name of the class for the service to load, must be a class that implements CommercePosTerminalServiceInterface.
+ *   Will get the default class if none provided.
  *
  * @return CommercePosTerminalServiceInterface|false
  *   False if unable to load object
@@ -450,6 +454,7 @@ function commerce_pos_terminal_service_load($class = '') {
  * Indicate whether or not a terminal service plugin is enabled and available.
  *
  * @return bool
+ *   Returns true if the class name can be loaded and the class actually exists.
  */
 function commerce_pos_terminal_service_enabled() {
   $class = commerce_pos_terminal_get_service_class();
@@ -462,7 +467,9 @@ function commerce_pos_terminal_service_enabled() {
  * @param object $transaction
  *   A commerce_payment_transaction.
  * @param int $order_id
+ *   Id of the order to add a transaction to.
  * @param int $register_id
+ *   Id of the register this transaction is being added from.
  *
  * @return int
  *   The id of the inserted record.
@@ -496,10 +503,10 @@ function commerce_pos_terminal_update_pending_transaction($transaction) {
  * Map a payment type to a payment method as per the module's configuration.
  *
  * @param string $type
+ *   Payment type to check against mapping.
  *
  * @return string|false
- *   Returns a string for the payment method name or FALSE if there is no
- *   mapping.
+ *   Returns a string for the payment method name or FALSE if there is no mapping.
  */
 function commerce_pos_terminal_payment_method_for_type($type) {
   $mapping = variable_get('commerce_pos_terminal_payment_type_map');
@@ -514,6 +521,7 @@ function commerce_pos_terminal_payment_method_for_type($type) {
  * Get pending payment terminal transaction requests for an order.
  *
  * @param int $order_id
+ *   ID of the order to grab the pending transaction from.
  *
  * @return array
  *   An array of transaction ids.
@@ -537,6 +545,7 @@ function commerce_pos_terminal_get_pending_transactions($order_id) {
  * Callback for determining if a POS Transaction has pending payment transactions.
  *
  * @param int $order_id
+ *   ID of the order to check for pending transactions.
  */
 function commerce_pos_terminal_transaction_ping($order_id) {
   $output = array();
@@ -551,7 +560,8 @@ function commerce_pos_terminal_transaction_ping($order_id) {
 /**
  * Cancel the payment transactions on an order.
  *
- * @param $order_id
+ * @param int $order_id
+ *   ID of the order to cancel a transactions for.
  */
 function commerce_pos_terminal_cancel_transactions_for_order($order_id) {
   if ($transaction_ids = commerce_pos_terminal_get_pending_transactions($order_id)) {

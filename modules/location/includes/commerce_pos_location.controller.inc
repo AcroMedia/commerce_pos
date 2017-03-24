@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * Controller file for the CommercePOSLocation Entity.
  */
 
 /**
- *
+ * Controller for the CommercePOSLocationEntity.
  */
 class CommercePosLocationEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 

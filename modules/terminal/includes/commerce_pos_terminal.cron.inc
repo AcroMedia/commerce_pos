@@ -13,6 +13,7 @@
  *   cleaning up transactions.
  *
  * @return int
+ *   The number of records deleted.
  */
 function commerce_pos_terminal_request_cleanup($time = NULL) {
   $records_deleted = 0;
@@ -51,7 +52,8 @@ function commerce_pos_terminal_request_cleanup($time = NULL) {
  * - Modify the transaction referred to by the record if necessary.
  * - Decide if the record should be deleted.
  *
- * @param $record
+ * @param object $record
+ *   Record object of transaction to be cleaned up.
  *
  * @return bool
  *   TRUE if the record should be removed from the database.

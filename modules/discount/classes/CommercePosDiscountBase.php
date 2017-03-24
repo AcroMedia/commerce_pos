@@ -13,12 +13,12 @@
  */
 
 /**
- *
+ * Base class to use for any CommercePosDiscount classes.
  */
 class CommercePosDiscountBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
-   *
+   * Base discount action.
    */
   public function actions() {
     $actions = parent::actions();
@@ -34,7 +34,7 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   }
 
   /**
-   *
+   * Base Discount specific subscriptions.
    */
   public function subscriptions() {
     $subscriptions = parent::subscriptions();
@@ -47,7 +47,9 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
    * Adds a discount to the transaction's order.
    *
    * @param string $type
+   *   The type of discount to add, currently flat or percent.
    * @param float|int $amount
+   *   The amount to add, either in flat rate cents or percentage, depending on type.
    */
   public function addOrderDiscount($type, $amount) {
     if ($wrapper = $this->transaction->getOrderWrapper()) {
@@ -139,9 +141,17 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   }
 
   /**
+   * Loads the data for a specific line item and discount combo.
    *
+   * @param EntityMetadataWrapper $line_item_wrapper
+   *   The line item to check for the specified discount.
+   * @param string $discount_name
+   *   The discount to check against the line item.
+   *
+   * @return array
+   *   Data of the line item discount, will default to blank if can't be found.
    */
-  protected function getLineItemDiscountData($line_item_wrapper, $discount_name) {
+  protected function getLineItemDiscountData(EntityMetadataWrapper $line_item_wrapper, $discount_name) {
     $data = array(
       'type' => '',
       'amount' => 0,

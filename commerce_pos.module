@@ -660,6 +660,9 @@ function commerce_pos_enable_payment_method($method_id) {
  *
  * @param int $method_id
  *   COP method to be disabled.
+ *
+ * @return bool
+ *   True if the method exists, false if it does not.
  */
 function commerce_pos_disable_payment_method($method_id) {
   $enabled_payment_methods = variable_get('commerce_pos_payment_methods', array());
@@ -952,6 +955,9 @@ function commerce_pos_empty_order_format_total(array $currency_code = NULL) {
  *
  * @param int $product_id
  *   Product id of the product to build.
+ *
+ * @return array|bool
+ *   Array of product data for the autocomplete, or false if product couldn't be loaded.
  */
 function _commerce_pos_product_autocomplete_build($product_id) {
   $data = FALSE;

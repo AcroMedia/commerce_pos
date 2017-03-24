@@ -8,12 +8,12 @@
  */
 
 /**
- *
+ * Extend when making any transaction actions.
  */
 class CommercePosTransactionBaseActions extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 
   /**
-   *
+   * Actions available for transactions.
    */
   public function actions() {
     $actions = parent::actions();
@@ -37,7 +37,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   }
 
   /**
-   *
+   * Additional events for transactions.
    */
   public function events() {
     $events = parent::events();

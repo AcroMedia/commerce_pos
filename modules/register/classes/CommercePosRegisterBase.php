@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * File for base Register class.
  */
 
 /**
- *
+ * Base Register class, extend for register add-ons.
  */
 class CommercePosRegisterBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 

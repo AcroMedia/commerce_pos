@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Interface for Terminal Services, which provided options for the terminal to process payments.
  */
 interface CommercePosTerminalServiceInterface {
 
@@ -62,6 +62,7 @@ interface CommercePosTerminalServiceInterface {
    * Set the location for the transaction.
    *
    * @param int $location_id
+   *   ID of the location for the payments, will default to the current location if not specified.
    *
    * @return $this
    */
@@ -71,6 +72,7 @@ interface CommercePosTerminalServiceInterface {
    * Set the register for the transaction.
    *
    * @param int $register_id
+   *   ID of the register for the payments, will default to current register if not specified.
    *
    * @return $this
    */
@@ -80,6 +82,7 @@ interface CommercePosTerminalServiceInterface {
    * Get a message from the transaction.
    *
    * @return string
+   *   The current message from the transaction.
    */
   public function getTransactionMessage();
 

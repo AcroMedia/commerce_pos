@@ -2,10 +2,11 @@
 
 /**
  * @file
+ * File of Commerce POS Report tests.
  */
 
 /**
- *
+ * Basic report test cases.
  */
 class CommercePosReportTestCase extends CommercePosBaseTestCase {
   protected $adminUser;
@@ -43,7 +44,7 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Tests that all the menu hooks return pages.
    */
   public function testCommercePosReportMenu() {
     $this->drupalLogin($this->privilegedUser);
@@ -64,7 +65,7 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
   }
 
   /**
-   *
+   * Tests that the end of day report runs and has correct values.
    */
   public function testCommercePosReportEndOfDay() {
     module_enable($this->setUpHelper('api', array('commerce_pos_payment')));

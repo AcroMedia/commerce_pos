@@ -120,7 +120,7 @@ function commerce_pos_discount_form_alter(&$form, &$form_state, $form_id) {
 }
 
 /**
- *
+ * Form alter manually added by a form_alter hook above.
  */
 function _commerce_pos_discount_payment_form_alter(&$form, $form_state) {
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_discount') . '/js/commerce_pos_discount.js';
@@ -588,7 +588,7 @@ function commerce_pos_discount_wrapper_js($form, &$form_state) {
 }
 
 /**
- *
+ * Submit handler that gets added to remove_order_discount_form via form_alter.
  */
 function commerce_pos_transaction_remove_order_discount_submit($form, &$form_state) {
   // Setting a discount of 0 removes it.

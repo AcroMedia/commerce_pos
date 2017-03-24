@@ -72,7 +72,7 @@ function commerce_pos_report_preprocess_commerce_pos_report_receipt(&$variables)
   $variables['register'] = $register->name;
 
   list($totals, $transaction_counts, $transaction_summary) = commerce_pos_report_get_totals($date, $register_id);
-  $results = commerce_pos_report_get_eod_report($register_id, $date);
+  $results = commerce_pos_report_get_eod_report($date, $register_id);
 
   // Get the float for the day.
   if (module_exists('commerce_pos_register')) {

@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Used to handle any individual payment transactions for a POS order, void, payment, credit, etc.
  */
 class CommercePosTransaction {
 
@@ -65,7 +65,7 @@ class CommercePosTransaction {
   }
 
   /**
-   * __call() magic method.
+   * A __call() magic method.
    */
   public function __call($name, $arguments) {
     // Attempt to invoke any Base actions if an unknown method is invoked on the
@@ -74,6 +74,8 @@ class CommercePosTransaction {
   }
 
   /**
+   * Call to do any transaction, such as a payment or void.
+   *
    * @param string $action_name
    *   The name of the action to invoke.
    * @param ...
@@ -153,6 +155,7 @@ class CommercePosTransaction {
    * point in creating a new wrapper all of the time.
    *
    * @return EntityDrupalWrapper|bool
+   *   Returns the order wrapper for the transaction if available or false if the order can't be loaded or doesn't exist.
    */
   public function getOrderWrapper() {
     if ($this->orderId) {
@@ -209,14 +212,20 @@ class CommercePosTransaction {
   }
 
   /**
+   * Called by doAction to actually load the appropriate action function.
    *
    * @param string $action_name
+   *   The name of the action to invoke hooks for.
    * @param array $arguments
+   *   Any arguments that need to be passed to the hook.
    *
-   * @return
-   *    The results of the invoked action, throws exception on error
+   * @return mixed
+   *    The results of the invoked action, throws exception on error.
+   *
+   * @throws Exception
+   *   Name of the action if it doesn't exist.
    */
-  protected function invokeAction($action_name, $arguments) {
+  protected function invokeAction($action_name, array $arguments) {
     if (isset($this->actions[$action_name]['class'])) {
       $base_class = $this->bases[$this->actions[$action_name]['class']];
 
@@ -300,8 +309,7 @@ class CommercePosTransaction {
   }
 
   /**
-   * Determines if the cashier property should be updated and saves the
-   * transaction if an update occurred.
+   * Determines if the cashier property should be updated and saves the transaction if an update occurred.
    */
   protected function updateCashier() {
     $current_cashier = commerce_pos_cashier_get_current_cashier();
@@ -312,8 +320,7 @@ class CommercePosTransaction {
   }
 
   /**
-   * Checks for any modules defining additional base classes to be added to this
-   * transaction and registers their action and subscriptions.
+   * Checks for any modules defining additional base classes to be added to this transaction and registers their action and subscriptions.
    *
    * Actions are invoked by calling the transaction's doAction method.
    *

@@ -2,6 +2,7 @@
 
 /**
  * @file
+ * Main module file for the Commerce POS Report module.
  */
 
 define('COMMERCE_POS_REPORT_JOURNAL_ROLE_DEFAULT_ITEMS_PER_PAGE', 25);
@@ -272,6 +273,7 @@ function commerce_pos_report_build_price_array($price, $transaction_type) {
  *   An array of currency codes to provide formatting settings for.
  *
  * @return array
+ *   Formatting settings for any requested currencies, key'd by currency code.
  */
 function commerce_pos_report_currency_js(array $currencies) {
   $settings = array();
@@ -364,6 +366,7 @@ function commerce_pos_report_end_of_day_timestamp($time = FALSE) {
  *   The Commerce order ID.
  *
  * @return string
+ *   Comma separated list of payment types for the specified order.
  */
 function commerce_pos_report_payment_types($order_id) {
   // Payment type.
