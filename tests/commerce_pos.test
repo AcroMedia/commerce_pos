@@ -130,7 +130,7 @@ abstract class CommercePosBaseTestCase extends CommerceBaseTestCase {
    *   The amount that the payment transaction is for.
    *
    * @return bool|object
-   *    The transaction object, or FALSE if it can't be loaded
+   *   The transaction object, or FALSE if it can't be loaded
    */
   public function createDummyPayment(CommercePosTransaction $transaction, $method_id, $amount) {
     if (module_exists('commerce_pos_payment')) {
