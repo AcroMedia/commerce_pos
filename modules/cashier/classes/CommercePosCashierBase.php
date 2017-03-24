@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Cashier base class, handles subscribing to transactions and logging out.
  */
 class CommercePosCashierBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 

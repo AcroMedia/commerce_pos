@@ -2,15 +2,16 @@
 
 /**
  * @file
+ * Controller file for the Cashier entity, handles SCUD functionality.
  */
 
 /**
- *
+ * Entity Controller for the Cashier object, handles custom create and save functionality.
  */
 class CommercePosCashierEntityController extends EntityAPIController implements EntityAPIControllerInterface {
 
   /**
-   *
+   * Sets the custom values for cashier on top of the regular entity values.
    */
   public function create(array $values = array()) {
     $values += array(
@@ -26,7 +27,7 @@ class CommercePosCashierEntityController extends EntityAPIController implements 
   }
 
   /**
-   *
+   * Custom cashier entity save, handles create time logic.
    */
   public function save($cashier, DatabaseTransaction $transaction = NULL) {
     $cashier->changed = REQUEST_TIME;

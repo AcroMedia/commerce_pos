@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Handles applying and managing discounts within the POS, similar to stock commerce functionality.
  */
 class CommercePosDiscountService {
 
@@ -18,13 +18,13 @@ class CommercePosDiscountService {
   /**
    * Retrieves the price component relating to POS discount from a price field.
    *
-   * @param $price_wrapper
+   * @param EntityMetadataWrapper $price_wrapper
    *   A metadata wrapper around a commerce price field.
    *
    * @return array|bool
    *   The price component, or FALSE if none was found.
    */
-  static public function getPosDiscountComponent($price_wrapper, $discount_name) {
+  static public function getPosDiscountComponent(EntityMetadataWrapper $price_wrapper, $discount_name) {
     $data = (array) $price_wrapper->data->value() + array('components' => array());
 
     // Look for our discount in each of the price components.
@@ -45,8 +45,15 @@ class CommercePosDiscountService {
    * This simply services as a centralized function to control which discount
    * method(s) to call, rather than each individual piece of coding having to
    * determine where to call applyPercentDiscount or applyFixedDiscount.
+   *
+   * @param EntityMetadataWrapper $wrapper
+   *   The wrapper around either an order or line item.
+   * @param string $type
+   *   Either percent or fixed.
+   * @param int|float $rate
+   *   The rate to be changed, either a percentage or fixed value in cents.
    */
-  static public function applyDiscount($wrapper, $type, $rate) {
+  static public function applyDiscount(EntityMetadataWrapper $wrapper, $type, $rate) {
     switch ($type) {
       case 'percent':
         CommercePosDiscountService::applyPercentDiscount($wrapper, $rate);
@@ -60,8 +67,13 @@ class CommercePosDiscountService {
 
   /**
    * A modified version of commerce_discount_percentage().
+   *
+   * @param EntityMetadataWrapper $wrapper
+   *   Wrapper of either an order or line item.
+   * @param float $rate
+   *   The discount percentage in full format (10 not .1).
    */
-  static public function applyPercentDiscount($wrapper, $rate) {
+  static public function applyPercentDiscount(EntityMetadataWrapper $wrapper, $rate) {
     // Get the line item types to apply the discount to.
     $line_item_types = variable_get('commerce_discount_line_item_types', array('product' => 'product'));
 
@@ -132,6 +144,11 @@ class CommercePosDiscountService {
 
   /**
    * A modified version of commerce_discount_fixed_amount().
+   *
+   * @param EntityMetadataWrapper $wrapper
+   *   The wrapper of the object to be discounted, either an order or line item.
+   * @param int $discount_amount
+   *   Amount in cents to be removed.
    */
   static public function applyFixedDiscount(EntityMetadataWrapper $wrapper, $discount_amount) {
     $discount_price['amount'] = -$discount_amount;

@@ -46,8 +46,8 @@ class CommercePosDiscountBase extends CommercePosTransactionBase implements Comm
   /**
    * Adds a discount to the transaction's order.
    *
-   * @param $type
-   * @param $amount
+   * @param string $type
+   * @param float|int $amount
    */
   public function addOrderDiscount($type, $amount) {
     if ($wrapper = $this->transaction->getOrderWrapper()) {

@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Simple receipt base, keeps track of the transaction it was tied to.
  */
 class CommercePosReceiptBase extends CommercePosTransactionBase implements CommercePosTransactionBaseInterface {
 

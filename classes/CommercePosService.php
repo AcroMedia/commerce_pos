@@ -6,7 +6,7 @@
  */
 
 /**
- *
+ * Service for basic POS functions, such as getting transactions and allowable types.
  */
 class CommercePosService {
   const TRANSACTION_TYPE_SALE = 'sale';
