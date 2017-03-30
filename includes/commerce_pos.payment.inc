@@ -33,7 +33,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   $form_state['wrapper_id'] = $wrapper_id;
 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
-  if (!$cashier_id) {
+  if (!$cashier_id || !commerce_pos_cashier_load($cashier_id)) {
     drupal_set_message(t('You must log in.'), 'warning');
     $form['message'] = array(
       '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',

@@ -240,6 +240,12 @@ function commerce_pos_cashier_form_submit($form, &$form_state) {
 
 /**
  * Loads a cashier by ID.
+ *
+ * @param int $cashier_id
+ *   The ID of a cashier entity.
+ *
+ * @return Entity|FALSE
+ *   A loaded cashier entity or FALSE.
  */
 function commerce_pos_cashier_load($cashier_id) {
   if (empty($cashier_id)) {
@@ -331,9 +337,10 @@ function commerce_pos_cashier_login_form($form, &$form_state) {
 
   // Display label of current cashier.
   if ($cashier_id = commerce_pos_cashier_get_current_cashier()) {
-    /** @var Entity $cashier */
     $cashier = commerce_pos_cashier_load($cashier_id);
-    $form['code']['#title'] = $cashier->label();
+    if ($cashier) {
+      $form['code']['#title'] = $cashier->label();
+    }
   }
   else {
     $form['code']['#attributes']['autofocus'] = TRUE;
