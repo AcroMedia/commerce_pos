@@ -156,6 +156,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#theme' => 'commerce_pos_keypad',
     );
 
+    // If no triggering element is set, grab the default payment method.
+    $default_payment_method = variable_get('commerce_pos_default_payment_method', '');
+    if (!empty($default_payment_method) && !empty($payment_options[$default_payment_method]) && empty($form_state['triggering_element']['#payment_option_id'])) {
+      $form_state['triggering_element']['#payment_option_id'] = $default_payment_method;
+    }
+
     if (!empty($form_state['triggering_element']['#payment_option_id'])) {
       $option_id = $form_state['triggering_element']['#payment_option_id'];
 
