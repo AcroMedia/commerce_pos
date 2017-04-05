@@ -589,12 +589,18 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
         case 'park-transaction':
           $transaction->doAction('park');
           unset($form_state['transaction']);
+          // Need to empty input here as the email and phone numbers are still
+          // retaining the old values after rebuilding the form.
+          $form_state['input'] = array();
           drupal_set_message(t('Transaction @id parked.', array('@id' => $transaction->transactionId)));
           break;
 
         case 'void-transaction':
           $transaction->void();
           unset($form_state['transaction']);
+          // Need to empty input here as the email and phone numbers are still
+          // retaining the old values after rebuilding the form.
+          $form_state['input'] = array();
           drupal_set_message(t('Transaction @id voided.', array('@id' => $transaction->transactionId)));
           break;
 
