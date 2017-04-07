@@ -454,7 +454,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   $transaction_options['customer'] = array(
     'email' => array(
       '#type' => 'textfield',
-      '#title' => t('Customer Lookup'),
+      '#title' => t('Customer Info'),
       '#autocomplete_path' => 'admin/commerce/pos/user/autocomplete',
       '#ajax' => array(
         'wrapper' => 'commerce-pos-customer-input-wrapper',
