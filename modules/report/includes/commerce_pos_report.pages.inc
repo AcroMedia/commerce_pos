@@ -318,9 +318,9 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
 
     if (strtotime($date_filter) >= strtotime('00:00:00')) {
       $form['results']['end_of_day_notice'] = array(
-        '#markup' => t('End of Day is at @time.', array(
-            '@time' => format_date(commerce_pos_report_end_of_day_timestamp(), 'custom', 'g:i a T')
-          )) . '<br><br>' . t('Changes cannot be saved after that time.'),
+        '#markup' => '<div class="commerce-pos-report-eod-notice"><p>' . t('End of Day is at @time.', array(
+          '@time' => format_date(commerce_pos_report_end_of_day_timestamp(), 'custom', 'g:i a T'),
+        )) . '</p><p>' . t('Changes cannot be saved after that time.') . '</p></div>',
         '#weight' => 200,
       );
     }

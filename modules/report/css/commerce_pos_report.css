@@ -334,6 +334,18 @@ a:hover .commerce-pos-report-ico-journal-role {
   color: #cc0000;
 }
 
+/* -- End Of Day Notice -- */
+
+.commerce-pos-report-eod-notice {
+  margin: 20px 0;
+  font-size: 14px;
+}
+.commerce-pos-report-eod-notice p {
+  margin: 7px 0;
+  padding: 0;
+  opacity: 0.7;
+}
+
 /* -- Order Info -- */
 
 #commerce-pos-report-journal-role-container table tbody td.commerce-pos-report-journal-role-order-info {
