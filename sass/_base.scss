@@ -101,6 +101,11 @@
   border: 1px solid #DADADA;
   background: #fff;
   transition: all .15s ease-in-out;
+  -moz-box-shadow: none;
+  -webkit-box-shadow: none;
+  -o-box-shadow: none;
+  box-shadow: none;
+  text-shadow: none;
 
   &:hover, &:focus {
     background: #f9f9f9;
