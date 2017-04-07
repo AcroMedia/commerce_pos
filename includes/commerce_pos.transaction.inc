@@ -52,10 +52,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
   if (!$cashier_id || !commerce_pos_cashier_load($cashier_id)) {
-    drupal_set_message(t('You must log in.'), 'warning');
-    $form['message'] = array(
-      '#markup' => '<p>' . t('Enter your cashier code.') . '</p>',
-    );
+    drupal_set_message(t('You must enter your cashier code to proceed.'), 'warning');
     return;
   }
 
