@@ -143,12 +143,22 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     '#type' => 'container',
   );
 
+  // Add the onboarding text if the order is empty.
+  if (empty($order_wrapper)) {
+    $form['product_search']['onboarding_text'] = array(
+      '#type' => 'markup',
+      '#markup' => '<div class="commerce-pos-search-onboarding-message">' . t("<strong>Start your @txn_type:</strong> scan barcode or use product search", array(
+        '@txn_type' => $return ? t('return') : t('order'),
+      )) . '</div>',
+    );
+  }
+
   $form['product_search']['input'] = array(
     '#type' => 'textfield',
     '#title' => 'product search',
     '#title_display' => 'after',
     '#size' => 60,
-    '#description' => 'Search by SKU or product title, start typing to begin your search.',
+    '#description' => 'SKU, product title or keyword',
     '#attributes' => array(
       'class' => array(
         'commerce-pos-product-autocomplete',
