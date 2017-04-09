@@ -155,16 +155,16 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   $form['product_search']['input'] = array(
     '#type' => 'textfield',
-    '#title' => 'product search',
+    '#title' => t('product search'),
     '#title_display' => 'after',
     '#size' => 60,
-    '#description' => 'SKU, product title or keyword',
+    '#description' => t('Search by SKU or product title, start typing to begin your search.'),
     '#attributes' => array(
       'class' => array(
         'commerce-pos-product-autocomplete',
         'commerce-pos-product-search',
       ),
-      'placeholder' => 'Product Search',
+      'placeholder' => t('Product Search'),
     ),
     '#element_validate' => array('_commerce_pos_transaction_validate_product_input'),
   );

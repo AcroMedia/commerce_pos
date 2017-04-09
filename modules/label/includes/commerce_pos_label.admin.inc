@@ -80,16 +80,16 @@ function commerce_pos_label_labels_form($form, &$form_state, $product = FALSE) {
   if ($product === FALSE) {
     $form['product_search'] = array(
       '#type' => 'textfield',
-      '#title' => 'product search',
+      '#title' => t('product search'),
       '#title_display' => 'invisible',
       '#size' => 60,
-      '#description' => 'Search by SKU or product title, start typing to begin your search.',
+      '#description' => t('Search by SKU or product title, start typing to begin your search.'),
       '#attributes' => array(
         'class' => array(
           'commerce-pos-product-autocomplete',
           'commerce-pos-product-search',
         ),
-        'placeholder' => 'Product Search',
+        'placeholder' => t('Product Search'),
       ),
     );
 

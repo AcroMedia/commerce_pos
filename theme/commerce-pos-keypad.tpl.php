@@ -36,11 +36,14 @@
         <div class="commerce-pos-keypad-key" data-keybind="2">2</div>
         <div class="commerce-pos-keypad-key" data-keybind="3">3</div>
         <div class="commerce-pos-keypad-key" data-keybind="0">0</div>
+        <div class="commerce-pos-keypad-key" data-keybind="00">00</div>
+        <div class="commerce-pos-keypad-key" data-keybind="000">000</div>
         <div class="commerce-pos-keypad-key" data-keybind=".">.</div>
       </div>
 
       <div class="commerce-pos-keypad-actions">
         <div class="commerce-pos-keypad-key" data-keybind="">&lt;</div>
+        <div class="commerce-pos-keypad-key clear-key" data-keybind="Clear">C</div>
         <?php print render($element['add']); ?>
       </div>
     </div>

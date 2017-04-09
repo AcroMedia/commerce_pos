@@ -20,7 +20,11 @@
             inputs.each(function () {
               var self = $(this);
               var currentValue = self.val();
-
+              if (key == "Clear") {
+                self.val("");
+                currentValue = "";
+                key = "";
+              }
               if (key != "") {
                 self.val(currentValue + key);
               }
