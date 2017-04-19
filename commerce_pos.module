@@ -379,6 +379,12 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     if ($order) {
       $balance = commerce_payment_order_balance($order, $totals);
 
+      $order_to_pay_classes = array('order-to-pay');
+
+      if ($balance['amount'] > 0) {
+        $order_to_pay_classes[] = 'order-to-pay-positive';
+      }
+
       $rows[] = array(
         'data' => array(
           array(
@@ -390,7 +396,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
             'class' => array('balance'),
           ),
         ),
-        'class' => array('order-to-pay'),
+        'class' => $order_to_pay_classes,
         'weight' => 10,
       );
 
@@ -434,6 +440,12 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       // @todo Fix for when there's a FALSE $balance.
       $balance = commerce_payment_order_balance($order, $totals);
 
+      $order_to_pay_classes = array('order-to-pay');
+
+      if ($balance['amount'] > 0) {
+        $order_to_pay_classes[] = 'order-to-pay-positive';
+      }
+
       $rows[] = array(
         'data' => array(
           array(
@@ -445,7 +457,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
             'class' => array('balance'),
           ),
         ),
-        'class' => array('order-to-pay'),
+        'class' => $order_to_pay_classes,
         'weight' => 10,
       );
 
@@ -468,6 +480,12 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     $weight = 0;
 
     foreach ($totals as $currency_code => $amount) {
+      $order_to_pay_classes = array('order-to-pay', 'order-to-pay-' . $currency_code);
+
+      if ($amount > 0) {
+        $order_to_pay_classes[] = 'order-to-pay-positive';
+      }
+
       $rows[] = array(
         'data' => array(
           array(
@@ -479,7 +497,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
             'class' => array('balance'),
           ),
         ),
-        'class' => array('order-to-pay', 'order-to-pay-' . $currency_code),
+        'class' => $order_to_pay_classes,
         'weight' => $weight++,
       );
 

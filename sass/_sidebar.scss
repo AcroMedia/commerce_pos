@@ -116,6 +116,19 @@
   }
 }
 
+// To Pay - Color changes based on balance.
+#commerce-pos-sale-wrapper.sale,
+#commerce-pos-pay-form-wrapper.sale {
+  .commerce-pos-col-transaction-info #commerce-pos-pay-balance-wrapper,
+  .commerce-pos-col-transaction-info #commerce-pos-transactions-options-wrapper {
+    table.commerce-pos-sidebar-table tr.order-to-pay {
+      &.order-to-pay-positive td.balance {
+        background: #dd0000;
+      }
+    }
+  }
+}
+
 //Discount
 #commerce-pos-sale-wrapper #commerce-pos-discount-add-order-discount-wrapper {
   margin: 20px 0;
