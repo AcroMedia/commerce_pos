@@ -1275,3 +1275,18 @@ function commerce_pos_round_nearest(array $amount, $step) {
 
   return commerce_currency_decimal_to_amount($decimal - $difference + $step, $amount['currency_code']);
 }
+
+/**
+ * Function which results a 'No results' message when the autocomplete search
+ * yields no results.
+ *
+ * @return array
+ */
+function _commerce_pos_product_get_empty_results_message() {
+  return array(
+    'markup' => '<div id="commerce-pos-product-no-results-message">'
+      . t('There are no products that match this search.')
+      . '</div>',
+    'title' => t('No Results'),
+  );
+}

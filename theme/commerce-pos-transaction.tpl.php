@@ -12,6 +12,10 @@
 <?php print render($form['header']); ?>
 <?php print render($form['transaction_id']); ?>
 
+<?php if(isset($form['products_not_configured'])): ?>
+  <?php print render($form['products_not_configured']); ?>
+<?php endif; ?>
+
 <div class="commerce-pos-sale-container clearfix">
   <div class="commerce-pos-col-products">
     <div class="commerce-pos-product-search-container">

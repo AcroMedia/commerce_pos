@@ -23,6 +23,16 @@
         }
       });
 
+      // Show ajax throbber while we're searching.
+      $('.commerce-pos-product-search').keyup(function() {
+        if ($(this).val() != '') {
+          $(this).addClass('show-ajax-throbber');
+        }
+        else {
+          $(this).removeClass('show-ajax-throbber');
+        }
+      });
+
       $('body', context).each(function () {
         $(this).once('commerce-pos-keybindings')
       });
@@ -116,6 +126,9 @@
               element.data('ui-autocomplete').close();
 
           });
+
+          // Remove the ajax throbber now that we've got all products.
+          $('.commerce-pos-product-search').removeClass('show-ajax-throbber');
 
           return product;
         };

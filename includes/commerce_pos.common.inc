@@ -15,6 +15,11 @@ function commerce_pos_product_autocomplete() {
   if (!empty($params['term'])) {
     $results = commerce_pos_product_search($params['term']);
 
+    // Let's return an empty results message back when we get no products.
+    if (empty($results)) {
+      $products[-1] = _commerce_pos_product_get_empty_results_message();
+    }
+
     foreach ($results as $product_id) {
       if ($data = _commerce_pos_product_autocomplete_build($product_id)) {
         $products[$product_id] = $data;

@@ -58,6 +58,12 @@
     background: #fff;
     box-sizing: border-box;
     vertical-align: baseline;
+
+    &.show-ajax-throbber {
+      background-image: url(/misc/throbber.gif) !important;
+      background-repeat: no-repeat !important;
+      background-position: right -13px !important;
+    }
   }
 
   button, input[type="reset"],
@@ -472,4 +478,8 @@
       clear: both;
     }
   }
+}
+
+#commerce-pos-product-no-results-message {
+  text-align: center;
 }

@@ -119,6 +119,41 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     );
   }
 
+  // Output a warning if the product types available for POS transactions have
+  // not been configured yet.
+  $products_not_configured = FALSE;
+  $commerce_product_types = commerce_product_types();
+  $configured_product_types = variable_get('commerce_pos_available_products', array('product'));
+  // If not product types exist.
+  if (empty($commerce_product_types)) {
+    $products_not_configured = TRUE;
+  }
+  // If the product types that exist don't match the configured product types.
+  else {
+    $matching_product = FALSE;
+    foreach ($configured_product_types as $key => $product) {
+      if (isset($commerce_product_types[$product])) {
+        $matching_product = TRUE;
+        break;
+      }
+    }
+
+    if (!$matching_product) {
+      $products_not_configured = TRUE;
+    }
+  }
+
+  if ($products_not_configured) {
+    $form['products_not_configured'] = array(
+      '#markup' => '<div class="messages warning">'
+        . t('Allowed product types have not been configured for POS transactions.
+        Click !here to add product types.', array(
+          '!here' => l('here', 'admin/commerce/config/pos/settings')
+        ))
+        . '</div>',
+    );
+  }
+
   if (!empty($form_state['lookup_result'])) {
     $form['product_results'] = array(
       '#type' => 'container',
