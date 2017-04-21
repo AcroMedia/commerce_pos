@@ -1,0 +1,4 @@
+name = Commerce POS Terminal Example
+description = Provides an example terminal service for commece_pos_terminal
+core = 7.x
+package = Commerce POS
