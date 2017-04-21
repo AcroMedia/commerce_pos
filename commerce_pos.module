@@ -7,6 +7,7 @@
 
 define('COMMERCE_PAYMENT_STATUS_VOID', 'void');
 define('COMMERCE_POS_PAYMENT_STATUS_CANCELED', 'commerce_pos_canceled');
+define('COMMERCE_POS_PAYMENT_METHOD_STATUS_ENABLED', 1);
 
 /**
  * Implements hook_menu().

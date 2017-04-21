@@ -15,16 +15,26 @@
   font-size: 14px;
 }
 
+.commerce-pos-report-transaction-date-header label,
 .form-item-filters-register label,
 .form-item-register-id label {
   font-size: 14px;
 }
 
+.commerce-pos-report-transaction-date-header .form-item {
+  margin: 0;
+  padding: 0;
+}
+
 .form-item-filters-register,
 .form-item-register-id {
   float: left;
-  margin: 35px 0 !important;
-  padding: 0 !important;
+}
+
+.page-admin-commerce-pos-reports .container-inline-date .form-item .form-item,
+.page-admin-commerce-pos-reports .form-item-filters-register,
+.page-admin-commerce-pos-reports .form-item-register-id {
+  padding: 9px 0;
 }
 
 .container-inline-date .form-item select,

@@ -69,9 +69,17 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     '#markup' => $form_state['header'],
   );
 
+  $form['filters']['date_header'] = array(
+    '#type' => 'item',
+    '#title' => t('Transaction Date'),
+    '#prefix' => '<div class="commerce-pos-report-transaction-date-header">',
+    '#suffix' => '</div>',
+  );
+
   $form['filters']['date'] = array(
     '#type' => 'date_select',
     '#title' => t('Transaction Date'),
+    '#title_display' => 'invisible',
     '#date_format' => 'Y-m-d',
     '#default_value' => $default_date,
     '#ajax' => $ajax,
@@ -380,6 +388,23 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
   $transaction_counts = array();
   $transaction_summary = array();
 
+  // Populate the arrays with the POS Payment methods.
+  $pos_methods = commerce_pos_get_payment_methods();
+  $currencies = commerce_currencies(TRUE);
+
+  foreach ($pos_methods as $pos_method) {
+    if (!empty($pos_method['status']) && intval($pos_method['status']) === COMMERCE_POS_PAYMENT_METHOD_STATUS_ENABLED) {
+      foreach (array_keys($currencies) as $currency_code) {
+        $totals[$currency_code][$pos_method['id']] = array(
+          CommercePosService::TRANSACTION_TYPE_SALE => 0,
+          CommercePosService::TRANSACTION_TYPE_RETURN => 0,
+        );
+      }
+      $transaction_summary[$pos_method['id']] = array();
+      $transaction_counts[$pos_method['id']] = 0;
+    }
+  }
+
   $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array(COMMERCE_PAYMENT_STATUS_SUCCESS, COMMERCE_PAYMENT_STATUS_VOID));
   $statuses = commerce_payment_transaction_statuses();
 
@@ -626,9 +651,17 @@ function commerce_pos_report_journal_role($form, &$form_state) {
     'data' => $js_settings,
   );
 
+  $form['filters']['date_header'] = array(
+    '#type' => 'item',
+    '#title' => t('Transaction Date'),
+    '#prefix' => '<div class="commerce-pos-report-transaction-date-header">',
+    '#suffix' => '</div>',
+  );
+
   $form['filters']['date'] = array(
     '#type' => 'date_select',
     '#title' => t('Transaction Date'),
+    '#title_display' => 'invisible',
     '#date_format' => 'Y-m-d',
     '#default_value' => $query_params['date'],
     '#element_key' => 'date_completed',
