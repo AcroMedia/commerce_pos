@@ -174,6 +174,36 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     unset($form_state['lookup_result']);
   }
 
+  // Let's add a order search textfield if we're in a return transaction so the
+  // user could easily pick out which items from the order needs to be returned.
+  if ($return) {
+    $form['order_search'] = array(
+      '#type' => 'container',
+      '#prefix' => '<div id="commerce-pos-return-order-search">',
+      '#tree' => TRUE,
+      '#suffix' => '</div>',
+    );
+    $form['order_search']['input'] = array(
+      '#type' => 'textfield',
+      '#title' => '',
+      '#size' => 60,
+      '#description' => t('Search by order ID to load the items in an order.<br>(Note: This does not support searching for Order Number.)'),
+      '#attributes' => array(
+        'placeholder' => t('Order Search'),
+      ),
+      '#default_value' => !empty($form_state['values']['order_search']['input']) ? $form_state['values']['order_search']['input'] : NULL,
+    );
+
+    $form['order_search']['search'] = array(
+      '#type' => 'button',
+      '#value' => t('Go'),
+      '#ajax' => $wrapper_ajax,
+      '#element_key' => 'do-order-search',
+      '#validate' => array('_commerce_pos_order_search_validate'),
+      '#name' => 'do-order-search',
+    );
+  }
+
   $form['product_search'] = array(
     '#type' => 'container',
   );
@@ -360,6 +390,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       );
 
       $base_price = commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price');
+
       $currency = commerce_currency_load();
 
       $line_item_element['price_edit'] = array(
@@ -746,6 +777,34 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
         case 'customer-update':
           $transaction->data['customer email'] = !empty($triggering_element['#value']) ? $triggering_element['#value'] : NULL;
           $transaction->doAction('save');
+          break;
+
+        case 'do-order-search':
+          $order = commerce_order_load($form_state['input']['order_search']['input']);
+          // If we have got a valid order display the item in the order in a
+          // modal.
+          if ($order) {
+            commerce_pos_return_select_item_popup($form, $form_state, $order);
+          }
+          else {
+            form_set_error('', t('The order does not exist.'));
+          }
+
+          break;
+
+        case 'return-items-add':
+          // Go through the return item checkboxes and get the items from the
+          // order that were selected to be returned and add them to the
+          // return transaction.
+          foreach ($form_state['values']['return_items'] as $key => $value) {
+            if (!empty($value)) {
+              // We're sending the actual price the customer paid to the
+              // addProduct() function, so that price will be used in the
+              // transaction instead of the product price.
+              $transaction->addProduct($form_state['triggering_element']['#line_items'][$value]->commerce_product->value(), 1, TRUE, $form_state['triggering_element']['#line_items'][$value]->commerce_unit_price->value()['amount']);
+            }
+          }
+
           break;
 
         default:

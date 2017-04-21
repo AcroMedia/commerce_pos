@@ -20,6 +20,9 @@
   <div class="commerce-pos-col-products">
     <div class="commerce-pos-product-search-container">
       <?php print render($form['product_search']); ?>
+      <?php if(isset($form['order_search'])): ?>
+        <?php print render($form['order_search']); ?>
+      <?php endif; ?>
     </div>
 
     <div class="commerce-pos-transaction-line-items">

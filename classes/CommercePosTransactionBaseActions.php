@@ -167,7 +167,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Adds the specified product to transaction order.
    */
-  public function addProduct($product, $quantity = 1, $combine = TRUE) {
+  public function addProduct($product, $quantity = 1, $combine = TRUE, $price) {
     if (!in_array($product->type, CommercePosService::allowedProductTypes())) {
       return FALSE;
     }
@@ -185,7 +185,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
     rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
 
-    $amount = $line_item_wrapper->commerce_unit_price->amount->raw();
+    $amount = $price ? $price : $line_item_wrapper->commerce_unit_price->amount->raw();
     $currency = $line_item_wrapper->commerce_unit_price->currency_code->raw();
 
     // We "snapshot" the calculated sell price and use it as the line item's
