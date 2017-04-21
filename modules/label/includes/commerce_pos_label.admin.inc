@@ -30,7 +30,7 @@ function commerce_pos_label_labels_form_page() {
 
   $page['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';
   $page['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
-  $page['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.transaction.js';
+  $page['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.js';
 
   $page['header'] = array(
     '#markup' => theme('commerce_pos_header', array('account' => $user)),

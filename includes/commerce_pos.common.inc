@@ -197,3 +197,67 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 function commerce_pos_customer_js($form, &$form_state) {
   return $form['customer'];
 }
+
+/**
+ * Add a container for a modal dialogue to a form.
+ *
+ * Add to the 'modal' key to add to the body of the modal.
+ *
+ * @code
+ * $form['some_prompt'] = commerce_pos_form_modal();
+ * $form['some_prompt']['modal']['my_text'] = array(
+ *   '#markup' => t('This text is in the body of a modal.'),
+ * );
+ * @endcode
+ *
+ * If making the modal uncloseable, you should provide your own method of
+ * closing the modal.
+ *
+ * @param array $options
+ *   An array of options for the modal:
+ *   - closeable (bool): Defaults to TRUE. Set to FALSE to prevent the user from
+ *     closing the modal.
+ *   - throbber (bool): Defaults to FALSE. Set to TRUE to display a throbber on
+ *     the modal.
+ *
+ * @return array
+ *   The Form API elements to create the modal. The 'modal' key of the array is
+ *   the body of the modal.
+ */
+function commerce_pos_form_modal($options = array()) {
+  $options += array(
+    'closeable' => TRUE,
+    'throbber' => FALSE,
+  );
+
+  $modal = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'commerce-pos-form-modal-overlay',
+      'class' => array('commerce-pos-form-modal-overlay'),
+    ),
+  );
+
+  $modal['modal'] = array(
+    '#type' => 'container',
+    '#attributes' => array(
+      'id' => 'commerce-pos-form-modal-modal',
+      'class' => array('commerce-pos-form-modal-modal'),
+    ),
+  );
+
+  if ($options['closeable']) {
+    $modal['modal']['close'] = array(
+      '#markup' => '<div id="commerce-pos-form-modal-close" class="commerce-pos-form-modal-close">X</div>',
+    );
+  }
+
+  if ($options['throbber']) {
+    $throbber_source = drupal_get_path('module', 'commerce_pos') . '/images/loader.gif';
+    $modal['modal']['throbber'] = array(
+      '#markup' => '<div class="commerce-pos-form-modal-throbber"><img src="/' . $throbber_source . '" /></div>',
+    );
+  }
+
+  return $modal;
+}

@@ -138,6 +138,7 @@
     font: inherit;
 
     &:hover, &:focus {
+      background: inherit;
       text-decoration: underline;
     }
   }
@@ -145,7 +146,9 @@
 
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info .form-submit,
 #commerce-pos-pay-form-wrapper .commerce-pos-col-transaction-info .form-submit,
-#commerce-pos-location-float-form .form-submit {
+#commerce-pos-location-float-form .form-submit,
+#commerce-pos-sale-wrapper .commerce-pos-form-modal-modal .form-submit,
+#commerce-pos-pay-form-wrapper .commerce-pos-form-modal-modal .form-submit {
   background: $primary;
   border: 0;
   margin: 0 0 5px 0;
@@ -256,4 +259,58 @@ div.status {
 //Hidden Elements
 .form-item .commerce-pos-hidden-element {
   display: none;
+}
+
+.commerce-pos-form-modal {
+  &-overlay {
+    background: $overlay-medium;
+    height: 100%;
+    left: 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 9998;
+  }
+
+  &-modal {
+    background: #fff;
+    border: 1px solid #666;
+    max-height: 75%;
+    left: 50%;
+    overflow: auto;
+    padding: 20px;
+    position: fixed;
+    text-align: center;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 75%;
+    z-index: 9999;
+
+    @media screen and (min-width: 767px) {
+      width: 50%;
+    }
+
+    @media screen and (min-width: 980px) {
+      width: 33%;
+    }
+  }
+
+  &-close {
+    color: #666;
+    cursor: pointer;
+    font-size: 1.6em;
+    padding: 5px;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+  }
+
+  &-throbber img {
+    max-height: 60px;
+    max-width: 60px;
+  }
+
+  &-notice {
+    font-style: italic;
+  }
 }

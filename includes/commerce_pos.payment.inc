@@ -371,7 +371,8 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
   $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
 
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.payment.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';
 }
 
 /**
