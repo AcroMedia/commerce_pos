@@ -480,7 +480,10 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     $weight = 0;
 
     foreach ($totals as $currency_code => $amount) {
-      $order_to_pay_classes = array('order-to-pay', 'order-to-pay-' . $currency_code);
+      $order_to_pay_classes = array(
+        'order-to-pay',
+        'order-to-pay-' . $currency_code
+      );
 
       if ($amount > 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
@@ -1153,7 +1156,12 @@ function theme_commerce_pos_price_formatted_components(array $variables) {
 
   return theme('table', array(
     'rows' => $rows,
-    'attributes' => array('class' => array('commerce-pos-sidebar-table', 'commerce-price-formatted-components')),
+    'attributes' => array(
+      'class' => array(
+        'commerce-pos-sidebar-table',
+        'commerce-price-formatted-components'
+      )
+    ),
   ));
 }
 
@@ -1307,4 +1315,13 @@ function _commerce_pos_product_get_empty_results_message() {
       . '</div>',
     'title' => t('No Results'),
   );
+}
+
+/**
+ * Implements hook_commerce_stock_check_item_stock_alter().
+ */
+function commerce_pos_commerce_stock_check_item_stock_alter($product) {
+  // TODO: There has got to be a better way to check stock as we need to take
+  // into account stock rules etc.
+  return $product->commerce_stock[LANGUAGE_NONE][0]['value'];
 }

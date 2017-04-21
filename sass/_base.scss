@@ -3,9 +3,8 @@
 //
 
 #commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
-  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif!important;
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif !important;
 }
-
 
 //Buttons
 #commerce-pos-sale-wrapper .commerce-pos-col-transaction-info,
@@ -123,7 +122,7 @@
 
 #commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper, #commerce-pos-report-results-container {
   .button-link, .button-link:hover, button.button-link, input[type="reset"].button-link,
-  input[type="submit"].button-link,input[type="button"].button-link {
+  input[type="submit"].button-link, input[type="button"].button-link {
     border: none;
     background: transparent;
     font-weight: normal;
@@ -252,7 +251,7 @@ div.status {
   border-top: 1px solid #eee;
 
   input {
-    margin: 0 20px 0 0!important;
+    margin: 0 20px 0 0 !important;
   }
 }
 
@@ -312,5 +311,24 @@ div.status {
 
   &-notice {
     font-style: italic;
+  }
+}
+
+/** Styling for out of stock overridden modal. **/
+#out-of-stock-override-confirm-question {
+  margin-bottom: 15px;
+}
+
+#commerce-pos-form-modal-modal {
+  #edit-out-of-stock-override-confirm-yes-button,
+  #edit-out-of-stock-override-confirm-no-button {
+    width: inherit;
+    display: inline-block;
+
+    &.link {
+      color: #337ab7;
+      background: none;
+      border: none;
+    }
   }
 }

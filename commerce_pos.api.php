@@ -122,3 +122,16 @@ function hook_commerce_pos_void_payment_transaction(CommercePosTransaction $tran
 function hook_commerce_pos_header_links_alter(array &$links) {
   $links['admin/commerce/pos/sales'] = t('Sales');
 }
+
+/**
+ * Allows modules to alter our stock check for an item.
+ *
+ * @param entity
+ *   The product that we are checking the stock for.
+ *
+ * @return int
+ *   The number of stock that this product currently has.
+ */
+function hook_commerce_stock_check_item_stock_alter($product) {
+  return $product->value()->commerce_stock[LANGUAGE_NONE][0]['value'];
+}
