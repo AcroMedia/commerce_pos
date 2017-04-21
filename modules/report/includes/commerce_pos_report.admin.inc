@@ -37,7 +37,7 @@ function commerce_pos_report_settings($form, &$form_state) {
     '#type' => 'select',
     '#title' => t('Minute'),
     '#options' => $minute_options,
-    '#default_value' => variable_get('commerce_pos_report_end_of_day_hour', 59),
+    '#default_value' => variable_get('commerce_pos_report_end_of_day_minute', 59),
   );
 
   return system_settings_form($form);
