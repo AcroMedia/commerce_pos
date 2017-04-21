@@ -369,15 +369,32 @@ function commerce_pos_report_end_of_day_timestamp($time = FALSE) {
  *   Comma separated list of payment types for the specified order.
  */
 function commerce_pos_report_payment_types($order_id) {
-  // Payment type.
-  $payment_types = array();
-  $payment_results = db_query('SELECT * FROM {commerce_payment_transaction} t WHERE t.order_id = :order_id', array(
-    ':order_id' => $order_id,
-  ));
+  // Get all the transactions for this order.
+  $transaction_ids = commerce_pos_get_order_transactions($order_id);
+  $transactions = commerce_payment_transaction_load_multiple($transaction_ids);
 
-  foreach ($payment_results as $payment_result) {
-    if ($payment_result->payment_method != 'commerce_pos_change' && $payment_method = commerce_payment_method_load($payment_result->payment_method)) {
-      $payment_types[$payment_result->payment_method] = $payment_method['title'];
+  // Now, let's get all the different transaction statuses we have and find the
+  // statuses that count towards the total.
+  $transaction_statuses = commerce_payment_transaction_statuses();
+  foreach ($transaction_statuses as $transaction_status) {
+    if ($transaction_status['total'] == TRUE) {
+      $successful_statuses[$transaction_status['status']] = $transaction_status['status'];
+    }
+  }
+
+  // Go through and grab the title of the payment types but strike through all
+  // the transactions that didn't count towards the total.
+  foreach ($transactions as $transaction) {
+    if ($transaction->payment_method != 'commerce_pos_change' && $payment_method = commerce_payment_method_load($transaction->payment_method)) {
+      if (!isset($successful_statuses[$transaction->status])) {
+        $title = '<strike class="unsuccessful">' . $payment_method['title'] . '</strike>';
+      }
+      else {
+        $title = $payment_method['title'];
+      }
+
+      // Now, add it to the payment types.
+      $payment_types[] = $title;
     }
   }
 
