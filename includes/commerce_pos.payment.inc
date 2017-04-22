@@ -185,13 +185,16 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         }
       }
 
+      $order_balance_amount_format = commerce_currency_format($order_balance['amount'], $order_balance['currency_code']);
+      $keypad_amount = preg_replace('/[^0-9\.,]/', '', $order_balance_amount_format);
+
       $form['keypad']['amount'] = array(
         '#type' => 'textfield',
         '#title' => t('Enter @title Amount', array(
           '@title' => $payment_options[$option_id]['title'],
         )),
         '#required' => TRUE,
-        '#default_value' => commerce_currency_amount_to_decimal($order_balance['amount'], $order_balance['currency_code']),
+        '#default_value' => $keypad_amount,
         '#attributes' => array(
           'autofocus' => 'autofocus',
           'autocomplete' => 'off',
