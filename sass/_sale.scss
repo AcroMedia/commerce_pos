@@ -104,6 +104,7 @@
   > .form-wrapper > .form-wrapper .line-item-col {
     display: inline-block;
     margin: 5px 0;
+    vertical-align: top;
   }
 
   .image-wrapper {
@@ -191,7 +192,7 @@
 //
 //---PRICE EDIT WRAPPER---
 //
-#commerce-pos-sale-wrapper .price-edit-wrapper {
+#commerce-pos-sale-wrapper .price-edit-wrapper .price-edit-input-wrapper {
   .form-item {
     margin: 0;
     padding: 0;
@@ -222,8 +223,11 @@
 .commerce-pos-transaction-line-items .quantity-wrapper .add-remove-wrapper {
   display: inline-block !important;
   width: 20px;
-  margin: 0;
+  margin: 0 !important;
+  padding: 0 !important;
   font-size: 0;
+  min-height: 0 !important;
+  height: auto !important;
 }
 
 #commerce-pos-sale-wrapper .add-remove-wrapper {
@@ -352,10 +356,17 @@
 //---DISCOUNT---
 //
 #commerce-pos-sale-wrapper .commerce-pos-discount-wrapper {
+  position: relative;
+  width: auto;
+  text-align: center;
+
   .form-wrapper {
-    display: inline-block;
-    font-size: 0;
-    vertical-align: top;
+    position: relative;
+    display: block;
+    margin: 0 auto;
+    padding: 0 80px 0 0;
+    max-width: 180px;
+    vertical-align: middle;
   }
 
   .discount-description {
@@ -365,15 +376,32 @@
 
   input.form-text {
     display: block;
-    margin: 0 2px 0 10px;
-    width: auto;
-    border: 1px solid $border-color;
+    margin: 0 auto 5px auto;
+    width: 100%;
+    height: 30px;
     font-size: 12px !important;
+    border: 1px solid $border-color;
+  }
+
+  .form-item {
+    float: left;
+    margin: 0;
+    padding: 0;
+    border: none;
+    border-radius: 0;
+    vertical-align: baseline;
   }
 
   .form-submit {
-    margin: 0 2px 0 0;
+    display: block;
+    margin: 9px auto;
     font-size: 12px;
+  }
+
+  input[type="submit"].button-link.small {
+    display: inline-block;
+    margin: 0 auto;
+    vertical-align: top;
   }
 
   .form-group .form-submit {
@@ -382,10 +410,28 @@
     color: #fff;
     border: 1px solid transparent;
   }
+
+  .form-wrapper input[type="submit"],
+  .form-wrapper input[type="submit"].blue {
+    position: absolute;
+    top: 0;
+    right: 0;
+    display: block;
+    margin: 0;
+    padding: 0;
+    width: 35px;
+    height: 30px;
+    background: $primary;
+    color: #fff;
+    border: none;
+
+    &.commerce-pos-percent-discount-submit {
+      right: 40px;
+    }
+  }
 }
 
-#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue,
-.commerce-pos-discount-wrapper .form-wrapper input[type="submit"] {
+#commerce-pos-sale-wrapper .form-wrapper input[type="submit"].blue {
   display: inline-block;
   background: $primary;
   color: #fff;
@@ -401,8 +447,12 @@
 
 .commerce-pos-discount-wrapper .form-item,
 #commerce-pos-sale-wrapper .commerce-pos-discount-wrapper .form-item {
+  float: none;
   margin: 0;
   padding: 0;
+  width: 100%;
+  border: none;
+  border-radius: 0;
   vertical-align: baseline;
 }
 
@@ -447,6 +497,12 @@
       position: relative;
       display: table-cell;
       box-sizing: border-box;
+      vertical-align: middle;
+    }
+
+    > .form-wrapper > .form-wrapper .line-item-row-wrapper-with-image.line-item-row-with-discount .line-item-col {
+      height: 212px;
+      vertical-align: middle;
     }
 
     .image-wrapper {
@@ -461,12 +517,12 @@
     }
 
     .title-wrapper {
-      width: 38%;
+      width: 36%;
       padding-right: 2%;
     }
 
     .price-edit-wrapper {
-      width: 15%;
+      width: 17%;
     }
 
     .quantity-wrapper {
@@ -478,8 +534,40 @@
     }
 
     > .form-wrapper > .form-wrapper .commerce-pos-discount-wrapper {
-      margin-left: 54%;
-      clear: both;
+
+    }
+  }
+
+  #commerce-pos-sale-wrapper .line-item-row-wrapper-with-image.line-item-row-with-discount .commerce-pos-discount-wrapper {
+    position: absolute;
+    width: 89%;
+  }
+
+  #commerce-pos-sale-wrapper .commerce-pos-discount-wrapper .form-wrapper {
+    padding-right: 54px;
+
+    input[type="submit"],
+    input[type="submit"].blue {
+      width: 23px;
+
+      &.commerce-pos-percent-discount-submit {
+        right: 26px;
+      }
+    }
+  }
+}
+
+@media screen and (min-width: 1200px) {
+  #commerce-pos-sale-wrapper .commerce-pos-discount-wrapper .form-wrapper {
+    padding-right: 80px;
+
+    input[type="submit"],
+    input[type="submit"].blue {
+      width: 35px;
+
+      &.commerce-pos-percent-discount-submit {
+        right: 40px;
+      }
     }
   }
 }
