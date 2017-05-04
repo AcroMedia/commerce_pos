@@ -801,7 +801,8 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
               // We're sending the actual price the customer paid to the
               // addProduct() function, so that price will be used in the
               // transaction instead of the product price.
-              $transaction->addProduct($form_state['triggering_element']['#line_items'][$value]->commerce_product->value(), 1, TRUE, $form_state['triggering_element']['#line_items'][$value]->commerce_unit_price->value()['amount']);
+              $price = $form_state['triggering_element']['#line_items'][$value]->commerce_unit_price->value();
+              $transaction->addProduct($form_state['triggering_element']['#line_items'][$value]->commerce_product->value(), 1, TRUE, $price['amount']);
             }
           }
 
