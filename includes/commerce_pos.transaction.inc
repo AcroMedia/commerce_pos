@@ -340,9 +340,19 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         }
       }
 
+      // Set line item row wrapper class.
+      $line_item_row_wrapper_class = "line-item-row-wrapper";
+
+      if (_commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value())) {
+        $line_item_row_wrapper_class .= " line-item-row-wrapper-with-image";
+      }
+
+      if (module_exists('commerce_pos_discount')) {
+        $line_item_row_wrapper_class .= " line-item-row-with-discount";
+      }
 
       $line_item_element['line_item_row_wrapper_open'] = array(
-        '#markup' => '<div class="line-item-row-wrapper">',
+        '#markup' => '<div class="' . $line_item_row_wrapper_class . '">',
       );
 
       $line_item_element['image_wrapper_open'] = array(
@@ -393,7 +403,17 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
       $currency = commerce_currency_load();
 
-      $line_item_element['price_edit'] = array(
+      $line_item_element['price_container'] = array(
+        '#type' => 'container',
+        '#id' => 'commerce-pos-price-container',
+        '#attributes' => array(
+          'class' => array(
+            'commerce-pos-price-container-wrapper price-edit-wrapper line-item-col',
+          )
+        ),
+      );
+
+      $line_item_element['price_container']['price_edit'] = array(
         '#type' => 'textfield',
         '#title' => t('@price', array(
           '@price' => commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']),
@@ -408,7 +428,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
           'class' => array('commerce-pos-hidden-element'),
           'tabindex' => 0,
         ),
-        '#prefix' => '<div class="price-edit-wrapper line-item-col">',
+        '#prefix' => '<div class="price-edit-input-wrapper">',
         '#suffix' => '</div>',
       );
 
