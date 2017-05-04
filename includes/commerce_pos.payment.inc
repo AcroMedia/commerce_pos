@@ -162,7 +162,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     if (!empty($form_state['triggering_element']['#payment_option_id'])) {
       $option_id = $form_state['triggering_element']['#payment_option_id'];
 
-      if ($option_id == 'commerce_pos_payment_cash') {
+      if ($option_id == 'commerce_pos_payment_cash' && $transaction_type == 'sale') {
 
         $form['keypad']['quick_pay'] = array(
           '#type' => 'container',
