@@ -167,7 +167,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Adds the specified product to transaction order.
    */
-  public function addProduct($product, $quantity = 1, $combine = TRUE, $price) {
+  public function addProduct($product, $quantity = 1, $combine = TRUE, $price = NULL) {
     if (!in_array($product->type, CommercePosService::allowedProductTypes())) {
       return FALSE;
     }

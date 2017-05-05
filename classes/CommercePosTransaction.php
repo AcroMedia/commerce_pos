@@ -220,7 +220,7 @@ class CommercePosTransaction {
    *   Any arguments that need to be passed to the hook.
    *
    * @return mixed
-   *    The results of the invoked action, throws exception on error.
+   *   The results of the invoked action, throws exception on error.
    *
    * @throws Exception
    *   Name of the action if it doesn't exist.

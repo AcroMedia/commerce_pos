@@ -112,7 +112,7 @@ function commerce_pos_settings($form, &$form_state) {
     '#title' => t('Payment Settings'),
   );
 
-  $form['payments']['commerce_pos_default_payment_method'] = array (
+  $form['payments']['commerce_pos_default_payment_method'] = array(
     '#type' => 'select',
     '#title' => t('Default Payment Method'),
     '#description' => t('Select the default payment method.'),

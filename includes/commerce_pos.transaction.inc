@@ -146,11 +146,11 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   if ($products_not_configured) {
     $form['products_not_configured'] = array(
       '#markup' => '<div class="messages warning">'
-        . t('Allowed product types have not been configured for POS transactions.
+      . t('Allowed product types have not been configured for POS transactions.
         Click !here to add product types.', array(
-          '!here' => l('here', 'admin/commerce/config/pos/settings')
+          '!here' => l(t('here'), 'admin/commerce/config/pos/settings')
         ))
-        . '</div>',
+      . '</div>',
     );
   }
 
@@ -213,8 +213,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     $form['product_search']['onboarding_text'] = array(
       '#type' => 'markup',
       '#markup' => '<div class="commerce-pos-search-onboarding-message">' . t("<strong>Start your @txn_type:</strong> scan barcode or use product search", array(
-          '@txn_type' => $return ? t('return') : t('order'),
-        )) . '</div>',
+        '@txn_type' => $return ? t('return') : t('order'),
+      )) . '</div>',
     );
   }
 
@@ -283,7 +283,6 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
           $stock = $stock[0];
         }
 
-
         if (is_numeric($stock) && $stock < 1) {
           $out_of_stock = TRUE;
           // If the form has been reloaded, add the existing out of stock items
@@ -306,8 +305,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
           ));
           $form['out_of_stock_override_modal']['modal']['message'] = array(
             '#markup' => '<div id="out-of-stock-override-confirm-question">'
-              . t('This product does not have any stock. Do you still want to add this item to the order?')
-              . '</div>',
+            . t('This product does not have any stock. Do you still want to add this item to the order?')
+            . '</div>',
           );
 
           // Display a override button to proceed with adding the item to the
@@ -915,8 +914,7 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
 }
 
 /**
- * Custom ajax callback for the 'Override' button when a product does not have
- * sufficient stock.
+ * Custom ajax callback for the 'Override' button when a product does not have sufficient stock.
  *
  * We just want to remove the entire wrapper div and go on as usual if they
  * click on 'Override'.

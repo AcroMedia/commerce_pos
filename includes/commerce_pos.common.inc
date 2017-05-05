@@ -224,7 +224,7 @@ function commerce_pos_customer_js($form, &$form_state) {
  *   The Form API elements to create the modal. The 'modal' key of the array is
  *   the body of the modal.
  */
-function commerce_pos_form_modal($options = array()) {
+function commerce_pos_form_modal(array $options = array()) {
   $options += array(
     'closeable' => TRUE,
     'throbber' => FALSE,

@@ -334,8 +334,8 @@ function commerce_pos_terminal_form_add_pending_check(&$form, &$form_state) {
     if (!empty($transaction->remote_id)) {
       $form['pending_transactions']['modal']['remote_id_' . $transaction_id] = array(
         '#markup' => '<p>' . t('Transaction ID: @transaction_id', array(
-            '@transaction_id' => $transaction->remote_id,
-          )) . '</p>',
+          '@transaction_id' => $transaction->remote_id,
+        )) . '</p>',
       );
     }
   }

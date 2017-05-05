@@ -48,7 +48,7 @@ function commerce_pos_payment_requirements($phase) {
       );
     }
     else {
-      $link  = l(t('configure payment methods here.'), '/admin/commerce/config/custom-offline-payments');
+      $link = l(t('configure payment methods here.'), '/admin/commerce/config/custom-offline-payments');
       $requirements['commerce_pos_payment'] = array(
         'title' => t('Commerce Point of Sale Payment'),
         'severity' => REQUIREMENT_WARNING,

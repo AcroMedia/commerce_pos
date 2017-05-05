@@ -227,7 +227,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#name' => 'commerce-pos-discount-percent-discount-' . $line_item_id,
           '#ajax' => $wrapper_ajax,
           '#attributes' => array(
-            'class' => array('blue','commerce-pos-percent-discount-submit')
+            'class' => array('blue', 'commerce-pos-percent-discount-submit')
           )
         );
 
@@ -239,7 +239,7 @@ function _commerce_pos_discount_transaction_form_alter(&$form, &$form_state) {
           '#name' => 'commerce-pos-discount-fixed-discount-' . $line_item_id,
           '#ajax' => $wrapper_ajax,
           '#attributes' => array(
-            'class' => array('blue','commerce-pos-fixed-discount-submit')
+            'class' => array('blue', 'commerce-pos-fixed-discount-submit')
           )
         );
 

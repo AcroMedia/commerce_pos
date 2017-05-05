@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Class CommercePosTerminalExampleService
+ * Class CommercePosTerminalExampleService.
  */
 class CommercePosTerminalExampleService implements CommercePosTerminalServiceInterface {
 
@@ -84,7 +84,7 @@ class CommercePosTerminalExampleService implements CommercePosTerminalServiceInt
   }
 
   /**
-   * {@ineritdoc}
+   * {@inheritdoc}
    */
   public function saved() {
     return $this;

@@ -4,3 +4,4 @@ core = 7.x
 package = Commerce POS
 
 dependencies[] = commerce_pos
+dependencies[] = commerce_pos:commerce_pos_currency_denomination
