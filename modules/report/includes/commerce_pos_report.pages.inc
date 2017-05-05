@@ -809,7 +809,9 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
     ->extend('PagerDefault')
     ->extend('TableSort');
 
-  $query->limit($filters['results_per_page']);
+  if ($filters['results_per_page'] > 0) {
+    $query->limit($filters['results_per_page']);
+  }
 
   $query->fields('t', array('order_id', 'completed', 'uid', 'type'));
 
