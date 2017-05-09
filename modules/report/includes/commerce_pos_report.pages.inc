@@ -801,7 +801,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
     array('data' => t('Discount')),
     array(
       'data' => t('Order Total'),
-      'field' => 'ot.commerce_order_total_amount'
+      'field' => 'ot.commerce_order_total_amount',
     ),
   );
 
@@ -836,11 +836,12 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
   $query->fields('ot', array(
     'commerce_order_total_amount',
     'commerce_order_total_currency_code',
-    'commerce_order_total_data'
+    'commerce_order_total_data',
   ));
 
   // Join line item data.
   $query->join('commerce_line_item', 'l', 'l.order_id = t.order_id');
+  $query->addField('l', 'quantity');
   $query->addExpression('COUNT(DISTINCT l.line_item_id)', 'item_count');
 
   $line_item_types = commerce_product_line_item_types();
@@ -889,11 +890,11 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
 
       switch ($row->type) {
         case CommercePosService::TRANSACTION_TYPE_RETURN:
-          $return_count = $row->item_count;
+          $return_count = (int) $row->quantity;
           break;
 
         default:
-          $purchase_count = $row->item_count;
+          $purchase_count = (int) $row->quantity;
           break;
       }
 
@@ -903,7 +904,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
         'attributes' => array(
           'class' => array('commerce-pos-report-journal-role-order use-ajax'),
           'data-order-id' => $row->order_id,
-        )
+        ),
       ));
 
       $table_row[] = format_date($row->completed, 'custom', 'g:i a');
