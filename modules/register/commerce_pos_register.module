@@ -228,7 +228,7 @@ function _commerce_pos_register_check_form_alter(&$form, &$form_state) {
   if (!$current_register) {
     $goto = 'admin/commerce/pos/register-select';
   }
-  elseif (!commerce_pos_register_get_float($current_register)) {
+  elseif (empty(commerce_pos_register_get_floats($current_register))) {
     $goto = 'admin/commerce/pos/float/' . $current_register . '/select';
   }
 
@@ -584,19 +584,19 @@ function commerce_pos_register_configure_registers() {
 }
 
 /**
- * Retrieves a float entry for a register.
+ * Retrieves all float entries for a register and date.
  *
  * @param int $register_id
  *   The ID of the register to get the entry for.
  * @param int|bool $date
- *   A timestamp indicating the date to retrieve the float entry for. Any
- *   entries that were created on the same day as $date will be returned.
+ *   (Optional) A timestamp indicating the date to retrieve the float entry for.
+ *   Any entries that were created on the same day as $date will be returned.
+ *   Defaults to current REQUEST_TIME.
  *
- * @return array|object
- *   All float entries found. If only one entry is found, it will be returned
- *   by itself instead.
+ * @return array
+ *   All float entries found.
  */
-function commerce_pos_register_get_float($register_id, $date = FALSE) {
+function commerce_pos_register_get_floats($register_id, $date = FALSE) {
   $entries = array();
 
   if ($date === FALSE) {
@@ -623,7 +623,7 @@ function commerce_pos_register_get_float($register_id, $date = FALSE) {
     $entries[$row->float_id] = $row;
   }
 
-  return count($entries) == 1 ? reset($entries) : $entries;
+  return $entries;
 }
 
 /**

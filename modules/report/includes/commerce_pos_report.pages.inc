@@ -142,14 +142,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
     t('Cash Deposit'),
   );
 
-  // Get the float for the day.
-  if (module_exists('commerce_pos_register')) {
-    $float = commerce_pos_register_get_float($register_id, strtotime($date_filter));
-  }
-  else {
-    $float = FALSE;
-  }
-
   list($totals, $transaction_counts) = commerce_pos_report_get_totals($date_filter, $register_id);
 
   foreach ($totals as $currency_code => $currency_totals) {
@@ -198,8 +190,12 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
           unset($change_amounts);
         }
 
-        if ($float) {
-          $expected_amount += $float->amount;
+        if (module_exists('commerce_pos_register')) {
+          // Get the float for the day.
+          $floats = commerce_pos_register_get_floats($register_id, strtotime($date_filter));
+          foreach ($floats as $float) {
+            $expected_amount += $float->amount;
+          }
         }
       }
 

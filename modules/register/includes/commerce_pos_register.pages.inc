@@ -93,6 +93,13 @@ function commerce_pos_register_float_form_validate($form, &$form_state) {
   if (!(is_numeric($amount) && $amount > 0)) {
     form_set_error('amount', t('Amount must be a number greater than zero.'));
   }
+
+  // Also ensure that no other floats have been submitted for this day and
+  // register.
+  if (!empty(commerce_pos_register_get_floats($form['#register_id']))) {
+    drupal_set_message(t("You have already entered a float for that register today."), 'warning');
+    drupal_goto('admin/commerce/pos');
+  }
 }
 
 /**

@@ -74,14 +74,6 @@ function commerce_pos_report_preprocess_commerce_pos_report_receipt(&$variables)
   list($totals, $transaction_counts, $transaction_summary) = commerce_pos_report_get_totals($date, $register_id);
   $results = commerce_pos_report_get_eod_report($date, $register_id);
 
-  // Get the float for the day.
-  if (module_exists('commerce_pos_register')) {
-    $float = commerce_pos_register_get_float($register_id, strtotime($date));
-  }
-  else {
-    $float = FALSE;
-  }
-
   $variables['rows'] = array();
 
   foreach ($totals as $currency_code => $currency_totals) {
@@ -107,8 +99,12 @@ function commerce_pos_report_preprocess_commerce_pos_report_receipt(&$variables)
         $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN]);
         unset($change_amounts);
 
-        if ($float) {
-          $expected_amount += $float->amount;
+        if (module_exists('commerce_pos_register')) {
+          // Get the float for the day.
+          $floats = commerce_pos_register_get_floats($register_id, strtotime($date));
+          foreach ($floats as $float) {
+            $expected_amount += $float->amount;
+          }
         }
       }
 
