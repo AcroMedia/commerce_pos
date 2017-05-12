@@ -695,11 +695,13 @@ function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
 
   // If the increment or decrement buttons were used, we need to add/subtract
   // from the requested_qty.
-  if ($form_state['triggering_element']['#element_key'] == 'line-item-remove-qty') {
-    $requested_qty -= 1;
-  }
-  if ($form_state['triggering_element']['#element_key'] == 'line-item-add-qty') {
-    $requested_qty += 1;
+  if (isset($form_state['triggering_element']['#element_key'])) {
+    if ($form_state['triggering_element']['#element_key'] == 'line-item-remove-qty') {
+      $requested_qty -= 1;
+    }
+    if ($form_state['triggering_element']['#element_key'] == 'line-item-add-qty') {
+      $requested_qty += 1;
+    }
   }
 
   if (is_numeric($requested_qty) && $requested_qty > 0) {
