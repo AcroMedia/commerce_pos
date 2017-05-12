@@ -88,19 +88,13 @@
         padding: 15px 10px;
         border: 0;
 
-        &.status,
-        &.actions {
-          text-align: center;
+        &.has-second-row {
+          padding-bottom: 7px;
         }
       }
 
-      td,
-      td.status img {
-        vertical-align: middle;
-      }
-
-      td.status img {
-        border-radius: 50%;
+      td {
+        vertical-align: top;
       }
     }
   }
@@ -125,6 +119,11 @@
   .form-item {
     padding: 0;
     margin: 0 0 20px 0;
+  }
+
+  .commerce-pos-payment-transaction-remote-id {
+    color: #999;
+    font-weight: normal;
   }
 
   #commerce-pos-customer-input-wrapper {

@@ -182,7 +182,9 @@
 }
 
 #commerce-pos-sale-wrapper, #commerce-pos-pay-form-wrapper {
-  .button-link.small, input[type="submit"].button-link.small {
+  .button-link.small,
+  input[type="submit"].button-link.small,
+  .commerce-pos-payment-transaction-remote-id {
     font-size: 12px;
   }
 }

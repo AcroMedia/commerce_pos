@@ -144,29 +144,44 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
     $currency_code = $transaction->currency_code;
     $amount = $transaction->amount;
 
+    // If a payment transaction doesn't count toward the total paid, show its
+    // status in the title.
+    $title = $payment_method['title'];
+    $formatted_amount = commerce_currency_format($amount, $currency_code);
+    if (!empty($transaction_statuses[$status]) && !$transaction_statuses[$status]['total']) {
+      $title .= ' - ' . $transaction_statuses[$status]['title'];
+      $formatted_amount = '<s>' . $formatted_amount . '</s>';
+    }
+    $title = '<div class="commerce-pos-payment-transaction-title">' . $title . '</div>';
+
+    // Omit buttons from this summary in reports.
+    $actions = '';
+    if (empty($variables['display_only'])) {
+      $actions = theme('commerce_pos_transaction_actions', array('transaction' => $transaction));
+    }
+
+    // Add a separator between remote ID and actions, if there are actions.
+    $remote_id = !empty($actions) ? ' - ' . $transaction->remote_id : $transaction->remote_id;
+
+    // Don't add any markup if the transaction doesn't have a remote ID.
+    $remote_id = $remote_id ? '<span class="commerce-pos-payment-transaction-remote-id small">' . $remote_id . '</span>' : '';
+
+    $row_classes = array('payment-method');
+    if (!empty($actions) || !empty($remote_id)) {
+      $row_classes[] = 'has-second-row';
+    }
+
     $row = array(
       'data' => array(
         array(
-          'data' => $payment_method['title'],
-          'class' => array('payment-method'),
+          'data' => $title . $actions . $remote_id,
+          'class' => $row_classes,
         ),
       ),
     );
 
-    if (empty($variables['display_only'])) {
-      $row['data'][] = array(
-        'data' => theme('commerce_pos_transaction_actions', array('transaction' => $transaction)),
-        'class' => array('actions'),
-      );
-
-      $row['data'][] = array(
-        'data' => theme('commerce_payment_transaction_status_icon', array('transaction_status' => $transaction_statuses[$status])),
-        'class' => array('status'),
-      );
-    }
-
     $row['data'][] = array(
-      'data' => commerce_currency_format($amount, $currency_code),
+      'data' => $formatted_amount,
       'class' => array('amount'),
     );
 
@@ -214,13 +229,13 @@ function theme_commerce_pos_transaction_actions($variables) {
   $output = array();
 
   // Determine which actions are available based on the transaction's status.
-  $actions = ($transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS) ? array('void') : array();
+  $actions = ($transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS) ? array('Void') : array();
 
   foreach ($actions as $action) {
     $output[] = l($action, '#', array(
       'attributes' => array(
         'class' => array(
-          'commerce-pos-' . $action . '-payment',
+          'commerce-pos-' . strtolower($action) . '-payment',
           'button-link',
           'small',
         ),
@@ -229,5 +244,5 @@ function theme_commerce_pos_transaction_actions($variables) {
     ));
   }
 
-  return implode('<br />', $output);
+  return implode(', ', $output);
 }
