@@ -148,7 +148,8 @@ function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has
 
   $parked_transactions_section = array();
 
-  if ($parked_transactions = CommercePosService::getParkedTransactions($transaction_type, $user->uid)) {
+  $cashier_id = commerce_pos_cashier_get_current_cashier();
+  if ($parked_transactions = CommercePosService::getParkedTransactions($transaction_type, $cashier_id)) {
     $parked_transactions_section = array(
       '#type' => 'container',
       '#tree' => TRUE,

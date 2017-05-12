@@ -62,7 +62,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
   }
 
   if (!isset($form_state['transaction'])) {
-    if ($transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid)) {
+    if ($transaction = CommercePosService::getCurrentTransaction($transaction_type, $cashier_id)) {
       $order_wrapper = $transaction->getOrderWrapper();
 
       if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress') {

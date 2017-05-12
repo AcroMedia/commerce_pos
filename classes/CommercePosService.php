@@ -21,32 +21,32 @@ class CommercePosService {
    *
    * @param int $type
    *   The type of current transaction to retrieve.
-   * @param int $uid
-   *   The user ID to retrieve the transaction for.
+   * @param int $cashier_id
+   *   The cashier ID to retrieve the transaction for.
    * @param bool $reset
    *   If TRUE, the static cache will be reset.
    *
    * @return object|bool
    *   The current transaction if available or false if not available
    */
-  public static function getCurrentTransaction($type, $uid, $reset = FALSE) {
+  public static function getCurrentTransaction($type, $cashier_id, $reset = FALSE) {
     $current_transactions = &drupal_static('commerce_pos_current_transactions', array());
 
     if ($reset) {
       $current_transactions = array();
     }
 
-    if (!isset($current_transactions[$uid][$type])) {
-      $current_transactions[$uid][$type] = FALSE;
-      $active_transactions = self::getAllActiveTransactions($uid, $reset);
+    if (!isset($current_transactions[$cashier_id][$type])) {
+      $current_transactions[$cashier_id][$type] = FALSE;
+      $active_transactions = self::getAllActiveTransactions($cashier_id, $reset);
 
       if (isset($active_transactions[$type]['commerce_pos_in_progress'])) {
         $transaction_id = $active_transactions[$type]['commerce_pos_in_progress'][0];
-        $current_transactions[$uid][$type] = self::loadTransaction($transaction_id);
+        $current_transactions[$cashier_id][$type] = self::loadTransaction($transaction_id);
       }
     }
 
-    return $current_transactions[$uid][$type];
+    return $current_transactions[$cashier_id][$type];
   }
 
   /**
@@ -83,31 +83,31 @@ class CommercePosService {
   /**
    * Retrieves a list of all "parked" transactions for a user.
    */
-  public static function getParkedTransactions($type, $uid) {
-    $transactions = self::getAllActiveTransactions($uid);
+  public static function getParkedTransactions($type, $cashier_id) {
+    $transactions = self::getAllActiveTransactions($cashier_id);
     return !empty($transactions[$type]['commerce_pos_parked']) ? $transactions[$type]['commerce_pos_parked'] : array();
   }
 
   /**
    * Retrieves all POS transactions for a user that are either parked or are currently being created.
    *
-   * @param int $uid
-   *   The user ID to retrieve transactions for.
+   * @param int $cashier_id
+   *   The cashier ID to retrieve transactions for.
    * @param bool $reset
    *   If TRUE, the static cache will be reset.
    *
    * @return array
    *   all the current active transaction ids, grouped by type and status
    */
-  protected static function getAllActiveTransactions($uid, $reset = FALSE) {
+  protected static function getAllActiveTransactions($cashier_id, $reset = FALSE) {
     $transactions = &drupal_static('commerce_pos_all_active_transactions', array());
 
     if ($reset) {
       $transactions = array();
     }
 
-    if (!isset($transactions[$uid])) {
-      $transactions[$uid] = array();
+    if (!isset($transactions[$cashier_id])) {
+      $transactions[$cashier_id] = array();
 
       $query = db_select('commerce_pos_transaction', 't');
       $query->fields('t', array(
@@ -126,7 +126,7 @@ class CommercePosService {
         ), 'IN')
         ->condition('t.order_id', 0));
 
-      $query->condition('t.uid', $uid);
+      $query->condition('t.cashier', $cashier_id);
 
       $result = $query->execute();
 
@@ -135,11 +135,11 @@ class CommercePosService {
           $row->status = 'commerce_pos_in_progress';
         }
 
-        $transactions[$uid][$row->type][$row->status][] = $row->transaction_id;
+        $transactions[$cashier_id][$row->type][$row->status][] = $row->transaction_id;
       }
     }
 
-    return $transactions[$uid];
+    return $transactions[$cashier_id];
   }
 
   /**

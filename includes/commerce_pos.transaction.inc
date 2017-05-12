@@ -61,7 +61,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
-    $transaction = CommercePosService::getCurrentTransaction($transaction_type, $user->uid);
+    $transaction = CommercePosService::getCurrentTransaction($transaction_type, $cashier_id);
 
     if (empty($transaction)) {
       $transaction = new CommercePosTransaction(NULL, $transaction_type, $user->uid, $cashier_id);
