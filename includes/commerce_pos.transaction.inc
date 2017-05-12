@@ -452,6 +452,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
         '#attributes' => array(
           'class' => array('commerce-pos-hidden-element'),
         ),
+        '#limit_validation_errors' => FALSE,
       );
 
       $line_item_element['textbox_wrapper_close'] = array(
@@ -691,6 +692,15 @@ function _commerce_pos_transaction_validate_product_input($element, &$form_state
  */
 function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   $requested_qty = drupal_array_get_nested_value($form_state['input'], $element['#parents']);
+
+  // If the increment or decrement buttons were used, we need to add/subtract
+  // from the requested_qty.
+  if ($form_state['triggering_element']['#element_key'] == 'line-item-remove-qty') {
+    $requested_qty -= 1;
+  }
+  if ($form_state['triggering_element']['#element_key'] == 'line-item-add-qty') {
+    $requested_qty += 1;
+  }
 
   if (is_numeric($requested_qty) && $requested_qty > 0) {
     form_set_value($element, $requested_qty, $form_state);
