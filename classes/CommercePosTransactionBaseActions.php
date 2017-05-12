@@ -185,23 +185,25 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
     rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
 
-    $amount = $price ? $price : $line_item_wrapper->commerce_unit_price->amount->raw();
-    $currency = $line_item_wrapper->commerce_unit_price->currency_code->raw();
+    if (!empty($price)) {
+      $amount = $price;
+      $currency = $line_item_wrapper->commerce_unit_price->currency_code->raw();
 
-    // We "snapshot" the calculated sell price and use it as the line item's
-    // base price.
-    $unit_price = array(
-      'amount' => $amount,
-      'currency_code' => $currency,
-    );
+      // We "snapshot" the calculated sell price and use it as the line item's
+      // base price.
+      $unit_price = array(
+        'amount' => $amount,
+        'currency_code' => $currency,
+      );
 
-    $unit_price['data'] = commerce_price_component_add($unit_price, 'base_price', array(
-      'amount' => $amount,
-      'currency_code' => $currency,
-      'data' => array(),
-    ), TRUE, FALSE);
+      $unit_price['data'] = commerce_price_component_add($unit_price, 'base_price', array(
+        'amount' => $amount,
+        'currency_code' => $currency,
+        'data' => array(),
+      ), TRUE, FALSE);
 
-    $line_item_wrapper->commerce_unit_price->set($unit_price);
+      $line_item_wrapper->commerce_unit_price->set($unit_price);
+    }
 
     if (module_exists('commerce_pricing_attributes')) {
       // Hack to prevent the combine logic in addLineItem()
@@ -268,6 +270,35 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
         $line_item = commerce_line_item_load($line_item_id);
         $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
         $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
+
+        // To make this work properly with inclusive taxes, we need to increase
+        // the amount they set by the tax rate of all inclusive taxes.
+        $inclusive_taxes = array();
+        foreach ($unit_price['data']['components'] as $key => $component) {
+          // Find tax components based on the tax_rate property the Tax modules
+          // adds to tax rate component types.
+          if ($component_type = commerce_price_component_type_load($component['name'])) {
+            // Ensure the tax rate still exists.
+            if (!empty($component_type['tax_rate']) &&
+              $tax_rate = commerce_tax_rate_load($component_type['tax_rate'])
+            ) {
+              // If this tax is displayed inclusively with product prices, add
+              // it to an array that we'll calculate in reverse order later.
+              if ($component['included']) {
+                $inclusive_taxes[] = $tax_rate;
+              }
+            }
+          }
+        }
+
+        // If this unit price had inclusive taxes...
+        if (!empty($inclusive_taxes)) {
+          foreach (array_reverse($inclusive_taxes) as $tax_rate) {
+            // Update the price by each tax rate.
+            $price = $price * (1 + $tax_rate['rate']);
+            $price = commerce_tax_rate_round_amount($tax_rate, $price);
+          }
+        }
 
         // Change the base_price.
         $unit_price['amount'] = $price;
