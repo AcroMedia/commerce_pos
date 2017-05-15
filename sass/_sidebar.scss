@@ -61,7 +61,7 @@
       border-bottom: 1px solid #FFFFFF;
     }
 
-    tr.order-to-pay {
+    tr.order-to-pay-positive {
       background: #313131;
       font-size: 120%;
 
@@ -71,8 +71,17 @@
       }
     }
 
+    tr.order-to-pay-none {
+      display: none;
+    }
+
     tr.order-change {
       font-size: 120%;
+
+      td {
+        background: #313131;
+        color: #fff;
+      }
     }
 
     td:nth-child(1) {

@@ -385,6 +385,9 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] > 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
       }
+      else {
+        $order_to_pay_classes[] = 'order-to-pay-none';
+      }
 
       $rows[] = array(
         'data' => array(
@@ -446,6 +449,9 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       if ($balance['amount'] > 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
       }
+      else {
+        $order_to_pay_classes[] = 'order-to-pay-none';
+      }
 
       $rows[] = array(
         'data' => array(
@@ -488,6 +494,9 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
       if ($amount > 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
+      }
+      else {
+        $order_to_pay_classes[] = 'order-to-pay-none';
       }
 
       $rows[] = array(
