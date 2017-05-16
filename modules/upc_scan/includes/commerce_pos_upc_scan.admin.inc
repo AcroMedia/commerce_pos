@@ -14,9 +14,12 @@ function commerce_pos_upc_scan_settings($form, &$form_state) {
     'sku' => t('Base SKU field'),
   );
 
+  $field_info = field_info_fields();
   foreach (field_info_instances('commerce_product') as $bundle_name => $fields) {
     foreach ($fields as $field_name => $field) {
-      $field_options[$field_name] = $field_name;
+      foreach (array_keys($field_info[$field_name]['columns']) as $column_name) {
+        $field_options[$field_name][$field_name . '|' . $column_name] = $field_name . ' (' . $column_name . ')';
+      }
     }
   }
 

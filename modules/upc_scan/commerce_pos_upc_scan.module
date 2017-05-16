@@ -75,23 +75,27 @@ function commerce_pos_upc_scan_commerce_pos_sale_form_ajax_alter(&$form_state, $
  * Attempts to look up a product by its UPC.
  */
 function commerce_pos_upc_scan_lookup($upc) {
-  $product_id = NULL;
-
   if (!empty($upc) && is_numeric($upc) && $upc_field = variable_get('commerce_pos_upc_scan_upc_field', FALSE)) {
     if ($upc_field == 'sku') {
       $query = db_select('commerce_product', 'cp')
         ->fields('cp', array('product_id'))
         ->condition('sku', $upc);
+      $product_id = $query->execute()->fetchField();
     }
     else {
-      $query = db_select('field_data_' . $upc_field, 'f')
-        ->fields('f', array('entity_id'))
-        ->condition('entity_type', 'commerce_product')
-        ->condition($upc_field . '_value', $upc);
-    }
+      $query = new EntityFieldQuery();
+      list($field_name, $value_column_name) = explode('|', $upc_field);
+      $query->entityCondition('entity_type', 'commerce_product')
+        ->fieldCondition($field_name, $value_column_name, $upc, '=')
+        // Run the query as user 1.
+        ->addMetaData('account', user_load(1));
 
-    $product_id = $query->execute()->fetchField();
+      $result = $query->execute();
+      if (!empty($result['commerce_product'])) {
+        $product_id = array_keys($result['commerce_product'])[0];
+      }
+    }
   }
 
-  return $product_id;
+  return !empty($product_id) ? $product_id : FALSE;
 }
