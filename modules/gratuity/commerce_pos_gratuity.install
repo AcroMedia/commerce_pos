@@ -1,0 +1,13 @@
+<?php
+
+/**
+ * @file
+ * Commerce POS Gratuity enable function.
+ */
+
+/**
+ * Implements hook_enable().
+ */
+function commerce_pos_gratuity_enable() {
+  commerce_line_item_configure_line_item_fields(array('commerce_pos_gratuity'));
+}
