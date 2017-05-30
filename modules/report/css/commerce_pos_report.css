@@ -126,6 +126,22 @@ a:hover .commerce-pos-report-ico-journal-role {
   vertical-align: middle;
 }
 
+.commerce-pos-report-ico-sales-report{
+  position: relative;
+  bottom: 2px;
+  background: url(../../../images/sprite_icons.png) -56px 0;
+  width: 18px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 10px;
+
+}
+a.active .commerce-pos-report-ico-sales-report,
+a:hover .commerce-pos-report-ico-sales-report {
+  background-position: -80px 0;
+}
+
 /* -- Report Filters -- */
 
 #commerce-pos-report-journal-role-options-container {
@@ -555,4 +571,63 @@ a:hover .commerce-pos-report-ico-journal-role {
   border-top: 2px solid #ddd;
   border-bottom: 2px solid #ddd;
   padding-top: 5px;
+}
+.element-form-report{
+  padding-bottom: 20px;
+}
+
+  /*Table theme for reports*/
+.report-table-theme table.sticky-enabled.tableheader-processed.sticky-table thead th {
+  border-bottom: 2px solid #ddd;
+  font-size: 16px;
+  text-transform: none;
+  text-align: center;
+  background: #fff;
+}
+.report-table-theme table.sticky-enabled thead th:first-of-type{
+  text-align: left;
+}
+.report-table-theme table.sticky-enabled thead th.active{
+  background: #fff;
+}
+.report-table-theme table.sticky-enabled thead th a {
+  color: #000;
+}
+.report-table-theme table.sticky-enabled thead th a:hover{
+  text-decoration: none;
+  color: #337ab7;
+}
+.report-table-theme table.sticky-enabled thead th img {
+  position: relative;
+  bottom: 1px;
+  left: 6px;
+  top: 0;
+  right: 0;
+}
+.report-table-theme table.tableheader-processed.sticky-table tbody tr.even, .report-table-theme table.tableheader-processed.sticky-table tbody tr.odd{
+  background-color: #f5f5f5;
+  color: #000;
+  border-top:1px solid #e2e2e2;
+  font-size: 14px;
+}
+.report-table-theme table.sticky-enabled.tableheader-processed.sticky-table tbody tr:last-of-type {
+  border-top: 2px solid #ddd;
+  font-weight: bold;
+}
+.report-table-theme table.tableheader-processed.sticky-table tbody tr:hover{
+  background: #e5ecf2;
+}
+.report-table-theme table.sticky-enabled tbody td {
+  text-align: center;
+  border: 0;
+}
+.report-table-theme table.sticky-enabled tbody td:first-of-type{
+  text-align: left;
+}
+.report-table-theme table.sticky-enabled tbody td.active {
+  background: transparent;
+  border-top: 1px solid #e2e2e2;
+}
+.report-table-theme table.sticky-enabled tbody td.empty{
+  text-align: center;
 }

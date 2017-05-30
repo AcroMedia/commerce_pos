@@ -6,6 +6,7 @@
  */
 
 define('COMMERCE_POS_REPORT_JOURNAL_ROLE_DEFAULT_ITEMS_PER_PAGE', 25);
+define('COMMERCE_POS_REPORT_SALES_REPORT_DEFAULT_ITEMS_PER_PAGE', 25);
 
 /**
  * Implements hook_menu().
@@ -17,7 +18,6 @@ function commerce_pos_report_menu() {
     'file' => 'includes/commerce_pos_report.pages.inc',
     'access arguments' => array('view commerce pos reports'),
   );
-
   $items['admin/commerce/pos/reports/end-of-day'] = array(
     'title' => 'End of Day Report',
     'page callback' => 'drupal_get_form',
@@ -29,6 +29,13 @@ function commerce_pos_report_menu() {
     'title' => 'Journal Role',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('commerce_pos_report_journal_role'),
+    'file' => 'includes/commerce_pos_report.pages.inc',
+    'access arguments' => array('view commerce pos reports'),
+  );
+  $items['admin/commerce/pos/reports/sales-report'] = array(
+    'title' => 'Sales Report',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('commerce_pos_report_sales_report'),
     'file' => 'includes/commerce_pos_report.pages.inc',
     'access arguments' => array('view commerce pos reports'),
   );

@@ -608,6 +608,7 @@ function commerce_pos_report_journal_role($form, &$form_state) {
   global $user;
 
   $form['#tree'] = TRUE;
+  $form['#attributes']['class'][] = 'element-form-report';
   $form['header'] = array(
     '#markup' => theme('commerce_pos_header', array('account' => $user)),
   );
@@ -641,7 +642,7 @@ function commerce_pos_report_journal_role($form, &$form_state) {
   $form['#attached']['libraries_load'][] = array('jquery-print');
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report.css';
-  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.journal_role.js';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.sorter.js';
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => $js_settings,
@@ -742,6 +743,11 @@ function commerce_pos_report_journal_role($form, &$form_state) {
   $form['results'] = array(
     '#type' => 'container',
     '#id' => $form_state['results_container_id'],
+    '#attributes' => array(
+      'class' => array(
+        'report-table-theme',
+      ),
+    ),
   );
 
   $form['results']['table'] = commerce_pos_report_build_journal_role_table($query_params);
@@ -785,7 +791,6 @@ function commerce_pos_report_journal_role_submit($form, &$form_state) {
  *   A render array for the result table.
  */
 function commerce_pos_report_build_journal_role_table(array $filters = array()) {
-
   $header = array(
     array('data' => t('Order No.'), 'field' => 't.order_id'),
     array('data' => t('Time'), 'field' => 't.completed'),
@@ -942,7 +947,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
         'class' => array('commerce-pos-transaction-type-' . $row->type),
       );
 
-      // Add another row right below that will serve as a placeholder for loading
+      // Add another row right below it will serve as a placeholder for loading
       // in order data.
       $rows[] = array(
         array(
@@ -988,7 +993,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
       '#header' => $header,
       '#attached' => array(
         'js' => array(
-          drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.journal_role.js',
+          drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.sorter.js',
         ),
         'library' => array(
           array('system', 'drupal.ajax'),
@@ -1003,4 +1008,311 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
       '#markup' => t('No transactions found'),
     );
   }
+}
+
+/**
+ * Builds a Sales Report result table.
+ *
+ * @param array $filters
+ *   An array of filters for the query. Can include any of the following:
+ *   'cashier' - The cashier who performed the transactions.
+ *   'payment_type' - The type of payment the transactions had.
+ *   'results_per_page' - The number of results per page.
+ *
+ * @return array
+ *   A render array for the result table.
+ */
+function commerce_pos_report_build_sales_report_table(array $filters = array()) {
+  $header = array(
+      array('data' => t('Cashier Id'), 'field' => 't.cashier'),
+      array('data' => t('Cashier'), 'field' => 'cashier.name'),
+      array('data' => t('Net Sales')),
+      array('data' => t('Transactions')),
+      array('data' => t('Items Sold')),
+      array('data' => t('Unit per Trans (UPT)')),
+      array('data' => t('$ Per Transaction (DPT)')),
+  );
+
+  $query = db_select('commerce_pos_transaction', 't')
+    ->extend('PagerDefault')
+    ->extend('TableSort');
+
+  $query->fields('t', array('order_id', 'completed', 'uid', 'type'));
+  $query->addField('t', 'cashier', 'cashier_id');
+
+  // Cashier data
+  // We left join because legacy transactions may not have a cashier.
+  $query->leftJoin('commerce_pos_cashier', 'cashier', 'cashier.cashier_id = t.cashier');
+  $query->addField('cashier', 'name', 'cashier');
+
+  // Payment transaction data.
+  $query->join('commerce_payment_transaction', 'pt', 'pt.order_id = t.order_id');
+  $query->fields('pt', array('transaction_id'));
+
+  // Join order data.
+  $query->join('commerce_order', 'o', 'o.order_id = t.order_id');
+  $query->leftJoin('users', 'customer', 'customer.uid = o.uid');
+  $query->addField('customer', 'mail', 'customer_mail');
+
+  // Join order total data.
+  $query->join('field_data_commerce_order_total', 'ot', 't.order_id = ot.entity_id AND ot.entity_type = :commerce_order', array(
+    ':commerce_order' => 'commerce_order',
+  ));
+  $query->fields('ot', array(
+    'commerce_order_total_amount',
+    'commerce_order_total_currency_code',
+    'commerce_order_total_data',
+  ));
+
+  // Join line item data.
+  $query->join('commerce_line_item', 'l', 'l.order_id = t.order_id');
+  $query->addField('l', 'quantity');
+
+  $line_item_types = commerce_product_line_item_types();
+  $query->condition('l.type', $line_item_types, 'IN');
+
+  // Make sure line item count is aggregated.
+  $query->groupBy('l.order_id');
+
+  /* As mysql do not support limits in sub queries, create sub query
+  for pagination and to limit records use a separate query.*/
+  $pagination_query = db_select('commerce_pos_cashier', 'cpc')
+    ->extend('PagerDefault')
+    ->extend('TableSort');
+
+  $pagination_query->fields('cpc', array('cashier_id'));
+
+  if ($filters['results_per_page'] > 0) {
+    $pagination_query->limit($filters['results_per_page']);
+  }
+
+  $limit_rows_result = $pagination_query->execute();
+  if ($limit_rows_result->rowCount() > 0) {
+    foreach ($limit_rows_result as $fetchCashier) {
+      $cashiers_id[] = $fetchCashier->cashier_id;
+    }
+  }
+  $query->condition('cashier.cashier_id', $cashiers_id, 'IN');
+
+  // Set up our filters/conditions.
+  $query->orderByHeader($header);
+  $result = $query->execute();
+
+  $rows = array();
+  $totals = array(
+    'net_sales' => 0,
+    'transactions' => 0,
+    'item_sold' => 0,
+    'unit_per_transaction' => 0,
+    'dollar_per_transaction' => 0,
+  );
+
+  if ($result->rowCount() > 0) {
+    $report = sales_process_data($result);
+    foreach ($report as $cashier_transactions) {
+      $table_row              = array();
+      $transactions           = $cashier_transactions['cashier']['transactions'];
+      $currency_code          = $cashier_transactions['cashier']['currency_code'];
+      $net_sales              = $cashier_transactions['transaction']['net_sales'];
+      $net_sold_items         = ($cashier_transactions['transaction']['purchase_count'] - $cashier_transactions['transaction']['return_count']);
+      $unit_per_transaction   = round(($net_sold_items / $transactions), 2);
+      $dollar_per_transaction = ($net_sales / $transactions);
+      $table_row[]            = $cashier_transactions['cashier']['id'];
+      $table_row[]            = $cashier_transactions['cashier']['name'];
+      $table_row[]            = commerce_currency_format($net_sales, $currency_code);
+      $table_row[]            = $transactions;
+      $table_row[]            = $net_sold_items;
+      // Unit per Trans (UPT)
+      $table_row[] = $unit_per_transaction;
+      $table_row[] = commerce_currency_format($dollar_per_transaction, $currency_code);
+      // Table feet with total.
+      $totals['net_sales'] += $net_sales;
+      $totals['transactions'] += $transactions;
+      $totals['item_sold'] += $net_sold_items;
+      $totals['unit_per_transaction'] += $unit_per_transaction;
+      $totals['dollar_per_transaction'] += $dollar_per_transaction;
+      $rows[] = array(
+        'data' => $table_row,
+        'class' => array(),
+      );
+    }
+
+    $rows[] = array(
+      '',
+      '',
+      commerce_currency_format($totals['net_sales'], $currency_code),
+      $totals['transactions'],
+      $totals['item_sold'],
+      $totals['unit_per_transaction'],
+      commerce_currency_format($totals['dollar_per_transaction'], $currency_code),
+    );
+  }
+  $table = array(
+    '#theme' => 'table',
+    '#rows' => $rows,
+    '#header' => $header,
+    '#empty'  => t('No transactions found'),
+    '#attached' => array(
+      'js' => array(
+        drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.sorter.js',
+      ),
+      'library' => array(
+          array('system', 'drupal.ajax'),
+      ),
+    ),
+  );
+  return $table;
+}
+
+/**
+ * Callback for the Sales form/report.
+ */
+function commerce_pos_report_sales_report($form, &$form_state) {
+  global $user;
+  $form['#tree'] = TRUE;
+  $form['#attributes']['class'][] = 'element-form-report';
+  $form['header'] = array(
+    '#markup' => theme('commerce_pos_header', array('account' => $user)),
+  );
+
+  $query_filter_defaults = array(
+    'results_per_page' => COMMERCE_POS_REPORT_SALES_REPORT_DEFAULT_ITEMS_PER_PAGE,
+  );
+
+  $query_params = drupal_get_query_parameters() + $query_filter_defaults;
+
+  $form['filters'] = array(
+    '#type' => 'container',
+  );
+
+  if (!isset($form_state['results_container_id'])) {
+    $form_state['results_container_id'] = 'commerce-pos-report-sale-container';
+  }
+
+  $js_settings = array(
+    'commercePosReport' => array(
+      'cssUrl' => url(drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report_receipt.css', array(
+        'absolute' => TRUE,
+      )),
+    ),
+  );
+
+  $form['#attached']['libraries_load'][] = array('jquery-print');
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
+  $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos_report') . '/css/commerce_pos_report.css';
+  $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_report') . '/js/commerce_pos_report.sorter.js';
+  $form['#attached']['js'][] = array(
+    'type' => 'setting',
+    'data' => $js_settings,
+  );
+  $form['report-options'] = array(
+    '#theme' => 'commerce_pos_report_options',
+  );
+  $form['options'] = array(
+    '#type' => 'container',
+    '#id' => 'commerce-pos-report-journal-role-options-container',
+  );
+  $form['options']['results_per_page'] = array(
+    '#type' => 'select',
+    '#title' => t('Items per page'),
+    '#options' => array(
+      25 => '25',
+      50 => '50',
+      100 => '100',
+      500 => '500',
+      -1 => t('all'),
+    ),
+    '#default_value' => $query_params['results_per_page'],
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+  );
+  $form['results'] = array(
+    '#type' => 'container',
+    '#id' => $form_state['results_container_id'],
+    '#attributes' => array(
+      'class' => array(
+        'report-table-theme',
+      ),
+    ),
+  );
+  $form['results']['table'] = commerce_pos_report_build_sales_report_table($query_params);
+  // Pager has to come after we've build the journal role table.
+  $form['options']['pager'] = array('#theme' => 'pager');
+  $form['results']['pager'] = array('#theme' => 'pager');
+
+  $form['submit'] = array(
+    '#value' => t('Submit'),
+    '#type' => 'submit',
+    '#weight' => -50,
+    '#attributes' => array(
+      'class' => array('element-invisible', 'commerce-pos-report-journal-role-submit'),
+    ),
+  );
+
+  return $form;
+}
+
+/**
+ * Submit handler for the journal role report form.
+ */
+function commerce_pos_report_sales_report_submit($form, &$form_state) {
+  $query_params = array_merge(drupal_get_query_parameters(), $form_state['values']['options']);
+  $form_state['redirect'] = array(current_path(), array('query' => $query_params));
+}
+
+/**
+ * Helper function for Sales table to process data.
+ */
+function sales_process_data($result) {
+  $table_row = array();
+  foreach ($result as $row) {
+    $return_count = 0;
+    $purchase_count = 0;
+    $transactions = 1;
+    $cashier_id = $row->cashier_id;
+
+    if (!isset($table_row[$cashier_id])) {
+      $table_row[$cashier_id] = array(
+        'transaction' => array(
+          'net_sales' => 0,
+          'purchase_count' => 0,
+          'return_count' => 0,
+        ),
+        'cashier' => array(
+          'transactions' => 0,
+        )
+      );
+    }
+
+    switch ($row->type) {
+      case CommercePosService::TRANSACTION_TYPE_RETURN:
+        $return_count = $row->quantity;
+        // Order total.
+        $table_row[$cashier_id]['transaction']['net_sales'] -= $row->commerce_order_total_amount;
+        break;
+
+      default:
+        $purchase_count = $row->quantity;
+        // Order total.
+        $table_row[$cashier_id]['transaction']['net_sales'] += $row->commerce_order_total_amount;
+        break;
+    }
+
+    // Build order ID link.
+    $table_row[$cashier_id]['cashier']['id'] = $cashier_id;
+    // Cashier.
+    $table_row[$cashier_id]['cashier']['name'] = $row->cashier;
+    // Number of transactions.
+    $table_row[$cashier_id]['cashier']['transactions'] += $transactions;
+    // Purchased.
+    $table_row[$cashier_id]['transaction']['purchase_count'] += $purchase_count;
+    // Returned.
+    $table_row[$cashier_id]['transaction']['return_count'] += $return_count;
+
+    // Discount flag.
+    $table_row[$cashier_id]['cashier']['currency_code'] = $row->commerce_order_total_currency_code;
+
+  }
+  return $table_row;
 }
