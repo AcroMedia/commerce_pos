@@ -184,8 +184,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
         if (isset($currency_totals['commerce_pos_change'])) {
           $change_amounts = &$currency_totals['commerce_pos_change'];
 
-          // The change amount reflects the change we GAVE BACK, so we have to add
-          // it to the expected amount of cash.
+          // The change amount reflects the change we GAVE BACK, so we have to
+          // add it to the expected amount of cash.
           $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN]);
           unset($change_amounts);
         }
@@ -337,7 +337,8 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
  * Get the reports for the specified day of a single register.
  *
  * @param string $date_filter
- *   The date range to filter by in compatible strtotime format. Will search this time +1day.
+ *   The date range to filter by in compatible strtotime format.
+ *   Will search this time +1day.
  * @param int $register_id
  *   The id of the register to get totals for.
  *
@@ -412,8 +413,11 @@ function commerce_pos_report_get_totals($date_filter, $register_id) {
         CommercePosService::TRANSACTION_TYPE_RETURN => 0,
       );
     }
-    $method = &$totals[$row->commerce_order_total_currency_code][$row->payment_method];
-    $method[$row->type] += $row->amount;
+
+    if ($row->status == COMMERCE_PAYMENT_STATUS_SUCCESS) {
+      $method = &$totals[$row->commerce_order_total_currency_code][$row->payment_method];
+      $method[$row->type] += $row->amount;
+    }
 
     if (in_array($row->status, $visible_statuses)) {
       if (!isset($transaction_counts[$row->payment_method])) {
@@ -1281,7 +1285,7 @@ function sales_process_data($result) {
         ),
         'cashier' => array(
           'transactions' => 0,
-        )
+        ),
       );
     }
 
