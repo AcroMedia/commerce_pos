@@ -1147,8 +1147,8 @@ function commerce_pos_report_build_sales_report_table(array $filters = array()) 
       commerce_currency_format($totals['net_sales'], $currency_code),
       $totals['transactions'],
       $totals['item_sold'],
-      $totals['unit_per_transaction'],
-      commerce_currency_format($totals['dollar_per_transaction'], $currency_code),
+      ($totals['unit_per_transaction'] / count($rows)),
+      commerce_currency_format(($totals['dollar_per_transaction'] / count($rows)), $currency_code),
     );
   }
   $table = array(
