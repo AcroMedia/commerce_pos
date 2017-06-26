@@ -249,7 +249,7 @@ function commerce_pos_form_modal(array $options = array()) {
 
   if ($options['closeable']) {
     $modal['modal']['close'] = array(
-      '#markup' => '<div id="commerce-pos-form-modal-close" class="commerce-pos-form-modal-close">X</div>',
+      '#markup' => '<div id="commerce-pos-form-modal-close" class="commerce-pos-form-modal-close" tabindex="0">' . t('Close') . '</div>',
     );
   }
 

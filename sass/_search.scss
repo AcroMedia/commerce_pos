@@ -8,27 +8,25 @@
   text-align: center;
   background: #f0f0f0;
 
-  #edit-product-search {
-    position: relative;
-    width: 400px;
-    margin: 0 auto;
-  }
-
   .form-item {
     margin: 5px 0;
   }
 
-  //Don't show label, but leave there for screen readers
+  // Don't show label, but leave there for screen readers
   label {
     display: none;
   }
 
   input {
     position: relative;
-    margin: 0 0 5px 0;
+    margin: 0 auto 5px;
     height: 40px;
     width: 400px;
     color: #000;
+  }
+
+  input[id^="edit-order-search-input"] {
+    width: 320px;
   }
 
   /* Placeholder */

@@ -57,6 +57,26 @@
         $('.commerce-pos-void-payment-input').val($(this).data('transaction-id'));
         $('.commerce-pos-void-payment').trigger('void_payment');
       });
+
+      /**
+       * Check all the checkboxes when the Select all link is clicked in the add to return form.
+       */
+      $('a#commerce-pos-return-select-all').click(function(event) {
+        event.preventDefault();
+        $('.form-item-return-items .form-checkboxes').find('input[type="checkbox"]').trigger('click');
+      });
+
+      /**
+       * Add a class to all checked checkboxes in the add to return form.
+       */
+      $('.form-item-return-items .form-checkboxes input:checkbox').change(function() {
+        if($(this).is(':checked')) {
+          $(this).parent().addClass('commerce-pos-return-checkbox-checked');
+        }
+        else {
+          $(this).parent().removeClass('commerce-pos-return-checkbox-checked');
+        }
+      });
     }
   };
 

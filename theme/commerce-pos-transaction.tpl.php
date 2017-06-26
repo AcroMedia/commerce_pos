@@ -19,6 +19,12 @@
 <div class="commerce-pos-sale-container clearfix">
   <div class="commerce-pos-col-products">
     <div class="commerce-pos-product-search-container">
+      <?php if(isset($form['product_search']['onboarding_text'])): ?>
+        <?php print render($form['product_search']['onboarding_text']); ?>
+      <?php endif; ?>
+      <?php if(isset($form['search_type'])): ?>
+        <?php print render($form['search_type']); ?>
+      <?php endif; ?>
       <?php print render($form['product_search']); ?>
       <?php if(isset($form['order_search'])): ?>
         <?php print render($form['order_search']); ?>

@@ -575,3 +575,161 @@
 #commerce-pos-product-no-results-message {
   text-align: center;
 }
+
+/** Styling for return order search. **/
+#commerce-pos-sale-wrapper {
+  #commerce-pos-return-order-search {
+    .form-type-textfield {
+      display: inline-block;
+    }
+
+    .form-submit {
+      display: inline-block;
+      vertical-align: top;
+      height: 29px;
+      margin-top: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+  }
+
+  #commerce-pos-form-modal-modal {
+    height: auto !important;
+
+    .form-submit {
+      padding: 12px 20px;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+  }
+
+  #commerce-pos-return-select-all {
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 5px;
+    text-align: left;
+    font-size: 13px;
+  }
+
+  .form-item-return-items {
+    margin: 0 0 20px;
+
+    .form-type-checkbox {
+      margin: 0 0 10px;
+      text-align: left;
+      border: 1px solid #cccccc;
+      padding-left: 48px;
+
+      input.form-checkbox {
+        display: none;
+      }
+
+      label.option {
+        display: inline-block;
+        width: 100%;
+        min-height: 100px;
+        padding: 3px 0;
+        margin: 0;
+
+        // Checkbox.
+        &::before {
+          top: calc(50% - 14px);
+          left: 8px;
+          height: 28px;
+          width: 28px;
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          background-image: none;
+          background-color: #fff;
+          background-position: center center;
+        }
+
+        .commerce-pos-return-product-image {
+          display: inline-block;
+          vertical-align: middle;
+          height: 100px;
+          width: 100px;
+          overflow: hidden;
+          border: 1px solid #ccc;
+
+          img {
+            height: 100px;
+            width: 100px;
+          }
+        }
+
+        .commerce-pos-return-product-info {
+          display: inline-block;
+          vertical-align: middle;
+          width: calc(100% - 110px);
+          padding: 5px 0 5px 20px;
+          font-weight: bold;
+          line-height: 1.2em;
+
+          div {
+            margin-bottom: 5px;
+
+            .label {
+              font-weight: normal;
+            }
+          }
+
+          .commerce-pos-return-product-sku {
+            font-weight: normal;
+
+            label {
+              font-weight: bold;
+            }
+          }
+        }
+      }
+
+      // Checkbox checked.
+      &.commerce-pos-return-checkbox-checked {
+        background-color: #E7F2D8;
+
+        label.option::before {
+          background-image: url(../images/check-2x.png);
+          background-size: 21px 16px;
+        }
+      }
+    }
+  }
+
+  .form-radios {
+    .form-item {
+      display: inline-block;
+      padding-right: 40px;
+
+      @media (max-width: 870px) {
+        padding-right: 15px;
+      }
+
+      @media (max-width: 500px) {
+        width: 100%;
+        padding-right: 0;
+        text-align: left;
+      }
+
+      &:last-of-type {
+        padding-right: 0;
+      }
+
+      input {
+        width: 15px;
+      }
+
+      label {
+        display: inline-block;
+        vertical-align: text-bottom;
+        padding-top: 2px;
+        font-size: 16px;
+      }
+    }
+  }
+
+  #commerce-pos-return-item-title {
+    margin: 20px 0 15px;
+    font-weight: normal;
+  }
+}
