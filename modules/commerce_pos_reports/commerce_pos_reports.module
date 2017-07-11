@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains commerce_pos_reports.module.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function commerce_pos_reports_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the commerce_pos_reports module.
+    case 'help.page.commerce_pos_reports':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides reporting functionality for Commerce POS') . '</p>';
+      return $output;
+
+    default:
+  }
+}

@@ -1,0 +1,8 @@
+name: Commerce POS Reports
+type: module
+description: Provides reporting functionality for Commerce POS
+core: 8.x
+package: Commerce
+dependencies:
+  - commerce_reports
+  - commerce_pos
