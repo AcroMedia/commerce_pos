@@ -1,3 +1,0 @@
-@page{margin:2mm 0 0 0;padding:0;font-size:12px}body{font-size:12px}.commerce-pos-label{padding:0;font-family:Arial, sans-serif;margin:0 auto;text-align:center;font-size:12px;text-transform:uppercase}@media print{.commerce-pos-label{page-break-after:always}}.commerce-pos-label *{margin:0;padding:0}.commerce-pos-label .barcode{margin:0.4em 0}.commerce-pos-label .description{font-size:0.85em}.commerce-pos-label.no-description .barcode{margin:0.9em 0}.commerce-pos-label img{display:inline-block}.commerce-pos-label div{white-space:nowrap;width:100%;overflow:hidden;-ms-text-overflow:ellipsis;text-overflow:ellipsis}.commerce-pos-label div.price{font-size:2em}
-
-/*# sourceMappingURL=commerce_pos_label.css.map */

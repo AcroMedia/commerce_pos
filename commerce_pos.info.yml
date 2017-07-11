@@ -1,0 +1,5 @@
+name: commerce_pos
+type: module
+description: Commerce Point of Sale
+core: 8.x
+package: Commerce
