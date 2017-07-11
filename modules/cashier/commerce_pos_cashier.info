@@ -1,7 +1,0 @@
-name = Commerce POS Cashier
-description = Provides a cashier entity and related functionality.
-core = 7.x
-package = Commerce POS
-
-files[] = includes/commerce_pos_cashier.controller.inc
-files[] = classes/CommercePosCashierBase.php

@@ -1,7 +1,0 @@
-name = Commerce POS Currency Denomination
-description = Provides a interface for configuring currency denominations.
-core = 7.x
-package = Commerce POS
-
-dependencies[] = commerce_pos
-dependencies[] = drupal:system (>= 7.40)
