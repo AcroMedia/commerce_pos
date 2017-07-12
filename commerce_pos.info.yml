@@ -8,3 +8,4 @@ dependencies:
 config_devel:
   install:
     - commerce_store.commerce_store_type.physical
+    - commerce_order.commerce_order_type.pos

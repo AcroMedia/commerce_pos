@@ -1,0 +1,10 @@
+langcode: en
+status: true
+label: Point of Sale
+id: pos
+workflow: order_default
+traits: {  }
+refresh_mode: customer
+refresh_frequency: 300
+sendReceipt: true
+receiptBcc: ''
