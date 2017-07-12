@@ -1,0 +1,7 @@
+commerce_pos.configuration:
+  path: '/admin/commerce/config/pos'
+  defaults:
+    _controller: '\Drupal\system\Controller\SystemController::systemAdminMenuBlockPage'
+    _title: 'POS Configuration'
+  requirements:
+    _permission: 'access commerce pos administration pages'
