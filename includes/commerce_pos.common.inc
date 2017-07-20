@@ -76,7 +76,7 @@ function commerce_pos_product_search_basic($keywords) {
     $query = db_select('commerce_product', 'cp');
     $query->fields('cp', array('product_id', 'title', 'type'));
     $or = db_or();
-    $or->condition('title', db_like($keywords) . '%', 'LIKE')
+    $or->condition('title', '%' . db_like($keywords) . '%', 'LIKE')
       ->condition('sku', $keywords, '=');
     $query->condition($or);
     $query->condition('type', $allowed_product_types, 'IN')
