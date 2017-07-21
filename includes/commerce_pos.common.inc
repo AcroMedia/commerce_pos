@@ -76,8 +76,18 @@ function commerce_pos_product_search_basic($keywords) {
     $query = db_select('commerce_product', 'cp');
     $query->fields('cp', array('product_id', 'title', 'type'));
     $or = db_or();
-    $or->condition('title', '%' . db_like($keywords) . '%', 'LIKE')
-      ->condition('sku', $keywords, '=');
+    $or->condition('title', '%' . db_like($keywords) . '%', 'LIKE');
+
+    if (variable_get('commerce_pos_search_sku_matching', 'exact') == 'exact') {
+      $or->condition('sku', $keywords, '=');
+    }
+    elseif (variable_get('commerce_pos_search_sku_matching', 'exact') == 'semi-partial') {
+      $or->condition('sku', db_like($keywords) . '%', 'LIKE');
+    }
+    elseif (variable_get('commerce_pos_search_sku_matching', 'exact') == 'partial') {
+      $or->condition('sku', '%' . db_like($keywords) . '%', 'LIKE');
+    }
+
     $query->condition($or);
     $query->condition('type', $allowed_product_types, 'IN')
       ->range(0, variable_get('commerce_pos_search_results_count', 5))

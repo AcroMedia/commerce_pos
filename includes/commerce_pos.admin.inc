@@ -27,6 +27,20 @@ function commerce_pos_settings($form, &$form_state) {
     );
 
   }
+  else {
+    $form['commerce_pos_search_sku_matching'] = array(
+      '#type' => 'radios',
+      '#title' => t('SKU matching options'),
+      '#options' => array(
+        'exact' => 'Exact - Ex: only AB-123-HA will match AB-123-HA',
+        'semi-partial' => 'Semi Partial - Ex: AB- will match, but 123 will not match AB-123-HA',
+        'partial' => 'Partial - Ex: AB- and 123 will both match AB-123-HA',
+      ),
+      '#default_value' => variable_get('commerce_pos_search_sku_matching', 'exact'),
+      '#description' => t('Change the type of sku matching depending on your use cases, exact matching is less prone to mistakes, 
+      but only works if you know most of your skus and rarely search')
+    );
+  }
 
   $form['commerce_pos_search_results_count'] = array(
     '#type' => 'textfield',
@@ -169,7 +183,16 @@ function commerce_pos_settings_validate($form, &$form_state) {
  */
 function commerce_pos_settings_submit($form, &$form_state) {
   if (!empty($form_state['values']['commerce_pos_search_api_index'])) {
-    variable_set('commerce_pos_search_api_index', $form_state['values']['commerce_pos_search_api_index']);
+    variable_set(
+      'commerce_pos_search_api_index',
+      $form_state['values']['commerce_pos_search_api_index']
+    );
+  }
+  if (!empty($form_state['values']['commerce_pos_search_sku_matching'])) {
+    variable_set(
+      'commerce_pos_search_sku_matching',
+      $form_state['values']['commerce_pos_search_sku_matching']
+    );
   }
 
   variable_set('commerce_pos_search_results_count', $form_state['values']['commerce_pos_search_results_count']);
