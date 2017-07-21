@@ -9,46 +9,9 @@
  * Callback for the POS settings form.
  */
 function commerce_pos_settings($form, &$form_state) {
-  if (module_exists('search_api')) {
-    $index_options = array(
-      'default' => t('Use default search'),
-    );
-
-    foreach (search_api_index_load_multiple(FALSE) as $id => $index) {
-      $index_options[$id] = $index->name;
-    }
-
-    $form['commerce_pos_search_api_index'] = array(
-      '#type' => 'select',
-      '#title' => t('Search API Index'),
-      '#description' => t('If you would like to use a search API index when searching for products in the POS, you may select one here.'),
-      '#options' => $index_options,
-      '#default_value' => variable_get('commerce_pos_search_api_index', NULL),
-    );
-
-  }
-  else {
-    $form['commerce_pos_search_sku_matching'] = array(
-      '#type' => 'radios',
-      '#title' => t('SKU matching options'),
-      '#options' => array(
-        'exact' => 'Exact - Ex: only AB-123-HA will match AB-123-HA',
-        'semi-partial' => 'Semi Partial - Ex: AB- will match, but 123 will not match AB-123-HA',
-        'partial' => 'Partial - Ex: AB- and 123 will both match AB-123-HA',
-      ),
-      '#default_value' => variable_get('commerce_pos_search_sku_matching', 'exact'),
-      '#description' => t('Change the type of sku matching depending on your use cases, exact matching is less prone to mistakes, 
-      but only works if you know most of your skus and rarely search')
-    );
-  }
-
-  $form['commerce_pos_search_results_count'] = array(
-    '#type' => 'textfield',
-    '#title' => t('Number of search results'),
-    '#size' => 15,
-    '#required' => TRUE,
-    '#description' => t('Set the number of search results to be returned when searching for products in the POS.'),
-    '#default_value' => variable_get('commerce_pos_search_results_count', 5),
+  $form['product_settings'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Product Settings'),
   );
 
   $product_options = array();
@@ -57,17 +20,12 @@ function commerce_pos_settings($form, &$form_state) {
     $product_options[$name] = $type['name'];
   }
 
-  $form['commerce_pos_available_products'] = array(
+  $form['product_settings']['commerce_pos_available_products'] = array(
     '#title' => t('Available products'),
     '#type' => 'checkboxes',
     '#options' => $product_options,
     '#default_value' => variable_get('commerce_pos_available_products', array('product')),
     '#description' => t('Select the types of products that can be added to POS transactions.'),
-  );
-
-  $form['field_settings'] = array(
-    '#type' => 'fieldset',
-    '#title' => t('Field settings'),
   );
 
   $options = array(NULL => t('No field'));
@@ -81,9 +39,10 @@ function commerce_pos_settings($form, &$form_state) {
   foreach (commerce_product_types() as $name => $type) {
     $variable_name = 'commerce_pos_image_field_' . $name;
 
-    $form['field_settings'][$name] = array(
+    $form['product_settings'][$name] = array(
       '#type' => 'fieldset',
       '#title' => $type['name'],
+      '#description' => t('Select the field options for this product type within the POS'),
       '#states' => array(
         'invisible' => array(
           ':input[name="commerce_pos_available_products[' . $name . ']"]' => array('checked' => FALSE),
@@ -91,10 +50,10 @@ function commerce_pos_settings($form, &$form_state) {
       ),
     );
 
-    $form['field_settings'][$name][$variable_name] = array(
+    $form['product_settings'][$name][$variable_name] = array(
       '#type' => 'select',
       '#title' => t('Image field(s)'),
-      '#description ' => t('Select fields that will be used to find an image if your products in the POS.'),
+      '#description' => t('Select fields that will be used to find an image to display for your products within the POS'),
       '#options' => $options,
       '#default_value' => variable_get($variable_name, NULL),
       '#multiple' => TRUE,
@@ -102,7 +61,7 @@ function commerce_pos_settings($form, &$form_state) {
 
     $variable_name = 'commerce_pos_image_default_' . $name;
 
-    $form['field_settings'][$name][$variable_name] = array(
+    $form['product_settings'][$name][$variable_name] = array(
       '#type' => 'managed_file',
       '#title' => t('Default image'),
       '#description' => t('You may provide a default image for when no other image is available.'),
@@ -114,6 +73,59 @@ function commerce_pos_settings($form, &$form_state) {
       ),
     );
   }
+
+  $form['search'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Search'),
+  );
+
+  if (module_exists('search_api')) {
+    $index_options = array(
+      'default' => t('Use default search'),
+    );
+
+    foreach (search_api_index_load_multiple(FALSE) as $id => $index) {
+      $index_options[$id] = $index->name;
+    }
+
+    $form['search']['commerce_pos_search_api_index'] = array(
+      '#type' => 'select',
+      '#title' => t('Search API Index'),
+      '#description' => t('If you would like to use a search API index when searching for products in the POS, you may select one here.'),
+      '#options' => $index_options,
+      '#default_value' => variable_get('commerce_pos_search_api_index', NULL),
+    );
+  }
+  else {
+    $form['search']['commerce_pos_search_api_missing'] = array(
+      '#markup' => t(
+        'Search API module not available, if you want more robust search functionality, install the <a href="@search_api">search_api</a> module',
+        array('@search_api' => 'https://www.drupal.org/project/search_api')
+      ),
+    );
+
+    $form['search']['commerce_pos_search_sku_matching'] = array(
+      '#type' => 'radios',
+      '#title' => t('SKU matching options'),
+      '#options' => array(
+        'exact' => 'Exact - Ex: only AB-123-HA will match AB-123-HA',
+        'semi-partial' => 'Semi Partial - Ex: AB- will match, but 123 will not match AB-123-HA',
+        'partial' => 'Partial - Ex: AB- and 123 will both match AB-123-HA',
+      ),
+      '#default_value' => variable_get('commerce_pos_search_sku_matching', 'exact'),
+      '#description' => t('Change the type of sku matching depending on your use cases, exact matching is less prone to mistakes, 
+      but only works if you know most of your skus and rarely search')
+    );
+  }
+
+  $form['search']['commerce_pos_search_results_count'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Number of search results'),
+    '#size' => 15,
+    '#required' => TRUE,
+    '#description' => t('Set the number of search results to be returned when searching for products in the POS.'),
+    '#default_value' => variable_get('commerce_pos_search_results_count', 5),
+  );
 
   // Grab a list of payments.
   $payments = array();
