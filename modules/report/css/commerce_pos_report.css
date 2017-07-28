@@ -48,6 +48,24 @@
   outline: 0;
 }
 
+/* --  Sales Report Date Range Filters  -- */
+.page-admin-commerce-pos-reports-sales-report .container-inline-date {
+  float: none;
+  display: inline-block;
+  margin-right: 0;
+}
+
+.page-admin-commerce-pos-reports-sales-report .container-inline-date .form-item {
+  margin-right: 30px;
+}
+
+.page-admin-commerce-pos-reports-sales-report .commerce-pos-report-journal-role-submit {
+  vertical-align: bottom;
+  margin-bottom: 19px;
+  padding: 8px 30px;
+  box-shadow: none;
+}
+
 /* -- Report Option Buttons -- */
 
 .item-list {

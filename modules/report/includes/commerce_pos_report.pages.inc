@@ -1156,6 +1156,74 @@ function commerce_pos_report_build_sales_report_table(array $filters = array()) 
   // Make sure line item count is aggregated.
   $query->groupBy('l.order_id');
 
+  if (!empty($filters['range_select'])) {
+    switch ($filters['range_select']) {
+      case 'all':
+        break;
+
+      case 'today':
+        $start_date = strtotime('midnight');
+        $end_date = strtotime('tomorrow');
+        break;
+
+      case 'yesterday':
+        $start_date = strtotime('yesterday');
+        $end_date = strtotime('midnight');
+        break;
+
+      case 'current_week':
+        $start_date = strtotime('sunday last week');
+        $end_date = strtotime('tomorrow');
+        break;
+
+      case 'current_month':
+        $start_date = strtotime(date('Y-m-1'));
+        $end_date = strtotime('tomorrow');
+        break;
+
+      case 'ytd':
+        $start_date = strtotime('January 1st');
+        $end_date = strtotime('tomorrow');
+        break;
+
+      case 'last_week':
+        $start_date = strtotime('sunday last week -1 week');
+        $end_date = strtotime('sunday last week');
+        break;
+
+      case 'last_month':
+        $start_date = strtotime(date('Y-m-1') . ' -1 month');
+        $end_date = strtotime(date('Y-m-1'));
+        break;
+
+      case 'last_year_today':
+        $start_date = strtotime('midnight -1 year');
+        $end_date = strtotime('tomorrow -1 year');
+        break;
+
+      case 'last_year_week':
+        $start_date = strtotime('-1 year sunday last week ');
+        $end_date = strtotime('-1 year sunday');
+        break;
+
+      case 'last_year_month':
+        $start_date = strtotime(date('Y-m-1') . ' -1 year');
+        $end_date = strtotime(date('Y-m-1') . ' -1 year +1 month');
+        break;
+
+      case 'custom':
+        $start_date = strtotime($filters['start_date']);
+        // Add a day to make end date inclusive.
+        $end_date = strtotime($filters['end_date'] . '+ 1 day');
+        break;
+    }
+
+    if (isset($start_date, $end_date)) {
+      $query->condition('completed', $start_date, '>=');
+      $query->condition('completed', $end_date, '<');
+    }
+  }
+
   /* As mysql do not support limits in sub queries, create sub query
   for pagination and to limit records use a separate query.*/
   $pagination_query = db_select('commerce_pos_cashier', 'cpc')
@@ -1258,7 +1326,10 @@ function commerce_pos_report_sales_report($form, &$form_state) {
   );
 
   $query_filter_defaults = array(
-    'results_per_page' => COMMERCE_POS_REPORT_SALES_REPORT_DEFAULT_ITEMS_PER_PAGE,
+    'range_select' => 'all',
+    'start_date' => format_date(REQUEST_TIME, 'custom', 'Y-m-d'),
+    'end_date' => format_date(REQUEST_TIME, 'custom', 'Y-m-d'),
+    'results_per_page' => COMMERCE_POS_REPORT_JOURNAL_ROLE_DEFAULT_ITEMS_PER_PAGE,
   );
 
   $query_params = drupal_get_query_parameters() + $query_filter_defaults;
@@ -1286,6 +1357,73 @@ function commerce_pos_report_sales_report($form, &$form_state) {
   $form['#attached']['js'][] = array(
     'type' => 'setting',
     'data' => $js_settings,
+  );
+  $form['filters']['date_header'] = array(
+    '#type' => 'item',
+    '#title' => t('Date Range'),
+    '#prefix' => '<div class="commerce-pos-report-transaction-date-header">',
+    '#suffix' => '</div>',
+  );
+
+  $form['filters']['range_select'] = array(
+    '#type' => 'select',
+    '#title' => t('Date Range'),
+    '#title_display' => 'invisible',
+    '#options' => array(
+      'all' => t('All'),
+      'today' => t('Today'),
+      'yesterday' => t('Yesterday'),
+      'current_week' => t('Current week'),
+      'current_month' => t('Current month'),
+      'ytd' => t('Year to date'),
+      'last_week' => t('Last week'),
+      'last_month' => t('Last month'),
+      'last_year_today' => t('This day last year'),
+      'last_year_week' => t('This week last year'),
+      'last_year_month' => t('This month last year'),
+      'custom' => t('Custom date range'),
+    ),
+    '#default_value' => $query_params['range_select'],
+  );
+
+  $form['filters']['start_date'] = array(
+    '#type' => 'date_select',
+    '#title' => t('Start Date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => $query_params['start_date'],
+    '#element_key' => 'date_completed',
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="filters[range_select]"]' => array('value' => 'custom'),
+      ),
+    ),
+  );
+
+  $form['filters']['end_date'] = array(
+    '#type' => 'date_select',
+    '#title' => t('End Date'),
+    '#date_format' => 'Y-m-d',
+    '#default_value' => $query_params['end_date'],
+    '#element_key' => 'date_completed',
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-filter'),
+    ),
+    '#states' => array(
+      'visible' => array(
+        ':input[name="filters[range_select]"]' => array('value' => 'custom'),
+      ),
+    ),
+  );
+
+  $form['filters']['submit'] = array(
+    '#value' => t('Add Filter'),
+    '#type' => 'submit',
+    '#attributes' => array(
+      'class' => array('commerce-pos-report-journal-role-submit'),
+    ),
   );
   $form['report-options'] = array(
     '#theme' => 'commerce_pos_report_options',
@@ -1323,15 +1461,6 @@ function commerce_pos_report_sales_report($form, &$form_state) {
   $form['options']['pager'] = array('#theme' => 'pager');
   $form['results']['pager'] = array('#theme' => 'pager');
 
-  $form['submit'] = array(
-    '#value' => t('Submit'),
-    '#type' => 'submit',
-    '#weight' => -50,
-    '#attributes' => array(
-      'class' => array('element-invisible', 'commerce-pos-report-journal-role-submit'),
-    ),
-  );
-
   return $form;
 }
 
@@ -1339,7 +1468,10 @@ function commerce_pos_report_sales_report($form, &$form_state) {
  * Submit handler for the journal role report form.
  */
 function commerce_pos_report_sales_report_submit($form, &$form_state) {
-  $query_params = array_merge(drupal_get_query_parameters(), $form_state['values']['options']);
+  $query_params = array_merge(drupal_get_query_parameters(), $form_state['values']['filters'], $form_state['values']['options']);
+  if (!empty($query_params['range_select']) && $query_params['range_select'] !== 'custom') {
+    unset($query_params['start_date'], $query_params['end_date']);
+  }
   $form_state['redirect'] = array(current_path(), array('query' => $query_params));
 }
 
