@@ -804,12 +804,38 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
     array('data' => t('Purchased')),
     array('data' => t('Returned')),
     array('data' => t('Discount')),
-    array(
-      'data' => t('Order Total'),
-      'field' => 'ot.commerce_order_total_amount',
-    ),
   );
 
+  // Initialize the totals array.
+  $totals = array(
+    'purchased' => 0,
+    'returned' => 0,
+    'order_total' => array(),
+    'payment_methods' => array(),
+  );
+
+  // Store only the payment methods that are to be displayed in an array so that
+  // we don't have to iterate and filter all of them in every related foreach
+  // loop - there's many of them.
+  $payment_type_filter = empty($filters['payment_type']) ? NULL : $filters['payment_type'];
+  $active_payment_methods = _commerce_pos_filter_payment_methods($payment_type_filter);
+
+  // Initialize the array that will hold the totals for each payment method and
+  // modify the header to take into account this new row.
+  foreach ($active_payment_methods as $key => $payment_method) {
+    $totals['payment_methods'][$key] = array();
+
+    $header_title = t('@payment_type Total', array('@payment_type' => $payment_method['title']));
+    $header[] = $header_title;
+  }
+
+  // Now, add the order total header.
+  $header[] = array(
+    'data' => t('Order Total'),
+    'field' => 'ot.commerce_order_total_amount',
+  );
+
+  // Run the query.
   $query = db_select('commerce_pos_transaction', 't')
     ->extend('PagerDefault')
     ->extend('TableSort');
@@ -827,7 +853,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
 
   // Payment transaction data.
   $query->join('commerce_payment_transaction', 'pt', 'pt.order_id = t.order_id');
-  $query->fields('pt', array('transaction_id'));
+  $query->fields('pt', array('transaction_id', 'payment_method'));
 
   // Join order data.
   $query->join('commerce_order', 'o', 'o.order_id = t.order_id');
@@ -852,6 +878,14 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
   $line_item_types = commerce_product_line_item_types();
   $query->condition('l.type', $line_item_types, 'IN');
 
+  // Get the totals for each payment type.
+  foreach ($active_payment_methods as $key => $payment_method) {
+    $query->addExpression('SUM(DISTINCT(CASE WHEN pt.payment_method = \'' . $key . '\' AND pt.status = \'success\' THEN pt.amount ELSE 0 END))', $key);
+  }
+  // Also, grab the amount of change given back so that we can calculate the
+  // cash total correctly.
+  $query->addExpression('SUM(DISTINCT(CASE WHEN pt.payment_method = \'commerce_pos_change\' AND pt.status = \'success\' THEN pt.amount ELSE 0 END))', 'commerce_pos_change_received');
+
   // Make sure line item count is aggregated.
   $query->groupBy('l.order_id');
 
@@ -867,7 +901,13 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
   }
 
   if (!empty($filters['payment_type']) && $filters['payment_type'] != 'all') {
-    $query->condition('pt.payment_method', $filters['payment_type']);
+    // Let's also add the commerce_pos_change in our payment type condition,
+    // so we can grab how much change was given back.
+    $payment_types_array = [
+      $filters['payment_type'],
+      'commerce_pos_change'
+    ];
+    $query->condition('pt.payment_method', $payment_types_array, 'IN');
   }
 
   if (!empty($filters['cashier']) && $filters['cashier'] != 'all') {
@@ -880,11 +920,6 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
   $result = $query->execute();
 
   $rows = array();
-  $totals = array(
-    'purchased' => 0,
-    'returned' => 0,
-    'order_total' => array(),
-  );
 
   if ($result->rowCount() > 0) {
     foreach ($result as $row) {
@@ -943,6 +978,35 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
 
       $table_row[] = $has_discount ? '<span class="commerce-pos-report-ico-checked"></span>' : '';
 
+      // Display the amount paid in each payment type.
+      foreach ($active_payment_methods as $key => $payment_method) {
+        // Grab the amount paid in this payment type.
+        if ($row->$key != 0) {
+          // If the payment was in cash, the actual amount would be the cash
+          // given minus any change received.
+          if ($key == 'commerce_pos_payment_cash') {
+            // Since change is a negative number, we'll just add them together.
+            $amount = $row->$key + $row->commerce_pos_change_received;
+          }
+          else {
+            $amount = $row->$key;
+          }
+        }
+        // Display 0 if the customer didn't pay with this payment type.
+        else {
+          $amount = 0;
+        }
+
+        // Add a row with the amount.
+        $table_row[] = commerce_currency_format($amount, $row->commerce_order_total_currency_code);
+
+        // Add the amount to the corresponding payment method sum, per currency.
+        if (!isset($totals['payment_methods'][$key][$row->commerce_order_total_currency_code])) {
+          $totals['payment_methods'][$key][$row->commerce_order_total_currency_code] = 0;
+        }
+        $totals['payment_methods'][$key][$row->commerce_order_total_currency_code] += $amount;
+      }
+
       // Order total.
       $table_row[] = commerce_currency_format($row->commerce_order_total_amount, $row->commerce_order_total_currency_code);
 
@@ -979,7 +1043,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
       $order_totals_summary[] = commerce_currency_format($amount, $currency_code);
     }
 
-    $rows[] = array(
+    $summary_row = array(
       '',
       '',
       '',
@@ -988,8 +1052,22 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
       $totals['purchased'],
       $totals['returned'],
       '',
-      implode('<br>', $order_totals_summary),
     );
+
+    // Totals for each payment type.
+    foreach ($active_payment_methods as $key => $payment_method) {
+      $payment_methods_summary = array();
+      foreach ($totals['payment_methods'][$key] as $currency_code => $amount) {
+        $payment_methods_summary[] = commerce_currency_format($amount, $currency_code);
+      }
+
+      $summary_row[] = implode('<br>', $payment_methods_summary);
+    }
+
+    // The overall order total column.
+    $summary_row[] = implode('<br>', $order_totals_summary);
+
+    $rows[] = $summary_row;
 
     $table = array(
       '#theme' => 'table',
@@ -1319,4 +1397,36 @@ function sales_process_data($result) {
 
   }
   return $table_row;
+}
+
+/**
+ * Get all or a one payment method from the list of available payment methods.
+ *
+ * @param $filter string
+ *   The ID of the payment method we would like to get, or 'all' to get all
+ *   payment methods.
+ *
+ * @return array
+ *   The requested payment methods based on the given filter's value.
+ *   - If 'all' given, it returns all available methods.
+ *   - If the string ID of a specific method is given, it returns only that
+ *     method.
+ *   - If an empty value is given, such as NULL, it returns an empty array.
+ */
+function _commerce_pos_filter_payment_methods($filter = NULL) {
+  if (empty($filter)) {
+    return array();
+  }
+
+  if ($filter == 'all') {
+    return commerce_pos_get_payment_methods();
+  }
+
+  $payment_methods = commerce_pos_get_payment_methods();
+
+  if (empty($payment_methods[$filter])) {
+    return array();
+  }
+
+  return array($filter => $payment_methods[$filter]);
 }
