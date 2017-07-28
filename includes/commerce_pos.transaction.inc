@@ -975,7 +975,7 @@ function _commerce_pos_override_confirm_validate($form, &$form_state) {
  * This popup shows a checkbox next to each item for the user to add that item
  * to the return transaction.
  *
- * @param $order
+ * @param object $order
  *   The order entity.
  */
 function commerce_pos_return_select_item_popup(&$form, &$form_state, $order) {

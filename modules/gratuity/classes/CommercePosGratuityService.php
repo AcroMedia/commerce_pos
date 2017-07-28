@@ -19,11 +19,13 @@ class CommercePosGratuityService {
    *
    * @param EntityMetadataWrapper $price_wrapper
    *   A metadata wrapper around a commerce price field.
+   * @param string $gratuity_name
+   *   The identifying name of the gratuity.
    *
    * @return array|bool
    *   The price component, or FALSE if none was found.
    */
-  static public function getPosGratuityComponent(EntityMetadataWrapper $price_wrapper, $gratuity_name) {
+  public static function getPosGratuityComponent(EntityMetadataWrapper $price_wrapper, $gratuity_name) {
     $price_entity = $price_wrapper->value();
     if (!isset($price_entity['data'])) {
       $price_entity['data'] = array();
@@ -56,7 +58,7 @@ class CommercePosGratuityService {
    * @param int|float $rate
    *   The rate to be changed, either a percentage or fixed value in cents.
    */
-  static public function applyGratuity(EntityMetadataWrapper $order_wrapper, $type, $rate) {
+  public static function applyGratuity(EntityMetadataWrapper $order_wrapper, $type, $rate) {
     switch ($type) {
       case 'percent':
         CommercePosGratuityService::applyPercentGratuity($order_wrapper, $rate);
@@ -76,7 +78,7 @@ class CommercePosGratuityService {
    * @param float $rate
    *   The gratuity percentage in full format (10 not .1).
    */
-  static public function applyPercentGratuity(EntityMetadataWrapper $order_wrapper, $rate) {
+  public static function applyPercentGratuity(EntityMetadataWrapper $order_wrapper, $rate) {
     // Get the line item types to apply the gratuity to.
     $line_item_types = variable_get('commerce_gratuity_line_item_types', array('product' => 'product'));
 
@@ -125,7 +127,7 @@ class CommercePosGratuityService {
    * @param int $gratuity_amount
    *   Amount in cents to be removed.
    */
-  static public function applyFixedGratuity(EntityMetadataWrapper $order_wrapper, $gratuity_amount) {
+  public static function applyFixedGratuity(EntityMetadataWrapper $order_wrapper, $gratuity_amount) {
     $gratuity_price['amount'] = $gratuity_amount;
 
     $component_data = array(
@@ -165,7 +167,7 @@ class CommercePosGratuityService {
    * @return bool
    *   TRUE if an existing line item was successfully modified, FALSE otherwise.
    */
-  static public function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $gratuity_name, array $gratuity_price, array $component_data = array()) {
+  public static function setExistingLineItemPrice(EntityDrupalWrapper $order_wrapper, $gratuity_name, array $gratuity_price, array $component_data = array()) {
     $modified_existing = FALSE;
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
       if ($line_item_wrapper->getBundle() == 'commerce_pos_gratuity') {
@@ -195,7 +197,7 @@ class CommercePosGratuityService {
    * @param array $component_data
    *   Any price data to merge into the component.
    */
-  static public function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $gratuity_name, array $gratuity_amount, array $component_data = array()) {
+  public static function setPriceComponent(EntityDrupalWrapper $line_item_wrapper, $gratuity_name, array $gratuity_amount, array $component_data = array()) {
     $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
     // Currencies don't match, abort.
     if ($gratuity_amount['currency_code'] != $unit_price['currency_code']) {
@@ -225,7 +227,7 @@ class CommercePosGratuityService {
   /**
    * Retrieves a display name for a specific gratuity type.
    */
-  static public function getGratuityComponentTitle($gratuity_name) {
+  public static function getGratuityComponentTitle($gratuity_name) {
     switch ($gratuity_name) {
       case self::ORDER_GRATUITY_NAME:
         return t('Order Gratuity');
@@ -247,7 +249,7 @@ class CommercePosGratuityService {
    * @param array $data
    *   Any additional data to be added to the price component.
    */
-  static public function addLineItem(EntityDrupalWrapper $order_wrapper, $gratuity_name, array $gratuity_amount, array $data) {
+  public static function addLineItem(EntityDrupalWrapper $order_wrapper, $gratuity_name, array $gratuity_amount, array $data) {
     // Create a new line item.
     $values = array(
       'type' => 'commerce_pos_gratuity',
@@ -294,7 +296,7 @@ class CommercePosGratuityService {
    *   Any additional data to be merged into the new price component's data
    *   array.
    */
-  static public function addPriceComponent(EntityDrupalWrapper $line_item_wrapper, $gratuity_name, array $gratuity_amount, array $data) {
+  public static function addPriceComponent(EntityDrupalWrapper $line_item_wrapper, $gratuity_name, array $gratuity_amount, array $data) {
     $unit_price = commerce_price_wrapper_value($line_item_wrapper, 'commerce_unit_price', TRUE);
     $current_amount = $unit_price['amount'];
     // Currencies don't match, abort.
@@ -335,7 +337,7 @@ class CommercePosGratuityService {
    * To have the order total refreshed without saving the line item.
    * Taken from CommerceLineItemEntityController::save().
    */
-  static public function updateLineItemTotal($line_item_wrapper) {
+  public static function updateLineItemTotal($line_item_wrapper) {
     $quantity = $line_item_wrapper->quantity->value();
 
     // Update the total of the line item based on the quantity and unit price.
@@ -363,7 +365,7 @@ class CommercePosGratuityService {
   /**
    * Removes all POS gratuity line items from an order.
    */
-  static public function removeOrderGratuityLineItems($order_wrapper) {
+  public static function removeOrderGratuityLineItems($order_wrapper) {
     $line_items_to_delete = array();
 
     foreach ($order_wrapper->commerce_line_items as $delta => $line_item_wrapper) {

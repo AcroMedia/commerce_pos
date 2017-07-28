@@ -162,7 +162,6 @@ function _commerce_pos_gratuity_payment_form_alter(&$form, $form_state) {
     }
   }
 
-
   // Show the add gratuity button.
   if (!empty($form['balance']['actions'])) {
     $form['balance']['actions']['finish']['#weight'] = 0;

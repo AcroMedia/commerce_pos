@@ -1402,7 +1402,7 @@ function sales_process_data($result) {
 /**
  * Get all or a one payment method from the list of available payment methods.
  *
- * @param $filter string
+ * @param string $filter
  *   The ID of the payment method we would like to get, or 'all' to get all
  *   payment methods.
  *
