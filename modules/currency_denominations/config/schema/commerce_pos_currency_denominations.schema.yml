@@ -1,0 +1,23 @@
+commerce_pos_currency_denominations.commerce_pos_currency_denominations.*:
+  type: config_entity
+  label: 'Currency denominations'
+  mapping:
+    currencyCode:
+      type: string
+      label: 'Currency code'
+    denominations:
+      type: sequence
+      label: 'Denominations'
+      sequence:
+        type: mapping
+        label: 'Denomination'
+        mapping:
+          id:
+            type: string
+            label: 'ID'
+          label:
+            type: label
+            label: 'Label'
+          amount:
+            type: amount
+            label: 'Amount'
