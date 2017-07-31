@@ -1,0 +1,3 @@
+'administer commerce_pos_currency_denominations':
+  title: 'Administer currency denominations'
+  'restrict access': TRUE
