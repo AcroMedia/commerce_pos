@@ -14,3 +14,4 @@ config_devel:
     - commerce_payment.commerce_payment_gateway.pos_credit
     - commerce_payment.commerce_payment_gateway.pos_debit
     - commerce_payment.commerce_payment_gateway.pos_gift_card
+    - user.role.pos_cashier
