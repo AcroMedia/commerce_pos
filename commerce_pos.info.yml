@@ -4,8 +4,14 @@ description: Allows users to set up a Point of Sale system within their Drupal C
 core: 8.x
 package: Commerce
 dependencies:
-  - commerce
+  - commerce:commerce_order
+  - commerce:commerce_payment
 config_devel:
   install:
     - commerce_store.commerce_store_type.physical
     - commerce_order.commerce_order_type.pos
+    - commerce_payment.commerce_payment_gateway.pos_cash
+    - commerce_payment.commerce_payment_gateway.pos_credit
+    - commerce_payment.commerce_payment_gateway.pos_debit
+    - commerce_payment.commerce_payment_gateway.pos_gift_card
+    - user.role.pos_cashier

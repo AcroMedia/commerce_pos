@@ -19,7 +19,10 @@ settings:
   handler_settings:
     include_anonymous: false
     filter:
-      type: _none
+      type: role
+      role:
+        pos_cashier: pos_cashier
+        administrator: '0'
     target_bundles: null
     sort:
       field: _none

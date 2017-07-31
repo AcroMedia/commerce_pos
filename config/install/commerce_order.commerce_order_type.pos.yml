@@ -2,7 +2,7 @@ langcode: en
 status: true
 label: Point of Sale
 id: pos
-workflow: order_default
+workflow: order_pos
 traits: {  }
 refresh_mode: customer
 refresh_frequency: 300

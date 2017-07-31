@@ -1,0 +1,21 @@
+langcode: en
+status: true
+dependencies: {  }
+id: pos_credit
+label: Credit
+weight: null
+plugin: manual
+configuration:
+  instructions:
+    value: ''
+    format: plain_text
+  display_label: Credit
+  mode: n/a
+  payment_method_types:
+    - credit_card
+conditions:
+  -
+    plugin: order_type
+    configuration:
+      bundles:
+        - pos
