@@ -1,0 +1,15 @@
+commerce_pos.configuration:
+  title: 'Point of Sale'
+  route_name: 'commerce_pos.configuration'
+  parent: 'commerce.configuration'
+  description: 'Configure your Point of Sale'
+  weight: 25
+
+# Register menu items definition
+entity.register.collection:
+  title: 'Register'
+  route_name: entity.register.collection
+  description: 'Manage Registers'
+  parent: 'commerce_pos.configuration'
+  weight: 99
+
