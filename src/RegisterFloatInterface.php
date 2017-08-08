@@ -15,9 +15,9 @@ interface RegisterFloatInterface {
    * Add a float to the register
    *
    * @param \Drupal\commerce_pos\Entity\RegisterInterface $register
-   * The register.
+   *   The register.
    * @param $amount
-   * The amount in the register.
+   *   The amount in the register.
    *
    */
   public function addFloat(RegisterInterface $register, $amount);
@@ -26,7 +26,7 @@ interface RegisterFloatInterface {
    * Deletes all floats for the given registers.
    *
    * @param array $registers
-   * The registers
+   *   The registers
    */
   public function deleteFloat(array $registers);
 
@@ -34,12 +34,12 @@ interface RegisterFloatInterface {
    * Gets the float for the given register
    *
    * @param \Drupal\commerce_pos\Entity\RegisterInterface $register
-   * The Register.
+   *   The Register.
    * @param null $amount
-   * (optional) The amount.
+   *   (optional) The amount.
    *
    * @return int
-   * The float.
+   *   The float.
    */
   public function getFloat(RegisterInterface $register, $amount = NULL);
 
@@ -47,12 +47,12 @@ interface RegisterFloatInterface {
    * Gets the floats for the given registers.
    *
    * @param array $registers
-   * The registers.
+   *   The registers.
    * @param null $amount
-   * (optional)The amount.
+   *   (optional)The amount.
    *
    * @return array
-   * The floats, keyed by register ID.
+   *   The floats, keyed by register ID.
    */
   public function getFloatMultiple(array $registers, $amount = NULL);
 

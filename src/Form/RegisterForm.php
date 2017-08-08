@@ -22,7 +22,6 @@ class RegisterForm extends EntityForm {
       '#title' => $this->t('Label'),
       '#maxlength' => 255,
       '#default_value' => $register->label(),
-      '#description' => $this->t("Label for the Register."),
       '#required' => TRUE,
     ];
 
