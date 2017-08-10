@@ -3,17 +3,17 @@ status: true
 dependencies:
   module:
     - commerce_order
-    - node
+    - commerce_pos
 id: commerce_order.field_register
 field_name: field_register
 entity_type: commerce_order
 type: entity_reference
 settings:
-  target_type: node
+  target_type: commerce_pos_register
 module: core
-locked: false
+locked: true
 cardinality: 1
-translatable: true
+translatable: false
 indexes: {  }
 persist_with_no_fields: false
 custom_storage: false
