@@ -9,7 +9,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  * Defines the currency denominations entity class.
  *
  * @ConfigEntityType(
- *   id = "commerce_pos_currency_denominations",
+ *   id = "commerce_pos_currency_denoms",
  *   label = @Translation("Currency denominations"),
  *   label_collection = @Translation("Currency denominations"),
  *   handlers = {
