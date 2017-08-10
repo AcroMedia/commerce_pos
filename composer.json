@@ -1,8 +1,8 @@
 {
   "name": "drupal/commerce_pos",
   "type": "drupal-module",
-  "description": "Commerce Point of Sale",
-  "keywords": ["Drupal"],
+  "description": "Provides Point of Sale functionality for Commerce",
+  "keywords": ["Drupal", "POS", "Commerce"],
   "license": "GPL-2.0+",
   "homepage": "https://www.drupal.org/project/commerce_pos",
   "minimum-stability": "dev",
@@ -10,5 +10,7 @@
     "issues": "https://www.drupal.org/project/issues/commerce_pos",
     "source": "http://cgit.drupalcode.org/commerce_pos"
   },
-  "require": { }
+  "require": {
+    "drupal/commerce": "~2.0"
+  }
 }
