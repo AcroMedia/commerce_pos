@@ -12,14 +12,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   label = @Translation("Register"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\commerce_pos\RegisterListBuilder",
+ *     "list_builder" = "Drupal\commerce_pos\EntityListBuilder",
  *     "form" = {
  *       "add" = "Drupal\commerce_pos\Form\RegisterForm",
  *       "edit" = "Drupal\commerce_pos\Form\RegisterForm",
  *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\commerce_pos\RegisterHtmlRouteProvider",
+ *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
  *   },
  *   config_prefix = "commerce_pos_register",
