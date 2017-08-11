@@ -24,7 +24,7 @@ class CurrencyDenominationsForm extends EntityForm {
    *   The entity type manager.
    */
   public function __construct(EntityTypeManagerInterface $entity_type_manager) {
-    $this->storage = $entity_type_manager->getStorage('commerce_pos_currency_denominations');
+    $this->storage = $entity_type_manager->getStorage('commerce_pos_currency_denoms');
   }
 
   /**
