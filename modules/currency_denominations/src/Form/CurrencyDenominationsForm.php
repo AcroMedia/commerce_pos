@@ -67,7 +67,7 @@ class CurrencyDenominationsForm extends EntityForm {
     drupal_set_message($this->t('Saved the %label currency denominations.', [
       '%label' => $currency_denominations->label(),
     ]));
-    $form_state->setRedirect('entity.commerce_pos_currency_denominations.collection');
+    $form_state->setRedirect('entity.commerce_pos_currency_denoms.collection');
   }
 
 }

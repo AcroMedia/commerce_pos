@@ -1,5 +1,5 @@
-entity.commerce_pos_currency_denominations.collection:
+entity.commerce_pos_currency_denoms.collection:
   title: Currency denominations
-  route_name: entity.commerce_pos_currency_denominations.collection
+  route_name: entity.commerce_pos_currency_denoms.collection
   parent: commerce.configuration
   description: 'Manage your currency denominations.'
