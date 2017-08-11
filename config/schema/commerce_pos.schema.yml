@@ -1,4 +1,4 @@
-commerce_pos.register.*:
+commerce_pos.commerce_pos_register.*:
   type: config_entity
   label: 'Register config'
   mapping:
