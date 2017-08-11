@@ -6,10 +6,9 @@ commerce_pos.configuration:
   weight: 25
 
 # Register menu items definition
-entity.register.collection:
+entity.commerce_pos_register.collection:
   title: 'Register'
-  route_name: entity.register.collection
+  route_name: entity.commerce_pos_register.collection
   description: 'Manage Registers'
   parent: 'commerce_pos.configuration'
   weight: 99
-

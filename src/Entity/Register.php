@@ -12,14 +12,14 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   label = @Translation("Register"),
  *   handlers = {
  *     "view_builder" = "Drupal\Core\Entity\EntityViewBuilder",
- *     "list_builder" = "Drupal\commerce_pos\EntityListBuilder",
+ *     "list_builder" = "Drupal\commerce_pos\RegisterListBuilder",
  *     "form" = {
  *       "add" = "Drupal\commerce_pos\Form\RegisterForm",
  *       "edit" = "Drupal\commerce_pos\Form\RegisterForm",
- *       "delete" = "Drupal\Core\Entity\EntityDeleteForm"
+ *       "delete" = "Drupal\commerce_pos\Form\RegisterDeleteForm"
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
+ *       "html" = "Drupal\commerce_pos\RegisterHtmlRouteProvider",
  *     },
  *   },
  *   config_prefix = "commerce_pos_register",
@@ -30,9 +30,10 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "add-form" = "/admin/commerce/config/pos/register/register/add",
- *     "edit-form" = "/admin/commerce/config/pos/register/{register}/edit",
- *     "delete-form" = "/admin/commerce/config/pos/register/{register}/delete",
+ *     "canonical" = "/admin/commerce/config/pos/register/{commerce_pos_register}",
+ *     "add-form" = "/admin/commerce/config/pos/register/add",
+ *     "edit-form" = "/admin/commerce/config/pos/register/{commerce_pos_register}/edit",
+ *     "delete-form" = "/admin/commerce/config/pos/register/{commerce_pos_register}/delete",
  *     "collection" = "/admin/commerce/config/pos/register"
  *   }
  * )
