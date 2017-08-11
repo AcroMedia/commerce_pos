@@ -68,6 +68,18 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
   $form['header'] = array(
     '#markup' => $form_state['header'],
   );
+  if (!isset($form_state['report_options'])) {
+    $form_state['report_options'] = theme('commerce_pos_report_options');
+  }
+
+  $form['report-options'] = array(
+    '#markup' => $form_state['report_options'],
+  );
+
+  $form['filters'] = array(
+    '#type' => 'container',
+    '#attributes' => array('class' => array('clearfix')),
+  );
 
   $form['filters']['date_header'] = array(
     '#type' => 'item',
@@ -117,14 +129,6 @@ function commerce_pos_report_end_of_day($form, &$form_state) {
       '#ajax' => $ajax,
     );
   }
-
-  if (!isset($form_state['report_options'])) {
-    $form_state['report_options'] = theme('commerce_pos_report_options');
-  }
-
-  $form['report-options'] = array(
-    '#markup' => $form_state['report_options'],
-  );
 
   // Get saved data for requested date.
   $report_history = commerce_pos_report_get_eod_report($date_filter, $register_id);
@@ -627,8 +631,13 @@ function commerce_pos_report_journal_role($form, &$form_state) {
 
   $query_params = drupal_get_query_parameters() + $query_filter_defaults;
 
+  $form['report-options'] = array(
+    '#theme' => 'commerce_pos_report_options',
+  );
+
   $form['filters'] = array(
     '#type' => 'container',
+    '#attributes' => array('class' => array('clearfix')),
   );
 
   if (!isset($form_state['results_container_id'])) {
@@ -684,10 +693,6 @@ function commerce_pos_report_journal_role($form, &$form_state) {
       ),
     );
   }
-
-  $form['report-options'] = array(
-    '#theme' => 'commerce_pos_report_options',
-  );
 
   $form['options'] = array(
     '#type' => 'container',
@@ -905,7 +910,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
     // so we can grab how much change was given back.
     $payment_types_array = [
       $filters['payment_type'],
-      'commerce_pos_change'
+      'commerce_pos_change',
     ];
     $query->condition('pt.payment_method', $payment_types_array, 'IN');
   }
@@ -1324,7 +1329,9 @@ function commerce_pos_report_sales_report($form, &$form_state) {
   $form['header'] = array(
     '#markup' => theme('commerce_pos_header', array('account' => $user)),
   );
-
+  $form['report-options'] = array(
+    '#theme' => 'commerce_pos_report_options',
+  );
   $query_filter_defaults = array(
     'range_select' => 'all',
     'start_date' => format_date(REQUEST_TIME, 'custom', 'Y-m-d'),
@@ -1401,7 +1408,15 @@ function commerce_pos_report_sales_report($form, &$form_state) {
       ),
     ),
   );
-
+  $form['filters']['range_info'] = array(
+    '#type' => 'item',
+    '#markup' => '<label>&nbsp;</label><div class="form-item-separator"><label>&nbsp;</label><div class="range-text">' . t('&gt;') . '</div></div>',
+    '#states' => array(
+      'visible' => array(
+        ':input[name="filters[range_select]"]' => array('value' => 'custom'),
+      ),
+    ),
+  );
   $form['filters']['end_date'] = array(
     '#type' => 'date_select',
     '#title' => t('End Date'),
@@ -1417,17 +1432,14 @@ function commerce_pos_report_sales_report($form, &$form_state) {
       ),
     ),
   );
-
   $form['filters']['submit'] = array(
-    '#value' => t('Add Filter'),
+    '#value' => t('Apply Filter'),
     '#type' => 'submit',
     '#attributes' => array(
       'class' => array('commerce-pos-report-journal-role-submit'),
     ),
   );
-  $form['report-options'] = array(
-    '#theme' => 'commerce_pos_report_options',
-  );
+
   $form['options'] = array(
     '#type' => 'container',
     '#id' => 'commerce-pos-report-journal-role-options-container',

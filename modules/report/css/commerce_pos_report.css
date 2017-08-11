@@ -15,12 +15,34 @@
   font-size: 14px;
 }
 
-.commerce-pos-report-transaction-date-header label,
+#commerce-pos-report-sales-report label{
+  font-weight: normal;
+}
 .form-item-filters-register label,
 .form-item-register-id label {
   font-size: 14px;
 }
-
+#commerce-pos-report-sales-report .commerce-pos-report-transaction-date-header label, #commerce-pos-report-sales-report .form-item-filters-start-date > label, #commerce-pos-report-sales-report .form-item-filters-end-date > label{
+  font-size:16px;
+  font-weight: bold;
+}
+.form-item-custom{
+  padding: 9px 0;
+  float: left;
+}
+.form-item-separator{
+  padding: 9px 0;
+  float: left;
+  font-size: 25px;
+  line-height: 1;
+  margin-right: 30px;
+}
+#commerce-pos-report-journal-role-options-container{
+  text-align: right;
+}
+.date-padding .form-item:last-child{
+  margin-right: 0 !important;
+}
 .commerce-pos-report-transaction-date-header .form-item {
   margin: 0;
   padding: 0;
@@ -54,15 +76,18 @@
   display: inline-block;
   margin-right: 0;
 }
-
+#edit-filters-range-info{
+  display: inline-block;
+}
 .page-admin-commerce-pos-reports-sales-report .container-inline-date .form-item {
   margin-right: 30px;
 }
 
 .page-admin-commerce-pos-reports-sales-report .commerce-pos-report-journal-role-submit {
   vertical-align: bottom;
-  margin-bottom: 19px;
+  margin-bottom: 0px;
   padding: 8px 30px;
+  margin-bottom: 22px;
   box-shadow: none;
 }
 
@@ -74,8 +99,18 @@
 
 .item-list .commerce-pos-report-options {
   list-style-type: none;
-  margin: 0;
+  margin: 0 0 25px;
   padding: 0;
+  position:relative;
+}
+.item-list .commerce-pos-report-options::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #e2e2e2;
 }
 
 .item-list .commerce-pos-report-options li {
@@ -85,7 +120,8 @@
 }
 
 .item-list .commerce-pos-report-options li a {
-  border-radius: 5px;
+  border-top-right-radius: 5px;
+  border-top-left-radius: 5px;
   background-color: #f5f5f5;
   font-size: 20px;
   line-height: 20px;
