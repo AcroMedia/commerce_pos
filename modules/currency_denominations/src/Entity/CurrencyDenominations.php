@@ -36,8 +36,8 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *   },
  *   links = {
  *     "add-form" = "/admin/commerce/config/currency_denominations/add",
- *     "edit-form" = "/admin/commerce/config/currency_denominations/{commerce_pos_currency_denominations}",
- *     "delete-form" = "/admin/commerce/config/currency_denominations/{commerce_pos_currency_denominations}/delete",
+ *     "edit-form" = "/admin/commerce/config/currency_denominations/{commerce_pos_currency_denoms}",
+ *     "delete-form" = "/admin/commerce/config/currency_denominations/{commerce_pos_currency_denoms}/delete",
  *     "collection" = "/admin/commerce/config/currency_denominations"
  *   }
  * )
