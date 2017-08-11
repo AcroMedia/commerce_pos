@@ -11,6 +11,7 @@
 class CommercePosService {
   const TRANSACTION_TYPE_SALE = 'sale';
   const TRANSACTION_TYPE_RETURN = 'return';
+  const TRANSACTION_TYPE_EXCHANGE = 'exchange';
 
   static private $transactions = array();
 
@@ -19,8 +20,6 @@ class CommercePosService {
    *
    * "Current" is defined as in the process of being created, and not parked.
    *
-   * @param int $type
-   *   The type of current transaction to retrieve.
    * @param int $cashier_id
    *   The cashier ID to retrieve the transaction for.
    * @param bool $reset
@@ -29,24 +28,24 @@ class CommercePosService {
    * @return object|bool
    *   The current transaction if available or false if not available
    */
-  public static function getCurrentTransaction($type, $cashier_id, $reset = FALSE) {
+  public static function getCurrentTransaction($cashier_id, $reset = FALSE) {
     $current_transactions = &drupal_static('commerce_pos_current_transactions', array());
 
     if ($reset) {
       $current_transactions = array();
     }
 
-    if (!isset($current_transactions[$cashier_id][$type])) {
-      $current_transactions[$cashier_id][$type] = FALSE;
+    if (!isset($current_transactions[$cashier_id])) {
+      $current_transactions[$cashier_id] = FALSE;
       $active_transactions = self::getAllActiveTransactions($cashier_id, $reset);
 
-      if (isset($active_transactions[$type]['commerce_pos_in_progress'])) {
-        $transaction_id = $active_transactions[$type]['commerce_pos_in_progress'][0];
-        $current_transactions[$cashier_id][$type] = self::loadTransaction($transaction_id);
+      if (isset($active_transactions['commerce_pos_in_progress'])) {
+        $transaction_id = $active_transactions['commerce_pos_in_progress'][0];
+        $current_transactions[$cashier_id] = self::loadTransaction($transaction_id);
       }
     }
 
-    return $current_transactions[$cashier_id][$type];
+    return $current_transactions[$cashier_id];
   }
 
   /**
@@ -83,9 +82,9 @@ class CommercePosService {
   /**
    * Retrieves a list of all "parked" transactions for a user.
    */
-  public static function getParkedTransactions($type, $cashier_id) {
+  public static function getParkedTransactions($cashier_id) {
     $transactions = self::getAllActiveTransactions($cashier_id);
-    return !empty($transactions[$type]['commerce_pos_parked']) ? $transactions[$type]['commerce_pos_parked'] : array();
+    return !empty($transactions['commerce_pos_parked']) ? $transactions['commerce_pos_parked'] : array();
   }
 
   /**
@@ -110,10 +109,7 @@ class CommercePosService {
       $transactions[$cashier_id] = array();
 
       $query = db_select('commerce_pos_transaction', 't');
-      $query->fields('t', array(
-        'transaction_id',
-        'type',
-      ));
+      $query->fields('t', array('transaction_id'));
       $query->fields('o', array(
         'status',
       ));
@@ -135,7 +131,7 @@ class CommercePosService {
           $row->status = 'commerce_pos_in_progress';
         }
 
-        $transactions[$cashier_id][$row->type][$row->status][] = $row->transaction_id;
+        $transactions[$cashier_id][$row->status][] = $row->transaction_id;
       }
     }
 
@@ -164,6 +160,7 @@ class CommercePosService {
     return array(
       self::TRANSACTION_TYPE_SALE => t('Sale'),
       self::TRANSACTION_TYPE_RETURN => t('Return'),
+      self::TRANSACTION_TYPE_EXCHANGE => t('Exchange'),
     );
   }
 

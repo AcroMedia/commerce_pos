@@ -6,32 +6,16 @@
  */
 
 /**
- * Callback for the main POS sale form.
- */
-function commerce_pos_sale($form, &$form_state) {
-  commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_SALE);
-  return $form;
-}
-
-/**
- * Callback for the POS return form.
- */
-function commerce_pos_return($form, &$form_state) {
-  commerce_pos_transaction_form($form, $form_state, CommercePosService::TRANSACTION_TYPE_RETURN);
-  return $form;
-}
-
-/**
  * Primary callback for building a POS transaction form.
  */
-function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) {
+function commerce_pos_transaction_form($form, &$form_state) {
   global $user;
 
-  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
+  if (!isset($form_state['transaction_type'])) {
+    $form_state['transaction_type'] = CommercePosService::TRANSACTION_TYPE_SALE;
+  }
 
   $form['#theme'] = 'commerce_pos_transaction';
-  $form['#redirect_key'] = $return ? 'return' : 'sale';
-  $form['#transaction_type'] = $transaction_type;
 
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
 
@@ -53,7 +37,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
   if (!$cashier_id || !commerce_pos_cashier_load($cashier_id)) {
     drupal_set_message(t('You must enter your cashier code to proceed.'), 'warning');
-    return;
+    return $form;
   }
 
   commerce_pos_transaction_ajax_check($form, $form_state);
@@ -61,10 +45,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
 
   if (!empty($form_state['order_updated']) || !isset($form_state['transaction'])) {
-    $transaction = CommercePosService::getCurrentTransaction($transaction_type, $cashier_id);
+    $transaction = CommercePosService::getCurrentTransaction($cashier_id);
 
     if (empty($transaction)) {
-      $transaction = new CommercePosTransaction(NULL, $transaction_type, $user->uid, $cashier_id);
+      $transaction = new CommercePosTransaction(NULL, $form_state['transaction_type'], $user->uid, $cashier_id);
     }
 
     $form_state['transaction'] = $transaction;
@@ -110,7 +94,10 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     'focusProductInput' => $focus_product_input,
   );
 
-  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
+  $return = $form_state['transaction_type'] == CommercePosService::TRANSACTION_TYPE_RETURN;
+  $exchange = $form_state['transaction_type'] == CommercePosService::TRANSACTION_TYPE_EXCHANGE;
+
+  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : ($exchange ? 'exchange' : 'sale')) . '">';
   $form['#suffix'] = '</div>';
 
   if (!empty($form_state['transaction']->transactionId)) {
@@ -118,6 +105,24 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#markup' => '<div class="commerce-pos-transaction-id">' . t('Transaction #@id', array('@id' => $form_state['transaction']->transactionId)) . '</div>',
     );
   }
+
+  $form['transaction_type']['sale'] = array(
+    '#type' => 'button',
+    '#value' => t('Sale'),
+    '#element_key' => 'transaction_type_sale',
+    '#attributes' => array(
+      'class' => array('transaction-type-tab', ($return) ? '' : 'active'),
+    ),
+  );
+
+  $form['transaction_type']['return'] = array(
+    '#type' => 'button',
+    '#value' => t('Return'),
+    '#element_key' => 'transaction_type_return',
+    '#attributes' => array(
+      'class' => array('transaction-type-tab', ($return) ? 'active' : ''),
+    ),
+  );
 
   // Output a warning if the product types available for POS transactions have
   // not been configured yet.
@@ -148,7 +153,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       '#markup' => '<div class="messages warning">'
       . t('Allowed product types have not been configured for POS transactions.
         Click !here to add product types.', array(
-          '!here' => l(t('here'), 'admin/commerce/config/pos/settings')
+          '!here' => l(t('here'), 'admin/commerce/config/pos/settings'),
         ))
       . '</div>',
     );
@@ -176,7 +181,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
 
   // Let's add an order search textfield if we're in a return transaction so the
   // user could easily pick out which items from the order needs to be returned.
-  if ($return) {
+  if ($return || $exchange) {
     $form['search_type'] = array(
       '#type' => 'radios',
       '#options' => array(
@@ -228,16 +233,16 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   if (empty($order_wrapper)) {
     $form['product_search']['onboarding_text'] = array(
       '#type' => 'markup',
-      '#markup' => '<div class="commerce-pos-search-onboarding-message">' . t("<strong>Start your @txn_type:</strong> scan barcode or use product search", array(
-        '@txn_type' => $return ? t('return') : t('order'),
-      )) . '</div>',
+      '#markup' => '<div class="commerce-pos-search-onboarding-message">' .
+      t("<strong>Start your transaction:</strong> scan barcode or use product search")
+      . '</div>',
     );
   }
 
   $form['product_search']['input'] = array(
     '#type' => 'textfield',
     '#title' => t('product search'),
-    '#title_display' => 'after',
+    '#title_display' => 'invisible',
     '#size' => 60,
     '#description' => t('Search by SKU or product title, start typing to begin your search.'),
     '#attributes' => array(
@@ -268,282 +273,29 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   );
 
   if (!empty($order_wrapper)) {
-    $form['line_items'] = array(
-      '#tree' => TRUE,
-      '#type' => 'container',
-    );
-
-    $total_prefix = $return ? '(' : '';
-    $total_suffix = $return ? ')' : '';
+    // Allow these form elements to be conditionally displayed.
+    $sale_line_item_found = FALSE;
+    $return_line_item_found = FALSE;
 
     foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-      // Only show product line item types.
-      if ($line_item_wrapper->type->value() != 'product') {
-        continue;
-      }
-
       $line_item_id = $line_item_wrapper->line_item_id->value();
-
-      $form['line_items'][$line_item_id] = array(
-        '#type' => 'container',
-      );
-
-      $line_item_element = &$form['line_items'][$line_item_id];
-
-      // If commerce_stock is enabled and enabled for this product type as well,
-      // make sure we inform the user when a product is out of stock.
-      if (!$return && module_exists('commerce_stock') && commerce_ss_product_type_enabled($line_item_wrapper->commerce_product->value()->type)) {
-        $out_of_stock = FALSE;
-        // Let's check the stock of this product by calling our hook that checks
-        // the product's stock.
-        // Call all modules that implement the hook, and let them make changes
-        // to $stock.
-        $stock = module_invoke_all('commerce_stock_check_item_stock_alter', $line_item_wrapper->commerce_product->value());
-        // The above function call returns an array.
-        if (is_array($stock)) {
-          $stock = $stock[0];
-        }
-
-        if (is_numeric($stock) && $stock < 1) {
-          $out_of_stock = TRUE;
-          // If the form has been reloaded, add the existing out of stock items
-          // to our array which keeps track of the overridden items so that we
-          // don't prompt the user again.
-          if (!isset($form_state['values'])) {
-            $form_state['out_of_stock_overridden_products'][$line_item_wrapper->commerce_product->product_id->value()] = $line_item_wrapper->commerce_product->product_id->value();
-          }
-        }
-
-        // If the product has no stock, display a message and buttons to
-        // override or remove the product. Do this only once for an item.
-        if ($out_of_stock && !isset($form_state['out_of_stock_overridden_products'][$line_item_wrapper->commerce_product->product_id->value()])) {
-
-          // Inform the user about the out of stock issue.
-          // Re-use our generic modal form.
-          $form['out_of_stock_override_modal'] = commerce_pos_form_modal(array(
-            'closeable' => FALSE,
-            'throbber' => FALSE
-          ));
-          $form['out_of_stock_override_modal']['modal']['message'] = array(
-            '#markup' => '<div id="out-of-stock-override-confirm-question">'
-            . t('This product does not have any stock. Do you still want to add this item to the order?')
-            . '</div>',
-          );
-
-          // Display a override button to proceed with adding the item to the
-          // order.
-          $form['out_of_stock_override_modal']['modal']['out_of_stock_override_confirm_yes_button'] = array(
-            '#type' => 'button',
-            '#value' => t('Override'),
-            '#attributes' => array('class' => array('blue')),
-            '#ajax' => array(
-              'callback' => '_commerce_pos_override_confirm_callback',
-              'wrapper' => 'commerce-pos-form-modal-overlay',
-              'method' => 'replace'
-            ),
-            '#product_id' => $line_item_wrapper->commerce_product->product_id->value(),
-            '#name' => 'override_button',
-            '#validate' => array('_commerce_pos_override_confirm_validate'),
-          );
-
-          // Display a remove button to remove the item from the order.
-          // We're just copying the same behavior for the generic 'remove' button.
-          $form['out_of_stock_override_modal']['modal']['out_of_stock_override_confirm_no_button'] = array(
-            '#type' => 'submit',
-            '#value' => 'Remove',
-            '#attributes' => array('class' => array('link')),
-            '#name' => 'line-item-' . $line_item_id . '-remove',
-            '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
-            '#line_item_id' => $line_item_id,
-            '#ajax' => $wrapper_ajax,
-          );
-        }
+      if ($line_item_wrapper->type->value() === 'product') {
+        $sale_line_item_found = TRUE;
+        $form['line_items'][$line_item_id] = commerce_pos_build_line_item_form_element($line_item_wrapper, $wrapper_id, 'sale');
       }
-
-      // Set line item row wrapper class.
-      $line_item_row_wrapper_class = "line-item-row-wrapper";
-
-      if (_commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value())) {
-        $line_item_row_wrapper_class .= " line-item-row-wrapper-with-image";
+      elseif ($line_item_wrapper->type->value() === 'commerce_pos_return') {
+        $return_line_item_found = TRUE;
+        $form['return_items'][$line_item_id] = commerce_pos_build_line_item_form_element($line_item_wrapper, $wrapper_id, 'return');
       }
+    }
 
-      if (module_exists('commerce_pos_discount')) {
-        $line_item_row_wrapper_class .= " line-item-row-with-discount";
-      }
-
-      $line_item_element['line_item_row_wrapper_open'] = array(
-        '#markup' => '<div class="' . $line_item_row_wrapper_class . '">',
-      );
-
-      $line_item_element['image_wrapper_open'] = array(
-        '#markup' => '<div class="image-wrapper line-item-col">',
-      );
-
-      if ($thumbnail = _commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value())) {
-        $line_item_element['image'] = array(
-          '#markup' => $thumbnail,
-        );
-      }
-
-      $line_item_element['image_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $line_item_element['title_wrapper_open'] = array(
-        '#markup' => '<div class="title-wrapper line-item-col">',
-      );
-
-      $line_item_element['title'] = array(
-        '#markup' => '<span class="title">' . $line_item_wrapper->commerce_product->title->value() . '</span>',
-      );
-
-      if ($display_nid = commerce_pos_get_product_display_nid($line_item_wrapper->commerce_product->product_id->value())) {
-        $line_item_element['sku'] = array(
-          '#markup' => '<br />' . l($line_item_wrapper->commerce_product->sku->value(), 'node/' . $display_nid, array('attributes' => array('target' => '_blank'))),
-        );
-      }
-      else {
-        $line_item_element['sku'] = array(
-          '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
-        );
-      }
-
-      // Display out of stock overridden notice.
-      if (isset($stock) && $out_of_stock) {
-        $line_item_element['out_of_stock_overridden'] = array(
-          '#markup' => '<div class="out-of-stock-overridden-notice">' . t('Out of Stock: Overridden') . '</div>',
-        );
-      }
-
-      $line_item_element['title_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $base_price = commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price');
-
-      $currency = commerce_currency_load();
-
-      $line_item_element['price_container'] = array(
-        '#type' => 'container',
-        '#id' => 'commerce-pos-price-container',
-        '#attributes' => array(
-          'class' => array(
-            'commerce-pos-price-container-wrapper price-edit-wrapper line-item-col',
-          )
-        ),
-      );
-
-      $line_item_element['price_container']['price_edit'] = array(
-        '#type' => 'textfield',
-        '#title' => t('@price', array(
-          '@price' => commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']),
-        )),
-        '#default_value' => number_format($base_price[0]['price']['amount'] / 100, 2, $currency['decimal_separator'], ''),
-        '#size' => 5,
-        '#maxlength' => 10,
-        '#element_key' => 'line-item-change-price',
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-        '#attributes' => array(
-          'class' => array('commerce-pos-hidden-element'),
-          'tabindex' => 0,
-        ),
-        '#prefix' => '<div class="price-edit-input-wrapper">',
-        '#suffix' => '</div>',
-      );
-
-      $line_item_element['quantity_wrapper_open'] = array(
-        '#markup' => '<div class="quantity-wrapper line-item-col">',
-      );
-
-      $line_item_element['textbox_wrapper_open'] = array(
-        '#markup' => '<div class="textbox-wrapper">',
-      );
-
-      $line_item_element['qty'] = array(
-        '#title' => (int) $line_item_wrapper->quantity->value(),
-        '#type' => 'textfield',
-        '#value' => (int) $line_item_wrapper->quantity->value(),
-        '#size' => 4,
-        '#maxlength' => 4,
-        '#ajax' => $wrapper_ajax,
-        '#element_key' => 'line-item-qty',
-        '#line_item_id' => $line_item_id,
-        '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
-        '#attributes' => array(
-          'class' => array('commerce-pos-hidden-element'),
-        ),
-        '#limit_validation_errors' => FALSE,
-      );
-
-      $line_item_element['textbox_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $line_item_element['add_remove_wrapper_open'] = array(
-        '#markup' => '<div class="add-remove-wrapper line-item-col">',
-      );
-
-      $line_item_element['add_qty'] = array(
-        '#type' => 'button',
-        '#value' => '+',
-        '#name' => 'line-item-' . $line_item_id . '-plus',
-        '#element_key' => 'line-item-add-qty',
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-        '#attributes' => array(
-          'tabindex' => 0,
-        ),
-      );
-
-      $line_item_element['remove_qty'] = array(
-        '#type' => 'button',
-        '#value' => '-',
-        '#name' => 'line-item-' . $line_item_id . '-minus',
-        '#element_key' => 'line-item-remove-qty',
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-      );
-
-      $line_item_element['add_remove_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $line_item_element['quantity_wrapper_close'] = array(
-        '#markup' => '</div>',
-      );
-
-      $line_item_element['total_wrapper_open'] = array(
-        '#markup' => '<div class="total-wrapper line-item-col">',
-        '#weight' => 100,
-      );
-
-      $line_item_total = $line_item_wrapper->commerce_total->value();
-
-      $line_item_element['total'] = array(
-        '#markup' => '<strong>' . $total_prefix . commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . $total_suffix . '</strong>',
-        '#weight' => 100,
-      );
-
-      $line_item_element['remove'] = array(
-        '#type' => 'submit',
-        '#value' => 'Remove',
-        '#name' => 'line-item-' . $line_item_id . '-remove',
-        '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
-        '#line_item_id' => $line_item_id,
-        '#ajax' => $wrapper_ajax,
-        '#weight' => 100,
-      );
-
-      $line_item_element['total_wrapper_close'] = array(
-        '#markup' => '</div>',
-        '#weight' => 100,
-      );
-
-      $line_item_element['line_item_row_wrapper_close'] = array(
-        '#markup' => '</div>',
-        '#weight' => 100,
-      );
+    if ($sale_line_item_found) {
+      $form['line_items']['#tree'] = TRUE;
+      $form['line_items']['#type'] = 'container';
+    }
+    if ($return_line_item_found) {
+      $form['return_items']['#tree'] = TRUE;
+      $form['return_items']['#type'] = 'container';
     }
   }
 
@@ -557,7 +309,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   $transaction_options = &$form['transaction_options'];
 
   if ($has_active_transaction) {
-    $order_total = commerce_pos_price_order_format($order_wrapper, 'commerce_order_total', $return);
+    $order_total = commerce_pos_price_order_format($order_wrapper, 'commerce_order_total');
+    $order_total_amount = $order_wrapper->commerce_order_total->value()['amount'];
 
     $transaction_options['balance'] = array(
       '#markup' => commerce_pos_balance_summary($order_wrapper->value()),
@@ -566,6 +319,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
   }
   else {
     $order_total = commerce_pos_empty_order_format_total();
+    $order_total_amount = 0;
   }
 
   $transaction_options['order_total'] = array(
@@ -613,9 +367,18 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     $button_keybind_text = '';
   }
 
+  // Change the 'Pay' button text depending whether we're refunding or
+  // charging money.
+  if ($order_total_amount < 0) {
+    $pay_value = t('Refund');
+  }
+  else {
+    $pay_value = t('Pay');
+  }
+
   $transaction_options['actions']['pay'] = array(
     '#type' => 'submit',
-    '#value' => ($return ? t('Refund') : t('Pay')) . $button_keybind_text,
+    '#value' => $pay_value . $button_keybind_text,
     '#attributes' => array(
       'class' => array('commerce-pos-btn-pay'),
     ),
@@ -683,7 +446,7 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
     $transaction_options['actions']['park']['#disabled'] = TRUE;
   }
 
-  $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $wrapper_ajax, $has_active_transaction);
+  $form['parked_transactions'] = commerce_pos_parked_transactions_section($wrapper_ajax, $has_active_transaction);
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';
@@ -697,6 +460,8 @@ function commerce_pos_transaction_form(&$form, &$form_state, $transaction_type) 
       ),
     ),
   );
+
+  return $form;
 }
 
 /**
@@ -713,14 +478,17 @@ function _commerce_pos_transaction_validate_product_input($element, &$form_state
  */
 function _commerce_pos_transaction_validate_qty($element, &$form_state, $form) {
   $requested_qty = drupal_array_get_nested_value($form_state['input'], $element['#parents']);
+  $line_item_id = $element['#line_item_id'];
 
   // If the increment or decrement buttons were used, we need to add/subtract
   // from the requested_qty.
   if (isset($form_state['triggering_element']['#element_key'])) {
-    if ($form_state['triggering_element']['#element_key'] == 'line-item-remove-qty') {
+    if ($form_state['triggering_element']['#element_key'] == 'line-item-remove-qty' &&
+        $form_state['triggering_element']['#line_item_id'] == $line_item_id) {
       $requested_qty -= 1;
     }
-    if ($form_state['triggering_element']['#element_key'] == 'line-item-add-qty') {
+    if ($form_state['triggering_element']['#element_key'] == 'line-item-add-qty'&&
+      $form_state['triggering_element']['#line_item_id'] == $line_item_id) {
       $requested_qty += 1;
     }
   }
@@ -771,7 +539,12 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
           }
 
           if (!empty($product_sku) && $product = commerce_product_load_by_sku($product_sku)) {
-            $transaction->addProduct($product);
+            if ($form_state['transaction_type'] == CommercePosService::TRANSACTION_TYPE_SALE) {
+              $transaction->addProduct($product);
+            }
+            else {
+              $transaction->addProduct($product, 1, TRUE, NULL, 'commerce_pos_return');
+            }
           }
 
           $form_state['focus_product_input'] = TRUE;
@@ -820,8 +593,9 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
         case 'line-item-change-price':
           // First load the currency array.
           $currency = commerce_currency_load();
-          // Strip anything from the input other than numbers or the currency decimal separator.
-          $pattern = "/[^0-9" . $currency['decimal_separator'] . "]/";
+          // Strip anything from the input other than numbers or the currency
+          // decimal separator or negative.
+          $pattern = "/[^0-9-" . $currency['decimal_separator'] . "]/";
           $triggering_element['#value'] = preg_replace($pattern, "", $triggering_element['#value']);
           $transaction->setLineItemPrice($triggering_element['#line_item_id'], $triggering_element['#value'] * 100);
           break;
@@ -854,14 +628,23 @@ function commerce_pos_transaction_ajax_check(&$form, &$form_state) {
               // addProduct() function, so that price will be used in the
               // transaction instead of the product price.
               $price = $form_state['triggering_element']['#line_items'][$value]->commerce_unit_price->value();
-              $transaction->addProduct($form_state['triggering_element']['#line_items'][$value]->commerce_product->value(), 1, TRUE, $price['amount']);
+              $transaction->addProduct($form_state['triggering_element']['#line_items'][$value]->commerce_product->value(), 1, TRUE, $price['amount'], 'commerce_pos_return');
             }
           }
 
           break;
 
+        case 'transaction_type_sale':
+          $form_state['transaction_type'] = CommercePosService::TRANSACTION_TYPE_SALE;
+          break;
+
+        case 'transaction_type_return':
+          $form_state['transaction_type'] = CommercePosService::TRANSACTION_TYPE_RETURN;
+          break;
+
         default:
-          // If we didn't reach any of the above, it means we don't need to reload the order.
+          // If we didn't reach any of the above,
+          // it means we don't need to reload the order.
           $form_state['order_updated'] = FALSE;
       }
 
@@ -932,18 +715,20 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
         $form_state['transaction']->doAction('saveOrder');
       }
     }
-    if (module_exists('commerce_pos_stock') && $form['#form_id'] === 'commerce_pos_return') {
+    if (module_exists('commerce_pos_stock')) {
       $order = commerce_order_load($form_state['transaction']->orderId);
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
       foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
-        $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
-        commerce_line_item_save($line_item);
+        if (!empty($form_state['input']['return_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'])) {
+          $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['return_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
+          commerce_line_item_save($line_item);
+        }
       }
     }
   }
 
   $form_state['transaction']->doAction('save');
-  $form_state['redirect'] = 'admin/commerce/pos/' . $form['#redirect_key'] . '/payment';
+  $form_state['redirect'] = 'admin/commerce/pos/transaction/payment';
 }
 
 /**
@@ -983,7 +768,7 @@ function commerce_pos_return_select_item_popup(&$form, &$form_state, $order) {
   // Load our generic modal form.
   $form['commerce_pos_return_select_item_modal'] = commerce_pos_form_modal(array(
     'closeable' => TRUE,
-    'throbber' => FALSE
+    'throbber' => FALSE,
   ));
 
   // Initialize variables.
@@ -993,7 +778,12 @@ function commerce_pos_return_select_item_popup(&$form, &$form_state, $order) {
   // Go through each item in the order and generate the html for the items
   // display.
   foreach (entity_metadata_wrapper('commerce_order', $order)->commerce_line_items as $delta => $line_item_wrapper) {
-    if (isset($line_item_wrapper->type) && in_array($line_item_wrapper->type->value(), commerce_product_line_item_types())) {
+    // Do not allow returning pos return line items.
+    $allowed_line_items = commerce_product_line_item_types();
+    if (($key = array_search('commerce_pos_return', $allowed_line_items)) !== FALSE) {
+      unset($allowed_line_items[$key]);
+    }
+    if (isset($line_item_wrapper->type) && in_array($line_item_wrapper->type->value(), $allowed_line_items)) {
 
       // Load the product.
       $product_sku = $line_item_wrapper->commerce_product->sku->value();
@@ -1039,12 +829,11 @@ function commerce_pos_return_select_item_popup(&$form, &$form_state, $order) {
     '#options' => $options,
     '#weight' => 0,
     '#prefix' => '<h2 id="commerce-pos-return-item-title">' . t('Select the items being returned') . '</h2>' . l(t('Select All'), NULL, array(
-        'external' => TRUE,
-        'fragment' => FALSE,
-        'attributes' => array('id' => array('commerce-pos-return-select-all'))
+      'external' => TRUE,
+      'fragment' => FALSE,
+      'attributes' => array('id' => array('commerce-pos-return-select-all')),
     )),
   );
-
   // Add our close button which will add all the items that were selected to
   // be returned to the return transaction.
   $form['commerce_pos_return_select_item_modal']['modal']['add'] = array(
@@ -1059,4 +848,287 @@ function commerce_pos_return_select_item_popup(&$form, &$form_state, $order) {
     '#line_items' => $line_items,
     '#weight' => 1,
   );
+}
+
+/**
+ * Build a line item form element.
+ *
+ * @param EntityMetadataWrapper $line_item_wrapper
+ *   The commerce line item wrapper.
+ * @param string $wrapper_id
+ *   The form wrapper id.
+ * @param string $type
+ *   The type of line item, either sale or return.
+ *
+ * @return array
+ *   The line item form element.
+ */
+function commerce_pos_build_line_item_form_element(EntityMetadataWrapper $line_item_wrapper, $wrapper_id, $type) {
+  $line_item_element = array(
+    '#type' => 'container',
+  );
+  $line_item_id = $line_item_wrapper->line_item_id->value();
+  $return = $type == 'return';
+
+  $wrapper_ajax = array(
+    'callback' => 'commerce_pos_transaction_wrapper_js',
+    'wrapper' => $wrapper_id,
+  );
+
+  // If commerce_stock is enabled and enabled for this product type as well,
+  // make sure we inform the user when a product is out of stock.
+  if (!$return && module_exists('commerce_stock') && commerce_ss_product_type_enabled($line_item_wrapper->commerce_product->value()->type)) {
+    $out_of_stock = FALSE;
+    // Let's check the stock of this product by calling our hook that checks
+    // the product's stock.
+    // Call all modules that implement the hook, and let them make changes
+    // to $stock.
+    $stock = module_invoke_all('commerce_stock_check_item_stock_alter', $line_item_wrapper->commerce_product->value());
+    // The above function call returns an array.
+    if (is_array($stock)) {
+      $stock = $stock[0];
+    }
+
+    if (is_numeric($stock) && $stock < 1) {
+      $out_of_stock = TRUE;
+      // If the form has been reloaded, add the existing out of stock items
+      // to our array which keeps track of the overridden items so that we
+      // don't prompt the user again.
+      if (!isset($form_state['values'])) {
+        $form_state['out_of_stock_overridden_products'][$line_item_wrapper->commerce_product->product_id->value()] = $line_item_wrapper->commerce_product->product_id->value();
+      }
+    }
+
+    // If the product has no stock, display a message and buttons to
+    // override or remove the product. Do this only once for an item.
+    if ($out_of_stock && !isset($form_state['out_of_stock_overridden_products'][$line_item_wrapper->commerce_product->product_id->value()])) {
+
+      // Inform the user about the out of stock issue.
+      // Re-use our generic modal form.
+      $form['out_of_stock_override_modal'] = commerce_pos_form_modal(array(
+        'closeable' => FALSE,
+        'throbber' => FALSE,
+      ));
+      $form['out_of_stock_override_modal']['modal']['message'] = array(
+        '#markup' => '<div id="out-of-stock-override-confirm-question">'
+        . t('This product does not have any stock. Do you still want to add this item to the order?')
+        . '</div>',
+      );
+
+      // Display a override button to proceed with adding the item to the
+      // order.
+      $form['out_of_stock_override_modal']['modal']['out_of_stock_override_confirm_yes_button'] = array(
+        '#type' => 'button',
+        '#value' => t('Override'),
+        '#attributes' => array('class' => array('blue')),
+        '#ajax' => array(
+          'callback' => '_commerce_pos_override_confirm_callback',
+          'wrapper' => 'commerce-pos-form-modal-overlay',
+          'method' => 'replace',
+        ),
+        '#product_id' => $line_item_wrapper->commerce_product->product_id->value(),
+        '#name' => 'override_button',
+        '#validate' => array('_commerce_pos_override_confirm_validate'),
+      );
+
+      // Display a remove button to remove the item from the order. We're
+      // just copying the same behavior for the generic 'remove' button.
+      $form['out_of_stock_override_modal']['modal']['out_of_stock_override_confirm_no_button'] = array(
+        '#type' => 'submit',
+        '#value' => 'Remove',
+        '#attributes' => array('class' => array('link')),
+        '#name' => 'line-item-' . $line_item_id . '-remove',
+        '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
+        '#line_item_id' => $line_item_id,
+        '#ajax' => $wrapper_ajax,
+      );
+    }
+  }
+
+  // Set line item row wrapper class.
+  $line_item_row_wrapper_class = "line-item-row-wrapper";
+
+  if (_commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value())) {
+    $line_item_row_wrapper_class .= " line-item-row-wrapper-with-image";
+  }
+
+  if (module_exists('commerce_pos_discount')) {
+    $line_item_row_wrapper_class .= " line-item-row-with-discount";
+  }
+
+  $line_item_element['line_item_row_wrapper_open'] = array(
+    '#markup' => '<div class="' . $line_item_row_wrapper_class . '">',
+  );
+
+  $line_item_element['image_wrapper_open'] = array(
+    '#markup' => '<div class="image-wrapper line-item-col">',
+  );
+
+  if ($thumbnail = _commerce_pos_product_thumbnail($line_item_wrapper->commerce_product->value())) {
+    $line_item_element['image'] = array(
+      '#markup' => $thumbnail,
+    );
+  }
+
+  $line_item_element['image_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+
+  $line_item_element['title_wrapper_open'] = array(
+    '#markup' => '<div class="title-wrapper line-item-col">',
+  );
+
+  $line_item_element['title'] = array(
+    '#markup' => '<span class="title">' . $line_item_wrapper->commerce_product->title->value() . '</span>',
+  );
+
+  if ($display_nid = commerce_pos_get_product_display_nid($line_item_wrapper->commerce_product->product_id->value())) {
+    $line_item_element['sku'] = array(
+      '#markup' => '<br />' . l($line_item_wrapper->commerce_product->sku->value(), 'node/' . $display_nid, array('attributes' => array('target' => '_blank'))),
+    );
+  }
+  else {
+    $line_item_element['sku'] = array(
+      '#markup' => '<br />' . $line_item_wrapper->commerce_product->sku->value(),
+    );
+  }
+
+  $form['return_items'] = array();
+
+  // Display out of stock overridden notice.
+  if (isset($stock) && $out_of_stock) {
+    $line_item_element['out_of_stock_overridden'] = array(
+      '#markup' => '<div class="out-of-stock-overridden-notice">' . t('Out of Stock: Overridden') . '</div>',
+    );
+  }
+
+  $line_item_element['title_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+
+  $base_price = commerce_price_component_load($line_item_wrapper->commerce_unit_price->value(), 'base_price');
+
+  $currency = commerce_currency_load();
+
+  $line_item_element['price_container'] = array(
+    '#type' => 'container',
+    '#id' => 'commerce-pos-price-container',
+    '#attributes' => array(
+      'class' => array(
+        'commerce-pos-price-container-wrapper price-edit-wrapper line-item-col',
+      ),
+    ),
+  );
+
+  $line_item_element['price_container']['price_edit'] = array(
+    '#type' => 'textfield',
+    '#title' => t('@price', array('@price' => commerce_pos_commerce_currency_format($base_price[0]['price']['amount'], $base_price[0]['price']['currency_code']))),
+    '#default_value' => number_format($base_price[0]['price']['amount'] / 100, 2, $currency['decimal_separator'], ''),
+    '#size' => 5,
+    '#maxlength' => 10,
+    '#element_key' => 'line-item-change-price',
+    '#line_item_id' => $line_item_id,
+    '#ajax' => $wrapper_ajax,
+    '#attributes' => array(
+      'class' => array('commerce-pos-hidden-element'),
+      'tabindex' => 0,
+    ),
+    '#prefix' => '<div class="price-edit-input-wrapper">',
+    '#suffix' => '</div>',
+  );
+
+  $line_item_element['quantity_wrapper_open'] = array(
+    '#markup' => '<div class="quantity-wrapper line-item-col">',
+  );
+
+  $line_item_element['textbox_wrapper_open'] = array(
+    '#markup' => '<div class="textbox-wrapper">',
+  );
+
+  $line_item_element['qty'] = array(
+    '#title' => (int) $line_item_wrapper->quantity->value(),
+    '#type' => 'textfield',
+    '#value' => (int) $line_item_wrapper->quantity->value(),
+    '#size' => 4,
+    '#maxlength' => 4,
+    '#ajax' => $wrapper_ajax,
+    '#element_key' => 'line-item-qty',
+    '#line_item_id' => $line_item_id,
+    '#element_validate' => array('_commerce_pos_transaction_validate_qty'),
+    '#attributes' => array(
+      'class' => array('commerce-pos-hidden-element'),
+    ),
+    '#limit_validation_errors' => FALSE,
+  );
+
+  $line_item_element['textbox_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+
+  $line_item_element['add_remove_wrapper_open'] = array(
+    '#markup' => '<div class="add-remove-wrapper line-item-col">',
+  );
+
+  $line_item_element['add_qty'] = array(
+    '#type' => 'button',
+    '#value' => '+',
+    '#name' => 'line-item-' . $line_item_id . '-plus',
+    '#element_key' => 'line-item-add-qty',
+    '#line_item_id' => $line_item_id,
+    '#ajax' => $wrapper_ajax,
+    '#attributes' => array(
+      'tabindex' => 0,
+    ),
+  );
+
+  $line_item_element['remove_qty'] = array(
+    '#type' => 'button',
+    '#value' => '-',
+    '#name' => 'line-item-' . $line_item_id . '-minus',
+    '#element_key' => 'line-item-remove-qty',
+    '#line_item_id' => $line_item_id,
+    '#ajax' => $wrapper_ajax,
+  );
+
+  $line_item_element['add_remove_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+
+  $line_item_element['quantity_wrapper_close'] = array(
+    '#markup' => '</div>',
+  );
+
+  $line_item_element['total_wrapper_open'] = array(
+    '#markup' => '<div class="total-wrapper line-item-col">',
+    '#weight' => 100,
+  );
+
+  $line_item_total = $line_item_wrapper->commerce_total->value();
+
+  $line_item_element['total'] = array(
+    '#markup' => '<strong>' . commerce_pos_commerce_currency_format($line_item_total['amount'], $line_item_total['currency_code']) . '</strong>',
+    '#weight' => 100,
+  );
+
+  $line_item_element['remove'] = array(
+    '#type' => 'submit',
+    '#value' => 'Remove',
+    '#name' => 'line-item-' . $line_item_id . '-remove',
+    '#submit' => array('commerce_pos_transaction_line_item_remove_submit'),
+    '#line_item_id' => $line_item_id,
+    '#ajax' => $wrapper_ajax,
+    '#weight' => 100,
+  );
+
+  $line_item_element['total_wrapper_close'] = array(
+    '#markup' => '</div>',
+    '#weight' => 100,
+  );
+
+  $line_item_element['line_item_row_wrapper_close'] = array(
+    '#markup' => '</div>',
+    '#weight' => 100,
+  );
+
+  return $line_item_element;
 }

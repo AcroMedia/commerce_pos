@@ -82,7 +82,7 @@ function commerce_pos_cashier_uri($cashier) {
 function commerce_pos_cashier_preprocess_commerce_pos_header(&$variables) {
   // Restrict login form to sale and return pages and not, for example, reports.
   $path = drupal_get_path_alias();
-  if (preg_match('/pos\/(sale|return)/', $path)) {
+  if (preg_match('/pos\/transaction/', $path)) {
     $variables['cashier_form'] = drupal_get_form('commerce_pos_cashier_login_form');
   }
 }
@@ -130,6 +130,7 @@ function commerce_pos_cashier_commerce_pos_transaction_base_info() {
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
         CommercePosService::TRANSACTION_TYPE_RETURN,
+        CommercePosService::TRANSACTION_TYPE_EXCHANGE,
       ),
     ),
   );

@@ -15,6 +15,7 @@ function commerce_pos_discount_commerce_pos_transaction_base_info() {
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
         CommercePosService::TRANSACTION_TYPE_RETURN,
+        CommercePosService::TRANSACTION_TYPE_EXCHANGE,
       ),
     ),
   );
@@ -104,12 +105,11 @@ function commerce_pos_discount_commerce_price_formatted_components_alter(&$compo
  */
 function commerce_pos_discount_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
+    case 'commerce_pos_transaction_form':
       _commerce_pos_discount_transaction_form_alter($form, $form_state);
       break;
 
-    case 'commerce_pos_sale_payment':
+    case 'commerce_pos_payment':
       _commerce_pos_discount_payment_form_alter($form, $form_state);
       break;
 

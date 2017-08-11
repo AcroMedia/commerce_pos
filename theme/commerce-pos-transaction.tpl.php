@@ -11,6 +11,7 @@
 
 <?php print render($form['header']); ?>
 <?php print render($form['transaction_id']); ?>
+<?php print render($form['transaction_type']); ?>
 
 <?php if(isset($form['products_not_configured'])): ?>
   <?php print render($form['products_not_configured']); ?>
@@ -31,9 +32,19 @@
       <?php endif; ?>
     </div>
 
-    <div class="commerce-pos-transaction-line-items">
-      <?php print render($form['line_items']); ?>
-    </div>
+    <?php if(!empty($form['line_items'])): ?>
+        <h2><?php print t('Sale Items'); ?></h2>
+        <div class="commerce-pos-transaction-line-items">
+          <?php print render($form['line_items']); ?>
+        </div>
+    <?php endif;?>
+
+    <?php if(!empty($form['return_items'])): ?>
+        <h2><?php print t('Return Items'); ?></h2>
+        <div class="commerce-pos-transaction-line-items">
+        <?php print render($form['return_items']); ?>
+        </div>
+    <?php endif;?>
 
     <div class="commerce-pos-transaction-messages">
       <?php print render($form['message']); ?>

@@ -29,42 +29,22 @@ function commerce_pos_menu() {
     'file' => 'includes/commerce_pos.pages.inc',
   );
 
-  $items['admin/commerce/pos/sale'] = array(
-    'title' => 'Sale',
+  $items['admin/commerce/pos/transaction'] = array(
+    'title' => 'Transaction',
     'page callback' => 'commerce_pos_page',
-    'page arguments' => array('commerce_pos_sale'),
+    'page arguments' => array('commerce_pos_transaction_form'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
     'file' => 'includes/commerce_pos.transaction.inc',
   );
 
-  $items['admin/commerce/pos/sale/payment'] = array(
+  $items['admin/commerce/pos/transaction/payment'] = array(
     'title' => 'Pay',
     'page callback' => 'commerce_pos_page',
-    'page arguments' => array('commerce_pos_sale_payment'),
+    'page arguments' => array('commerce_pos_payment'),
     'access callback' => '_commerce_pos_access_check',
     'access arguments' => array('process commerce pos sales'),
     'file' => 'includes/commerce_pos.payment.inc',
-  );
-
-  $items['admin/commerce/pos/return'] = array(
-    'title' => 'Return',
-    'page callback' => 'commerce_pos_page',
-    'page arguments' => array('commerce_pos_return'),
-    'access callback' => '_commerce_pos_access_check',
-    'access arguments' => array('process commerce pos returns'),
-    'file' => 'includes/commerce_pos.transaction.inc',
-    'type' => MENU_CALLBACK,
-  );
-
-  $items['admin/commerce/pos/return/payment'] = array(
-    'title' => 'Refund',
-    'page callback' => 'commerce_pos_page',
-    'page arguments' => array('commerce_pos_return_payment'),
-    'access callback' => '_commerce_pos_access_check',
-    'access arguments' => array('process commerce pos returns'),
-    'file' => 'includes/commerce_pos.payment.inc',
-    'type' => MENU_CALLBACK,
   );
 
   $items['admin/commerce/pos/login'] = array(
@@ -84,6 +64,7 @@ function commerce_pos_menu() {
       array(
         'process commerce pos sales',
         'process commerce pos returns',
+        'process commerce pos exchanges',
       ),
     ),
     'file' => 'includes/commerce_pos.common.inc',
@@ -98,6 +79,7 @@ function commerce_pos_menu() {
       array(
         'process commerce pos sales',
         'process commerce pos returns',
+        'process commerce pos exchanges',
       ),
     ),
     'file' => 'includes/commerce_pos.common.inc',
@@ -138,6 +120,9 @@ function commerce_pos_permission() {
     ),
     'process commerce pos returns' => array(
       'title' => t('Process Commerce POS returns'),
+    ),
+    'process commerce pos exchanges' => array(
+      'title' => t('Process Commerce POS exchanges'),
     ),
   );
 }
@@ -241,6 +226,7 @@ function commerce_pos_commerce_pos_transaction_base_info() {
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
         CommercePosService::TRANSACTION_TYPE_RETURN,
+        CommercePosService::TRANSACTION_TYPE_EXCHANGE,
       ),
     ),
   );
@@ -339,6 +325,22 @@ function commerce_pos_commerce_order_status_info() {
 }
 
 /**
+ * Implements hook_commerce_line_item_type_info().
+ */
+function commerce_pos_commerce_line_item_type_info() {
+  return array(
+    'commerce_pos_return' => array(
+      'type' => 'commerce_pos_return',
+      'name' => t('POS return'),
+      'product' => TRUE,
+      'description' => t('Line item for POS returned products'),
+      'add_form_submit_value' => t('Add POS return'),
+      'base' => 'commerce_product_line_item',
+    ),
+  );
+}
+
+/**
  * Implements hook_image_default_styles().
  */
 function commerce_pos_image_default_styles() {
@@ -369,20 +371,18 @@ function commerce_pos_image_default_styles() {
 function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order) {
   $rows = array();
 
-  $transaction = CommercePosService::getOrderTransaction($order->order_id);
-  $return = $transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN;
-
-  $balance_prefix = $return ? '(' : '';
-  $balance_suffix = $return ? ')' : '';
-
+  if ($order) {
+    // @TODO: Fix for when there's a FALSE $balance.
+    $balance = commerce_payment_order_balance($order, $totals);
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    $original_balance = $order_wrapper->commerce_order_total->amount->value();
+  }
   if (count($totals) == 0) {
     // Add a row for the remaining balance on the order.
     if ($order) {
-      $balance = commerce_payment_order_balance($order, $totals);
-
       $order_to_pay_classes = array('order-to-pay');
 
-      if ($balance['amount'] > 0) {
+      if ($balance['amount'] > 0 && $original_balance > 0 || $balance['amount'] < 0 && $original_balance < 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
       }
       else {
@@ -392,11 +392,11 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       $rows[] = array(
         'data' => array(
           array(
-            'data' => $return ? t('Refund') : t('To pay'),
+            'data' => ($balance['amount'] < 0) ? t('Refund') : t('To pay'),
             'class' => array('label'),
           ),
           array(
-            'data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix,
+            'data' => commerce_pos_commerce_currency_format($balance['amount'], $balance['currency_code']),
             'class' => array('balance'),
           ),
         ),
@@ -404,12 +404,12 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
         'weight' => 10,
       );
 
-      if ($balance['amount'] < 0) {
+      if ($balance['amount'] < 0 && $original_balance > 0) {
         $rows[] = array(
           'data' => array(
             array('data' => t('Change'), 'class' => array('label')),
             array(
-              'data' => $balance_prefix . commerce_currency_format($balance['amount'] * -1, $balance['currency_code']) . $balance_suffix,
+              'data' => commerce_pos_commerce_currency_format($balance['amount'], $balance['currency_code']),
               'class' => array('balance'),
             ),
           ),
@@ -427,11 +427,11 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     $rows[] = array(
       'data' => array(
         array(
-          'data' => $return ? t('Total Refunded') : t('Total Paid'),
+          'data' => ($totals[$currency_code] < 0) ? t('Total Refunded') : t('Total Paid'),
           'class' => array('label'),
         ),
         array(
-          'data' => $balance_prefix . commerce_currency_format($totals[$currency_code], $currency_code) . $balance_suffix,
+          'data' => commerce_pos_commerce_currency_format(abs($totals[$currency_code]), $currency_code),
           'class' => array('total'),
         ),
       ),
@@ -441,12 +441,9 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
 
     // Add a row for the remaining balance on the order.
     if ($order) {
-      // @todo Fix for when there's a FALSE $balance.
-      $balance = commerce_payment_order_balance($order, $totals);
-
       $order_to_pay_classes = array('order-to-pay');
 
-      if ($balance['amount'] > 0) {
+      if ($balance['amount'] > 0 && $original_balance > 0 || $balance['amount'] < 0 && $original_balance < 0) {
         $order_to_pay_classes[] = 'order-to-pay-positive';
       }
       else {
@@ -456,11 +453,11 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       $rows[] = array(
         'data' => array(
           array(
-            'data' => $return ? t('To Refund') : t('To Pay'),
+            'data' => ($balance < 0) ? t('To Refund') : t('To Pay'),
             'class' => array('label'),
           ),
           array(
-            'data' => $balance_prefix . commerce_currency_format($balance['amount'] > 0 ? $balance['amount'] : 0, $balance['currency_code']) . $balance_suffix,
+            'data' => commerce_pos_commerce_currency_format($balance['amount'], $balance['currency_code']),
             'class' => array('balance'),
           ),
         ),
@@ -468,7 +465,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
         'weight' => 10,
       );
 
-      if ($balance['amount'] < 0) {
+      if ($balance['amount'] < 0 & $original_balance > 0) {
         $rows[] = array(
           'data' => array(
             array('data' => t('Change'), 'class' => array('label')),
@@ -489,7 +486,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
     foreach ($totals as $currency_code => $amount) {
       $order_to_pay_classes = array(
         'order-to-pay',
-        'order-to-pay-' . $currency_code
+        'order-to-pay-' . $currency_code,
       );
 
       if ($amount > 0) {
@@ -502,11 +499,11 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
       $rows[] = array(
         'data' => array(
           array(
-            'data' => $return ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)),
+            'data' => ($amount < 0) ? t('To Refund (@currency_code)', array('@currency_code' => $currency_code)) : t('To pay (@currency_code)', array('@currency_code' => $currency_code)),
             'class' => array('label'),
           ),
           array(
-            'data' => $balance_prefix . commerce_currency_format($amount > 0 ? $amount : 0, $currency_code) . $balance_suffix,
+            'data' => commerce_pos_commerce_currency_format($amount, $currency_code),
             'class' => array('balance'),
           ),
         ),
@@ -522,7 +519,7 @@ function commerce_payment_commerce_pos_balance_summary_row_info($totals, $order)
               'class' => array('label'),
             ),
             array(
-              'data' => commerce_currency_format($amount * -1, $currency_code),
+              'data' => commerce_pos_commerce_currency_format($amount, $currency_code),
               'class' => array('balance'),
             ),
           ),
@@ -629,7 +626,7 @@ function commerce_pos_page($form_id = NULL) {
     '#markup' => theme('commerce_pos_header', array('account' => $user)),
   );
 
-  $page['form'] = drupal_get_form($form_id);
+  $page['form'] = drupal_get_form($form_id, 'return');
 
   return $page;
 }
@@ -874,15 +871,13 @@ function commerce_pos_get_product_display_nid($product_id) {
  *   The entity metadata wrapper for the order.
  * @param string $field_name
  *   The name of the price field to format.
- * @param bool $return
- *   A boolean indicating whether this price is being used in a return or not.
  * @param bool $print
  *   A boolean indicating if this price is being displayed in a print view.
  *
  * @return array
  *   A render array for the formatted price field.
  */
-function commerce_pos_price_order_format($order_wrapper, $field_name, $return = FALSE, $print = FALSE) {
+function commerce_pos_price_order_format($order_wrapper, $field_name, $print = FALSE) {
   $price = $order_wrapper->{$field_name}->value();
   $components = array();
   $weight = 0;
@@ -909,7 +904,7 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
 
   // Add the actual field value to the array.
   $components['commerce_price_formatted_amount'] = array(
-    'title' => $return ? t('Refund total') : t('Order total'),
+    'title' => t('Order total'),
     'price' => $price,
     'weight' => $weight + 1,
   );
@@ -924,15 +919,11 @@ function commerce_pos_price_order_format($order_wrapper, $field_name, $return = 
 
   // Format the prices for display.
   foreach ($components as $key => &$component) {
-    $formatted_price = commerce_currency_format(
+    $formatted_price = commerce_pos_commerce_currency_format(
       $component['price']['amount'],
       $component['price']['currency_code'],
       $order_wrapper->value()
     );
-
-    if ($return) {
-      $formatted_price = '(' . $formatted_price . ')';
-    }
 
     $component['formatted_price'] = $formatted_price;
   }
@@ -1334,4 +1325,24 @@ function commerce_pos_commerce_stock_check_item_stock_alter($product) {
   // TODO: There has got to be a better way to check stock as we need to take
   // into account stock rules etc.
   return $product->commerce_stock[LANGUAGE_NONE][0]['value'];
+}
+
+/**
+ * Custom currency format function for Commerce POS.
+ */
+function commerce_pos_commerce_currency_format($amount, $currency_code, $object = NULL, $convert = TRUE) {
+  $prefix = ($amount < 0) ? '(' : '';
+  $suffix = ($amount < 0) ? ')' : '';
+  return $prefix . commerce_currency_format(abs($amount), $currency_code, $object = NULL, $convert = TRUE) . $suffix;
+}
+
+/**
+ * Get all of the product line item types that are not pos return items.
+ */
+function commerce_pos_sale_product_line_item_types() {
+  $sale_line_item_types = commerce_product_line_item_types();
+  if (($key = array_search('commerce_pos_return', $sale_line_item_types)) !== FALSE) {
+    unset($sale_line_item_types[$key]);
+  }
+  return $sale_line_item_types;
 }

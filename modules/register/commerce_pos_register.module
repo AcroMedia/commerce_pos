@@ -48,6 +48,7 @@ function commerce_pos_register_commerce_pos_transaction_base_info() {
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
         CommercePosService::TRANSACTION_TYPE_RETURN,
+        CommercePosService::TRANSACTION_TYPE_EXCHANGE,
       ),
     ),
   );
@@ -183,10 +184,8 @@ function commerce_pos_register_form_alter(&$form, &$form_state, $form_id) {
       _commerce_pos_register_login_form_alter($form, $form_state);
       break;
 
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
-    case 'commerce_pos_sale_payment':
-    case 'commerce_pos_return_payment':
+    case 'commerce_pos_transaction_form':
+    case 'commerce_pos_payment':
       // This will make sure a register and float have been entered before
       // being able to process transactions.
       _commerce_pos_register_check_form_alter($form, $form_state);

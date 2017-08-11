@@ -93,14 +93,14 @@ function commerce_pos_report_preprocess_commerce_pos_report_receipt(&$variables)
       $is_cash = $payment_method_id == 'commerce_pos_payment_cash';
       $payment_method = commerce_payment_method_load($payment_method_id);
 
-      $expected_amount = $amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $amounts[CommercePosService::TRANSACTION_TYPE_RETURN];
+      $expected_amount = $amounts[CommercePosService::TRANSACTION_TYPE_SALE] + $amounts[CommercePosService::TRANSACTION_TYPE_RETURN] + $amounts[CommercePosService::TRANSACTION_TYPE_EXCHANGE];
 
       if ($is_cash && isset($currency_totals['commerce_pos_change'])) {
         $change_amounts = &$currency_totals['commerce_pos_change'];
 
         // The change amount reflects the change we GAVE BACK, so we have to add
         // it to the expected amount of cash.
-        $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] - $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN]);
+        $expected_amount += ($change_amounts[CommercePosService::TRANSACTION_TYPE_SALE] + $change_amounts[CommercePosService::TRANSACTION_TYPE_RETURN] + $change_amounts[CommercePosService::TRANSACTION_TYPE_EXCHANGE]);
         unset($change_amounts);
 
         if (module_exists('commerce_pos_register')) {

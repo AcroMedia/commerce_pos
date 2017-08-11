@@ -24,7 +24,7 @@ function commerce_pos_receipt_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'variables' => array(
         'order' => NULL,
-        'return' => FALSE,
+        'type' => NULL,
         'transacton' => NULL,
       ),
     ),
@@ -116,8 +116,8 @@ function commerce_pos_receipt_rules_condition_info() {
 function commerce_pos_receipt_rules_condition_check_email_receipt($order) {
   $query = db_query('SELECT data FROM {commerce_pos_transaction} c
                       WHERE c.order_id = :order_id', array(
-                        ':order_id' => $order->order_id
-));
+                        ':order_id' => $order->order_id,
+                      ));
   $result = $query->fetchAssoc();
 
   if ($result) {
@@ -156,13 +156,11 @@ function commerce_pos_receipt_commerce_pos_sale_form_ajax_alter(&$form_state, $t
  */
 function commerce_pos_receipt_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
+    case 'commerce_pos_transaction_form':
       _commerce_pos_receipt_transaction_form_alter($form, $form_state);
       break;
 
-    case 'commerce_pos_sale_payment':
-    case 'commerce_pos_return_payment':
+    case 'commerce_pos_payment':
       _commerce_pos_receipt_payment_form_alter($form, $form_state);
       break;
   }
@@ -202,7 +200,7 @@ function _commerce_pos_receipt_transaction_form_alter(&$form, &$form_state) {
 
   $wrapper_ajax = array(
     'wrapper' => $form_state['wrapper_id'],
-    'callback' => 'commerce_pos_receipt_wrapper_js'
+    'callback' => 'commerce_pos_receipt_wrapper_js',
   );
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
@@ -283,7 +281,7 @@ function _commerce_pos_receipt_payment_form_alter(&$form, &$form_state) {
 
   $wrapper_ajax = array(
     'wrapper' => $form_state['wrapper_id'],
-    'callback' => 'commerce_pos_receipt_wrapper_js'
+    'callback' => 'commerce_pos_receipt_wrapper_js',
   );
 
   $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
@@ -376,9 +374,6 @@ function commerce_pos_receipt_build_receipt_body($order) {
   $transaction = CommercePosService::getOrderTransaction($order->order_id);
   $return = $transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN;
 
-  $price_prefix = $return ? '(' : '';
-  $price_suffix = $return ? ')' : '';
-
   // @TODO: make the types of line items that show up here configurable.
   foreach ($wrapper->commerce_line_items as $delta => $line_item) {
     if (!$line_item->value()) {
@@ -391,11 +386,11 @@ function commerce_pos_receipt_build_receipt_body($order) {
         'class' => array('component-name'),
       ),
       array(
-        'data' => $price_prefix . commerce_currency_format(
+        'data' => commerce_pos_commerce_currency_format(
             $line_item->commerce_total->amount->raw(),
             $line_item->commerce_total->currency_code->raw(),
             $line_item
-        ) . $price_suffix,
+        ),
         'class' => array('component-total'),
       ),
     );
@@ -403,7 +398,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
     $first_row = array(
       'data' => $row,
       'class' => array('line-item'),
-      'data-line-item-id' => $line_item->line_item_id->raw()
+      'data-line-item-id' => $line_item->line_item_id->raw(),
     );
 
     $second_row = FALSE;
@@ -416,11 +411,11 @@ function commerce_pos_receipt_build_receipt_body($order) {
           'data' => t('@sku x@qty @ @price', array(
             '@sku' => $line_item->commerce_product->sku->value(),
             '@qty' => (int) $line_item->quantity->value(),
-            '@price' => $price_prefix . commerce_currency_format(
+            '@price' => commerce_pos_commerce_currency_format(
                 $line_item->commerce_unit_price->amount->raw(),
                 $line_item->commerce_unit_price->currency_code->raw(),
                 $line_item
-            ) . $price_suffix,
+            ),
           )),
           'colspan' => 2,
         ),
@@ -429,7 +424,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
       $second_row = array(
         'data' => $row,
         'class' => array('line-item-details'),
-        'data-line-item-id' => $line_item->line_item_id->raw()
+        'data-line-item-id' => $line_item->line_item_id->raw(),
       );
     }
 
@@ -445,7 +440,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
   $output['info'] = array(
     '#theme' => 'commerce_pos_receipt_order_info',
     '#order' => $order,
-    '#return' => $return,
+    '#type' => $transaction->type,
     '#transaction' => $transaction,
     '#weight' => -10,
   );
@@ -458,7 +453,7 @@ function commerce_pos_receipt_build_receipt_body($order) {
     '#weight' => 5,
   );
 
-  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', $return, TRUE);
+  $order_total = commerce_pos_price_order_format($wrapper, 'commerce_order_total', TRUE);
   $output['total']['#markup'] = render($order_total);
   $output['total']['#weight'] = 10;
 

@@ -153,13 +153,13 @@ function commerce_pos_format_autocomplete_results($result) {
 /**
  * Helper function to build a "Parked Transactions" section.
  */
-function commerce_pos_parked_transactions_section($transaction_type, $ajax, $has_active_transaction) {
+function commerce_pos_parked_transactions_section($ajax, $has_active_transaction) {
   global $user;
 
   $parked_transactions_section = array();
 
   $cashier_id = commerce_pos_cashier_get_current_cashier();
-  if ($parked_transactions = CommercePosService::getParkedTransactions($transaction_type, $cashier_id)) {
+  if ($parked_transactions = CommercePosService::getParkedTransactions($cashier_id)) {
     $parked_transactions_section = array(
       '#type' => 'container',
       '#tree' => TRUE,

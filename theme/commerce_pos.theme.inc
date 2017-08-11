@@ -45,8 +45,7 @@ function commerce_pos_preprocess_commerce_pos_header(&$variables) {
   $variables['links'] = array();
 
   $links = array(
-    'admin/commerce/pos/sale' => t('Sale'),
-    'admin/commerce/pos/return' => t('Return'),
+    'admin/commerce/pos/transaction' => t('Transaction'),
   );
 
   drupal_alter('commerce_pos_header_links', $links);
@@ -70,13 +69,16 @@ function theme_commerce_pos_product_summary(&$variables) {
   $rows = array();
 
   foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-    if ($line_item_wrapper->getBundle() == 'product'
+    if (($line_item_wrapper->getBundle() == 'product' || $line_item_wrapper->getBundle() == 'commerce_pos_return')
       && isset($line_item_wrapper->commerce_product)
       && $line_item_wrapper->commerce_product->getIdentifier()
     ) {
 
       $unit_price = $line_item_wrapper->commerce_unit_price->value();
       $total = $line_item_wrapper->commerce_total->value();
+
+      $display_price = commerce_pos_commerce_currency_format($unit_price['amount'], $unit_price['currency_code']);
+      $display_total = commerce_pos_commerce_currency_format($total['amount'], $unit_price['currency_code']);
 
       $description = '<span class="title">' . $line_item_wrapper->commerce_product->title->value(array('sanitize' => TRUE)) . '</span>';
       $description .= '<span class="sku">#' . $line_item_wrapper->commerce_product->sku->value(array('sanitize' => TRUE)) . '</span>';
@@ -98,13 +100,11 @@ function theme_commerce_pos_product_summary(&$variables) {
             'class' => array('title'),
           ),
           array(
-            'data' => t('@ @price', array(
-              '@price' => commerce_currency_format($unit_price['amount'], $unit_price['currency_code']),
-            )),
+            'data' => t('@ @price', array('@price' => $display_price)),
             'class' => array('base-price'),
           ),
           array(
-            'data' => commerce_currency_format($total['amount'], $total['currency_code']),
+            'data' => $display_total,
             'class' => array('total'),
           ),
         ),
@@ -146,7 +146,7 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
     $amount = $transaction->amount;
 
     if ($status === COMMERCE_PAYMENT_STATUS_SUCCESS) {
-      $payment_action = commerce_currency_format($amount, $currency_code) . '<br>' . theme('commerce_pos_transaction_actions', array('transaction' => $transaction));
+      $payment_action = commerce_pos_commerce_currency_format($amount, $currency_code) . '<br>' . theme('commerce_pos_transaction_actions', array('transaction' => $transaction));
       $action_class = "amount";
     }
     elseif ($status == 'void') {

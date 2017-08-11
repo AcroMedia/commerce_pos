@@ -20,8 +20,7 @@ function commerce_pos_messages_views_api($module = NULL, $api = NULL) {
  */
 function commerce_pos_messages_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
+    case 'commerce_pos_transaction_form':
       _commerce_pos_messages_transaction_form_alter($form, $form_state);
       break;
   }

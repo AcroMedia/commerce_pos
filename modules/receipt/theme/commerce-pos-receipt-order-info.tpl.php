@@ -18,7 +18,7 @@
 
   <div class="transaction-type">
     <div><?php print t('Transaction type: @type', array(
-        '@type' => $return ? t('Return') : t('Sale'),
+        '@type' => $type,
       )); ?></div>
   </div>
 

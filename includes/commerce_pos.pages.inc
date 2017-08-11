@@ -16,10 +16,7 @@
  */
 function commerce_pos_redirect() {
   if (user_access('process commerce pos sales')) {
-    drupal_goto('admin/commerce/pos/sale');
-  }
-  elseif (user_access('process commerce pos returns')) {
-    drupal_goto('admin/commerce/pos/return');
+    drupal_goto('admin/commerce/pos/transaction');
   }
   else {
     // Not sure how they would have gotten to this, but just in case...

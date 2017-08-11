@@ -205,17 +205,11 @@ class CommercePosTestCase extends CommercePosBaseTestCase {
     $this->drupalGet('admin/commerce/pos');
     $this->assertResponse('200', 'Privileged user was able to correctly access the main pos page');
 
-    $this->drupalGet('admin/commerce/pos/sale');
+    $this->drupalGet('admin/commerce/pos/transaction');
     $this->assertResponse('200', 'Privileged user was able to correctly access the pos sale page');
 
-    $this->drupalGet('admin/commerce/pos/payment');
+    $this->drupalGet('admin/commerce/pos/transaction/payment');
     $this->assertResponse('200', 'Privileged user was able to correctly access the pos payment page');
-
-    $this->drupalGet('admin/commerce/pos/return');
-    $this->assertResponse('200', 'Privileged user was able to correctly access the pos return page');
-
-    $this->drupalGet('admin/commerce/pos/return/payment');
-    $this->assertResponse('200', 'Privileged user was able to correctly access the pos refund page');
 
     $this->drupalGet('admin/commerce/pos/login');
     $this->assertResponse('200', 'Privileged user was able to correctly access the pos login page');
@@ -244,17 +238,11 @@ class CommercePosTestCase extends CommercePosBaseTestCase {
     $this->drupalGet('admin/commerce/pos');
     $this->assertResponse('403', 'Unprivileged user was unable to access the main pos page');
 
-    $this->drupalGet('admin/commerce/pos/sale');
-    $this->assertResponse('403', 'Unprivileged user was unable to access the pos sale page');
+    $this->drupalGet('admin/commerce/pos/transaction');
+    $this->assertResponse('403', 'Unprivileged user was unable to access the pos transaction page');
 
-    $this->drupalGet('admin/commerce/pos/payment');
+    $this->drupalGet('admin/commerce/pos/transaction/payment');
     $this->assertResponse('403', 'Unprivileged user was unable to access the pos payment page');
-
-    $this->drupalGet('admin/commerce/pos/return');
-    $this->assertResponse('403', 'Unprivileged user was unable to access the pos return page');
-
-    $this->drupalGet('admin/commerce/pos/return/payment');
-    $this->assertResponse('403', 'Unprivileged user was unable to access the pos refund page');
 
     $this->drupalGet('admin/commerce/pos/login');
     $this->assertResponse('403', 'Unprivileged user was unable to access the pos login page');

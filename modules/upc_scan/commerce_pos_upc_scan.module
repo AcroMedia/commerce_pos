@@ -25,8 +25,7 @@ function commerce_pos_upc_scan_menu() {
  */
 function commerce_pos_upc_scan_form_alter(&$form, &$form_state, $form_id) {
   switch ($form_id) {
-    case 'commerce_pos_sale':
-    case 'commerce_pos_return':
+    case 'commerce_pos_transaction_form':
       _commerce_pos_upc_scan_transaction_form_alter($form, $form_state);
       break;
   }

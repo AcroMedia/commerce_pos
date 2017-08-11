@@ -8,36 +8,34 @@
 /**
  * Implements hook_form_FORM_ID_alter().
  */
-function commerce_pos_stock_form_commerce_pos_return_alter(&$form, &$form_state, $form_id) {
-  if ($form['#transaction_type'] == 'return') {
-    $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
-    if (!empty($order_wrapper->commerce_line_items)) {
-      foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
-        // Only show product line item types.
-        if ($line_item_wrapper->type->value() != 'product') {
-          continue;
-        }
-
-        $line_item_id = $line_item_wrapper->line_item_id->value();
-        $line_item_element = &$form['line_items'][$line_item_id];
-
-        $line_item_element['stock_wrapper_open'] = array(
-          '#markup' => '<div class="stock-wrapper line-item-col">',
-          '#weight' => 99,
-        );
-
-        $line_item_element['commerce_pos_stock_add_to_stock'] = array(
-          '#title' => t('Add to Stock'),
-          '#type' => 'checkbox',
-          '#default_value' => 1,
-          '#weight' => 99,
-        );
-
-        $line_item_element['stock_wrapper_close'] = array(
-          '#markup' => '</div>',
-          '#weight' => 99,
-        );
+function commerce_pos_stock_form_commerce_pos_transaction_form_alter(&$form, &$form_state, $form_id) {
+  $order_wrapper = !empty($form_state['order_wrapper']) ? $form_state['order_wrapper'] : FALSE;
+  if (!empty($order_wrapper->commerce_line_items)) {
+    foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+      // Only show on return line item types.
+      if ($line_item_wrapper->type->value() != 'commerce_pos_return') {
+        continue;
       }
+
+      $line_item_id = $line_item_wrapper->line_item_id->value();
+      $line_item_element = &$form['return_items'][$line_item_id];
+
+      $line_item_element['stock_wrapper_open'] = array(
+        '#markup' => '<div class="stock-wrapper line-item-col">',
+        '#weight' => 99,
+      );
+
+      $line_item_element['commerce_pos_stock_add_to_stock'] = array(
+        '#title' => t('Add to Stock'),
+        '#type' => 'checkbox',
+        '#default_value' => 1,
+        '#weight' => 99,
+      );
+
+      $line_item_element['stock_wrapper_close'] = array(
+        '#markup' => '</div>',
+        '#weight' => 99,
+      );
     }
   }
 }

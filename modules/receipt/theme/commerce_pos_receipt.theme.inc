@@ -18,8 +18,8 @@ function commerce_pos_receipt_preprocess_commerce_pos_receipt(&$variables) {
 
   $variables['receipt_header'] = array(
     'message' => array(
-      '#markup' => check_markup($header['value'], $header['format'])
-    )
+      '#markup' => check_markup($header['value'], $header['format']),
+    ),
   );
 
   $footer = variable_get('commerce_pos_receipt_footer', array('value' => NULL, 'format' => NULL));
@@ -27,7 +27,7 @@ function commerce_pos_receipt_preprocess_commerce_pos_receipt(&$variables) {
   $variables['receipt_footer'] = array(
     'message' => array(
       '#markup' => check_markup($footer['value'], $footer['format']),
-    )
+    ),
   );
 
   drupal_add_css(drupal_get_path('module', 'commerce_pos_receipt') . '/css/commerce_pos_receipt.css', array('media' => 'print'));
@@ -40,8 +40,6 @@ function commerce_pos_receipt_preprocess_commerce_pos_receipt(&$variables) {
  */
 function theme_commerce_pos_receipt_payments_table(&$variables) {
   $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $variables['order_id']));
-  $price_prefix = $variables['return'] ? '(' : '';
-  $price_suffix = $variables['return'] ? ')' : '';
   $payment_rows = array();
   $visible_statuses = variable_get('commerce_pos_receipt_visible_payment_status', array('success', 'void'));
 
@@ -62,7 +60,7 @@ function theme_commerce_pos_receipt_payments_table(&$variables) {
           'class' => array('component-label'),
         ),
         array(
-          'data' => $price_prefix . commerce_currency_format($payment->amount, $payment->currency_code, $payment) . $price_suffix,
+          'data' => commerce_pos_commerce_currency_format($payment->amount, $payment->currency_code, $payment),
           'class' => array('component-total'),
         ),
       );

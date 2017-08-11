@@ -220,10 +220,6 @@ function commerce_pos_report_build_price_array($price, $transaction_type) {
   $components = array();
   $weight = 0;
 
-  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
-  $price_prefix = $return ? '(' : '';
-  $price_suffix = $return ? ')' : '';
-
   foreach ($price['data']['components'] as $key => $component) {
     $component_type = commerce_price_component_type_load($component['name']);
 
@@ -259,11 +255,11 @@ function commerce_pos_report_build_price_array($price, $transaction_type) {
 
   // Format the prices for display.
   foreach ($components as $key => &$component) {
-    $component['formatted_price'] = $price_prefix . commerce_currency_format(
+    $component['formatted_price'] = commerce_pos_commerce_currency_format(
       $component['price']['amount'],
       $component['price']['currency_code'],
       $entity
-    ) . $price_suffix;
+    );
   }
 
   return array(
@@ -403,6 +399,11 @@ function commerce_pos_report_payment_types($order_id) {
       // Now, add it to the payment types.
       $payment_types[] = $title;
     }
+  }
+
+  // If no payments were found we are likely dealing with a 0 balance exchange.
+  if (empty($payment_types)) {
+    $payment_types[] = t('None');
   }
 
   return implode(', ', $payment_types);

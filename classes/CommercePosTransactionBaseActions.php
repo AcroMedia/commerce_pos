@@ -31,6 +31,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       'updateLineItemQuantity',
       'addProduct',
       'getLineItems',
+      'updateType',
     );
 
     return $actions;
@@ -167,7 +168,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   /**
    * Adds the specified product to transaction order.
    */
-  public function addProduct($product, $quantity = 1, $combine = TRUE, $price = NULL) {
+  public function addProduct($product, $quantity = 1, $combine = TRUE, $price = NULL, $line_item_type = 'product') {
     if (!in_array($product->type, CommercePosService::allowedProductTypes())) {
       return FALSE;
     }
@@ -180,10 +181,20 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
 
     // If the specified product exists...
     // Create a new product line item for it.
-    $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id);
+    $line_item = commerce_product_line_item_new($product, $quantity, $order->order_id, array(), $line_item_type);
     $line_item_wrapper = entity_metadata_wrapper('commerce_line_item', $line_item);
 
     rules_invoke_event('commerce_product_calculate_sell_price', $line_item);
+
+    // If this is a return line item negate the price.
+    if ($line_item_type == 'commerce_pos_return') {
+      if (empty($price)) {
+        $price = $line_item_wrapper->commerce_unit_price->amount->value() * -1;
+      }
+      else {
+        $price *= -1;
+      }
+    }
 
     if (!empty($price)) {
       $amount = $price;
@@ -385,6 +396,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
   public function completeTransaction() {
     if ($order_wrapper = $this->transaction->getOrderWrapper()) {
       $this->checkPaymentTransactions($order_wrapper);
+      $this->updateType();
 
       if ($this->transaction->type == CommercePosService::TRANSACTION_TYPE_RETURN) {
         $order_wrapper->status->set('commerce_pos_returned');
@@ -625,6 +637,36 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
     // Return the line item.
     $this->transaction->invokeEvent('lineItemUpdated');
     return $line_item;
+  }
+
+  /**
+   * Update the transaction type based on the line items in the order.
+   */
+  public function updateType() {
+    $order_wrapper = $this->transaction->getOrderWrapper();
+    $sale_found = FALSE;
+    $return_found = FALSE;
+
+    $sale_line_item_types = commerce_pos_sale_product_line_item_types();
+
+    foreach ($order_wrapper->commerce_line_items as $line_item_wrapper) {
+      if (in_array($line_item_wrapper->getBundle(), $sale_line_item_types)) {
+        $sale_found = TRUE;
+      }
+      elseif ($line_item_wrapper->getBundle() == 'commerce_pos_return') {
+        $return_found = TRUE;
+      }
+    }
+
+    if ($sale_found && $return_found) {
+      $this->transaction->type = CommercePosService::TRANSACTION_TYPE_EXCHANGE;
+    }
+    elseif ($sale_found) {
+      $this->transaction->type = CommercePosService::TRANSACTION_TYPE_SALE;
+    }
+    elseif ($return_found) {
+      $this->transaction->type = CommercePosService::TRANSACTION_TYPE_RETURN;
+    }
   }
 
 }

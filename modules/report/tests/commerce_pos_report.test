@@ -83,7 +83,7 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
     // Check the EOD report's expected amounts to make sure they match up with
     // the transactions we generated.
     foreach ($generated_totals as $payment_method => $totals) {
-      $total_amount = $totals[CommercePosService::TRANSACTION_TYPE_SALE] - $totals[CommercePosService::TRANSACTION_TYPE_RETURN];
+      $total_amount = $totals[CommercePosService::TRANSACTION_TYPE_SALE] + $totals[CommercePosService::TRANSACTION_TYPE_RETURN] + $totals[CommercePosService::TRANSACTION_TYPE_EXCHANGE];
       $expected_amount_element = $this->xpath('//div[@class="commerce-pos-report-expected-amount" and @data-payment-method-id="' . $payment_method . '"]');
 
       // Casting the xpath element to a string gets us the element's inner HTML.
@@ -131,7 +131,15 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
     foreach ($payment_methods as $payment_method) {
       for ($i = 0; $i < 20; $i++) {
         // Generally we want sales to outnumber returns.
-        $type = $i < 15 ? CommercePosService::TRANSACTION_TYPE_SALE : CommercePosService::TRANSACTION_TYPE_RETURN;
+        if ($i < 10) {
+          $type = CommercePosService::TRANSACTION_TYPE_SALE;
+        }
+        elseif ($i < 15) {
+          $type = CommercePosService::TRANSACTION_TYPE_RETURN;
+        }
+        else {
+          $type = CommercePosService::TRANSACTION_TYPE_EXCHANGE;
+        }
 
         // For Debit, we'll make it so that overall balance of transactions will
         // be negative. I.e. the returned amount will be more than the sales.
@@ -149,15 +157,33 @@ class CommercePosReportTestCase extends CommercePosBaseTestCase {
         $last_amount = $amount;
 
         $transaction = $this->createDummyTransaction($type, $this->privilegedUser->uid);
-        $transaction->doAction('addProduct', $dummy_product);
+
         $transaction->registerId = $register->register_id;
-        $this->createDummyPayment($transaction, $payment_method, $amount);
+
+        if ($type == CommercePosService::TRANSACTION_TYPE_RETURN) {
+          $transaction->doAction('addProduct', $dummy_product, 1, TRUE, NULL, 'commerce_pos_return');
+          $this->createDummyPayment($transaction, $payment_method, -$amount);
+        }
+        elseif ($type == CommercePosService::TRANSACTION_TYPE_EXCHANGE) {
+          $transaction->doAction('addProduct', $dummy_product);
+          $transaction->doAction('addProduct', $dummy_product, 1, TRUE, NULL, 'commerce_pos_return');
+        }
+        else {
+          $transaction->doAction('addProduct', $dummy_product);
+          $this->createDummyPayment($transaction, $payment_method, $amount);
+        }
 
         if (!isset($generated_totals[$payment_method][$type])) {
           $generated_totals[$payment_method][$type] = 0;
         }
 
-        $generated_totals[$payment_method][$type] += $amount;
+        // We want to add sales & subtract returns. Exchanges should be zeroed.
+        if ($type == CommercePosService::TRANSACTION_TYPE_RETURN) {
+          $generated_totals[$payment_method][$type] -= $amount;
+        }
+        elseif ($type == CommercePosService::TRANSACTION_TYPE_SALE) {
+          $generated_totals[$payment_method][$type] += $amount;
+        }
 
         $transaction->doAction('saveOrder');
         $transaction->doAction('save');

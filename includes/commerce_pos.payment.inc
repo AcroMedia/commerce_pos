@@ -6,25 +6,9 @@
  */
 
 /**
- * Callback for the POS sale payment form.
- */
-function commerce_pos_sale_payment($form, &$form_state) {
-  commerce_pos_payment($form, $form_state, CommercePosService::TRANSACTION_TYPE_SALE);
-  return $form;
-}
-
-/**
- * Callback for the POS return payment form.
- */
-function commerce_pos_return_payment($form, &$form_state) {
-  commerce_pos_payment($form, $form_state, CommercePosService::TRANSACTION_TYPE_RETURN);
-  return $form;
-}
-
-/**
  * Callback to build a POS payment form.
  */
-function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
+function commerce_pos_payment($form, &$form_state) {
   global $user;
 
   $form['#attached']['css'][] = drupal_get_path('module', 'commerce_pos') . '/css/commerce_pos_style.css';
@@ -38,14 +22,26 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     return;
   }
 
+  if (!isset($form_state['transaction'])) {
+    if ($transaction = CommercePosService::getCurrentTransaction($cashier_id)) {
+      $order_wrapper = $transaction->getOrderWrapper();
+
+      if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress') {
+        $form_state['transaction'] = $transaction;
+        $form_state['order_wrapper'] = $order_wrapper;
+      }
+    }
+  }
+
   form_load_include($form_state, 'inc', 'commerce_pos', 'includes/commerce_pos.common');
   commerce_pos_payment_ajax_check($form, $form_state);
 
-  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
   $payment_options = commerce_pos_get_payment_options();
   $form['#theme'] = 'commerce_pos_payment';
-  $form['#redirect_key'] = $return ? 'return' : 'sale';
-  $form['#transaction_type'] = $transaction_type;
+  // Make sure we are dealing with the right type of transaction.
+  $form_state['transaction']->updateType();
+  $transaction_type = $form_state['transaction']->type;
+  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
 
   $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
   $form['#suffix'] = '</div>';
@@ -59,17 +55,6 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     $link = l(t('click here'), '/admin/commerce/config/custom-offline-payments');
     drupal_set_message(t('No payment options have been configured for the POS! Enable Commerce POS Payment for default payment methods or !link to configure a payment method.',
       array('!link' => $link)), 'error');
-  }
-
-  if (!isset($form_state['transaction'])) {
-    if ($transaction = CommercePosService::getCurrentTransaction($transaction_type, $cashier_id)) {
-      $order_wrapper = $transaction->getOrderWrapper();
-
-      if ($order_wrapper && $order_wrapper->status->value() == 'commerce_pos_in_progress') {
-        $form_state['transaction'] = $transaction;
-        $form_state['order_wrapper'] = $order_wrapper;
-      }
-    }
   }
 
   if (isset($form_state['transaction'])) {
@@ -96,12 +81,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '@order_id' => $form_state['order_wrapper']->order_id->value(),
     );
 
-    if ($return) {
-      $summary_text = t('<div class="order-text">Return - !items - Order #@order_id </div>', $replacements);
-    }
-    else {
-      $summary_text = t('<div class="order-text">Payment - !items - Order #@order_id </div>', $replacements);
-    }
+    $summary_text = t('<div class="order-text">Tranascation - !items - Order #@order_id </div>', $replacements);
 
     $form['summary'] = array(
       '#markup' => $summary_text,
@@ -116,7 +96,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
 
     $form['edit_order'] = array(
-      '#markup' => l($return ? t('Edit Return') : t('Edit Order'), 'admin/commerce/pos/' . $form['#redirect_key'], array(
+      '#markup' => l(t('Edit Transaction'), 'admin/commerce/pos/transaction', array(
         'attributes' => array(
           'class' => array('commerce-pos-sale-pay-edit-order'),
         ),
@@ -134,6 +114,11 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       'effect' => 'fade',
     );
 
+    // We need to prevent remaining negative balances when were are doing a
+    // refund. Otherwise we give change back to the customer.
+    $original_balance = $form_state['order_wrapper']->commerce_order_total->amount->value();
+    $balance_paid = ($original_balance <= 0 && $order_balance['amount'] == 0) || ($original_balance > 0 && $order_balance['amount'] <= 0);
+
     foreach ($payment_options as $payment_option) {
       $form['payment_options'][$payment_option['id']] = array(
         '#type' => 'button',
@@ -141,7 +126,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
         '#name' => 'commerce-pos-payment-option-' . $payment_option['id'],
         '#ajax' => $payment_ajax,
         '#payment_option_id' => $payment_option['id'],
-        '#disabled' => $order_balance['amount'] <= 0,
+        '#disabled' => $balance_paid,
         '#limit_validation_errors' => array(),
       );
     }
@@ -162,7 +147,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     if (!empty($form_state['triggering_element']['#payment_option_id'])) {
       $option_id = $form_state['triggering_element']['#payment_option_id'];
 
-      if ($option_id == 'commerce_pos_payment_cash' && $transaction_type == 'sale') {
+      if ($option_id == 'commerce_pos_payment_cash' && $order_balance['amount'] > 0) {
 
         $form['keypad']['quick_pay'] = array(
           '#type' => 'container',
@@ -231,7 +216,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
       '#id' => 'commerce-pos-pay-balance-wrapper',
     );
 
-    $order_total = commerce_pos_price_order_format($form_state['order_wrapper'], 'commerce_order_total', $return);
+    $order_total = commerce_pos_price_order_format($form_state['order_wrapper'], 'commerce_order_total');
 
     $form['balance']['order_total'] = array(
       '#markup' => render($order_total),
@@ -277,7 +262,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     $form['balance']['actions']['finish'] = array(
       '#type' => 'submit',
       '#value' => t('Finish'),
-      '#disabled' => $order_balance['amount'] > 0,
+      '#disabled' => !$balance_paid,
       '#validate' => array('commerce_pos_payment_validate'),
       '#submit' => array('commerce_pos_payment_finish'),
       '#attributes' => array(
@@ -298,8 +283,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
 
     if (isset($form_state['force-void-transaction-prompt']) && $form_state['force-void-transaction-prompt'] === TRUE) {
       $form['balance']['actions']['void-prompt'] = array(
-        // TODO set sale/return text depending on type of transaction.
-        '#markup' => '<p>' . t('You have payments that have not yet been voided. Are you sure you want to void this @type? The payments will not be voided if you continue.', array('@type' => $transaction_type)) . '</p>',
+        '#markup' => '<p>' . t('You have payments that have not yet been voided. Are you sure you want to void this transaction? The payments will not be voided if you continue.') . '</p>',
       );
 
       $form['balance']['actions']['void'] = array(
@@ -363,7 +347,7 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
           'placeholder' => t('Phone Number'),
         ),
         '#default_value' => !empty($transaction->data['customer phone']) ? $transaction->data['customer phone'] : NULL,
-      )
+      ),
     );
   }
   else {
@@ -372,10 +356,12 @@ function commerce_pos_payment(&$form, &$form_state, $transaction_type) {
     );
   }
 
-  $form['parked_transactions'] = commerce_pos_parked_transactions_section($transaction_type, $form_ajax, !empty($form_state['transaction']));
+  $form['parked_transactions'] = commerce_pos_parked_transactions_section($form_ajax, !empty($form_state['transaction']));
 
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/commerce_pos.js';
   $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos') . '/js/keynavigator.js';
+
+  return $form;
 }
 
 /**
@@ -406,17 +392,17 @@ function commerce_pos_payment_add_payment_validate($form, &$form_state) {
   if (!is_numeric($form_state['values']['keypad']['amount'])) {
     form_set_error('keypad][amount', t('Payment amount must be a number.'));
   }
-  if ($form_state['transaction']->type === 'return') {
+  $order_amount = $form_state['transaction']->getOrderWrapper()->commerce_order_total->amount->value();
+  if ($order_amount < 0) {
     $currency_code = $form_state['transaction']->getOrderWrapper()->commerce_order_total->currency_code->value();
     $keyed_amount = commerce_currency_decimal_to_amount($form_state['values']['keypad']['amount'], $currency_code);
-    $order_amount = $form_state['transaction']->getOrderWrapper()->commerce_order_total->amount->value();
     $payments = commerce_payment_transaction_load_multiple(array(), array('order_id' => $form_state['transaction']->getOrderWrapper()->order_id->value()));
     foreach ($payments as $payment) {
       if ($payment->status !== 'void') {
         $order_amount -= $payment->amount;
       }
     }
-    if ($keyed_amount > $order_amount) {
+    if ($keyed_amount > abs($order_amount)) {
       form_set_error('keypad][amount', t('Refund must not be greater than order total.'));
     }
   }
@@ -429,13 +415,14 @@ function commerce_pos_payment_add_payment_submit($form, &$form_state) {
   $payment_method = commerce_payment_method_load($form_state['triggering_element']['#payment_method_id']);
 
   $order_wrapper = $form_state['transaction']->getOrderWrapper();
+  $order_amount = $order_wrapper->commerce_order_total->amount->value();
   $order_id = $order_wrapper->order_id->value();
   $currency_code = $order_wrapper->commerce_order_total->currency_code->value();
   $entered_pay_value = !empty($form_state['triggering_element']['#amount']) ?
     $form_state['triggering_element']['#amount'] : commerce_currency_decimal_to_amount($form_state['values']['keypad']['amount'], $currency_code);
   $transaction = commerce_payment_transaction_new($form_state['triggering_element']['#payment_method_id'], $order_id);
   $transaction->instance_id = $payment_method['method_id'] . '|commerce_pos';
-  $transaction->amount = $entered_pay_value;
+  $transaction->amount = (($order_amount < 0) ? -1 : 1) * $entered_pay_value;
   $transaction->currency_code = $order_wrapper->commerce_order_total->currency_code->value();
   $transaction->status = COMMERCE_PAYMENT_STATUS_SUCCESS;
   $transaction->message = '';
@@ -481,7 +468,7 @@ function commerce_pos_payment_finish($form, &$form_state) {
     $form_state['transaction']->data['customer phone'] = $form_state['values']['phone'];
   }
   $form_state['transaction']->doAction('completeTransaction');
-  $form_state['redirect'] = 'admin/commerce/pos/' . $form['#redirect_key'];
+  $form_state['redirect'] = 'admin/commerce/pos/transaction';
   drupal_set_message(t('Transaction Completed'));
 }
 

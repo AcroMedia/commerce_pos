@@ -119,10 +119,8 @@ function commerce_pos_terminal_cron() {
  */
 function commerce_pos_terminal_form_alter(&$form, &$form_state, $form_id) {
   if (in_array($form_id, array(
-    'commerce_pos_sale',
-    'commerce_pos_sale_payment',
-    'commerce_pos_return',
-    'commerce_pos_return_payment',
+    'commerce_pos_transaction_form',
+    'commerce_pos_payment',
   ))) {
 
     $form['#attached']['js'][] = drupal_get_path('module', 'commerce_pos_terminal') . '/js/commerce_pos_terminal.js';

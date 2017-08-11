@@ -31,6 +31,7 @@ function hook_commerce_pos_transaction_base_info() {
       'types' => array(
         CommercePosService::TRANSACTION_TYPE_SALE,
         CommercePosService::TRANSACTION_TYPE_RETURN,
+        CommercePosService::TRANSACTION_TYPE_EXCHANGE,
       ),
     ),
   );
@@ -120,7 +121,7 @@ function hook_commerce_pos_void_payment_transaction(CommercePosTransaction $tran
  *   link.
  */
 function hook_commerce_pos_header_links_alter(array &$links) {
-  $links['admin/commerce/pos/sales'] = t('Sales');
+  $links['admin/commerce/pos/transaction'] = t('Transaction');
 }
 
 /**
