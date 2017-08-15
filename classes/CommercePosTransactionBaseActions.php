@@ -420,7 +420,7 @@ class CommercePosTransactionBaseActions extends CommercePosTransactionBase imple
       $this->transaction->completed = REQUEST_TIME;
       $this->transaction->doAction('save');
       $this->transaction->doAction('saveOrder');
-      rules_invoke_event('commerce_pos_transaction_completed', $this->transaction->getOrder(), $this->transaction->type);
+      rules_invoke_all('commerce_pos_transaction_completed', $this->transaction->getOrder(), $this->transaction->type);
     }
   }
 
