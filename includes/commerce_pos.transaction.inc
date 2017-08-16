@@ -285,7 +285,7 @@ function commerce_pos_transaction_form($form, &$form_state) {
       }
       elseif ($line_item_wrapper->type->value() === 'commerce_pos_return') {
         $return_line_item_found = TRUE;
-        $form['return_items'][$line_item_id] = commerce_pos_build_line_item_form_element($line_item_wrapper, $wrapper_id, 'return');
+        $form['return_line_items'][$line_item_id] = commerce_pos_build_line_item_form_element($line_item_wrapper, $wrapper_id, 'return');
       }
     }
 
@@ -294,8 +294,8 @@ function commerce_pos_transaction_form($form, &$form_state) {
       $form['line_items']['#type'] = 'container';
     }
     if ($return_line_item_found) {
-      $form['return_items']['#tree'] = TRUE;
-      $form['return_items']['#type'] = 'container';
+      $form['return_line_items']['#tree'] = TRUE;
+      $form['return_line_items']['#type'] = 'container';
     }
   }
 
@@ -719,8 +719,8 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
       $order = commerce_order_load($form_state['transaction']->orderId);
       $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
       foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
-        if (!empty($form_state['input']['return_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'])) {
-          $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['return_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
+        if (!empty($form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'])) {
+          $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
           commerce_line_item_save($line_item);
         }
       }
@@ -993,7 +993,7 @@ function commerce_pos_build_line_item_form_element(EntityMetadataWrapper $line_i
     );
   }
 
-  $form['return_items'] = array();
+  $form['return_line_items'] = array();
 
   // Display out of stock overridden notice.
   if (isset($stock) && $out_of_stock) {

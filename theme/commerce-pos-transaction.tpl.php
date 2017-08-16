@@ -39,10 +39,10 @@
         </div>
     <?php endif;?>
 
-    <?php if(!empty($form['return_items'])): ?>
+    <?php if(!empty($form['return_line_items'])): ?>
         <h2><?php print t('Return Items'); ?></h2>
         <div class="commerce-pos-transaction-line-items">
-        <?php print render($form['return_items']); ?>
+        <?php print render($form['return_line_items']); ?>
         </div>
     <?php endif;?>
 
