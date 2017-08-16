@@ -129,7 +129,6 @@ script:
   - phpcs --standard=phpcs.xml commerce_pos.module
 
   - drupal-ti script
-  - drupal-ti --include ".travis-simpletest-js.sh"
 
 after_script:
   - drupal-ti after_script
