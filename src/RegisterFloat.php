@@ -22,6 +22,7 @@ class RegisterFloat implements RegisterFloatInterface {
    * Constructs a new RegisterFloat object.
    *
    * @param \Drupal\Core\Database\Connection $connection
+   *   Pass in the connection via dependency injection, standard for fields.
    */
   public function __construct(Connection $connection) {
     $this->connection = $connection;
@@ -34,7 +35,7 @@ class RegisterFloat implements RegisterFloatInterface {
     $this->connection->insert('commerce_pos_float')
       ->fields([
         'register_id' => $register->id(),
-        'amount' => $amount
+        'amount' => $amount,
       ])
       ->execute();
   }
@@ -65,12 +66,12 @@ class RegisterFloat implements RegisterFloatInterface {
     }
     $register_ids = EntityHelper::extractIds($registers);
 
-    // Setup the query
+    // Setup the query.
     $query = $this->connection->select('commerce_pos_float', 'cpf');
     $query->addField('cpf', 'register_id');
     $query->addField('cpf', 'amount');
     $query->condition('register_id', $register_ids, 'IN');
-    if(!empty($amount)) {
+    if (!empty($amount)) {
       $query->condition('amount', $amount);
     }
     $query->groupBy('register_id');

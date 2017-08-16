@@ -4,10 +4,12 @@ namespace Drupal\commerce_pos_currency_denominations\Form;
 
 use Drupal\Core\Entity\EntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Drupal\Core\Url;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\Core\Entity\EntityTypeManagerInterface;
 
+/**
+ * Class CurrencyDenominationsForm.
+ */
 class CurrencyDenominationsForm extends EntityForm {
 
   /**

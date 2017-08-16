@@ -12,13 +12,12 @@ use Drupal\commerce_pos\Entity\RegisterInterface;
 interface RegisterFloatInterface {
 
   /**
-   * Add a float to the register
+   * Add a float to the register.
    *
    * @param \Drupal\commerce_pos\Entity\RegisterInterface $register
    *   The register.
-   * @param $amount
+   * @param float $amount
    *   The amount in the register.
-   *
    */
   public function addFloat(RegisterInterface $register, $amount);
 
@@ -26,16 +25,16 @@ interface RegisterFloatInterface {
    * Deletes all floats for the given registers.
    *
    * @param array $registers
-   *   The registers
+   *   The registers.
    */
   public function deleteFloat(array $registers);
 
   /**
-   * Gets the float for the given register
+   * Gets the float for the given register.
    *
    * @param \Drupal\commerce_pos\Entity\RegisterInterface $register
    *   The Register.
-   * @param null $amount
+   * @param float|null $amount
    *   (optional) The amount.
    *
    * @return int
@@ -48,7 +47,7 @@ interface RegisterFloatInterface {
    *
    * @param array $registers
    *   The registers.
-   * @param null $amount
+   * @param float|null $amount
    *   (optional)The amount.
    *
    * @return array

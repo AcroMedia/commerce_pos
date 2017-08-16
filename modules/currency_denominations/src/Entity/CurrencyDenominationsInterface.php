@@ -21,6 +21,7 @@ interface CurrencyDenominationsInterface extends ConfigEntityInterface {
    * Gets the denominations.
    *
    * @return \Drupal\commerce_pos_currency_denominations\CurrencyDenomination[]
+   *   The list of available denominations for the specific currency.
    */
   public function getDenominations();
 
