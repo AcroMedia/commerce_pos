@@ -1,0 +1,9 @@
+uuid: bfb9c1eb-cbca-423c-9857-6193c0c9dbee
+langcode: en
+status: true
+dependencies: {  }
+id: cashier
+label: Cashier
+weight: 3
+is_admin: null
+permissions: {  }

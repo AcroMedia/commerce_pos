@@ -1,0 +1,7 @@
+commerce_pos.form:
+  path: '/cashier-login'
+  defaults:
+    _title: 'Cashier Login Form'
+    _form: '\Drupal\commerce_pos\Form\CashierForm'
+  requirements:
+    _permission: 'access content'
