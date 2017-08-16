@@ -1,0 +1,6 @@
+services:
+  commerce_pos.float:
+    class: Drupal\commerce_pos\RegisterFloat
+    arguments: ['@database']
+    tags:
+      - { name: backend_overridable }

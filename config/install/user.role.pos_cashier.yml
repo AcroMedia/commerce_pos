@@ -1,0 +1,8 @@
+langcode: en
+status: true
+dependencies: {  }
+id: pos_cashier
+label: Cashier
+weight: 3
+is_admin: null
+permissions: {  }

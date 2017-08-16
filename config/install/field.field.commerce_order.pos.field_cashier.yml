@@ -1,0 +1,30 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - commerce_order.commerce_order_type.pos
+    - field.storage.commerce_order.field_cashier
+id: commerce_order.pos.field_cashier
+field_name: field_cashier
+entity_type: commerce_order
+bundle: pos
+label: Cashier
+description: ''
+required: true
+translatable: false
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:user'
+  handler_settings:
+    include_anonymous: false
+    filter:
+      type: role
+      role:
+        pos_cashier: pos_cashier
+        administrator: '0'
+    target_bundles: null
+    sort:
+      field: _none
+    auto_create: false
+field_type: entity_reference

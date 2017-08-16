@@ -1,0 +1,53 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_pos module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_schema() {
+  $schema['commerce_pos_float'] = [
+    'description' => 'Stores register floats.',
+    'fields' => [
+      'float_id' => [
+        'description' => 'Primary Key: Float ID.',
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'register_id' => [
+        'description' => 'The {commerce_pos_register}.register_id',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'amount' => [
+        'description' => 'The amount of the float.',
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 100,
+      ],
+    ],
+    'primary key' => ['float_id'],
+    'indexes' => [
+      'register_id' => ['register_id'],
+    ],
+    'foreign keys' => [
+      'register_id' => ['commerce_pos' => 'register_id'],
+    ],
+  ];
+
+  return $schema;
+}
+
+/**
+ * Install the 'commerce_pos_float' table schema.
+ */
+function commerce_pos_update_8201() {
+  drupal_install_schema('commerce_pos');
+}

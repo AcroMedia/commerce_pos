@@ -1,0 +1,36 @@
+order_pos:
+  id: order_pos
+  group: commerce_order
+  label: 'Point of Sale'
+  states:
+    draft:
+      label: Draft
+    parked:
+      label: Parked
+    completed:
+      label: Completed
+    canceled:
+      label: Canceled
+    returned:
+      label: Returned
+  transitions:
+    place:
+      label: 'Place order'
+      from: [draft]
+      to: completed
+    park:
+      label: 'Park order'
+      from: [draft]
+      to: parked
+    unpark:
+      label: 'Unpark order'
+      from: [parked]
+      to: draft
+    cancel:
+      label: 'Cancel order'
+      from: [draft]
+      to:   canceled
+    return:
+      label: 'Return order'
+      from: [completed]
+      to:   returned

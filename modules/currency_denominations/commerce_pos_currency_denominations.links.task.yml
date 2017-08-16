@@ -1,0 +1,9 @@
+entity.commerce_pos_currency_denoms.edit_form:
+  route_name: 'entity.commerce_pos_currency_denoms.edit_form'
+  base_route: 'entity.commerce_pos_currency_denoms.edit_form'
+  title: 'Edit'
+
+entity.commerce_pos_currency_denoms.collection:
+  route_name: 'entity.commerce_pos_currency_denoms.collection'
+  base_route: 'entity.commerce_pos_currency_denoms.collection'
+  title: 'List'
