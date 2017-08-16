@@ -5,3 +5,5 @@ package = Commerce POS
 
 files[] = includes/commerce_pos_cashier.controller.inc
 files[] = classes/CommercePosCashierBase.php
+
+stylesheets[all][] = css/commerce_pos_cashier.css

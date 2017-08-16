@@ -7,10 +7,17 @@
 var gulp = require('gulp');
 var sass = require('gulp-sass');
 var sourcemaps = require('gulp-sourcemaps');
+var gutil = require('gulp-util');
 
 var config = {
   'sassDirectories': [
+    { src: './modules/cashier/sass/**/*.scss', dest: './modules/cashier/css'},
+    { src: './modules/cashier/sass/**/*.scss', dest: './modules/cashier/css'},
+    { src: './modules/currency_denomination/sass/**/*.scss', dest: './modules/currency_denomination/css'},
+    { src: './modules/keypad/sass/**/*.scss', dest: './modules/keypad/css'},
     { src: './modules/label/sass/**/*.scss', dest: './modules/label/css'},
+    { src: './modules/report/sass/**/*.scss', dest: './modules/report/css'},
+    { src: './modules/receipt/sass/**/*.scss', dest: './modules/receipt/css'},
     { src: './sass/**/*.scss', dest: './css' }
   ]
 };

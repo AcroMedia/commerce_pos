@@ -937,7 +937,7 @@ function commerce_pos_report_build_journal_role_table(array $filters = array()) 
       $query->condition('pt.payment_method', $payment_types_array, 'IN');
     }
   }
-  
+
   if (!empty($filters['cashier']) && $filters['cashier'] != 'all') {
     $query->condition('cashier.cashier_id', $filters['cashier']);
   }

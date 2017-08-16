@@ -1,0 +1,1 @@
+{"version":3,"file":"commerce_pos_currency_denomination.css","sources":["commerce_pos_currency_denomination.scss"],"sourcesContent":["#edit-commerce-pos-default-currency-denomination-types a {\r\n  font-size: 11px;\r\n}\r\n"],"mappings":"AAAA,AAAuD,sDAAD,CAAC,CAAC,AAAC,CACvD,SAAS,CAAE,IAAK,CACjB","names":[]}
