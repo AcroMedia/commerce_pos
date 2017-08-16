@@ -6,26 +6,52 @@ use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Form;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\commerce_pos\Entity\Cashiers;
+
 
 /**
  * Implements an example form.
  */
-class CashierRegisterForm extends ContentEntityForm {
+class CashierQuickLoginForm extends FormBase {
 
-  public function getFormId() {
-    return 'cashier-register-form';
-  }
+  public function buildForm(array $form, FormStateInterface $form_state)
+  {
+    $users = Cashiers::getUsers();
 
-  public function buildForm(array $form, FormStateInterface $form_state) {
-    $form = parent::buildForm($form, $form_state);
+    if(!empty($users)) {
+      foreach($users as $cashier) {
+        if(!empty($cashier->username)) {
+          //TODO : don't display current logged in user
+          $form[$cashier->username]['id_check'] = array(
+            '#type' => 'textfield',
+            '#description' => t('The cashier ID for the user you want to use'),
+            '#title' => $cashier->username,
+          );
+          $form[$cashier->username]['submit'] = array(
+            '#type' => 'submit',
+            '#value' => t('Switch to @username', array('@username' => $cashier->username)),
+          );
+        }
+      }
 
-    dpm($form, 'form');
+    }
+    else {
+      drupal_set_message(t('NO USERS'), 'error');
+    }
+
 
     return $form;
   }
 
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-//    parent::submitForm($form, $form_state);
+  public function submitForm(array &$form, FormStateInterface $form_state)
+  {
+    // TODO: Implement submitForm() method.
+
+  }
+
+  public function getFormId()
+  {
+    return 'cashier-quick-login';
   }
 
 }

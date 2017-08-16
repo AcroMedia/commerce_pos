@@ -2,29 +2,29 @@
 
 namespace Drupal\commerce_pos\Entity;
 
-use Drupal\user\User;
+//use Drupal\user\Entity;
+//use Drupal\user\User;
+use Drupal\user\Entity\User;
 
 
-class Cashiers {
+class Cashier {
+  public $user;
+  public $id;
 
-  public $users;
-
-  static public function storeUser($username, $id) {
-    $_SESSION['users'][$username] = array(
-      'username' => $username,
-      'id' => $id,
-    );
+  function __construct($username, $id) {
+    $this->id = $id;
+    $this->username = $username;
+    $this->user = User::load($username);
   }
 
-  static public function logInUser($username) {
-    $user = User::load($username);
-    user_login_finalize($user);
+  function login() {
+    //TODO : some error checks and whatnot
+    user_login_finalize($this->user);
   }
 
-  static public function loadUsers() {
-    if(!empty($_SESSION['users'])) {
-
-    }
+  function logout() {
+    //TODO : some error checks and whatnot
+    user_user_logout($this->user);
   }
 
 }
