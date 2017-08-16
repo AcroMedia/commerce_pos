@@ -8,7 +8,7 @@ use Drupal\Tests\commerce\Functional\CommerceBrowserTestBase;
 /**
  * Ensure the Register Entity is works correctly.
  *
- * @group commerce.
+ * @group commerce_pos
  */
 class RegisterTest extends CommerceBrowserTestBase {
 
