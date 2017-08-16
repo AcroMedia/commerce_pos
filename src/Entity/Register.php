@@ -19,7 +19,7 @@ use Drupal\Core\Config\Entity\ConfigEntityBase;
  *       "delete" = "Drupal\commerce_pos\Form\RegisterDeleteForm"
  *     },
  *     "route_provider" = {
- *       "html" = "Drupal\commerce_pos\RegisterHtmlRouteProvider",
+ *       "default" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
  *     },
  *   },
  *   config_prefix = "commerce_pos_register",
