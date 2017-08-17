@@ -1,3 +1,21 @@
+
+commerce_pos.cashier-login-form:
+  path: '/cashier-login'
+  defaults:
+    _title: 'Cashier Login Form'
+    _form: '\Drupal\commerce_pos\Form\CashierForm'
+  requirements:
+    _permission: 'access content'
+
+commerce_pos.cashier-register-form:
+  path: '/cashier-quick-login'
+  defaults:
+    _title: 'Cashier Quick Login'
+    _form: '\Drupal\commerce_pos\Form\CashierQuickLoginForm'
+#    _entity_form: '\Drupal\commerce_pos\Entity\Cashier'
+  requirements:
+    _permission: 'access content'
+
 commerce_pos.configuration:
   path: '/admin/commerce/config/pos'
   defaults:
@@ -5,3 +23,4 @@ commerce_pos.configuration:
     _title: 'POS Configuration'
   requirements:
     _permission: 'access commerce pos administration pages'
+
