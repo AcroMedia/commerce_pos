@@ -38,12 +38,8 @@ function commerce_pos_payment($form, &$form_state) {
 
   $payment_options = commerce_pos_get_payment_options();
   $form['#theme'] = 'commerce_pos_payment';
-  // Make sure we are dealing with the right type of transaction.
-  $form_state['transaction']->updateType();
-  $transaction_type = $form_state['transaction']->type;
-  $return = $transaction_type == CommercePosService::TRANSACTION_TYPE_RETURN;
 
-  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="' . ($return ? 'return' : 'sale') . '">';
+  $form['#prefix'] = '<div id="' . $wrapper_id . '" class="sale">';
   $form['#suffix'] = '</div>';
 
   $form_ajax = array(
