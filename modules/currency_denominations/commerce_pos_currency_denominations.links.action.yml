@@ -1,5 +1,5 @@
-entity.commerce_pos_currency_denominations.add_form:
-  route_name: entity.commerce_pos_currency_denominations.add_form
+entity.commerce_pos_currency_denoms.add_form:
+  route_name: entity.commerce_pos_currency_denoms.add_form
   title: 'Add currency denominations'
   appears_on:
     - entity.commerce_pos_currency_denoms.collection
