@@ -22,12 +22,3 @@ function commerce_pos_help($route_name, RouteMatchInterface $route_match) {
     default:
   }
 }
-
-function commerce_pos_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-  //add our own custom submit handler for storing a token in the session
-  $form['#submit'][] = 'commerce_pos_user_log_form_submit';
-}
-
-
-function commerce_pos_user_log_form_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-}
