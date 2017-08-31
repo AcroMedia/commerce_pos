@@ -241,11 +241,43 @@
   }
 
   #edit-transaction-options-actions-add-order-discount-percent.form-submit {
-    margin: 0 2px 0 0;
+    margin: 0 2px 5px 0;
   }
 
   #edit-transaction-options-actions-add-order-discount-fixed.form-submit {
-    margin: 0 0 0 2px;
+    margin: 0 0 5px 2px;
+  }
+}
+
+//coupon
+#commerce-pos-sale-wrapper #commerce-pos-discount-add-order-coupon-wrapper {
+  font-size: 0;
+
+  .form-text {
+    width: calc(70% - 4px);
+    padding: 10px;
+    margin: 0 4px 0 0;
+    vertical-align: top;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1.3;
+    height: 35px;
+  }
+
+  .form-submit {
+    width: calc(30% - 4px);
+    padding: 10px;
+    display: inline-block;
+    font-size: 12px;
+    line-height: 1.3;
+  }
+
+  #edit-transaction-options-actions-add-order-discount-percent.form-submit {
+    margin: 0 2px 5px 0;
+  }
+
+  #edit-transaction-options-actions-add-order-discount-fixed.form-submit {
+    margin: 0 0 5px 2px;
   }
 }
 
@@ -255,7 +287,8 @@
   font-weight: bold;
 }
 
-.form-item.form-item-transaction-options-actions-add-order-discount-amount {
+.form-item.form-item-transaction-options-actions-add-order-discount-amount,
+.form-item.form-item-transaction-options-actions-add-coupon-code {
   margin-bottom: 5px;
   display: inline;
 }

@@ -42,6 +42,33 @@ class CommercePosDiscountService {
   }
 
   /**
+   * Retrieves commerce discount components from a price field.
+   *
+   * @param EntityMetadataWrapper $price_wrapper
+   *   A metadata wrapper around a commerce price field.
+   * @param EntityMetadataWrapper $order_wrapper
+   *   A metadata wrapper around a commerce order.
+   *
+   * @return array|bool
+   *   The price component, or FALSE if none was found.
+   */
+  public static function getCommerceDiscountComponents(EntityMetadataWrapper $price_wrapper, EntityMetadataWrapper $order_wrapper) {
+    $data = (array) $price_wrapper->data->value() + array('components' => array());
+    $components = array();
+    // Look for our discount in each of the price components.
+    foreach ($data['components'] as $key => $component) {
+      if (!empty($component['price']['data']['discount_name'])) {
+        $discount_name = $component['price']['data']['discount_name'];
+        if ($discount_name == CommercePosDiscountService::LINE_ITEM_DISCOUNT_NAME || self::discountGrantedByCoupon($order_wrapper, $discount_name)) {
+          $components[$component['price']['data']['discount_name']] = $component;
+        }
+      }
+    }
+
+    return (!empty($components)) ? $components : FALSE;
+  }
+
+  /**
    * Apply a specific type of discount.
    *
    * This simply services as a centralized function to control which discount
@@ -536,6 +563,28 @@ class CommercePosDiscountService {
         commerce_tax_calculate_by_type($line_item_wrapper->value(), $name);
       }
     }
+  }
+
+  /**
+   * Check if a discount was granted by an order coupon.
+   *
+   * @param EntityMetadataWrapper $order_wrapper
+   *   The order wrapper.
+   * @param string $discount_name
+   *   The machine name of the discount.
+   *
+   * @return object|bool
+   *   Return the coupon object if found and FALSE otherwise.
+   */
+  public static function discountGrantedByCoupon(EntityMetadataWrapper $order_wrapper, $discount_name) {
+    if (isset($order_wrapper->commerce_coupons)) {
+      foreach ($order_wrapper->commerce_coupons as $coupon) {
+        if (commerce_coupon_coupon_has_discount($coupon, $discount_name)) {
+          return $coupon->value();
+        }
+      }
+    }
+    return FALSE;
   }
 
 }

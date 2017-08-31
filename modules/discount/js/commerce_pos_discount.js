@@ -10,6 +10,13 @@
 
         $('.commerce-pos-remove-order-discount').trigger('remove_order_discount');
       });
+
+      $('.commerce-pos-remove-order-coupon', context).click(function(event){
+        event.preventDefault();
+        $("[name='remove_coupon_discount_name']").val($(this).data('discount'));
+        console.log($(this).data('discount'));
+        $('.commerce-pos-remove-coupon').trigger('remove_order_coupon');
+      });
     }
   };
 

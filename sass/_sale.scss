@@ -416,8 +416,8 @@
   }
 
   .form-submit {
-    display: block;
-    margin: 9px auto;
+    display: inline-block;
+    margin: 9px 20px;
     font-size: 12px;
   }
 
@@ -575,6 +575,9 @@
 
       &.commerce-pos-percent-discount-submit {
         right: 26px;
+      }
+      &.commerce-pos-coupon-submit {
+        width: 65px;
       }
     }
   }
