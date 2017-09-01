@@ -4,3 +4,8 @@ services:
     arguments: ['@database']
     tags:
       - { name: backend_overridable }
+
+  commerce_pos.cashier:
+    class: Drupal\commerce_pos\CashierUsers
+    arguments: ['@database']
+
