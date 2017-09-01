@@ -2,17 +2,18 @@
 
 namespace Drupal\commerce_pos\Form;
 
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Form\UserLoginForm;
-use Drupal\user\Form;
 use Drupal\commerce_pos\Entity\Cashiers;
 
 /**
- * Implements an example form.
+ * Implements the cashier login form.
  */
 class CashierForm extends UserLoginForm {
 
+  /**
+   * {@inheritdoc}
+   */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form = parent::buildForm($form, $form_state);
 
@@ -26,6 +27,9 @@ class CashierForm extends UserLoginForm {
     return $form;
   }
 
+  /**
+   * {@inheritdoc}
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     parent::submitForm($form, $form_state);
     $username = $form_state->getValue('name');
@@ -40,6 +44,9 @@ class CashierForm extends UserLoginForm {
 
   }
 
+  /**
+   * {@inheritdoc}
+   */
   private function storeUser($username, $id) {
     Cashiers::storeUser($username, $id);
   }

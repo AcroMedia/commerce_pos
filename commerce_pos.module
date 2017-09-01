@@ -5,6 +5,7 @@
  * Contains commerce_pos.module.
  */
 
+use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Routing\RouteMatchInterface;
 
 /**
@@ -23,11 +24,16 @@ function commerce_pos_help($route_name, RouteMatchInterface $route_match) {
   }
 }
 
-function commerce_pos_form_user_login_form_alter(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
-  //add our own custom submit handler for storing a token in the session
+/**
+ * Form Alter hook.
+ */
+function commerce_pos_form_user_login_form_alter(&$form, FormStateInterface $form_state) {
+  // Add our own custom submit handler for storing a token in the session.
   $form['#submit'][] = 'commerce_pos_user_log_form_submit';
 }
 
-
-function commerce_pos_user_log_form_submit(&$form, \Drupal\Core\Form\FormStateInterface $form_state) {
+/**
+ * Submit handler for user_log_form.
+ */
+function commerce_pos_user_log_form_submit(&$form, FormStateInterface $form_state) {
 }
