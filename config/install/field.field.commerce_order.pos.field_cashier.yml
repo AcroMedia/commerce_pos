@@ -4,6 +4,12 @@ dependencies:
   config:
     - commerce_order.commerce_order_type.pos
     - field.storage.commerce_order.field_cashier
+  module:
+    - commerce_order
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: commerce_order.pos.field_cashier
 field_name: field_cashier
 entity_type: commerce_order

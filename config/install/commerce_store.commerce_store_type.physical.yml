@@ -1,6 +1,12 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - commerce_store
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: physical
 label: Physical
 description: ''

@@ -23,3 +23,11 @@ commerce_pos.configuration:
   requirements:
     _permission: 'access commerce pos administration pages'
 
+commerce_pos.settings:
+  path: '/admin/commerce/config/pos/settings'
+  defaults:
+    _form: '\Drupal\commerce_pos\Form\CommercePOSSettingsForm'
+    _title: 'POS Settings'
+  requirements:
+    _permission: 'access commerce pos administration pages'
+

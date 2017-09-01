@@ -37,3 +37,46 @@ function commerce_pos_form_user_login_form_alter(&$form, FormStateInterface $for
  */
 function commerce_pos_user_log_form_submit(&$form, FormStateInterface $form_state) {
 }
+
+/**
+ * Implements hook_form_BASE_FORM_ID_alter() for 'commerce_product_type_form'.
+ */
+function commerce_pos_form_commerce_product_type_form_alter(array &$form, FormStateInterface $form_state) {
+  $product_type = $form_state->getFormObject()->getEntity();
+  $show_in_pos = $product_type->getThirdPartySetting('commerce_pos', 'show_in_pos', TRUE);
+  if ($show_in_pos) {
+    $show_in_pos = 'show';
+  }
+  else {
+    $show_in_pos = 'hide';
+  }
+
+  $form['commerce_pos'] = [
+    '#type' => 'details',
+    '#title' => t('Point of Sale'),
+    '#weight' => 10,
+    '#open' => TRUE,
+    '#collapsible' => TRUE,
+  ];
+  $form['commerce_pos']['show_in_pos'] = [
+    '#type' => 'radios',
+    '#title' => 'Show in POS',
+    '#options' => ['show' => 'Show', 'hide' => 'Hide'],
+    '#default_value' => $show_in_pos,
+  ];
+
+  $form['actions']['submit']['#submit'][] = 'commerce_pos_product_type_form_submit';
+}
+
+/**
+ * Form submission handler for 'commerce_product_type_form'.
+ */
+function commerce_pos_product_type_form_submit($form, FormStateInterface $form_state) {
+  /** @var \Drupal\commerce_order\Entity\OrderTypeInterface $order_type */
+  $product_type = $form_state->getFormObject()->getEntity();
+  $show_in_pos = &$form_state->getValue('show_in_pos');
+
+  $show_in_pos = $show_in_pos == 'show' ? TRUE : FALSE;
+  $product_type->setThirdPartySetting('commerce_pos', 'show_in_pos', $show_in_pos);
+  $product_type->save();
+}

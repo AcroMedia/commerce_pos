@@ -1,5 +1,12 @@
 langcode: en
 status: true
+dependencies:
+  module:
+    - commerce_order
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 label: Point of Sale
 id: pos
 workflow: order_pos

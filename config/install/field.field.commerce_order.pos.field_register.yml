@@ -4,6 +4,12 @@ dependencies:
   config:
     - commerce_order.commerce_order_type.pos
     - field.storage.commerce_order.field_register
+  module:
+    - commerce_order
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: commerce_order.pos.field_register
 field_name: field_register
 entity_type: commerce_order

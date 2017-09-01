@@ -1,6 +1,12 @@
 langcode: en
 status: true
-dependencies: {  }
+dependencies:
+  module:
+    - commerce_payment
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: pos_credit
 label: Credit
 weight: null

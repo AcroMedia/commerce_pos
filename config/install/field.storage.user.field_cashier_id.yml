@@ -3,6 +3,10 @@ status: true
 dependencies:
   module:
     - user
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: user.field_cashier_id
 field_name: field_cashier_id
 entity_type: user

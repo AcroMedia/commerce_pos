@@ -2,6 +2,12 @@ commerce_pos.configuration:
   title: 'Point of Sale'
   route_name: 'commerce_pos.configuration'
   parent: 'commerce.configuration'
+  weight: 25
+
+commerce_pos.settings:
+  title: 'Point of Sale'
+  route_name: 'commerce_pos.settings'
+  parent: 'commerce_pos.configuration'
   description: 'Configure your Point of Sale'
   weight: 25
 

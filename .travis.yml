@@ -124,9 +124,7 @@ before_script:
   - drupal-ti before_script
 
 script:
-  - phpcs --standard=phpcs.xml src -s
-  - phpcs --standard=phpcs.xml tests -s
-  - phpcs --standard=phpcs.xml commerce_pos.module
+  - phpcs --standard=phpcs.xml src tests modules commerce_pos.module -s
 
   - drupal-ti script
 

@@ -4,6 +4,10 @@ dependencies:
   module:
     - commerce_order
     - user
+    - commerce_pos
+  enforced:
+    module:
+      - commerce_pos
 id: commerce_order.field_cashier
 field_name: field_cashier
 entity_type: commerce_order
