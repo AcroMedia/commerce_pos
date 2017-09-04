@@ -9,3 +9,7 @@ services:
     class: Drupal\commerce_pos\CashierUsers
     arguments: ['@database']
 
+  commerce_pos.registers:
+    class: Drupal\commerce_pos\Registers
+    #arguments: ['@database']
+

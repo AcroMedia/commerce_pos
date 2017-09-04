@@ -2,20 +2,20 @@
 
 namespace Drupal\commerce_pos;
 
-use Drupal\Core\Config\Entity\ConfigEntityListBuilder;
+use Drupal\Core\Entity\EntityListBuilder;
 use Drupal\Core\Entity\EntityInterface;
 
 /**
  * Provides a listing of Register entities.
  */
-class RegisterListBuilder extends ConfigEntityListBuilder {
+class RegisterListBuilder extends EntityListBuilder {
 
   /**
    * {@inheritdoc}
    */
   public function buildHeader() {
     $header['label'] = $this->t('Register');
-    $header['id'] = $this->t('Machine name');
+    $header['store'] = $this->t('Store');
     return $header + parent::buildHeader();
   }
 
@@ -24,7 +24,7 @@ class RegisterListBuilder extends ConfigEntityListBuilder {
    */
   public function buildRow(EntityInterface $entity) {
     $row['label'] = $entity->label();
-    $row['id'] = $entity->id();
+    $row['store'] = $entity->getStore()->getName();
     // You probably want a few more properties here...
     return $row + parent::buildRow($entity);
   }

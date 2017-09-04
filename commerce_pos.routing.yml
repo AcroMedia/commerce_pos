@@ -31,3 +31,10 @@ commerce_pos.settings:
   requirements:
     _permission: 'access commerce pos administration pages'
 
+commerce_pos.main:
+  path: '/admin/commerce/pos'
+  defaults:
+    _controller: '\Drupal\commerce_pos\POS::posForm'
+    _title: 'Point of Sale'
+  requirements:
+    _permission: 'access commerce pos pages'
