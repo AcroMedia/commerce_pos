@@ -1,0 +1,23 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_pos
+    - telephone
+    - user
+    - commerce_pos
+  enforced:
+      module:
+        - commerce_pos
+id: user.field_commerce_pos_phone_number
+field_name: field_commerce_pos_phone_number
+entity_type: user
+type: telephone
+settings: {  }
+module: telephone
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false
