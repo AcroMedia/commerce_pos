@@ -77,8 +77,8 @@ class CurrencyDenominations extends ConfigEntityBase implements CurrencyDenomina
    */
   public function getDenominations() {
     $denominations = [];
-    foreach ($this->denominations as $denomination) {
-      $denominations[] = new CurrencyDenomination($denomination);
+    if (!empty($this->denominations)) {
+      $denominations = $this->denominations;
     }
     return $denominations;
   }
