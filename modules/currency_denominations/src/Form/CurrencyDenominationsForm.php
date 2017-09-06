@@ -175,6 +175,7 @@ class CurrencyDenominationsForm extends EntityForm {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
+    $form_state->setValue('currencyCode', strtoupper($form_state->getValue('currencyCode')));
     if (!preg_match("/^[A-Z]{3}$/", $form_state->getValue('currencyCode'))) {
       $form_state->setErrorByName('currencyCode', $this->t('The currency code must consist of three uppercase letters.'));
     }
