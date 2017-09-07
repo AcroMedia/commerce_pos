@@ -6,6 +6,9 @@ package: Commerce
 dependencies:
   - commerce:commerce_order
   - commerce:commerce_payment
+  - commerce:commerce_product
+  - telephone
+  - inline_entity_form
 config_devel:
   install:
     - commerce_store.commerce_store_type.physical
