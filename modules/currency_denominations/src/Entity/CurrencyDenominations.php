@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_pos_currency_denominations\Entity;
 
-use Drupal\commerce_pos_currency_denominations\CurrencyDenomination;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 
 /**

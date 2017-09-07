@@ -35,7 +35,7 @@ class CashierQuickLoginForm extends FormBase {
         ];
         $form[$name]['submit'] = [
           '#type' => 'submit',
-          '#value' => t('Switch to @username', array('@username' => $name)),
+          '#value' => t('Switch to @username', ['@username' => $name]),
         ];
 
       }

@@ -181,7 +181,6 @@ class CurrencyDenominationsForm extends EntityForm {
     }
   }
 
-
   /**
    * {@inheritdoc}
    */
