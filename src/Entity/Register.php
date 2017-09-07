@@ -42,11 +42,11 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "uuid" = "uuid"
  *   },
  *   links = {
- *     "canonical" = "/admin/commerce/pos/register/{commerce_pos_register}",
- *     "add-form" = "/admin/commerce/pos/register/add",
- *     "edit-form" = "/admin/commerce/pos/register/{commerce_pos_register}/edit",
- *     "delete-form" = "/admin/commerce/pos/register/{commerce_pos_register}/delete",
- *     "collection" = "/admin/commerce/pos/registers"
+ *     "canonical" = "/admin/commerce/config/pos/register/{commerce_pos_register}",
+ *     "add-form" = "/admin/commerce/config/pos/register/add",
+ *     "edit-form" = "/admin/commerce/config/pos/register/{commerce_pos_register}/edit",
+ *     "delete-form" = "/admin/commerce/config/pos/register/{commerce_pos_register}/delete",
+ *     "collection" = "/admin/commerce/config/pos/registers"
  *   }
  * )
  */
