@@ -5,7 +5,6 @@ dependencies:
     - commerce_pos
     - telephone
     - user
-    - commerce_pos
   enforced:
       module:
         - commerce_pos
