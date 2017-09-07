@@ -23,11 +23,10 @@ class POS {
     $tempstore = \Drupal::service('user.private_tempstore')->get('commerce_pos');
     $register = $tempstore->get('register');
 
-    if (empty($register)) {
+    if (empty($register) || !($register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register))) {
       return \Drupal::formBuilder()->getForm('\Drupal\commerce_pos\Form\RegisterSelectForm');
     }
 
-    $register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register);
     $store = $register->getStoreId();
 
     $order = Order::create([
