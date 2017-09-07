@@ -25,7 +25,7 @@ use Drupal\Core\Field\BaseFieldDefinition;
  *     "form" = {
  *       "add" = "Drupal\commerce_pos\Form\RegisterForm",
  *       "edit" = "Drupal\commerce_pos\Form\RegisterForm",
- *       "delete" = "Drupal\commerce_pos\Form\RegisterDeleteForm"
+ *       "delete" = "Drupal\Core\Entity\ContentEntityDeleteForm"
  *     },
  *     "route_provider" = {
  *       "default" = "Drupal\Core\Entity\Routing\AdminHtmlRouteProvider",
