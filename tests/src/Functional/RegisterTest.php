@@ -97,7 +97,7 @@ class RegisterTest extends CommerceBrowserTestBase {
       'cash[0][number]' => 100,
     ];
     $this->submitForm($edit, 'Save');
-    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache(array($register_new->id()));
+    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache([$register_new->id()]);
     $register_updated = Register::load($register_new->id());
     $this->assertEquals($edit['name[0][value]'], $register_updated->getName(), 'The name of the Register has been updated.');
   }
@@ -116,7 +116,7 @@ class RegisterTest extends CommerceBrowserTestBase {
     $this->assertSession()->pageTextContains(t('Are you sure you want to delete the register @name?', ['@name' => $register->getName()]));
     $this->assertSession()->pageTextContains('This action cannot be undone.');
     $this->submitForm([], 'Delete');
-    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache(array($register->id()));
+    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache([$register->id()]);
     $register_exists = (bool) Register::load($register->id());
     $this->assertFalse($register_exists, 'The new register has been deleted from the database.');
   }
