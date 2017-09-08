@@ -64,19 +64,19 @@ class RegisterTest extends CommerceBrowserTestBase {
 
     // Create Register programmaticaly.
     $register = $this->createEntity('commerce_pos_register', [
-      'id' => $title,
-      'label' => $title,
+      'name' => $title,
+      'cash' => 100,
     ]);
     $register_exists = (bool) Register::load($register->id());
     $this->assertNotEmpty($register_exists, 'The Register has been created in the database');
 
     // Create Register through the form.
     $edit = [
-      'id' => 'foo',
-      'label' => 'Label of foo',
+      'name[0][value]' => 'foo',
+      'cash[0][number]' => 100,
     ];
     $this->drupalPostForm("admin/commerce/config/pos/register/add", $edit, 'Save');
-    $register_exists = (bool) Register::load($edit['id']);
+    $register_exists = (bool) Register::load(1);
     $this->assertNotEmpty($register_exists, 'The Register has been created in the database');
   }
 
@@ -86,18 +86,20 @@ class RegisterTest extends CommerceBrowserTestBase {
   public function testUpdateRegister() {
     // Create a new Register.
     $register_new = $this->createEntity('commerce_pos_register', [
-      'id' => 'foo',
-      'label' => 'Label of foo',
+      'name' => 'foo',
+      'cash' => 100,
     ]);
 
-    $this->drupalGet('admin/commerce/config/pos/register/foo/edit');
-    // Only label is updating.
+    $this->drupalGet('admin/commerce/config/pos/register/' . $register_new->id() . '/edit');
+    // Only name is updated.
     $edit = [
-      'label' => $this->randomMachineName(8),
+      'name[0][value]' => $this->randomMachineName(8),
+      'cash[0][number]' => 100,
     ];
     $this->submitForm($edit, 'Save');
+    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache(array($register_new->id()));
     $register_updated = Register::load($register_new->id());
-    $this->assertEquals($edit['label'], $register_updated->label(), 'The label of the Register has been updated.');
+    $this->assertEquals($edit['name[0][value]'], $register_updated->getName(), 'The name of the Register has been updated.');
   }
 
   /**
@@ -106,16 +108,17 @@ class RegisterTest extends CommerceBrowserTestBase {
   public function testDeleteRegister() {
     // Create a new register.
     $register = $this->createEntity('commerce_pos_register', [
-      'id' => 'foo',
-      'label' => 'Label of foo',
+      'name' => 'foo',
+      'cash' => 100,
     ]);
 
-    $this->drupalGet('admin/commerce/config/pos/register/foo/delete');
-    $this->assertSession()->pageTextContains(t('Are you sure you want to delete @type?', ['@type' => $register->label()]));
+    $this->drupalGet('admin/commerce/config/pos/register/' . $register->id() . '/delete');
+    $this->assertSession()->pageTextContains(t('Are you sure you want to delete the register @name?', ['@name' => $register->getName()]));
     $this->assertSession()->pageTextContains('This action cannot be undone.');
     $this->submitForm([], 'Delete');
+    \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache(array($register->id()));
     $register_exists = (bool) Register::load($register->id());
-    $this->assertEmpty($register_exists, 'The new register has been deleted from the database.');
+    $this->assertFalse($register_exists, 'The new register has been deleted from the database.');
   }
 
 }
