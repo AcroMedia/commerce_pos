@@ -1,8 +1,8 @@
-name: Commerce Point of Sale
+name: Commerce POS
 type: module
 description: Allows users to set up a Point of Sale system within their Drupal Commerce site.
 core: 8.x
-package: Commerce
+package: Commerce (POS)
 dependencies:
   - commerce:commerce_order
   - commerce:commerce_payment
