@@ -55,22 +55,6 @@ class CurrencyDenominationsForm extends EntityForm {
       '#description' => $this->t('Currency code in three Uppercase letters, example: USD.'),
     ];
 
-    // Gather the number of denoms in the form already.
-    $denoms = $form_state->get('denoms');
-    // We have to ensure that there is at least one name field.
-    if ($denoms === NULL) {
-      // While editing.
-      $denom = $currency_denominations->getDenominations();
-      if (count($denom) > 1) {
-        $form_state->set('denoms', (count($denom) - 1));
-        $denoms = count($denom) - 1;
-      }
-      else {
-        $form_state->set('denoms', 1);
-        $denoms = 1;
-      }
-    }
-
     $form['#tree'] = TRUE;
     $form['denominations'] = [
       '#type' => 'fieldset',
@@ -80,17 +64,21 @@ class CurrencyDenominationsForm extends EntityForm {
       '#description' => $this->t('A denomination type is USD, for example. Denominations are 1USD'),
     ];
 
-    for ($i = 0; $i < $denoms; $i++) {
-      $form['denominations'][$i] = [
+    // Gather the number of denoms in the form already.
+    $denoms = is_array($form_state->get('denoms')) ? $form_state->get('denoms') : $currency_denominations->getDenominations();
+    // Remove the actions index from the denoms array.
+    unset($denoms['actions']);
+    // Set the denoms in the form_state.
+    $form_state->set('denoms', $denoms);
+
+    foreach ($denoms as $key => $denom) {
+      $form['denominations'][$key] = [
         '#type' => 'fieldset',
       ];
-      $default_label = [];
-      $default_amount = [];
-      if (!empty($denom)) {
-        $default_label = $denom[$i]['label'];
-        $default_amount = $denom[$i]['amount'];
-      }
-      $form['denominations'][$i]['label'] = [
+      $default_label = $denom['label'];
+      $default_amount = $denom['amount'];
+
+      $form['denominations'][$key]['label'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Name'),
         '#maxlength' => 255,
@@ -98,13 +86,24 @@ class CurrencyDenominationsForm extends EntityForm {
         '#required' => TRUE,
         '#description' => $this->t('For example Denominations is 1USD, Denomination Name also 1USD'),
       ];
-      $form['denominations'][$i]['amount'] = [
+      $form['denominations'][$key]['amount'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Amount'),
         '#maxlength' => 255,
         '#default_value' => $default_amount,
         '#required' => TRUE,
         '#description' => $this->t('For example Denominations is 1USD, Amount is 1.'),
+      ];
+      $form['denominations'][$key]['remove_denom'] = [
+        '#type' => 'submit',
+        '#value' => t('Remove @default_label', ['@default_label' => $default_label]),
+        '#submit' => ['::removeCallback'],
+        '#ajax' => [
+          'callback' => '::addmoreCallback',
+          'wrapper' => 'denoms-fieldset-wrapper',
+        ],
+        '#denom_index' => $key,
+        '#name' => 'remove-one-' . $key,
       ];
     }
     $form['denominations']['actions'] = [
@@ -118,19 +117,8 @@ class CurrencyDenominationsForm extends EntityForm {
         'callback' => '::addmoreCallback',
         'wrapper' => 'denoms-fieldset-wrapper',
       ],
+      '#name' => 'add-one-more',
     ];
-    // If there is more than one denomination, add the remove button.
-    if ($denoms > 1) {
-      $form['denominations']['actions']['remove_denom'] = [
-        '#type' => 'submit',
-        '#value' => t('Remove one'),
-        '#submit' => ['::removeCallback'],
-        '#ajax' => [
-          'callback' => '::addmoreCallback',
-          'wrapper' => 'denoms-fieldset-wrapper',
-        ],
-      ];
-    }
 
     return $form;
   }
@@ -141,33 +129,30 @@ class CurrencyDenominationsForm extends EntityForm {
    * Selects and returns the fieldset with the names in it.
    */
   public function addmoreCallback(array &$form, FormStateInterface $form_state) {
-    $form_state->get('denoms');
     return $form['denominations'];
   }
 
   /**
    * Submit handler for the "add-one-more" button.
    *
-   * Increments the max counter and causes a rebuild.
+   * Increments the denoms array by 1 and causes a rebuild.
    */
   public function addOne(array &$form, FormStateInterface $form_state) {
-    $name_field = $form_state->get('denoms');
-    $add_button = $name_field + 1;
-    $form_state->set('denoms', $add_button);
+    $denoms = $form_state->get('denoms');
+    array_push($denoms, []);
+    $form_state->set('denoms', $denoms);
     $form_state->setRebuild();
   }
 
   /**
-   * Submit handler for the "remove one" button.
+   * Submit handler for the "remove" buttons.
    *
-   * Decrements the max counter and causes a form rebuild.
+   * Alters the form removing the clicked element from the denoms array.
    */
   public function removeCallback(array &$form, FormStateInterface $form_state) {
-    $name_field = $form_state->get('denoms');
-    if ($name_field > 1) {
-      $remove_button = $name_field - 1;
-      $form_state->set('denoms', $remove_button);
-    }
+    $denoms = $form_state->get('denoms');
+    unset($denoms[$form_state->getTriggeringElement()['#denom_index']]);
+    $form_state->set('denoms', $denoms);
     $form_state->setRebuild();
   }
 
