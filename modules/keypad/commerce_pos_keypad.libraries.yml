@@ -1,0 +1,14 @@
+commerce_pos_keypad:
+  version: VERSION
+  css:
+    base:
+      css/commerce_pos_keypad.css: {}
+    layout:
+      css/commerce_pos_keypad.css: {}
+    theme:
+      css/commerce_pos_keypad.css: {}
+  js:
+    js/commerce_pos_keypad.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings

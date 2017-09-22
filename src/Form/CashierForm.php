@@ -22,6 +22,14 @@ class CashierForm extends UserLoginForm {
       '#type' => 'textfield',
       '#title' => t('Cashier ID'),
       '#description' => t('ID of the cashier logging in'),
+      '#commerce_pos_keypad' => [
+        'type' => 'keypad',
+        'events' => [
+          '.commerce-pos-cashier-login-form-log-in' => [
+            'click' => [],
+          ],
+        ],
+      ],
     ];
 
     return $form;

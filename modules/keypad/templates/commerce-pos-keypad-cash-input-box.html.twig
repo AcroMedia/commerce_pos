@@ -1,0 +1,53 @@
+{#
+/**
+ * @file
+ * Default theme implementation to print POS Cash Input Box.
+ *
+ * Variables:
+ *  - $currency_code: The currency code in use.
+ *  - $inputs: The input elements available.
+ *    - An array of arrays, each with a 'title' and 'amount' key.
+ *
+ * @see template_preprocess_commerce_pos_keypad_cash_input_box()
+ *
+ * @ingroup themeable
+ */
+#}
+
+<div id="commerce-pos-keypad-cash-input-box" style="display: none;" class="commerce-pos-keypad-cash-input-box-wrap">
+  <div class="commerce-pos-keypad-cash-input-box-container">
+    <div class="commerce-pos-keypad-cash-input-box-content">
+      <div class="commerce-pos-keypad-cash-input-box-popup-block">
+        <div class="title">{{ 'Cash Count'|t }}</div>
+
+        <table>
+          {% foreach ($inputs as $key => $input  %}
+            <tr>
+              <td>{{ input['title'] }}</td>
+              <td>
+                <input class="amount-input" size="5" type="text" data-currency-code="{{ currency_code }}" data-cash-type="{{ key }}" data-amount="{{ input['amount'] }}">
+              </td>
+              <td>
+                <input class="amount-output" size="5"  type="text" data-cash-type="{{ key }}" disabled>
+              </td>
+            </tr>
+          {% endfor %}
+
+          <tr class="row-total">
+            <td>{{ 'Total'|t }}</td>
+            <td colspan="2"><span class="input-total"></span></td>
+          </tr>
+
+          <tr>
+            <td>
+              <a href="#cancel" class="cancel-total">{{ 'Cancel'|t }}</a>
+            </td>
+            <td colspan="2">
+              <a href="#add" class="add-total">{{ 'Add'|t }}</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>

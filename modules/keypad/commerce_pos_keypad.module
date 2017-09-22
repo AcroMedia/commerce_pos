@@ -1,0 +1,163 @@
+<?php
+
+/**
+ * @file
+ * The Commerce POS Keypad module file.
+ */
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_keypad_theme($existing, $type, $theme, $path) {
+  return [
+    'commerce_pos_keypad_cash_input_box' => [
+      'variables' => [
+        'inputs' => [],
+        'currency_code' => '',
+        'denominations' => [],
+      ],
+    ],
+    'commerce_pos_keypad_keypad' => [
+      'variables' => [
+        'input_type' => 'text',
+      ],
+    ],
+  ];
+}
+
+/**
+ * Implements template_preprocess_hook().
+ */
+function template_preprocess_commerce_pos_keypad_cash_input_box(&$variables) {
+  $variables['inputs'] = [];
+  foreach ($variables['denominations'] as $currency_id => $result) {
+    foreach ($result as $denomination_id => $denomination) {
+      $variables['inputs'][$denomination->denomination_name] = [
+        'title' => $denomination->denomination_title,
+        'amount' => $denomination->denomination_amount,
+      ];
+    }
+  }
+}
+
+/**
+ * Implements hook_element_info_alter().
+ */
+function commerce_pos_keypad_element_info_alter(&$info) {
+  $form_elements = ['textfield', 'password'];
+
+  foreach ($form_elements as $element) {
+    $info[$element]['#pre_render'][] = 'commerce_pos_keypad_pre_render';
+  }
+}
+
+/**
+ * Attach JS and CSS to elements as needed.
+ */
+function commerce_pos_keypad_pre_render($element) {
+  // Only preprocess items with #commerce_pos_keypad set.
+  if (isset($element['#commerce_pos_keypad'])) {
+    $element['#attached']['library'][] = 'commerce_pos_keypad/commerce_pos_keypad';
+
+    // Allow 'type' to be optional by providing a default.
+    if (isset($element['#commerce_pos_keypad']['type'])) {
+      switch ($element['#commerce_pos_keypad']['type']) {
+        case 'cash input':
+          $element = commerce_pos_keypad_pre_render_cash_input($element);
+          break;
+
+        case 'keypad':
+          $element = commerce_pos_keypad_pre_render_keypad($element);
+          break;
+
+        default:
+          $element = commerce_pos_keypad_pre_render_keypad($element);
+          break;
+      }
+    }
+    else {
+      $element = commerce_pos_keypad_pre_render_keypad($element);
+    }
+  }
+
+  return $element;
+}
+
+/**
+ * Alter a form element to add a cash input box to it.
+ *
+ * @param array $element
+ *   The form element to alter.
+ *
+ * @return array
+ *   The altered element.
+ */
+function commerce_pos_keypad_pre_render_cash_input(array $element) {
+  // Get all the denominations that the user has configured for.
+  // TODO: Get the correct function that will return all denominations.
+  $denominations = commerce_pos_currency_denomination_get_denominations(variable_get('commerce_pos_default_currency_denomination_types', ['USD']));
+
+  // Get the themed html for the input box.
+  $input_box['input_box'] = [
+    '#theme' => 'commerce_pos_keypad_cash_input_box',
+    '#denominations' => $denominations,
+    '#currency_code' => isset($element['#commerce_pos_keypad']['currency_code']) ? $element['#commerce_pos_keypad']['currency_code'] : commerce_default_currency(),
+  ];
+  $input_box = render($input_box);
+
+  $element['#attached']['drupalSettings']['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadCashInput'] = [
+    'inputBox' => $input_box,
+  ];
+
+  $element['#attributes']['class'][] = 'commerce-pos-keypad-cash-input';
+
+  return $element;
+}
+
+/**
+ * Alter a form element to add a keypad to it.
+ *
+ * @param array $element
+ *   The form element to alter.
+ *
+ * @return array
+ *   The altered element.
+ */
+function commerce_pos_keypad_pre_render_keypad(array $element) {
+  // Get the themed html for the input box.
+  $input_box['input_box'] = [
+    '#theme' => 'commerce_pos_keypad_keypad',
+    '#input_type' => ($element['#type'] == 'password') ? 'password' : 'text',
+  ];
+  $input_box = render($input_box);
+
+  $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadKeypad'] = [
+    'inputBox' => $input_box,
+  ];
+
+  // If events were declared, add them to the settings.
+  if (isset($element['#commerce_pos_keypad']['events'])) {
+    foreach ($element['#commerce_pos_keypad']['events'] as $selector => $events) {
+      foreach ($events as $event_name => $event_properties) {
+        $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadKeypad']['events'][] = [
+          'selector' => $selector,
+          'name' => $event_name,
+          'properties' => $event_properties,
+        ];
+      }
+    }
+  }
+  else {
+    // Add default "blur" event.
+    $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadKeypad']['events'][] = [
+      'name' => 'blur',
+      'properties' => [],
+    ];
+  }
+
+  $element['#attached']['drupalSettings'] = $js;
+
+  $element['#attributes']['class'][] = 'commerce-pos-keypad-keypad';
+
+  return $element;
+}

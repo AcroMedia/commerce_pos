@@ -1,0 +1,8 @@
+name: Commerce POS Keypad
+description: Provides a keypad widget for entering values in form fields.
+type: module
+package: Commerce (POS)
+core: 8.x
+dependencies:
+  - commerce_pos
+  - commerce_pos_currency_denominations
