@@ -1,15 +1,10 @@
 services:
-  commerce_pos.float:
-    class: Drupal\commerce_pos\RegisterFloat
-    arguments: ['@database']
-    tags:
-      - { name: backend_overridable }
-
   commerce_pos.cashier:
     class: Drupal\commerce_pos\CashierUsers
     arguments: ['@database']
 
   commerce_pos.registers:
     class: Drupal\commerce_pos\Registers
-    #arguments: ['@database']
 
+  commerce_pos.upc:
+    class: Drupal\commerce_pos\UPC
