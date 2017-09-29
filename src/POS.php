@@ -3,15 +3,60 @@
 namespace Drupal\commerce_pos;
 
 use Drupal\commerce_pos\Form\POSForm;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\commerce_order\Entity\Order;
+use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\user\PrivateTempStoreFactory;
 
 /**
  * Provides main POS page.
  */
-class POS {
+class POS extends ControllerBase {
 
-  protected $store;
+  /**
+   * The container object.
+   *
+   * @var Symfony\Component\DependencyInjection\ContainerInterface;
+   */
+  protected $container;
+
+  /**
+   * The tempstore object.
+   *
+   * @var \Drupal\user\SharedTempStore
+   */
+  protected $tempStore;
+
+  /**
+   * The currentOrder object.
+   *
+   * @var \Drupal\commerce_pos\CurrentOrder
+   */
+  protected $currentOrder;
+
+  /**
+   * Constructs a new POS object.
+   *
+   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   *   The tempstore factory.
+   */
+  public function __construct(ContainerInterface $container, PrivateTempStoreFactory $temp_store_factory, CurrentOrder $current_order) {
+    $this->container = $container;
+    $this->tempStore = $temp_store_factory->get('commerce_pos');
+    $this->currentOrder = $current_order;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container,
+      $container->get('user.private_tempstore'),
+      $container->get('commerce_pos.current_order')
+    );
+  }
 
   /**
    * Builds the POS form.
@@ -20,8 +65,7 @@ class POS {
    *   A renderable array containing the POS form.
    */
   public function posForm() {
-    $tempstore = \Drupal::service('user.private_tempstore')->get('commerce_pos');
-    $register = $tempstore->get('register');
+    $register = $this->tempStore->get('register');
 
     if (empty($register) || !($register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register))) {
       return \Drupal::formBuilder()->getForm('\Drupal\commerce_pos\Form\RegisterSelectForm');
@@ -29,17 +73,25 @@ class POS {
 
     $store = $register->getStoreId();
 
-    $order = Order::create([
-      'type' => 'pos',
-    ]);
+    $order = $this->currentOrder->get();
 
-    $order->setStoreId($store);
+    if (!$order) {
+      $order = Order::create([
+        'type' => 'pos',
+        'field_cashier' => \Drupal::currentUser()->id(),
+      ]);
 
-    $form_object = new POSForm(\Drupal::entityManager(), \Drupal::service('entity_type.bundle.info'), \Drupal::time(), \Drupal::currentUser());
+      $order->setStoreId($store);
+
+      $order->save();
+
+      $this->currentOrder->set($order);
+    }
+
+    $form_object = POSForm::create($this->container);
     $form_object->setEntity($order);
 
     $form_object
-      // ->setStringTranslation($this->stringTranslation)
       ->setModuleHandler(\Drupal::moduleHandler())
       ->setEntityTypeManager(\Drupal::entityTypeManager())
       ->setOperation('pos')

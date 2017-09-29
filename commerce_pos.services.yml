@@ -8,3 +8,8 @@ services:
 
   commerce_pos.upc:
     class: Drupal\commerce_pos\UPC
+
+  commerce_pos.current_order:
+    class: Drupal\commerce_pos\CurrentOrder
+    arguments: ['@user.private_tempstore']
+    

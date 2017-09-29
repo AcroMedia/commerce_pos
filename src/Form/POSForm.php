@@ -16,31 +16,6 @@ use Drupal\Core\Session\AccountInterface;
 class POSForm extends ContentEntityForm {
 
   /**
-   * The current cashier(user)
-   *
-   * @var \Drupal\Core\Session\AccountInterface
-   */
-  protected $cashier;
-
-  /**
-   * Constructs a new AddToCartForm object.
-   *
-   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
-   *   The entity manager.
-   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
-   *   The entity type bundle info.
-   * @param \Drupal\Component\Datetime\TimeInterface $time
-   *   The time.
-   * @param \Drupal\Core\Session\AccountInterface $cashier
-   *   The current user.
-   */
-  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, AccountInterface $cashier) {
-    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
-
-    $this->cashier = $cashier;
-  }
-
-  /**
    * {@inheritdoc}
    */
   public static function create(ContainerInterface $container) {

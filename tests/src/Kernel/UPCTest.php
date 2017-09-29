@@ -6,10 +6,10 @@ use Drupal\Tests\commerce\Kernel\CommerceKernelTestBase;
 use Drupal\commerce_product\Entity\ProductVariation;
 
 /**
- * Tests the cart provider.
+ * Tests the UPC lookup.
  *
- * @coversDefaultClass \Drupal\commerce_cart\CartProvider
- * @group commerce
+ * @coversDefaultClass \Drupal\commerce_pos\UPC
+ * @group commerce_pos
  */
 class UPCTest extends CommerceKernelTestBase {
 
