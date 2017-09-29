@@ -64,7 +64,7 @@ class POS extends ControllerBase {
    * @return array
    *   A renderable array containing the POS form.
    */
-  public function posForm() {
+  public function content() {
     $register = $this->tempStore->get('register');
 
     if (empty($register) || !($register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register))) {

@@ -27,7 +27,7 @@ class RegisterForm extends ContentEntityForm {
 
     $name_array = $form_state->getValue('name');
     $name = $name_array['0']['value'];
-    drupal_set_message($this->t('Successfully saved register @name.', array('@name' => $name)));
+    drupal_set_message($this->t('Successfully saved register @name.', ['@name' => $name]));
   }
 
 }

@@ -1,0 +1,9 @@
+/* POS side bar styles */
+
+.layout-region-pos-main {
+    float: left;
+}
+
+.layout-region-pos-sidebar {
+    float: right;
+}

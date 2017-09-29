@@ -12,4 +12,3 @@ services:
   commerce_pos.current_order:
     class: Drupal\commerce_pos\CurrentOrder
     arguments: ['@user.private_tempstore']
-    

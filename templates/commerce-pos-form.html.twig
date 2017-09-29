@@ -1,7 +1,7 @@
 {#
 /**
  * @file
- * Two column template for the order edit form.
+ * Two column template for the pos form.
  *
  * Available variables:
  * - form: The form.
@@ -9,14 +9,24 @@
  * @ingroup themeable
  */
 #}
-<div class="layout-order-form clearfix">
-    <div class="layout-region layout-region-order-main">
-        {{ form|without('advanced', 'actions') }}
+<div class="layout-pos-form clearfix">
+    <div class="layout-region-pos-main">
+        <div class="layout-region layout-region-pos-content">
+            {{ form|without('advanced', 'actions', 'totals', 'list', 'customer') }}
+        </div>
+        <div class="layout-region layout-region-pos-customer">
+            {{ form.customer }}
+        </div>
+        <div class="layout-region layout-region-pos-list">
+            {{ form.list }}
+        </div>
     </div>
-    <div class="layout-region layout-region-order-secondary">
-        {{ form.advanced }}
-    </div>
-    <div class="layout-region layout-region-order-footer">
-        {{ form.actions }}
+    <div class="layout-region-pos-sidebar">
+        <div class="layout-region layout-region-pos-totals">
+            {{  form.totals }}
+        </div>
+        <div class="layout-region layout-region-pos-footer">
+            {{ form.actions }}
+        </div>
     </div>
 </div>
