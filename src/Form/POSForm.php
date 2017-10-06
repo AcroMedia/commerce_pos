@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_pos\Form;
 
+use Drupal\commerce_payment\Form\PaymentAddForm;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -37,6 +38,8 @@ class POSForm extends ContentEntityForm {
   public function buildForm(array $form, FormStateInterface $form_state) {
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
+    $store = $order->getStore();
+    $default_currency = $store->getDefaultCurrency();
     $totals = [];
 
     $form = parent::buildForm($form, $form_state);
@@ -67,8 +70,14 @@ class POSForm extends ContentEntityForm {
     $number_formatter = $number_formatter_factory->createInstance();
 
     $sub_total_price = $order->getSubtotalPrice();
-    $currency = Currency::load($sub_total_price->getCurrencyCode());
-    $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
+    if (!empty($sub_total_price)) {
+      $currency = Currency::load($sub_total_price->getCurrencyCode());
+      $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
+    }
+    else {
+      $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
+    }
+
 
     $totals[] = ['Subtotal', $formatted_amount];
 
@@ -89,8 +98,14 @@ class POSForm extends ContentEntityForm {
 
     // Collecting the total price on the cart.
     $total_price = $order->getTotalPrice();
-    $currency = Currency::load($amount->getCurrencyCode());
-    $formatted_amount = $number_formatter->formatCurrency($total_price->getNumber(), $currency);
+    if (!empty($total_price)) {
+      $currency = Currency::load($total_price->getCurrencyCode());
+      $formatted_amount = $number_formatter->formatCurrency($total_price->getNumber(), $currency);
+    }
+    else {
+      $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
+    }
+
 
     $totals[] = ['Total', $formatted_amount];
 
