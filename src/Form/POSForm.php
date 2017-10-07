@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_pos\Form;
 
-use Drupal\commerce_payment\Form\PaymentAddForm;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
 use Symfony\Component\DependencyInjection\ContainerInterface;
