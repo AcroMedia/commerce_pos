@@ -1137,6 +1137,11 @@ function commerce_pos_report_build_sales_report_table(array $filters = array()) 
   $query->fields('t', array('order_id', 'completed', 'uid', 'type'));
   $query->addField('t', 'cashier', 'cashier_id');
 
+  // Register IDs filter.
+  if (isset($filters['register_id']) && !empty($filters['register_id'])) {
+    $query->condition('t.register_id', $filters['register_id'], 'IN');
+  }
+
   // Cashier data
   // We left join because legacy transactions may not have a cashier.
   $query->leftJoin('commerce_pos_cashier', 'cashier', 'cashier.cashier_id = t.cashier');
@@ -1458,6 +1463,40 @@ function commerce_pos_report_sales_report($form, &$form_state) {
       ),
     ),
   );
+
+  // Add a register filter so we can pull out the sales for just a single store
+  // or all stores in a single location.
+  $register_id = 0;
+  if (module_exists('commerce_pos_register') && $register_options = commerce_pos_register_options()) {
+    $current_register = commerce_pos_register_get_current_register();
+    $register_ids = array();
+
+    foreach ($register_options as $location_name => $register_info) {
+      foreach ($register_info as $id => $name) {
+        $register_ids[] = $id;
+      }
+    }
+
+    if (isset($query_params['register_id'])) {
+      $register_id = $query_params['register_id'];
+    }
+    elseif ($current_register) {
+      $register_id = $current_register;
+    }
+    else {
+      // Fall back to using the first register ID.
+      $register_id = $register_ids[0];
+    }
+
+    $form['filters']['register_id'] = array(
+      '#type' => 'select',
+      '#title' => t('Register'),
+      '#options' => $register_options,
+      '#multiple' => TRUE,
+      '#default_value' => $register_id,
+    );
+  }
+
   $form['filters']['submit'] = array(
     '#value' => t('Apply Filter'),
     '#type' => 'submit',

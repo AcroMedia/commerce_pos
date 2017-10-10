@@ -149,20 +149,55 @@
   float: none;
   display: inline-block;
   margin-right: 0;
+  position: relative;
+  top: -145px;
+  margin-left: 10px;
 }
 #edit-filters-range-info{
   display: inline-block;
+  position: relative;
+  top: -145px;
 }
 .page-admin-commerce-pos-reports-sales-report .container-inline-date .form-item {
   margin-right: 30px;
 }
 
 .page-admin-commerce-pos-reports-sales-report .commerce-pos-report-journal-role-submit {
-  vertical-align: bottom;
+  vertical-align: top;
   margin-bottom: 0px;
   padding: 8px 30px;
-  margin-bottom: 22px;
   box-shadow: none;
+  position: relative;
+  top: 8px;
+  margin-left: 10px;
+}
+
+.page-admin-commerce-pos-reports-sales-report #commerce-pos-report-sales-report {
+  .form-item-filters-range-select,
+  .form-item-filters-register-id {
+    display: inline-block;
+
+    &.form-item-filters-range-select {
+      vertical-align: top;
+    }
+
+    &.form-item-filters-register-id {
+      position: relative;
+      top: -30px;
+
+      label {
+        font-weight: bold;
+        font-size: 16px;
+        padding-bottom: 10px;
+      }
+
+      .form-select {
+        width: 100%;
+        min-height: 100px;
+        min-width: 125px;
+      }
+    }
+  }
 }
 
 /* -- Report Option Buttons -- */
