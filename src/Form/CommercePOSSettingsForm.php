@@ -32,10 +32,13 @@ class CommercePOSSettingsForm extends ConfigFormBase {
   public function buildForm(array $form, FormStateInterface $form_state) {
     $config = $this->config('commerce_pos.settings');
 
-    $form['product_settings']['Example Setting'] = [
-      '#type' => 'textfield',
-      '#title' => $this->t('Search'),
-      '#default_value' => $config->get('example_setting'),
+    $form['payment_settings']['default_payment_gateway'] = [
+      '#type' => 'select',
+      '#title' => $this->t('Default Payment Gateway'),
+      '#description' => t('Select the default payment method.'),
+      '#empty_option' => t('- None -'),
+      '#default_value' => $config->get('default_payment_gateway'),
+      '#options' => $this->getPaymentGatewayOptions(),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -48,13 +51,26 @@ class CommercePOSSettingsForm extends ConfigFormBase {
 
     \Drupal::configFactory()->getEditable('commerce_pos.settings')
       // Set the submitted configuration setting.
-      ->set('example_setting', $form_state->getValue('example_setting'))
+      ->set('default_payment_gateway', $form_state->getValue('default_payment_gateway'))
 
       /* Need to verify if form values and settings are correct and reflect the nature of how settings will be handled before any save functionality is done. */
       ->save();
 
     // Validation of course needed as well.
     parent::submitForm($form, $form_state);
+  }
+
+  /**
+   * Get the available payment options.
+   */
+  protected function getPaymentGatewayOptions() {
+    // TODO: This should be dynamic.
+    return [
+      'pos_cash' => t('Cash'),
+      'pos_credit' => t('Credit'),
+      'pos_debit' => t('Debit'),
+      'pos_gift_card' => t('Gift Card'),
+    ];
   }
 
 }

@@ -32,6 +32,10 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
     'commerce_pos_form' => [
       'render element' => 'form',
     ],
+    'commerce_pos_keypad' => [
+      'render element' => 'element',
+      'template' => 'commerce-pos-keypad',
+    ],
   ];
 }
 

@@ -3,3 +3,5 @@ form:
   css:
     layout:
       css/commerce_pos.module.css: {}
+  js:
+    js/commerce_pos.js: {}

@@ -27,12 +27,21 @@ class CurrentOrder {
     $this->tempStore = $temp_store_factory->get('commerce_pos');
   }
 
-  public function set($order) {
+  /**
+   * Takes a provided order and sets its ID as the current one.
+   *
+   * @param \Drupal\commerce_order\Entity\Order $order
+   *   The order object you wish to save the ID from.
+   */
+  public function set(Order $order) {
     $this->tempStore->set('order', $order->id());
   }
 
   /**
-   * @return mixed
+   * Gets the active order_id stored in the session and loads it.
+   *
+   * @return \Drupal\commerce_order\Entity\Order|null
+   *   An entity object. NULL if no matching entity is found.
    */
   public function get() {
     $order_id = $this->tempStore->get('order');

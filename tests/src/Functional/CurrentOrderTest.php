@@ -6,7 +6,7 @@ use Drupal\Tests\commerce\Functional\CommerceBrowserTestBase;
 use Drupal\commerce_order\Entity\Order;
 
 /**
- * Tests the CurrentOrder get and set
+ * Tests the CurrentOrder get and set.
  *
  * @coversDefaultClass \Drupal\commerce_pos\CurrentOrder
  * @group commerce_pos
@@ -32,7 +32,7 @@ class CurrentOrderTest extends CommerceBrowserTestBase {
   ];
 
   /**
-   * Test an order can get set and retrieved correctly
+   * Test an order can get set and retrieved correctly.
    */
   public function testSetGet() {
     $order = Order::create([

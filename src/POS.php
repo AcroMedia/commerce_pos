@@ -17,7 +17,7 @@ class POS extends ControllerBase {
   /**
    * The container object.
    *
-   * @var Symfony\Component\DependencyInjection\ContainerInterface;
+   * @var \Symfony\Component\DependencyInjection\ContainerInterface
    */
   protected $container;
 
@@ -38,8 +38,12 @@ class POS extends ControllerBase {
   /**
    * Constructs a new POS object.
    *
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
+   *   The service container.
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
+   * @param \Drupal\commerce_pos\CurrentOrder $current_order
+   *   The current order service.
    */
   public function __construct(ContainerInterface $container, PrivateTempStoreFactory $temp_store_factory, CurrentOrder $current_order) {
     $this->container = $container;
