@@ -40,6 +40,7 @@ class POSForm extends ContentEntityForm {
     $form['#tree'] = TRUE;
     $form['#theme'] = 'commerce_pos_form';
     $form['#attached']['library'][] = 'commerce_pos/form';
+    $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
 
     $step = $form_state->get('step');
     $step = $step ?: 'order';

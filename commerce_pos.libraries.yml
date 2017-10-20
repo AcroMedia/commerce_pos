@@ -2,6 +2,6 @@ form:
   version: VERSION
   css:
     layout:
-      css/commerce_pos.module.css: {}
+      css/commerce_pos_style.css: {}
   js:
     js/commerce_pos.js: {}

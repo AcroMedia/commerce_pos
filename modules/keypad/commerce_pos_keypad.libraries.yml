@@ -1,11 +1,7 @@
-commerce_pos_keypad:
+keypad:
   version: VERSION
   css:
-    base:
-      css/commerce_pos_keypad.css: {}
-    layout:
-      css/commerce_pos_keypad.css: {}
-    theme:
+    component:
       css/commerce_pos_keypad.css: {}
   js:
     js/commerce_pos_keypad.js: {}

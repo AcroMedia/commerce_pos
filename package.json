@@ -1,0 +1,14 @@
+{
+  "name": "commerce_pos",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "gulp watch",
+    "build": "gulp build"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1",
+    "gulp-sass": "^2.3.2",
+    "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.8"
+  }
+}

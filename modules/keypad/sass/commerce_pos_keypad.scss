@@ -1,3 +1,79 @@
+.commerce-pos-keypad {
+  width: 75%
+}
+
+.commerce-pos-keypad * {
+  box-sizing: border-box
+}
+
+.commerce-pos-keypad-key.pressed {
+  background-color: #E4E4E4
+}
+
+.commerce-pos-keypad .commerce-pos-keypad-key:hover, .commerce-pos-keypad .commerce-pos-keypad-key:focus {
+  background-color: #E4E4E4
+}
+
+.commerce-pos-keypad .commerce-pos-keypad-numbers {
+  position: relative
+}
+
+.commerce-pos-keypad .commerce-pos-keypad-keys {
+  overflow: hidden;
+  border-right: 1px solid #D6D6D6
+}
+
+.commerce-pos-keypad .commerce-pos-keypad-key {
+  box-sizing: border-box;
+  width: 33.33%;
+  display: block;
+  float: left;
+  padding: 14px;
+  border: 1px solid #D6D6D6;
+  border-right: 0;
+  border-bottom: 0;
+  font-size: 22px;
+  text-align: center;
+  background-color: #F0F0F0;
+  color: #000000;
+  cursor: pointer;
+  transition: all .1s ease 0s
+}
+
+.commerce-pos-keypad-actions button {
+  width: 33%;
+  padding: 15px;
+  margin-right: 10px;
+  border: 10px solid white;
+  border-radius: 30px;
+  float: right;
+  font-size: 2em
+}
+
+.form-type-textfield.form-item-keypad-amount.form-text {
+  width: 100%;
+  padding: 40px 20px;
+  background: #666;
+  color: #fff;
+  border: 0;
+  border-right: 1px solid #fff;
+  font-size: 50px;
+  text-align: right
+}
+
+.commerce-pos-keypad-key:last-of-type {
+  background-color: #E4E4E4;
+  color: #000
+}
+
+.commerce-pos-keypad-key:last-of-type:hover, .commerce-pos-keypad-key:last-of-type:focus {
+  background-color: #DADADA
+}
+
+.commerce-pos-keypad-actions button:hover, .commerce-pos-keypad-actions button:focus {
+  border-color: white
+}
+
 .commerce-pos-keypad-cash-input-box-wrap {
   top: 0;
   left: 0;
@@ -266,4 +342,28 @@
 
 .commerce-pos-keypad-keypad-icon:hover {
   color: #2e6da4;
+}
+
+@media screen and (max-width: 767px) {
+  .commerce-pos-keypad-amount .form-item-keypad-amount input {
+    font-size: 30px
+  }
+
+  .commerce-pos-keypad-key {
+    font-size: 20px
+  }
+
+  .commerce-pos-keypad-key, #commerce-pos-pay-form-wrapper .commerce-pos-keypad-actions input[type="submit"] {
+    padding: 10px
+  }
+
+  #commerce-pos-pay-form-wrapper .commerce-pos-keypad-actions input[type="submit"] {
+    height: 51px
+  }
+}
+
+@media screen and (max-width: 980px) {
+  .commerce-pos-keypad {
+    width: 100%
+  }
 }
