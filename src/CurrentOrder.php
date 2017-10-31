@@ -46,7 +46,7 @@ class CurrentOrder {
   public function get() {
     $order_id = $this->tempStore->get('order');
 
-    return Order::load($order_id);
+    return $order_id ? Order::load($order_id) : NULL;
   }
 
 }

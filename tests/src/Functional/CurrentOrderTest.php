@@ -35,6 +35,9 @@ class CurrentOrderTest extends CommerceBrowserTestBase {
    * Test an order can get set and retrieved correctly.
    */
   public function testSetGet() {
+    // Ensure that before an order is set the current order is null.
+    $this->assertNull($this->container->get('commerce_pos.current_order')->get());
+
     $order = Order::create([
       'type' => 'pos',
     ]);
