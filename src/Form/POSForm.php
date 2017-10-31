@@ -40,7 +40,11 @@ class POSForm extends ContentEntityForm {
     $form['#tree'] = TRUE;
     $form['#theme'] = 'commerce_pos_form';
     $form['#attached']['library'][] = 'commerce_pos/form';
-    $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
+    // @todo not really the right way to do this. I think the
+    // commerce_pos_keypad should override the template to add the library in.
+    if ($this->moduleHandler->moduleExists('commerce_pos_keypad')) {
+      $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
+    }
 
     $step = $form_state->get('step');
     $step = $step ?: 'order';
