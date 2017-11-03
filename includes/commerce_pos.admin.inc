@@ -91,7 +91,7 @@ function commerce_pos_settings($form, &$form_state) {
     $form['search']['commerce_pos_search_api_index'] = array(
       '#type' => 'select',
       '#title' => t('Search API Index'),
-      '#description' => t('If you would like to use a search API index when searching for products in the POS, you may select one here.'),
+      '#description' => t('If you would like to use a search API index when searching for products in the POS, you may select one here.<br><strong>NOTE: You must use an index based on the commerce_product entity as it uses the product_id from the results.</strong>'),
       '#options' => $index_options,
       '#default_value' => variable_get('commerce_pos_search_api_index', NULL),
     );

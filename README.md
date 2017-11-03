@@ -69,6 +69,8 @@ CONFIGURATION
   * Search API Index: If your site has any API indexes installed they will be
   available here. You can use your API index or Drupal's default search to
   query the database for products.
+    * Extra note: If you decide to use Search API, the index you choose must be
+    based on the commerce_product entity, as it uses the IDs to grab the product.
   * Select which of the available products you would like to integrate with
   Commerce Point of Sale.
   * For each selected product you may choose an image field (product must
