@@ -131,6 +131,7 @@ function theme_commerce_pos_product_summary(&$variables) {
  */
 function theme_commerce_pos_order_balance_summary(&$variables) {
   $order = $variables['order'];
+  $pos_transaction = $variables['pos_transaction'];
   $transaction_statuses = commerce_payment_transaction_statuses();
 
   $transaction_ids = commerce_pos_get_order_transactions($order->order_id);
@@ -146,7 +147,7 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
     $amount = $transaction->amount;
 
     if ($status === COMMERCE_PAYMENT_STATUS_SUCCESS) {
-      $payment_action = commerce_pos_commerce_currency_format($amount, $currency_code) . '<br>' . theme('commerce_pos_transaction_actions', array('transaction' => $transaction));
+      $payment_action = commerce_pos_commerce_currency_format($amount, $currency_code) . '<br>' . theme('commerce_pos_transaction_actions', array('transaction' => $transaction, 'pos_transaction' => $pos_transaction));
       $action_class = "amount";
     }
     elseif ($status == 'void') {
@@ -162,7 +163,7 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
     // Omit buttons from this summary in reports.
     $actions = '';
     if (empty($variables['display_only'])) {
-      $actions = theme('commerce_pos_transaction_actions', array('transaction' => $transaction));
+      $actions = theme('commerce_pos_transaction_actions', array('transaction' => $transaction, 'pos_transaction' => $pos_transaction));
     }
 
     // Add a separator between remote ID and actions, if there are actions.
@@ -232,10 +233,12 @@ function theme_commerce_pos_order_balance_summary(&$variables) {
  */
 function theme_commerce_pos_transaction_actions($variables) {
   $transaction = $variables['transaction'];
+  $pos_transaction = $variables['pos_transaction'];
   $output = array();
 
-  // Determine which actions are available based on the transaction's status.
-  $actions = ($transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS) ? array('Void') : array();
+  // Determine which actions are available based on the transaction's status
+  // and the pos transaction being completed or not.
+  $actions = ($transaction->status === COMMERCE_PAYMENT_STATUS_SUCCESS && empty($pos_transaction->completed)) ? array('Void') : array();
 
   foreach ($actions as $action) {
     $output[] = l($action, '#', array(

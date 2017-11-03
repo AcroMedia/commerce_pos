@@ -154,6 +154,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
         'order' => NULL,
         'display_only' => FALSE,
         'include_balance' => TRUE,
+        'pos_transaction' => NULL,
       ),
     ),
     'commerce_pos_transaction_actions' => array(
@@ -161,6 +162,7 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
       'path' => $path . '/theme',
       'variables' => array(
         'transaction' => NULL,
+        'pos_transaction' => NULL,
       ),
     ),
     'commerce_pos_transaction_balance' => array(
@@ -812,7 +814,8 @@ function commerce_pos_balance_summary($order, $display_only = FALSE, $include_ba
   return theme('commerce_pos_order_balance_summary', array(
     'order' => $order,
     'display_only' => $display_only,
-    'include_balance' => $include_balance
+    'include_balance' => $include_balance,
+    'pos_transaction' => CommercePosService::getOrderTransaction($order->order_id),
   ));
 }
 
