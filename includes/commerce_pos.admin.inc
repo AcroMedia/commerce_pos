@@ -127,6 +127,13 @@ function commerce_pos_settings($form, &$form_state) {
     '#default_value' => variable_get('commerce_pos_search_results_count', 5),
   );
 
+  $form['search']['commerce_pos_search_published_only'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Search published products only'),
+    '#description' => t('When enabled, the search will only find products that have their status set to published. If using search_api, the \'status\' field will need to be indexed.'),
+    '#default_value' => variable_get('commerce_pos_search_published_only', FALSE),
+  );
+
   // Grab a list of payments.
   $payments = array();
   foreach (commerce_pos_get_payment_options() as $payment) {
@@ -206,6 +213,8 @@ function commerce_pos_settings_submit($form, &$form_state) {
       $form_state['values']['commerce_pos_search_sku_matching']
     );
   }
+
+  variable_set('commerce_pos_search_published_only', $form_state['values']['commerce_pos_search_published_only']);
 
   variable_set('commerce_pos_search_results_count', $form_state['values']['commerce_pos_search_results_count']);
 

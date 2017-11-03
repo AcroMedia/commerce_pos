@@ -53,6 +53,9 @@ function commerce_pos_product_search_api_search($keywords) {
     if ($index_id != 'default') {
       $index = search_api_index_load($index_id);
       $query = new SearchApiQuery($index);
+      if (variable_get('commerce_pos_search_published_only', FALSE) && isset($index->getFields()['status'])) {
+        $query->condition('status', 1);
+      }
       $query->keys($keywords);
       $query->range(0, variable_get('commerce_pos_search_results_count', 5));
       $query_results = $query->execute();
@@ -89,6 +92,9 @@ function commerce_pos_product_search_basic($keywords) {
     }
 
     $query->condition($or);
+    if (variable_get('commerce_pos_search_published_only', FALSE)) {
+      $query->condition('status', 1);
+    }
     $query->condition('type', $allowed_product_types, 'IN')
       ->range(0, variable_get('commerce_pos_search_results_count', 5))
       ->orderBy('title', 'ASC');
