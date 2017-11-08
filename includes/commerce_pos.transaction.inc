@@ -715,14 +715,15 @@ function commerce_pos_transaction_pay_submit($form, &$form_state) {
         $form_state['transaction']->doAction('saveOrder');
       }
     }
-    if (module_exists('commerce_pos_stock')) {
-      $order = commerce_order_load($form_state['transaction']->orderId);
-      $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
-      foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
-        if (!empty($form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'])) {
-          $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
-          commerce_line_item_save($line_item);
-        }
+  }
+
+  if (module_exists('commerce_pos_stock')) {
+    $order = commerce_order_load($form_state['transaction']->orderId);
+    $order_wrapper = entity_metadata_wrapper('commerce_order', $order);
+    foreach ($order_wrapper->commerce_line_items->value() as $line_item) {
+      if (!empty($form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'])) {
+        $line_item->data['commerce_pos_stock_add_to_stock'] = $form_state['input']['return_line_items'][$line_item->line_item_id]['commerce_pos_stock_add_to_stock'];
+        commerce_line_item_save($line_item);
       }
     }
   }
