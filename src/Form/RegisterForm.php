@@ -22,12 +22,11 @@ class RegisterForm extends ContentEntityForm {
   /**
    * {@inheritdoc}
    */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    parent::submitForm($form, $form_state);
-
-    $name_array = $form_state->getValue('name');
-    $name = $name_array['0']['value'];
-    drupal_set_message($this->t('Successfully saved register @name.', ['@name' => $name]));
+  public function save(array $form, FormStateInterface $form_state) {
+    $status = parent::save($form, $form_state);
+    drupal_set_message($this->t('Successfully saved register @name.', ['@name' => $this->entity->label()]));
+    $form_state->setRedirectUrl($this->entity->toUrl('collection'));
+    return $status;
   }
 
 }

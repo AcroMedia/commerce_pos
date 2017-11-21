@@ -57,18 +57,18 @@ class RegisterTest extends CommerceBrowserTestBase {
   }
 
   /**
-   * Tests for creating register programatically and through the form.
+   * Tests for creating register programmatically and through the form.
    */
   public function testCreateRegister() {
     $title = strtolower($this->randomMachineName(8));
 
-    // Create Register programmaticaly.
-    $register = $this->createEntity('commerce_pos_register', [
+    // Create Register programmatically. Note that createEntity() performs
+    // assertions.
+    $this->createEntity('commerce_pos_register', [
       'name' => $title,
       'cash' => 100,
+      'store_id' => $this->store->id(),
     ]);
-    $register_exists = (bool) Register::load($register->id());
-    $this->assertNotEmpty($register_exists, 'The Register has been created in the database');
 
     // Create Register through the form.
     $edit = [
@@ -76,8 +76,8 @@ class RegisterTest extends CommerceBrowserTestBase {
       'cash[0][number]' => 100,
     ];
     $this->drupalPostForm("admin/commerce/config/pos/register/add", $edit, 'Save');
-    $register_exists = (bool) Register::load(1);
-    $this->assertNotEmpty($register_exists, 'The Register has been created in the database');
+    $this->assertSession()->responseContains('Successfully saved register foo.');
+    $this->assertSession()->addressEquals('admin/commerce/config/pos/registers');
   }
 
   /**
