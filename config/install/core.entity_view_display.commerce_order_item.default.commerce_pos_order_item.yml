@@ -1,0 +1,50 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - commerce_order.commerce_order_item_type.default
+    - core.entity_view_mode.commerce_order_item.commerce_pos_order_item
+  enforced:
+    module:
+      - commerce_product
+  module:
+    - commerce_price
+_core:
+  default_config_hash: YvPk7-s7bZEOuxWBbu1G5wo4qc-OOnZpmCwPUdhp40o
+id: commerce_order_item.default.commerce_pos_order_item
+targetEntityType: commerce_order_item
+bundle: default
+mode: commerce_pos_order_item
+content:
+  purchased_entity:
+    type: entity_reference_entity_view
+    weight: 0
+    settings:
+      view_mode: commerce_pos_product_select
+      link: false
+    third_party_settings: {  }
+    label: hidden
+    region: content
+  quantity:
+    type: number_decimal
+    weight: 1
+    settings:
+      thousand_separator: ''
+      decimal_separator: .
+      scale: 2
+      prefix_suffix: true
+    third_party_settings: {  }
+    label: inline
+    region: content
+  total_price:
+    type: commerce_price_default
+    weight: 2
+    settings:
+      strip_trailing_zeroes: false
+      display_currency_code: false
+    third_party_settings: {  }
+    label: inline
+    region: content
+hidden:
+  adjustments: true
+  unit_price: true

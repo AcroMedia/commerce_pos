@@ -5,7 +5,7 @@ namespace Drupal\commerce_pos\Form;
 use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Form\FormStateInterface;
-use Symfony\Component\DependencyInjection\ContainerInterface;
+use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\commerce_order\Entity\Order;
 
@@ -13,18 +13,6 @@ use Drupal\commerce_order\Entity\Order;
  * Provides the main POS form for using the POS to checkout customers.
  */
 class POSForm extends ContentEntityForm {
-
-  /**
-   * {@inheritdoc}
-   */
-  public static function create(ContainerInterface $container) {
-    return new static(
-      $container->get('entity.manager'),
-      $container->get('entity_type.bundle.info'),
-      $container->get('datetime.time'),
-      $container->get('current_user')
-    );
-  }
 
   /**
    * {@inheritdoc}
@@ -40,11 +28,6 @@ class POSForm extends ContentEntityForm {
     $form['#tree'] = TRUE;
     $form['#theme'] = 'commerce_pos_form';
     $form['#attached']['library'][] = 'commerce_pos/form';
-    // @todo not really the right way to do this. I think the
-    // commerce_pos_keypad should override the template to add the library in.
-    if ($this->moduleHandler->moduleExists('commerce_pos_keypad')) {
-      $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
-    }
 
     $step = $form_state->get('step');
     $step = $step ?: 'order';
@@ -66,16 +49,7 @@ class POSForm extends ContentEntityForm {
    * Build the POS Order Form.
    */
   protected function buildOrderForm(array $form, FormStateInterface $form_state) {
-    /* @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $this->entity;
-
     $form = parent::buildForm($form, $form_state);
-
-    // Changed must be sent to the client, for later overwrite error checking.
-    $form['changed'] = [
-      '#type' => 'hidden',
-      '#default_value' => $order->getChangedTime(),
-    ];
 
     $form['customer'] = [
       '#type' => 'container',
@@ -89,6 +63,14 @@ class POSForm extends ContentEntityForm {
     ];
 
     $form['actions']['submit']['#value'] = t('Add Payment');
+    // Ensure the user is redirected back to this page after deleting an order.
+    if (isset($form['actions']['delete']['#url']) && $form['actions']['delete']['#url'] instanceof Url) {
+      $form['actions']['delete']['#url']->mergeOptions([
+        'query' => [
+          'destination' => Url::fromRoute('commerce_pos.main')->toString(),
+        ],
+      ]);
+    }
 
     return $form;
   }
@@ -97,6 +79,11 @@ class POSForm extends ContentEntityForm {
    * Build the payment form, this is the second and final step of a POS order.
    */
   public function buildPaymentForm(array $form, FormStateinterface $form_state) {
+    // @todo not really the right way to do this. I think the
+    // commerce_pos_keypad should override the template to add the library in.
+    if ($this->moduleHandler->moduleExists('commerce_pos_keypad')) {
+      $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
+    }
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
     $wrapper_id = 'commerce-pos-pay-form-wrapper';

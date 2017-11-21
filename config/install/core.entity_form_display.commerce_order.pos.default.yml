@@ -2,33 +2,27 @@ langcode: en
 status: true
 dependencies:
   config:
-    - commerce_order.commerce_order_type.default
-    - field.field.commerce_order.pos.field_order_items
+    - commerce_order.commerce_order_type.pos
+    - field.field.commerce_order.pos.field_cashier
+    - field.field.commerce_order.pos.field_register
+    - field.field.commerce_order.pos.order_items
   module:
     - commerce_order
     - commerce_pos
+    - inline_entity_form
+_core:
+  default_config_hash: HhZKA_IA19mJACTv88yTh3eJ7gPY3sMapJ1qYbed0zs
 id: commerce_order.pos.default
 targetEntityType: commerce_order
 bundle: pos
 mode: default
 content:
-  order_items:
-    type: inline_entity_form_complex
-    weight: 0
-    settings:
-      override_labels: true
-      label_singular: 'order item'
-      label_plural: 'order items'
-      allow_new: true
-      match_operator: CONTAINS
-      allow_existing: false
-      form_mode: default
-    third_party_settings: {  }
   adjustments:
     type: commerce_adjustment_default
     weight: 1
     settings: {  }
     third_party_settings: {  }
+    region: content
   mail:
     type: email_default
     weight: 2
@@ -37,6 +31,16 @@ content:
       size: 60
       placeholder: ''
     third_party_settings: {  }
+  order_items:
+    type: pos_order_item_widget
+    weight: 0
+    settings:
+      size: 60
+      placeholder: 'Enter a product name'
+      num_results: 10
+      purchasable_entity_view_mode: commerce_pos_product_select
+    third_party_settings: {  }
+    region: content
   uid:
     type: inline_entity_form_complex
     weight: 0
@@ -53,6 +57,8 @@ content:
 hidden:
   billing_profile: true
   created: true
+  field_cashier: true
+  field_register: true
   ip_address: true
   order_number: true
   state: true

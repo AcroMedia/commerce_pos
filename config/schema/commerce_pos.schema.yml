@@ -1,0 +1,16 @@
+field.widget.settings.pos_order_item_widget:
+  type: mapping
+  label: 'Commerce POS Order item widget settings'
+  mapping:
+    num_results:
+      type: integer
+      label: 'Number of results to display'
+    placeholder:
+      type: label
+      label: 'Placeholder'
+    purchasable_entity_view_mode:
+      type: string
+      label: 'Purchasable entity view mode'
+    size:
+      type: integer
+      label: 'Size'

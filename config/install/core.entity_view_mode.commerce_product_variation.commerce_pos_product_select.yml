@@ -1,0 +1,9 @@
+langcode: en
+status: true
+dependencies:
+  module:
+    - commerce_product
+id: commerce_product_variation.commerce_pos_product_select
+label: 'Commerce POS product select'
+targetEntityType: commerce_product_variation
+cache: true
