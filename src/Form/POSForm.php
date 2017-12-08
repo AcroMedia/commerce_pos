@@ -328,15 +328,6 @@ class POSForm extends ContentEntityForm {
     $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
     $number_formatter = $number_formatter_factory->createInstance();
 
-    foreach ($this->getOrderPayments() as $payment) {
-      $amount = $payment->getAmount();
-      $voided = $payment->getState()->value == 'voided' ? ' (Void)' : '';
-      $totals[] = [
-        $payment->getPaymentGateway()->label() . $voided,
-        $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode())),
-      ];
-    }
-
     $sub_total_price = $order->getSubtotalPrice();
     if (!empty($sub_total_price)) {
       $currency = Currency::load($sub_total_price->getCurrencyCode());
@@ -346,7 +337,7 @@ class POSForm extends ContentEntityForm {
       $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
     }
 
-    $totals[] = ['Subtotal', $formatted_amount];
+    $totals[] = [$this->t('Subtotal'), $formatted_amount];
 
     // Commerce appears to have a bug where if not adjustments exist, it will return a
     // 0 => null array, which will still trigger a foreach loop.
@@ -373,18 +364,49 @@ class POSForm extends ContentEntityForm {
       $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
     }
 
-    $totals[] = ['Total', $formatted_amount];
-
-    // Collect the remaining balance.
-    $remaining_balance = $this->getOrderBalance();
-    $currency = Currency::load($remaining_balance->getCurrencyCode());
-    $formatted_amount = $number_formatter->formatCurrency($remaining_balance->getNumber(), $currency);
-
-    $totals[] = ['Remaining Balance', $formatted_amount];
+    $totals[] = [$this->t('Total'), $formatted_amount];
 
     $form['totals']['totals'] = [
       '#type' => 'table',
       '#rows' => $totals,
+    ];
+
+    // Collect payments.
+    $payments = [];
+    $payment_totals = [];
+    foreach ($this->getOrderPayments() as $payment) {
+      $amount = $payment->getAmount();
+      $voided = $payment->getState()->value == 'voided' ? $this->t(' (Void)') : '';
+      $payments[] = [
+        $payment->getPaymentGateway()->label() . $voided,
+        $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode())),
+      ];
+      if (!isset($payment_totals[$amount->getCurrencyCode()])) {
+        // Initialise the payment total.
+        $payment_totals[$amount->getCurrencyCode()] = 0;
+      }
+      $payment_totals[$amount->getCurrencyCode()] += $amount->getNumber();
+    }
+    $form['totals']['payments'] = [
+      '#type' => 'table',
+      '#rows' => $payments,
+    ];
+
+    // Collect the balances.
+    $balances = [];
+    foreach ($payment_totals as $currency_code => $amount) {
+      $balances[] = [$this->t('Total Paid'), $number_formatter->formatCurrency($amount, Currency::load($currency_code))];
+    }
+    $remaining_balance = $this->getOrderBalance();
+    if ($remaining_balance->getNumber() > 0) {
+      $currency = Currency::load($remaining_balance->getCurrencyCode());
+      $formatted_amount = $number_formatter->formatCurrency($remaining_balance->getNumber(), $currency);
+      $balances[] = ['class' => 'commerce-pos--totals--to-pay', 'data' => [$this->t('To Pay'), $formatted_amount]];
+    }
+
+    $form['totals']['balance'] = [
+      '#type' => 'table',
+      '#rows' => $balances,
     ];
   }
 

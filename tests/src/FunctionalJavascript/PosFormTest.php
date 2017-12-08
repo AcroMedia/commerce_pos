@@ -91,7 +91,8 @@ class PosFormTest extends JavascriptTestBase {
     // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
-    $web_assert->pageTextContains('Remaining Balance $50.00');
+    $web_assert->pageTextContains('Total $50.00');
+    $web_assert->pageTextContains('To Pay $50.00');
 
     // After selecting something from the autocomplete list the value should be
     // blank again.
@@ -112,7 +113,8 @@ class PosFormTest extends JavascriptTestBase {
     // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
-    $web_assert->pageTextContains('Remaining Balance $100.00');
+    $web_assert->pageTextContains('Total $100.00');
+    $web_assert->pageTextContains('To Pay $100.00');
 
     // Add a T-Shirt.
     $autocomplete_field->setValue('T');
@@ -129,7 +131,8 @@ class PosFormTest extends JavascriptTestBase {
     // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][1][unit_price][number]', '23.20');
-    $web_assert->pageTextContains('Remaining Balance $123.20');
+    $web_assert->pageTextContains('Total $123.20');
+    $web_assert->pageTextContains('To Pay $123.20');
 
     // Click on the buttons to add another Jumper.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '3');
@@ -139,7 +142,8 @@ class PosFormTest extends JavascriptTestBase {
     // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
-    $web_assert->pageTextContains('Remaining Balance $173.20');
+    $web_assert->pageTextContains('Total $173.20');
+    $web_assert->pageTextContains('To Pay $173.20');
 
     // Change the price of jumpers on the form.
     // @todo Once https://www.drupal.org/project/commerce/issues/2923388 is
@@ -148,7 +152,7 @@ class PosFormTest extends JavascriptTestBase {
     // $web_assert->assertWaitOnAjaxRequest();
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '40.50');
     // // (3 * 40.5) + (1 * 23.20)
-    // $web_assert->pageTextContains('Remaining Balance $144.70');
+    // $web_assert->pageTextContains('To Pay $144.70');
 
     // Click on the buttons to remove all the jumpers.
     $this->getSession()->getPage()->findButton('remove_order_item_1')->click();
@@ -158,7 +162,8 @@ class PosFormTest extends JavascriptTestBase {
     // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
-    $web_assert->pageTextContains('Remaining Balance $23.20');
+    $web_assert->pageTextContains('Total $23.20');
+    $web_assert->pageTextContains('To Pay $23.20');
 
     // Set the quantity of t-shirts using the quantity form field.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '10');
@@ -168,13 +173,65 @@ class PosFormTest extends JavascriptTestBase {
     //   fixed, uncomment.
     // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '10.00');
-    $web_assert->pageTextContains('Remaining Balance $232.00');
+    $web_assert->pageTextContains('Total $232.00');
+    $web_assert->pageTextContains('To Pay $232.00');
 
     // Set the quantity to 0 to remove the T-Shirt.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '0');
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->pageTextNotContains('T-Shirt');
-    $web_assert->pageTextContains('Remaining Balance $0.00');
+    $web_assert->pageTextContains('Total $0.00');
+    $web_assert->pageTextNotContains('To Pay $0.00');
+
+    // Add a jumper and two t-shirts to test payment totals.
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+    $autocomplete_field->setValue('T');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+
+    $this->getSession()->getPage()->fillField('order_items[target_id][order_items][1][quantity]', '2');
+    $web_assert->assertWaitOnAjaxRequest();
+    // (1 * 50) + (2 * 23.20)
+    $web_assert->pageTextContains('Total $96.40');
+    $web_assert->pageTextContains('To Pay $96.40');
+
+    // Go to the payment page.
+    $this->click('.commerce-pos input[name="op"]');
+
+    $this->getSession()->getPage()->fillField('keypad[amount]', '50');
+    $this->click('input[name="commerce-pos-pay-keypad-add"]');
+    $web_assert->pageTextContains('Total $96.40');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Total Paid $50.00');
+    $web_assert->pageTextContains('To Pay $46.40');
+    $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
+    $this->assertTrue($button->hasAttribute('disabled'), 'Finish button is disabled');
+
+    $this->getSession()->getPage()->fillField('keypad[amount]', '46.40');
+    $this->click('input[name="commerce-pos-pay-keypad-add"]');
+    $web_assert->pageTextContains('Total $96.40');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Total Paid $96.40');
+    $web_assert->pageTextNotContains('To Pay');
+    $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
+    $this->assertFalse($button->hasAttribute('disabled'), 'Finish button is enabled');
+
+    // Clicking finish will bring us back to the order item screen - processing
+    // a new order.
+    $this->click('input[name="commerce-pos-finish"]');
+    $web_assert->pageTextContains('Total $0.00');
+    $web_assert->pageTextNotContains('Cash');
+    $web_assert->pageTextNotContains('To Pay');
+    $web_assert->pageTextNotContains('Jumper');
   }
 
   /**
