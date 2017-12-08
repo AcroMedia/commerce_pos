@@ -1,0 +1,7 @@
+name: Commerce POS Keypad Test
+description: Test module for the keypad
+type: module
+package: Testing
+core: 8.x
+dependencies:
+  - commerce_pos_keypad

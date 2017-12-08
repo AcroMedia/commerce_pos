@@ -5,3 +5,6 @@ form:
       css/commerce_pos_style.css: {}
   js:
     js/commerce_pos.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal

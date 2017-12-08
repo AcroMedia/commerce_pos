@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, Drupal, drupalSettings) {
   var inputBox = null;
 
   Drupal.behaviors.commercePosKeypadKeypad = {
@@ -258,4 +258,4 @@
     });
   };
 
-}(jQuery));
+}(jQuery, Drupal, drupalSettings));

@@ -1,4 +1,4 @@
-(function ($) {
+(function ($, Drupal) {
   Drupal.behaviors.commercePosSalePay = {
     attach: function (context, settings) {
       $('.commerce-pos-keypad-key', context).each(function () {
@@ -51,4 +51,4 @@
     }
   };
 
-} (jQuery));
+} (jQuery, Drupal));
