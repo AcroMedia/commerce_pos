@@ -257,9 +257,6 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
           'wrapper' => $wrapper_id,
           'event' => 'change',
         ],
-        // @todo Remove once commerce_price fields support AJAX, see
-        //   https://www.drupal.org/project/commerce/issues/2923388.
-        '#disabled' => TRUE,
       ],
       'quantity' => [
         '#title' => $this->t('Quantity'),
