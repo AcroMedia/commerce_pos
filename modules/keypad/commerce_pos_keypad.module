@@ -10,13 +10,6 @@
  */
 function commerce_pos_keypad_theme($existing, $type, $theme, $path) {
   return [
-    'commerce_pos_keypad_cash_input_box' => [
-      'variables' => [
-        'inputs' => [],
-        'currency_code' => '',
-        'denominations' => [],
-      ],
-    ],
     'commerce_pos_keypad_keypad' => [
       'variables' => [
         'input_type' => 'text',
@@ -56,60 +49,11 @@ function commerce_pos_keypad_element_info_alter(&$info) {
  */
 function commerce_pos_keypad_pre_render($element) {
   // Only preprocess items with #commerce_pos_keypad set.
-  if (isset($element['#commerce_pos_keypad'])) {
+  if (isset($element['#commerce_pos_keypad']) && $element['#commerce_pos_keypad'] === TRUE) {
     $element['#attached']['library'][] = 'commerce_pos_keypad/commerce_pos_keypad';
 
-    // Allow 'type' to be optional by providing a default.
-    if (isset($element['#commerce_pos_keypad']['type'])) {
-      switch ($element['#commerce_pos_keypad']['type']) {
-        case 'cash input':
-          $element = commerce_pos_keypad_pre_render_cash_input($element);
-          break;
-
-        case 'keypad':
-          $element = commerce_pos_keypad_pre_render_keypad($element);
-          break;
-
-        default:
-          $element = commerce_pos_keypad_pre_render_keypad($element);
-          break;
-      }
-    }
-    else {
-      $element = commerce_pos_keypad_pre_render_keypad($element);
-    }
+    $element = commerce_pos_keypad_pre_render_keypad($element);
   }
-
-  return $element;
-}
-
-/**
- * Alter a form element to add a cash input box to it.
- *
- * @param array $element
- *   The form element to alter.
- *
- * @return array
- *   The altered element.
- */
-function commerce_pos_keypad_pre_render_cash_input(array $element) {
-  // Get all the denominations that the user has configured for.
-  // TODO: Get the correct function that will return all denominations.
-  $denominations = commerce_pos_currency_denomination_get_denominations(variable_get('commerce_pos_default_currency_denomination_types', ['USD']));
-
-  // Get the themed html for the input box.
-  $input_box['input_box'] = [
-    '#theme' => 'commerce_pos_keypad_cash_input_box',
-    '#denominations' => $denominations,
-    '#currency_code' => isset($element['#commerce_pos_keypad']['currency_code']) ? $element['#commerce_pos_keypad']['currency_code'] : commerce_default_currency(),
-  ];
-  $input_box = render($input_box);
-
-  $element['#attached']['drupalSettings']['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadCashInput'] = [
-    'inputBox' => $input_box,
-  ];
-
-  $element['#attributes']['class'][] = 'commerce-pos-keypad-cash-input';
 
   return $element;
 }

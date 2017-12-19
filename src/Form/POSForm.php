@@ -125,7 +125,6 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
       '#id' => 'commerce-pos-sale-keypad-wrapper',
       '#tree' => TRUE,
-      '#theme' => 'commerce_pos_keypad',
     ];
 
     // If no triggering element is set, grab the default payment method.
@@ -150,11 +149,13 @@ class POSForm extends ContentEntityForm {
         ]),
         '#required' => TRUE,
         '#default_value' => $keypad_amount,
+        '#commerce_pos_keypad' => TRUE,
         '#attributes' => [
           'autofocus' => 'autofocus',
           'autocomplete' => 'off',
           'class' => [
             'commerce-pos-payment-keypad-amount',
+            'commerce-pos-keypad-keypad'
           ],
         ],
       ];

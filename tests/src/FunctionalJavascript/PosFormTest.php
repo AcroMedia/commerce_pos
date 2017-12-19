@@ -88,9 +88,7 @@ class PosFormTest extends JavascriptTestBase {
     // Assert that the product is listed as expected.
     $web_assert->pageTextContains('Jumper');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
     $web_assert->pageTextContains('Total $50.00');
     $web_assert->pageTextContains('To Pay $50.00');
 
@@ -110,9 +108,7 @@ class PosFormTest extends JavascriptTestBase {
 
     $web_assert->pageTextContains('Jumper');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '2.00');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
     $web_assert->pageTextContains('Total $100.00');
     $web_assert->pageTextContains('To Pay $100.00');
 
@@ -128,9 +124,7 @@ class PosFormTest extends JavascriptTestBase {
 
     $web_assert->pageTextContains('T-Shirt');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][1][quantity]', '1.00');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][1][unit_price][number]', '23.20');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][1][unit_price][number]', '23.20');
     $web_assert->pageTextContains('Total $123.20');
     $web_assert->pageTextContains('To Pay $123.20');
 
@@ -139,29 +133,24 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->pageTextContains('Jumper');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '3.00');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
     $web_assert->pageTextContains('Total $173.20');
     $web_assert->pageTextContains('To Pay $173.20');
 
     // Change the price of jumpers on the form.
-    // @todo Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, add test back.
-    // $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][unit_price][number]', '40.50');
-    // $web_assert->assertWaitOnAjaxRequest();
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '40.50');
-    // // (3 * 40.5) + (1 * 23.20)
-    // $web_assert->pageTextContains('To Pay $144.70');
+
+    $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][unit_price][number]', '40.50');
+    $web_assert->assertWaitOnAjaxRequest();
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '40.50');
+    // (3 * 40.5) + (1 * 23.20)
+    $web_assert->pageTextContains('To Pay $144.70');
 
     // Click on the buttons to remove all the jumpers.
     $this->getSession()->getPage()->findButton('remove_order_item_1')->click();
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->pageTextNotContains('Jumper');
     $web_assert->pageTextContains('T-Shirt');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
     $web_assert->pageTextContains('Total $23.20');
     $web_assert->pageTextContains('To Pay $23.20');
 
@@ -169,9 +158,7 @@ class PosFormTest extends JavascriptTestBase {
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '10');
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->pageTextContains('T-Shirt');
-    // @todo Once Once https://www.drupal.org/project/commerce/issues/2923388 is
-    //   fixed, uncomment.
-    // $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '10.00');
     $web_assert->pageTextContains('Total $232.00');
     $web_assert->pageTextContains('To Pay $232.00');
