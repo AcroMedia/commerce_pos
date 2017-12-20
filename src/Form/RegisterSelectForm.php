@@ -5,6 +5,7 @@ namespace Drupal\commerce_pos\Form;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Url;
 
 /**
  * Show a form to select the current register for this session.
@@ -26,6 +27,11 @@ class RegisterSelectForm extends FormBase implements FormInterface {
 
     if (empty($registers)) {
       // Return no registers error, link to setup registers.
+      drupal_set_message($this->t('POS Orders can\'t be created until a register has been created. <a href=":url">Add a new register.</a>', [
+        ':url' => URL::fromRoute('entity.commerce_pos_register.add_form')->toString(),
+      ]), 'error');
+
+      return $form;
     }
 
     $register_options = [];
