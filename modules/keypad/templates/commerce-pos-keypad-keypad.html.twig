@@ -13,19 +13,6 @@
 #}
 
   <div class="commerce-pos-keypad">
-    <div class="commerce-pos-keypad-top">
-      <div class="commerce-pos-keypad-quick-pay">
-          {%  if element.quick_pay %}
-            <label>Quick Pay</label>
-              {{ element.quick_pay }}
-          {% endif %}
-      </div>
-      <div class="commerce-pos-keypad-title"></div>
-      <div class="commerce-pos-keypad-close"></div>
-      <div class="commerce-pos-keypad-amount">
-          {{ element.amount }}
-      </div>
-    </div>
     <div class="commerce-pos-keypad-keys">
       <div class="commerce-pos-keypad-numbers">
         <div class="commerce-pos-keypad-key" data-keybind="7">7</div>
@@ -44,11 +31,9 @@
       </div>
 
       <div class="commerce-pos-keypad-actions">
-        <div class="commerce-pos-keypad-key" data-keybind="">&lt;</div>
-        <div class="commerce-pos-keypad-key clear-key" data-keybind="Clear">C</div>
-          {{ element.add }}
+        <div class="commerce-pos-keypad-key" data-key-action="backspace">&lt;</div>
+        <div class="commerce-pos-keypad-key clear-key" data-key-action="clear">C</div>
       </div>
     </div>
-      {{ element.children }}
   </div>
 

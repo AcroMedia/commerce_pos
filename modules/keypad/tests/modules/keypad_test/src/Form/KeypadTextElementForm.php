@@ -21,14 +21,13 @@ class KeypadTextElementForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
 
     $form['cashier_id'] = [
       '#type' => 'textfield',
       '#title' => t('Cashier ID'),
       '#description' => t('ID of the cashier logging in'),
       '#commerce_pos_keypad' => [
-        'type' => 'keypad',
+        'type' => 'icon',
         'events' => [
           '.commerce-pos-cashier-login-form-log-in' => [
             'click' => [],

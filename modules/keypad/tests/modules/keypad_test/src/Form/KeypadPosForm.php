@@ -21,26 +21,20 @@ class KeypadPosForm extends FormBase {
    * {@inheritdoc}
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
-    $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
-    $form['#attached']['library'][] = 'commerce_pos/form';
-
     $form['keypad'] = [
       '#type' => 'container',
       '#id' => 'commerce-pos-sale-keypad-wrapper',
       '#tree' => TRUE,
-      '#theme' => 'commerce_pos_keypad',
     ];
     $form['keypad']['amount'] = [
       '#type' => 'textfield',
       '#title' => t('Enter amount'),
       '#required' => TRUE,
       '#default_value' => 100,
+      '#commerce_pos_keypad' => TRUE,
       '#attributes' => [
         'autofocus' => 'autofocus',
         'autocomplete' => 'off',
-        'class' => [
-          'commerce-pos-payment-keypad-amount',
-        ],
       ],
     ];
 

@@ -79,11 +79,6 @@ class POSForm extends ContentEntityForm {
    * Build the payment form, this is the second and final step of a POS order.
    */
   public function buildPaymentForm(array $form, FormStateinterface $form_state) {
-    // @todo not really the right way to do this. I think the
-    // commerce_pos_keypad should override the template to add the library in.
-    if ($this->moduleHandler->moduleExists('commerce_pos_keypad')) {
-      $form['#attached']['library'][] = 'commerce_pos_keypad/keypad';
-    }
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
     $wrapper_id = 'commerce-pos-pay-form-wrapper';
@@ -155,7 +150,6 @@ class POSForm extends ContentEntityForm {
           'autocomplete' => 'off',
           'class' => [
             'commerce-pos-payment-keypad-amount',
-            'commerce-pos-keypad-keypad'
           ],
         ],
       ];

@@ -19,21 +19,6 @@ function commerce_pos_keypad_theme($existing, $type, $theme, $path) {
 }
 
 /**
- * Implements template_preprocess_hook().
- */
-function template_preprocess_commerce_pos_keypad_cash_input_box(&$variables) {
-  $variables['inputs'] = [];
-  foreach ($variables['denominations'] as $currency_id => $result) {
-    foreach ($result as $denomination_id => $denomination) {
-      $variables['inputs'][$denomination->denomination_name] = [
-        'title' => $denomination->denomination_title,
-        'amount' => $denomination->denomination_amount,
-      ];
-    }
-  }
-}
-
-/**
  * Implements hook_element_info_alter().
  */
 function commerce_pos_keypad_element_info_alter(&$info) {
@@ -49,8 +34,9 @@ function commerce_pos_keypad_element_info_alter(&$info) {
  */
 function commerce_pos_keypad_pre_render($element) {
   // Only preprocess items with #commerce_pos_keypad set.
-  if (isset($element['#commerce_pos_keypad']) && $element['#commerce_pos_keypad'] === TRUE) {
-    $element['#attached']['library'][] = 'commerce_pos_keypad/commerce_pos_keypad';
+  if (!empty($element['#commerce_pos_keypad'])) {
+    $element['#attached']['library'][] = 'commerce_pos_keypad/keypad';
+    $element['#attributes']['class'][] = 'commerce-pos-keypad-keypad';
 
     $element = commerce_pos_keypad_pre_render_keypad($element);
   }
@@ -78,6 +64,10 @@ function commerce_pos_keypad_pre_render_keypad(array $element) {
   $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadKeypad'] = [
     'inputBox' => $input_box,
   ];
+
+  if(isset($element['#commerce_pos_keypad']['type']) && $element['#commerce_pos_keypad']['type'] == "icon") {
+    $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadIcon'] = TRUE;
+  }
 
   // If events were declared, add them to the settings.
   if (isset($element['#commerce_pos_keypad']['events'])) {

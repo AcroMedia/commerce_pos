@@ -28,11 +28,16 @@ class KeypadTest extends JavascriptTestBase {
     $this->drupalGet('commerce_pos_keypad_pos_test');
     $web_assert->fieldValueEquals('keypad[amount]', '100');
     $this->getSession()->getPage()->find('xpath', '//*[@id="commerce-pos-sale-keypad-wrapper"]/div/div[2]/div[1]/div[1]');
+    // When the first character is typed, the input is automatically cleared, like placeholder text
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="7"]')[0]->click();
-    $web_assert->fieldValueEquals('keypad[amount]', '1007');
-    $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind=""]')[0]->click();
-    $web_assert->fieldValueEquals('keypad[amount]', '100');
-    $this->xpath('//div[@class="commerce-pos-keypad-key clear-key" and @data-keybind="Clear"]')[0]->click();
+    $web_assert->fieldValueEquals('keypad[amount]', '7');
+    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen1.jpg');
+    $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="0"]')[0]->click();
+    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen2.jpg');
+    $web_assert->fieldValueEquals('keypad[amount]', '70');
+    $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-key-action="backspace"]')[0]->click();
+    $web_assert->fieldValueEquals('keypad[amount]', '7');
+    $this->xpath('//div[@class="commerce-pos-keypad-key clear-key" and @data-key-action="clear"]')[0]->click();
     $web_assert->fieldValueEquals('keypad[amount]', '');
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="000"]')[0]->click();
@@ -49,7 +54,9 @@ class KeypadTest extends JavascriptTestBase {
   public function testCommerceTextForm() {
     $web_assert = $this->assertSession();
     $this->drupalGet('commerce_pos_keypad_text_test');
+    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen3.jpg');
     $this->click('.commerce-pos-keypad-keypad-icon');
+    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen4.jpg');
     // Press all of the buttons.
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="2"]')[0]->click();
@@ -64,15 +71,12 @@ class KeypadTest extends JavascriptTestBase {
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="."]')[0]->click();
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
     // This is the delete button.
-    $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind=""]')[0]->click();
-    $this->xpath('//div[@class="commerce-pos-keypad-key commerce-pos-keypad-action" and @data-key-action="submit"]')[0]->click();
+    $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-key-action="backspace"]')[0]->click();
     $web_assert->fieldValueEquals('cashier_id', '1234567890.');
-    $this->click('.commerce-pos-keypad-keypad-icon');
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
-    $web_assert->fieldValueEquals('commerce-pos-keypad-keypad-value', '1234567890.1');
-    $this->click('.commerce-pos-keypad-close');
-    // After clicking close the value is not updated.
-    $web_assert->fieldValueEquals('cashier_id', '1234567890.');
+
+    // TODO Uncomment once popup and close functionality are added back in, right now keypad is always inline
+    //$this->click('.commerce-pos-keypad-close');
   }
 
 }
