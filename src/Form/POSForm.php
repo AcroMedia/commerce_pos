@@ -3,16 +3,58 @@
 namespace Drupal\commerce_pos\Form;
 
 use Drupal\commerce_price\Price;
+use Drupal\commerce_store\CurrentStore;
+use Drupal\Component\Datetime\TimeInterface;
 use Drupal\Core\Entity\ContentEntityForm;
+use Drupal\Core\Entity\EntityManagerInterface;
+use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\commerce_order\Entity\Order;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Provides the main POS form for using the POS to checkout customers.
  */
 class POSForm extends ContentEntityForm {
+
+  /**
+   * The current store object.
+   *
+   * @var \Drupal\commerce_store\CurrentStore
+   */
+  protected $currentStore;
+
+  /**
+   * Constructs a new POSForm object.
+   *
+   * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
+   *   The entity manager.
+   * @param \Drupal\Core\Entity\EntityTypeBundleInfoInterface $entity_type_bundle_info
+   *   The entity type bundle info.
+   * @param \Drupal\Component\Datetime\TimeInterface $time
+   *   The time.
+   * @param \Drupal\commerce_store\CurrentStore $current_store
+   *   The current store object.
+   */
+  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, CurrentStore $current_store) {
+    parent::__construct($entity_manager, $entity_type_bundle_info, $time);
+
+    $this->currentStore = $current_store;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public static function create(ContainerInterface $container) {
+    return new static(
+      $container->get('entity.manager'),
+      $container->get('entity_type.bundle.info'),
+      $container->get('datetime.time'),
+      $container->get('commerce_store.current_store')
+    );
+  }
 
   /**
    * {@inheritdoc}
@@ -136,12 +178,14 @@ class POSForm extends ContentEntityForm {
       $number_formatter = $number_formatter_factory->createInstance();
       $order_balance_amount_format = $number_formatter->formatCurrency($order_balance->getNumber(), Currency::load($order_balance->getCurrencyCode()));
       $keypad_amount = preg_replace('/[^0-9\.,]/', '', $order_balance_amount_format);
-
+      // Fetching fraction digit to set as step.
+      $fractionDigits = $this->currentStore->getStore()->getDefaultCurrency()->getFractionDigits();
       $form['keypad']['amount'] = [
-        '#type' => 'textfield',
+        '#type' => 'number',
         '#title' => t('Enter @title Amount', [
           '@title' => $payment_gateways[$option_id]->label(),
         ]),
+        '#step' => pow(0.1, $fractionDigits),
         '#required' => TRUE,
         '#default_value' => $keypad_amount,
         '#commerce_pos_keypad' => TRUE,
