@@ -57,6 +57,17 @@ class RegisterTest extends CommerceBrowserTestBase {
   }
 
   /**
+   * Tests that proper messaging shows if a register can't be created.
+   */
+  public function testNoStore() {
+    // We need to delete the pre-setup store so we can trigger the error state.
+    $this->store->delete();
+
+    $this->drupalGet('admin/commerce/config/pos/register/add');
+    $this->assertSession()->pageTextContains(t('Registers can\'t be created until a store has been added'));
+  }
+
+  /**
    * Tests for creating register programmatically and through the form.
    */
   public function testCreateRegister() {

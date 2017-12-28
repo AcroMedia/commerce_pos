@@ -138,7 +138,6 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $173.20');
 
     // Change the price of jumpers on the form.
-
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][unit_price][number]', '40.50');
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '40.50');

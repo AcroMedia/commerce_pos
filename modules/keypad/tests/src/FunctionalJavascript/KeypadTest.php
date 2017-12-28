@@ -28,7 +28,7 @@ class KeypadTest extends JavascriptTestBase {
     $this->drupalGet('commerce_pos_keypad_pos_test');
     $web_assert->fieldValueEquals('keypad[amount]', '100');
     $this->getSession()->getPage()->find('xpath', '//*[@id="commerce-pos-sale-keypad-wrapper"]/div/div[2]/div[1]/div[1]');
-    // When the first character is typed, the input is automatically cleared, like placeholder text
+    // When the first character is typed, the input is automatically cleared, like placeholder text.
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="7"]')[0]->click();
     $web_assert->fieldValueEquals('keypad[amount]', '7');
     $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen1.jpg');
@@ -76,7 +76,7 @@ class KeypadTest extends JavascriptTestBase {
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
 
     // TODO Uncomment once popup and close functionality are added back in, right now keypad is always inline
-    //$this->click('.commerce-pos-keypad-close');
+    // $this->click('.commerce-pos-keypad-close');.
   }
 
 }

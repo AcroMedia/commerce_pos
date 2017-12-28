@@ -65,7 +65,7 @@ function commerce_pos_keypad_pre_render_keypad(array $element) {
     'inputBox' => $input_box,
   ];
 
-  if(isset($element['#commerce_pos_keypad']['type']) && $element['#commerce_pos_keypad']['type'] == "icon") {
+  if (isset($element['#commerce_pos_keypad']['type']) && $element['#commerce_pos_keypad']['type'] == "icon") {
     $js['commerce_pos_keypad']['commerce_pos_keypad']['commercePosKeypadIcon'] = TRUE;
   }
 
