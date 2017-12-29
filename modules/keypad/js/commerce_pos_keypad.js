@@ -9,6 +9,7 @@
         $('.commerce-pos-keypad-keypad').once('commerce-pos-keypad-keypad').each(function () {
           var uniqueClass = 'commerce-pos-keypad-instance-' + counter;
           $(this).addClass(uniqueClass);
+          $(this).select();
           inputBox = new KeypadInputBox("." + uniqueClass);
           counter++;
         });
@@ -32,7 +33,7 @@
     }
   };
 
-  var KeypadInputBox = function(uniqueIdentifier) {
+  var KeypadInputBox = function (uniqueIdentifier) {
     this.output = '';
     this.submitEvents = [];
     this.uniqueIdentifier = uniqueIdentifier;
@@ -43,19 +44,19 @@
     this.textInput = element;
   };
 
-  KeypadInputBox.prototype.toggle = function toggle() {
+  KeypadInputBox.prototype.toggle = function toggle () {
     $(this.uniqueIdentifier).parent().find('.commerce-pos-keypad-keys').toggle();
   };
 
-  KeypadInputBox.prototype.show = function show() {
+  KeypadInputBox.prototype.show = function show () {
     $(this.uniqueIdentifier).parent().find('.commerce-pos-keypad-keys').show();
   };
 
-  KeypadInputBox.prototype.hide = function hide() {
+  KeypadInputBox.prototype.hide = function hide () {
     $(this.uniqueIdentifier).parent().find('.commerce-pos-keypad-keys').hide();
   };
 
-  KeypadInputBox.prototype.submit = function submit() {
+  KeypadInputBox.prototype.submit = function submit () {
     if (this.submitEvents) {
       this.textInput.val(this.output);
 
@@ -68,7 +69,7 @@
     }
   };
 
-  KeypadInputBox.prototype.construct = function construct() {
+  KeypadInputBox.prototype.construct = function construct () {
     $(this.uniqueIdentifier).after(drupalSettings.commerce_pos_keypad.commerce_pos_keypad.commercePosKeypadKeypad.inputBox);
     this.inputBox = $(this.uniqueIdentifier).parent();
     // The element to update with the current value of what is entered by the
@@ -76,7 +77,7 @@
     this.valueElement = this.inputBox.find('input');
     var self = this;
 
-    $('.commerce-pos-keypad-close').on('click', function(e) {
+    $('.commerce-pos-keypad-close').on('click', function (e) {
       self.hide();
       e.preventDefault();
       return false;
@@ -88,8 +89,8 @@
       });
     }
 
-    this.inputBox.find('.commerce-pos-keypad .commerce-pos-keypad-key').each(function(index) {
-      $(this).on('click', function() {
+    this.inputBox.find('.commerce-pos-keypad .commerce-pos-keypad-key').each(function (index) {
+      $(this).on('click', function () {
         var _this = $(this);
 
         if (_this.data('keybind') !== undefined) {
@@ -115,7 +116,7 @@
     });
   };
 
-  KeypadInputBox.prototype.updateValue = function() {
+  KeypadInputBox.prototype.updateValue = function () {
     this.valueElement.val(this.output);
   };
 

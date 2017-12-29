@@ -22,7 +22,10 @@ function commerce_pos_keypad_theme($existing, $type, $theme, $path) {
  * Implements hook_element_info_alter().
  */
 function commerce_pos_keypad_element_info_alter(&$info) {
-  $form_elements = ['textfield', 'password'];
+  // TODO this code seems inflexible, the user may well want to use keypad on other field types,
+  // but the solution seems to be adding the pre-render to literally every single field type and
+  // that doesn't seem good either.
+  $form_elements = ['textfield', 'password', 'number'];
 
   foreach ($form_elements as $element) {
     $info[$element]['#pre_render'][] = 'commerce_pos_keypad_pre_render';
