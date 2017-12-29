@@ -1,0 +1,5 @@
+commerce_pos_label.print:
+  title: 'Print Labels'
+  parent: 'commerce_pos.base'
+  description: 'Print product labels'
+  route_name: 'commerce_pos_label.print_labels'

@@ -8,6 +8,7 @@ services:
 
   commerce_pos.upc:
     class: Drupal\commerce_pos\UPC
+    arguments: ['@entity_type.manager']
 
   commerce_pos.current_order:
     class: Drupal\commerce_pos\CurrentOrder

@@ -19,15 +19,6 @@ class CurrentOrderTest extends CommerceBrowserTestBase {
    * @var array
    */
   public static $modules = [
-    'entity_reference_revisions',
-    'path',
-    'telephone',
-    'user',
-    'profile',
-    'state_machine',
-    'commerce_product',
-    'commerce_payment',
-    'commerce_order',
     'commerce_pos',
   ];
 

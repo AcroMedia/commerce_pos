@@ -11,6 +11,8 @@ var gutil = require('gulp-util');
 
 var config = {
   'sassDirectories': [
+    { src: './modules/label/sass/labels/*.scss', dest: './modules/label/css/labels'},
+    { src: './modules/label/sass/*.scss', dest: './modules/label/css'},
     { src: './modules/keypad/sass/**/*.scss', dest: './modules/keypad/css'},
     { src: './sass/**/*.scss', dest: './css' }
   ]

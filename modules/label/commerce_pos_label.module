@@ -1,0 +1,118 @@
+<?php
+
+/**
+ * @file
+ * Provides the ability to print labels for products.
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function commerce_pos_label_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the commerce_pos_label module.
+    case 'help.page.commerce_pos_label':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides the ability to generate and print product labels.') . '</p>';
+
+      $label_formats = commerce_pos_label_get_label_formats();
+
+      // Print out our currently defined label formats.
+      if (!empty($label_formats)) {
+        $output .= '<strong>' . t('Defined label format(s):') . '</strong>';
+
+        foreach ($label_formats as $label_format) {
+          $output .= '<br/>' . $label_format['title']->render();
+        }
+      }
+
+      return $output;
+
+    default:
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_label_theme() {
+  $theme['commerce_pos_labels'] = [
+    'variables' => [
+      'labels' => [],
+    ],
+    'template' => 'commerce-pos-labels',
+  ];
+
+  $theme['commerce_pos_label'] = [
+    'variables' => [
+      'barcode' => NULL,
+      'description' => NULL,
+      'format' => NULL,
+      'price' => NULL,
+      'product_id' => NULL,
+      'title' => NULL,
+    ],
+    'template' => 'commerce-pos-label',
+  ];
+
+  return $theme;
+}
+
+/**
+ * Implements hook_theme_suggestions_HOOK().
+ */
+function commerce_pos_label_theme_suggestions_commerce_pos_label(array $variables) {
+  $suggestions = [];
+  if (isset($variables['format'])) {
+    $suggestions[] = 'commerce_pos_label__' . $variables['format'];
+  }
+  return $suggestions;
+}
+
+/**
+ * Retrieves a list of possible formats that labels can be printed in.
+ *
+ * @return array
+ *   A list of label formats.
+ */
+function commerce_pos_label_get_label_formats() {
+  /** @var \Drupal\commerce_pos_label\LabelFormatManager $label_manager */
+  $label_manager = \Drupal::service('plugin.manager.label_format');
+  return $label_manager->getDefinitions();
+}
+
+/**
+ * Retrieves the definition for a specific label format.
+ *
+ * @param string $format_name
+ *   The ID of a label format.
+ *
+ * @return array|false
+ *   A label format definition or FALSE.
+ */
+function commerce_pos_label_format_load($format_name) {
+  $formats = commerce_pos_label_get_label_formats();
+  return (isset($formats[$format_name]) ? $formats[$format_name] : FALSE);
+}
+
+/**
+ * Implements hook_preprocess_HOOK().
+ */
+function commerce_pos_label_preprocess_commerce_pos_label(&$variables) {
+  // Generate a barcode for a label's UPC.
+  /** @var \Drupal\commerce_pos_label\BarcodeGenerator $barcodeGenerator */
+  $barcodeGenerator = \Drupal::getContainer()->get('commerce_pos_label.barcode_generator');
+  if (!empty($variables['barcode'])) {
+    $barcode = $barcodeGenerator->generate($variables['barcode']);
+    if ($barcode) {
+      $variables['barcode'] = base64_encode($barcode);
+    }
+    else {
+      // If we fail to generate the barcode, omit it.
+      $variables['barcode'] = '';
+    }
+  }
+}

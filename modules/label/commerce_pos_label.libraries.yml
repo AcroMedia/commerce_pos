@@ -1,0 +1,12 @@
+label:
+  version: VERSION
+  css:
+    layout:
+      css/commerce_pos_label.css: {}
+  js:
+    js/commerce_pos_label.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.ajax

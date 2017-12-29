@@ -1,0 +1,10 @@
+{
+  "name": "drupal/commerce_pos_label",
+  "type": "drupal-module",
+  "description": "Commerce POS label printing.",
+  "license": "GPL-2.0+",
+  "require": {
+    "picqer/php-barcode-generator": "^0.2.2"
+  },
+  "minimum-stability": "dev"
+}

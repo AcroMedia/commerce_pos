@@ -1,0 +1,1 @@
+{"version":3,"file":"commerce_pos_label.css","sources":["commerce_pos_label.scss"],"sourcesContent":["#commerce-pos-label-form-container .commerce-pos-label-btn-add {\n  margin-bottom: 1em;\n}\n"],"mappings":"AAAA,AAAmC,kCAAD,CAAC,2BAA2B,AAAC,CAC7D,aAAa,CAAE,GAAI,CACpB","names":[]}

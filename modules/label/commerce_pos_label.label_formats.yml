@@ -1,0 +1,6 @@
+commerce_pos_label_30334:
+  title: Dymo 30334 - 1 1/4" x 2 1/4"
+  css: 'css/labels/commerce_pos_label.label.dymo.css'
+  dimensions:
+    width: 2.25
+    height: 1.0

@@ -1,0 +1,15 @@
+commerce_pos_label.print_labels:
+ path: 'admin/commerce/pos/labels'
+ defaults:
+   _title: 'Print labels'
+   _form: '\Drupal\commerce_pos_label\Form\PrintLabelsForm'
+ requirements:
+   _permission: 'commerce pos print labels'
+
+commerce_pos_label.print_label:
+ path: 'admin/commerce/pos/labels/{commerce_product_variation}'
+ defaults:
+   _title: 'Print labels'
+   _form: '\Drupal\commerce_pos_label\Form\PrintLabelsForm'
+ requirements:
+   _permission: 'commerce pos print labels'

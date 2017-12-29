@@ -19,8 +19,14 @@ entity.commerce_pos_register.collection:
   parent: 'commerce_pos.configuration'
   weight: 99
 
+commerce_pos.base:
+  title: 'Point of Sale'
+  route_name: 'commerce_pos.base'
+  parent: 'commerce.admin_commerce'
+  description: 'Use Point of Sale'
+
 commerce_pos.main:
   title: 'Point of Sale'
   route_name: 'commerce_pos.main'
-  parent: 'commerce.admin_commerce'
+  parent: 'commerce_pos.base'
   description: 'Point of Sale Interface'

@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Default template for a single labels.
+ *
+ * Available variables:
+ * - barcode
+ * - description
+ * - price
+ * - title
+ *
+ * @ingroup themeable
+ */
+#}
+
+<div class="commerce-pos-label">
+    <div class="title">
+        {{ title }}
+    </div>
+    <div class="description">
+        {{ description }}
+    </div>
+    <div class="price">
+        {{ price }}
+    </div>
+    <div class="barcode">
+        <img src="data:image/png;base64,{{ barcode | raw }}">
+    </div>
+</div>

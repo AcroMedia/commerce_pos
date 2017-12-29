@@ -1,0 +1,6 @@
+services:
+  plugin.manager.label_format:
+    class: Drupal\commerce_pos_label\LabelFormatManager
+    arguments: ['@module_handler', '@cache.discovery']
+  commerce_pos_label.barcode_generator:
+    class: Drupal\commerce_pos_label\BarcodeGenerator

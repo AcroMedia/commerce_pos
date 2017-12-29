@@ -1,0 +1,59 @@
+@page {
+  margin: 2mm 0 0 0;
+  padding: 0;
+  font-size: 12px;
+}
+
+body {
+  font-size: 12px;
+}
+
+.commerce-pos-label {
+  padding: 0;
+
+  @media print {
+  page-break-after: always;
+}
+
+  * {
+    margin: 0;
+    padding: 0;
+}
+
+  font-family: Arial, sans-serif;
+  margin: 0 auto;
+  text-align: center;
+  font-size: 12px;
+  text-transform: uppercase;
+
+  .barcode {
+    margin: 0.4em 0;
+}
+
+  .description {
+    font-size: 0.85em;
+}
+
+  &.no-description {
+    .barcode {
+      margin: 0.9em 0 ;
+  }
+}
+
+  img {
+    display: inline-block;
+}
+
+  div {
+    white-space: nowrap;
+    width: 100%;
+    overflow: hidden;
+    -ms-text-overflow: ellipsis;
+    text-overflow: ellipsis;
+
+    &.price {
+      font-size: 2em;
+  }
+}
+
+}

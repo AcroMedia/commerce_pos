@@ -23,8 +23,6 @@ class PosFormTest extends JavascriptTestBase {
    */
   public static $modules = [
     'commerce_pos',
-    // @todo commerce_pos has a circular dependency on commerce_pos_keypad
-    'commerce_pos_keypad',
   ];
 
   /**
@@ -68,7 +66,7 @@ class PosFormTest extends JavascriptTestBase {
    */
   public function testCommercePosForm() {
     $web_assert = $this->assertSession();
-    $this->drupalGet('admin/commerce/pos');
+    $this->drupalGet('admin/commerce/pos/main');
     // There is only one register.
     $web_assert->fieldValueEquals('register', 1);
     $web_assert->pageTextContains('Test register');
@@ -234,7 +232,7 @@ class PosFormTest extends JavascriptTestBase {
     $form_display->setComponent('order_items', $settings)->save();
 
     // Get to the order form.
-    $this->drupalPostForm('admin/commerce/pos', [], 'Select Register');
+    $this->drupalPostForm('admin/commerce/pos/main', [], 'Select Register');
 
     $autocomplete_field = $this->getSession()
       ->getPage()
@@ -242,7 +240,7 @@ class PosFormTest extends JavascriptTestBase {
     $this->assertEquals($settings['settings']['placeholder'], $autocomplete_field->getAttribute('placeholder'));
 
     // Ensure that the auto-complete only returns 1 value.
-    $this->drupalGet('admin/commerce/pos');
+    $this->drupalGet('admin/commerce/pos/main');
     $autocomplete_field->setValue('T');
     $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
     $web_assert->waitOnAutocomplete();
