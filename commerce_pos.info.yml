@@ -9,6 +9,7 @@ dependencies:
   - commerce:commerce_product
   - telephone
   - inline_entity_form
+  - commerce_pos:commerce_pos_keypad
 config_devel:
   install:
     - commerce_store.commerce_store_type.physical
