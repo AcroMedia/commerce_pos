@@ -1,0 +1,21 @@
+receipt:
+  version: 1.x
+  css:
+    theme:
+      css/commerce_pos_receipt.css: {}
+  js:
+    js/commerce_pos_receipt.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.ajax
+jQuery.print:
+  remote: https://github.com/DoersGuild/jQuery.print
+  version: 1.5.1
+  license:
+    name: CC BY 3.0
+    url: https://github.com/DoersGuild/jQuery.print/blob/master/LICENSE
+    gpl-compatible: no
+  js:
+    /libraries/jQuery.print/jQuery.print.js: {}

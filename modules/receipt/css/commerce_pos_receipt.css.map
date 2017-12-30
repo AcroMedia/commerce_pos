@@ -1,0 +1,1 @@
+{"version":3,"file":"commerce_pos_receipt.css","sources":["commerce_pos_receipt.scss"],"sourcesContent":["#commerce-pos-receipt {\n  display: none;\n}\n"],"mappings":"AAAA,AAAA,qBAAqB,AAAC,CACpB,OAAO,CAAE,IAAK,CACf","names":[]}

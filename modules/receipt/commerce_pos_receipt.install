@@ -1,0 +1,15 @@
+<?php
+
+/**
+ * @file
+ * Contains commerce_pos_receipt.install.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function commerce_pos_receipt_uninstall() {
+  // Remove states.
+  Drupal::state()->delete('commerce_pos_receipt.header');
+  Drupal::state()->delete('commerce_pos_receipt.footer');
+}

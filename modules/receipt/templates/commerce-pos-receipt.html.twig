@@ -1,0 +1,20 @@
+{#
+/**
+* @file
+* Receipt document.
+*
+* Available variables:
+* - receipt: The receipt.
+*
+* @ingroup themeable
+*/
+#}
+
+{{ attach_library('commerce_pos_receipt/receipt') }}
+{{ attach_library('commerce_pos_receipt/jQuery.print') }}
+<div class="commerce-pos-receipt">
+    <div class="receipt-print">{{ receipt.print }}</div>
+    <div class="receipt-header">{{ receipt.header }}</div>
+    <div class="receipt-body">{{ receipt.body }}</div>
+    <div class="receipt-footer">{{ receipt.footer }}</div>
+</div>

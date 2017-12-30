@@ -91,6 +91,10 @@ class POSForm extends ContentEntityForm {
    * Build the POS Order Form.
    */
   protected function buildOrderForm(array $form, FormStateInterface $form_state) {
+    /* @var \Drupal\commerce_order\Entity\Order $order */
+    $order = $this->entity;
+    $form_state->set('commerce_pos_order_id', $order->id());
+
     $form = parent::buildForm($form, $form_state);
 
     $form['customer'] = [
@@ -104,7 +108,7 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
     ];
 
-    $form['actions']['submit']['#value'] = t('Add Payment');
+    $form['actions']['submit']['#value'] = t('Payments and Completion');
     // Ensure the user is redirected back to this page after deleting an order.
     if (isset($form['actions']['delete']['#url']) && $form['actions']['delete']['#url'] instanceof Url) {
       $form['actions']['delete']['#url']->mergeOptions([
@@ -128,6 +132,11 @@ class POSForm extends ContentEntityForm {
     $form['#prefix'] = '<div id="' . $wrapper_id . '" class="sale">';
     $form['#suffix'] = '</div>';
     $form['#validate'][] = '::validatePaymentForm';
+
+    $form['order_id'] = [
+      '#type' => 'value',
+      '#value' => $order->id(),
+    ];
 
     $form['payment_gateway'] = [
       '#type' => 'container',
@@ -207,7 +216,7 @@ class POSForm extends ContentEntityForm {
 
       $form['keypad']['add'] = [
         '#type' => 'submit',
-        '#value' => t('Add'),
+        '#value' => t('Add Payment'),
         '#name' => 'commerce-pos-pay-keypad-add',
         '#submit' => ['::submitForm'],
         '#payment_gateway_id' => $option_id,
@@ -215,21 +224,21 @@ class POSForm extends ContentEntityForm {
       ];
     }
 
+    $form['actions']['finish'] = [
+      '#type' => 'submit',
+      '#value' => t('Complete Order'),
+      '#disabled' => !$balance_paid,
+      '#name' => 'commerce-pos-finish',
+      '#submit' => ['::submitForm'],
+      '#element_key' => 'finish-order',
+    ];
+
     $form['actions']['back'] = [
       '#type' => 'submit',
       '#value' => t('Back To Order'),
       '#name' => 'commerce-pos-back-to-order',
       '#submit' => ['::submitForm'],
       '#element_key' => 'back-to-order',
-    ];
-
-    $form['actions']['finish'] = [
-      '#type' => 'submit',
-      '#value' => t('Finish'),
-      '#disabled' => !$balance_paid,
-      '#name' => 'commerce-pos-finish',
-      '#submit' => ['::submitForm'],
-      '#element_key' => 'finish-order',
     ];
 
     return $form;
@@ -290,6 +299,9 @@ class POSForm extends ContentEntityForm {
     if ($step == 'payment') {
       if ($triggering_element['#element_key'] == 'add-payment') {
         $this->submitPayment($form, $form_state);
+        // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
+        // also helps if we're loading it somewhere else, like for the receipt trickyness.
+        $this->entity->save();
       }
       elseif ($triggering_element['#element_key'] == 'back-to-order') {
         $form_state->set('step', 'order');
@@ -314,11 +326,14 @@ class POSForm extends ContentEntityForm {
     $triggering_element = $form_state->getTriggeringElement();
     $store = $this->entity->getStore();
     $default_currency = $store->getDefaultCurrency();
+
+    // Right now all the payment methods are manual, we'll have to change this up
+    // once we want to support integrated payment methods
     $payment_gateway = $triggering_element['#payment_gateway_id'];
     $values = [
       'payment_gateway' => $payment_gateway,
       'order_id' => $this->entity->id(),
-      'state' => 'pending',
+      'state' => 'completed',
       'amount' => [
         'number' => $form_state->getValue('keypad')['amount'],
         'currency_code' => $default_currency->getCurrencyCode(),
@@ -378,8 +393,8 @@ class POSForm extends ContentEntityForm {
 
     $totals[] = [$this->t('Subtotal'), $formatted_amount];
 
-    // Commerce appears to have a bug where if not adjustments exist, it will return a
-    // 0 => null array, which will still trigger a foreach loop.
+    // Commerce appears to have a bug where if not adjustments exist, it
+    // will return a 0 => null array, which will still trigger a foreach loop.
     foreach ($order->collectAdjustments() as $key => $adjustment) {
       if (!empty($adjustment)) {
         $amount = $adjustment->getAmount();
