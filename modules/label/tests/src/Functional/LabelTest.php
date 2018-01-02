@@ -50,10 +50,14 @@ class LabelTest extends JavascriptTestBase {
     ];
   }
 
+  /**
+   * Tests that the label interface works and products can be added to print labels. Does NOT test the printing functionality
+   * as that is not possible in our current testing framework.
+   */
   public function testLabel() {
     $web_assert = $this->assertSession();
 
-    //Test that the main listing page exists
+    // Test that the main listing page exists.
     $this->drupalGet('admin/commerce/pos/labels');
     $web_assert->pageTextContains(t('Label format'));
     $web_assert->pageTextContains(t('Quantity'));
@@ -75,7 +79,7 @@ class LabelTest extends JavascriptTestBase {
     $web_assert->addressEquals('admin/commerce/pos/labels');
 
     // I don't think it is actually possible to test the print functionality,
-    // since Mink can't test print dialog as far as I know. So this is as far as the test goes
+    // since Mink can't test print dialog as far as I know. So this is as far as the test goes.
   }
 
 }

@@ -1,0 +1,6 @@
+commerce_pos_receipt.configuration:
+  title: 'Receipt Configuration'
+  parent: commerce_pos.configuration
+  description: 'Configure the header and footers of the POS receipts.'
+  route_name: commerce_pos_receipt.settings
+  weight: 25

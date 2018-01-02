@@ -4,7 +4,6 @@ namespace Drupal\commerce_pos\Form;
 
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\user\Form\UserLoginForm;
-use Drupal\commerce_pos\Entity\Cashiers;
 
 /**
  * Implements the cashier login form.

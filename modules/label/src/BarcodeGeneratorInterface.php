@@ -12,7 +12,7 @@ interface BarcodeGeneratorInterface {
   /**
    * Render a UPC into a PNG barcode.
    *
-   * Override this method if you want to setup your own barcode generation
+   * Override this method if you want to setup your own barcode generation.
    *
    * @param string $upc
    *   A UPC.

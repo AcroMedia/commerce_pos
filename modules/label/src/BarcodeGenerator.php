@@ -33,7 +33,7 @@ class BarcodeGenerator implements BarcodeGeneratorInterface {
 
     $length = strlen($upc);
 
-    return (isset($map[$length]))? $map[$length] : FALSE;
+    return (isset($map[$length])) ? $map[$length] : FALSE;
   }
 
   /**

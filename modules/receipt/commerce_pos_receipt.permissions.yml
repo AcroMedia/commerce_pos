@@ -1,0 +1,3 @@
+administer pos receipt:
+  title: 'Administer POS receipt settings'
+  restrict access: TRUE

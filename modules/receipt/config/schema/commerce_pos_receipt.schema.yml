@@ -1,0 +1,18 @@
+# Schema for the configuration files of the Receipt module.
+
+commerce_pos_receipt.settings:
+  type: config_object
+  label: 'Receipt settings'
+  mapping:
+    header:
+      type: string
+      label: 'Header'
+    footer:
+      type: string
+      label: 'Footer'
+    header_format:
+      type: string
+      label: Header format
+    footer_format:
+      type: string
+      label: Footer format

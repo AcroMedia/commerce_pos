@@ -1,0 +1,81 @@
+<?php
+
+/**
+ * @file
+ * Contains commerce_pos_receipt.module.
+ */
+
+use Drupal\Core\Entity\EntityInterface;
+use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_help().
+ */
+function commerce_pos_receipt_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the commerce_pos_receipt module.
+    case 'help.page.commerce_pos_receipt':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Provides receipt printing for Commerce Point of Sale') . '</p>';
+      return $output;
+  }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_receipt_theme() {
+  $theme['commerce_pos_receipt'] = [
+    'variables' => [
+      'receipt' => NULL,
+    ],
+    'template' => 'commerce-pos-receipt',
+  ];
+
+  return $theme;
+}
+
+/**
+ * Implements hook_entity_operation().
+ */
+function commerce_pos_receipt_entity_operation(EntityInterface $entity) {
+  $operations = [];
+
+  if ($entity->getEntityTypeId() == 'commerce_order') {
+    $operations['show_receipt'] = [
+      'title' => t('Show receipt'),
+      'url' => Url::fromRoute('commerce_pos_receipt.show', ['commerce_order' => $entity->id()]),
+      'weight' => 50,
+    ];
+  }
+
+  return $operations;
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter() for form changing.
+ */
+function commerce_pos_receipt_form_commerce_pos_alter(&$form, FormStateInterface $form_state, $form_id) {
+  if ($form_state->get('step') == 'payment') {
+    $form['receipt'] = [
+      '#type' => 'container',
+    ];
+
+    $form['#attached']['library'][] = 'commerce_pos_receipt/receipt';
+    $form['#attached']['library'][] = 'commerce_pos_receipt/jQuery.print';
+
+    $form['#attached']['drupalSettings']['commercePosReceipt'] = [
+      'orderId' => $form_state->getValue('order_id'),
+    ];
+
+    $form['receipt']['contents'] = [
+      '#markup' => '<div id="commerce-pos-receipt"></div>',
+    ];
+
+    $form['actions']['finish']['#attributes']['class'][] = 'commerce-pos-receipt-button';
+  }
+
+}

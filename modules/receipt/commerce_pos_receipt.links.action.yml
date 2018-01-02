@@ -1,0 +1,5 @@
+commerce_pos_receipt_show_action:
+  route_name: commerce_pos_receipt.show
+  title: 'Show receipt'
+  appears_on:
+    - entity.commerce_order.canonical

@@ -1,0 +1,4 @@
+header: "(logo??)<br />Company Name/Store#<br />Address line 1<br />Address line 2<br />Phone #"
+footer: "Thanks for shopping at CompanyName!<br />Return Policy --<br />Exchange Policy --<br />Company Motto<br />Website --<br /><br />(optional)<br />Visit our website for a chance to --"
+header_format: "html"
+footer_format: "html"

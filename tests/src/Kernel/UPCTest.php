@@ -70,7 +70,8 @@ class UPCTest extends CommerceKernelTestBase {
       $this->assertEquals($variation->get('field_upc')->getValue()[0]['value'], '12345');
     }
 
-    // Check that if we try and load a upc that doesn't exist we don't get anything.
+    // Check that if we try and load a upc that doesn't exist
+    // we don't get anything.
     $variations = $upc->lookup('77777');
     $this->assertEmpty($variations);
   }

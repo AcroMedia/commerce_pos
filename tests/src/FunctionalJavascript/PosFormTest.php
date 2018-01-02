@@ -42,20 +42,34 @@ class PosFormTest extends JavascriptTestBase {
     $register->save();
 
     $variations = [
-      $this->createProductionVariation(['title' => 'T-shirt XL', 'price' => new Price("23.20", 'USD')]),
+      $this->createProductionVariation([
+        'title' => 'T-shirt XL',
+        'price' => new Price("23.20", 'USD'),
+      ]),
       $this->createProductionVariation(['title' => 'T-shirt L']),
       $this->createProductionVariation(['title' => 'T-shirt M']),
     ];
 
-    $this->createProduct(['variations' => $variations, 'title' => 'T-shirt', 'stores' => [$test_store]]);
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'T-shirt',
+      'stores' => [$test_store],
+    ]);
 
     $variations = [
-      $this->createProductionVariation(['title' => 'Jumper XL', 'price' => new Price("50", 'USD')]),
+      $this->createProductionVariation([
+        'title' => 'Jumper XL',
+        'price' => new Price("50", 'USD'),
+      ]),
       $this->createProductionVariation(['title' => 'Jumper L']),
       $this->createProductionVariation(['title' => 'Jumper M']),
     ];
 
-    $this->createProduct(['variations' => $variations, 'title' => 'Jumper', 'stores' => [$test_store]]);
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'Jumper',
+      'stores' => [$test_store],
+    ]);
 
     // @todo work out the expected permissions to view products etc...
     $this->drupalLogin($this->rootUser);
@@ -141,7 +155,6 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '40.50');
     // (3 * 40.5) + (1 * 23.20)
     $web_assert->pageTextContains('To Pay $144.70');
-
     // Click on the buttons to remove all the jumpers.
     $this->getSession()->getPage()->findButton('remove_order_item_1')->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -212,6 +225,7 @@ class PosFormTest extends JavascriptTestBase {
     // Clicking finish will bring us back to the order item screen - processing
     // a new order.
     $this->click('input[name="commerce-pos-finish"]');
+    $this->waitForAjaxToFinish();
     $web_assert->pageTextContains('Total $0.00');
     $web_assert->pageTextNotContains('Cash');
     $web_assert->pageTextNotContains('To Pay');
@@ -246,6 +260,14 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $this->assertCount(1, $results);
+  }
+
+  /**
+   * Waits for jQuery to become active and animations to complete.
+   */
+  protected function waitForAjaxToFinish() {
+    $condition = "(0 === jQuery.active && 0 === jQuery(':animated').length)";
+    $this->assertJsCondition($condition, 10000);
   }
 
 }

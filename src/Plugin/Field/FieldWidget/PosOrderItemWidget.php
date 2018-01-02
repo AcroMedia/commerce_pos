@@ -432,7 +432,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
    */
   protected function addOrderItem(FieldItemListInterface $items, array &$form, FormStateInterface &$form_state) {
     // Loading the product variation object.
-    $product_variation = ProductVariation::load($form_state->getValue(['order_items', 'target_id', 'product_selector']));
+    $product_variation = ProductVariation::load($form_state->getValue([
+      'order_items', 'target_id', 'product_selector',
+    ]));
     // If we've not loaded a product variation then exit doing nothing.
     if (!$product_variation) {
       // There's nothing to do.

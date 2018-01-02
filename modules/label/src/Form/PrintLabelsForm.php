@@ -81,6 +81,8 @@ class PrintLabelsForm extends FormBase {
    *   A rounding services for prices.
    * @param \Drupal\commerce_price\NumberFormatterFactoryInterface $formatterFactory
    *   A factory for creating price formatters.
+   * @param \Drupal\commerce_pos\UPC $upc
+   *   The UPC object to use to print out the barcode on the label.
    *
    * @throws \Drupal\Component\Plugin\Exception\InvalidPluginDefinitionException
    *   If unable to get the storage for product variations.
