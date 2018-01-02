@@ -82,7 +82,7 @@ class POSForm extends ContentEntityForm {
       $form = $this->buildPaymentForm($form, $form_state);
     }
 
-    $this->addTotalsDisplay($form);
+    $this->addTotalsDisplay($form, $form_state);
 
     return $form;
   }
@@ -138,7 +138,7 @@ class POSForm extends ContentEntityForm {
     $payment_gateway_storage = $this->entityTypeManager->getStorage('commerce_payment_gateway');
     $payment_gateways = $payment_gateway_storage->loadMultipleForOrder($order);
     $order_balance = $this->getOrderBalance();
-    $balance_paid = $order_balance->getNumber() == 0;
+    $balance_paid = $order_balance->getNumber() <= 0;
 
     $payment_ajax = [
       'wrapper' => 'commerce-pos-sale-keypad-wrapper',
@@ -262,14 +262,8 @@ class POSForm extends ContentEntityForm {
     if ($triggering_element['#name'] == 'commerce-pos-pay-keypad-add') {
       $keypad_amount = $form_state->getValue('keypad')['amount'];
 
-      $order_balance = $this->getOrderBalance()->getNumber();
-
       if (!is_numeric($keypad_amount)) {
         $form_state->setError($form['keypad']['amount'], t('Payment amount must be a number.'));
-      }
-      // TODO: remove this when we support change.
-      elseif ($keypad_amount > $order_balance) {
-        $form_state->setError($form['keypad']['amount'], t('Paid amount must not exceed remaining balance'));
       }
     }
   }
@@ -353,7 +347,7 @@ class POSForm extends ContentEntityForm {
   /**
    * Build the totals display for the sidebar.
    */
-  protected function addTotalsDisplay(array &$form) {
+  protected function addTotalsDisplay(array &$form, FormStateInterface $form_state) {
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
     $store = $order->getStore();
@@ -364,6 +358,12 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
     ];
 
+    if (isset($form_state->getUserInput()['keypad'])) {
+      $keypad_amount = $form_state->getUserInput()['keypad']['amount'];
+    }
+    else {
+      $keypad_amount = 0;
+    }
     $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
     $number_formatter = $number_formatter_factory->createInstance();
 
@@ -378,8 +378,9 @@ class POSForm extends ContentEntityForm {
 
     $totals[] = [$this->t('Subtotal'), $formatted_amount];
 
-    // Commerce appears to have a bug where if not adjustments exist, it will return a
-    // 0 => null array, which will still trigger a foreach loop.
+    // Commerce appears to have a bug where if not adjustments exist,
+    // it will return a 0 => null array, which will still trigger
+    // a foreach loop.
     foreach ($order->collectAdjustments() as $key => $adjustment) {
       if (!empty($adjustment)) {
         $amount = $adjustment->getAmount();
@@ -415,7 +416,7 @@ class POSForm extends ContentEntityForm {
     $payment_totals = [];
     foreach ($this->getOrderPayments() as $payment) {
       $amount = $payment->getAmount();
-      $voided = $payment->getState()->value == 'voided' ? $this->t(' (Void)') : '';
+      $voided = $payment->getState()->value == 'voided' ? $this->t('(Void)') : '';
       $payments[] = [
         $payment->getPaymentGateway()->label() . $voided,
         $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode())),
@@ -434,14 +435,32 @@ class POSForm extends ContentEntityForm {
     // Collect the balances.
     $balances = [];
     foreach ($payment_totals as $currency_code => $amount) {
-      $balances[] = [$this->t('Total Paid'), $number_formatter->formatCurrency($amount, Currency::load($currency_code))];
+      $balances[] = [
+        $this->t('Total Paid'),
+        $number_formatter->formatCurrency($amount, Currency::load($currency_code)),
+      ];
     }
     $remaining_balance = $this->getOrderBalance();
+
     if ($remaining_balance->getNumber() > 0) {
       $currency = Currency::load($remaining_balance->getCurrencyCode());
       $formatted_amount = $number_formatter->formatCurrency($remaining_balance->getNumber(), $currency);
-      $balances[] = ['class' => 'commerce-pos--totals--to-pay', 'data' => [$this->t('To Pay'), $formatted_amount]];
+      $balances[] = [
+        'class' => 'commerce-pos--totals--to-pay',
+        'data' => [$this->t('To Pay'), $formatted_amount],
+      ];
     }
+
+    $currency = Currency::load($currency_code);
+    $change = -$remaining_balance->getNumber();
+    if ($change < 0) {
+        $change = 0;
+    }
+    $formatted_change_amount = $number_formatter->formatCurrency($change, $currency);
+    $balances[] = [
+      'class' => 'commerce-pos--totals--to-pay',
+      'data' => [$this->t('Change'), $formatted_change_amount],
+    ];
 
     $form['totals']['balance'] = [
       '#type' => 'table',

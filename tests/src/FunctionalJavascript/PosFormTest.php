@@ -42,20 +42,34 @@ class PosFormTest extends JavascriptTestBase {
     $register->save();
 
     $variations = [
-      $this->createProductionVariation(['title' => 'T-shirt XL', 'price' => new Price("23.20", 'USD')]),
+      $this->createProductionVariation([
+        'title' => 'T-shirt XL',
+        'price' => new Price("23.20", 'USD'),
+      ]),
       $this->createProductionVariation(['title' => 'T-shirt L']),
       $this->createProductionVariation(['title' => 'T-shirt M']),
     ];
 
-    $this->createProduct(['variations' => $variations, 'title' => 'T-shirt', 'stores' => [$test_store]]);
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'T-shirt',
+      'stores' => [$test_store],
+    ]);
 
     $variations = [
-      $this->createProductionVariation(['title' => 'Jumper XL', 'price' => new Price("50", 'USD')]),
+      $this->createProductionVariation([
+        'title' => 'Jumper XL',
+        'price' => new Price("50", 'USD'),
+      ]),
       $this->createProductionVariation(['title' => 'Jumper L']),
       $this->createProductionVariation(['title' => 'Jumper M']),
     ];
 
-    $this->createProduct(['variations' => $variations, 'title' => 'Jumper', 'stores' => [$test_store]]);
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'Jumper',
+      'stores' => [$test_store],
+    ]);
 
     // @todo work out the expected permissions to view products etc...
     $this->drupalLogin($this->rootUser);
@@ -208,6 +222,37 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextNotContains('To Pay');
     $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
     $this->assertFalse($button->hasAttribute('disabled'), 'Finish button is enabled');
+
+    // Clicking back to order will take us to order page.
+    $this->click('input[name="commerce-pos-back-to-order"]');
+    // Add one more T-shirt.
+    $this->getSession()->getPage()->fillField('order_items[target_id][order_items][1][quantity]', '3');
+    $web_assert->assertWaitOnAjaxRequest();
+
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Total Paid $96.40');
+    $web_assert->pageTextContains('To Pay $23.20');
+
+    // Go to the payment page.
+    $this->click('.commerce-pos input[name="op"]');
+
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Total Paid $96.40');
+    $web_assert->pageTextContains('To Pay $23.20');
+
+    $this->getSession()->getPage()->fillField('keypad[amount]', '30');
+    $this->click('input[name="commerce-pos-pay-keypad-add"]');
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Cash $30.00');
+    $web_assert->pageTextContains('Total Paid $126.40');
+    $web_assert->pageTextContains('Change $6.80');
+    $web_assert->pageTextNotContains('To Pay');
 
     // Clicking finish will bring us back to the order item screen - processing
     // a new order.
