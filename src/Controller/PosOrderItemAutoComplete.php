@@ -82,9 +82,10 @@ class PosOrderItemAutoComplete extends ControllerBase {
       $view_builder = $this->entityTypeManager->getViewBuilder($entity_type);
       foreach ($suggestions as $key) {
         $product_variation = ProductVariation::load($key->variation_id);
+        $product_render_array = $view_builder->view($product_variation, $view_mode, $product_variation->language()->getId());
         $results[] = [
           'value' => $product_variation->id(),
-          'label' => $this->renderer->renderPlain($view_builder->view($product_variation, $view_mode, $product_variation->language()->getId())),
+          'label' => $this->renderer->renderPlain($product_render_array),
         ];
       }
     }
