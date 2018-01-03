@@ -163,6 +163,7 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '23.20');
     $web_assert->pageTextContains('Total $23.20');
     $web_assert->pageTextContains('To Pay $23.20');
+    $web_assert->pageTextContains('Change $0.00');
 
     // Set the quantity of t-shirts using the quantity form field.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '10');
@@ -172,13 +173,15 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '10.00');
     $web_assert->pageTextContains('Total $232.00');
     $web_assert->pageTextContains('To Pay $232.00');
+    $web_assert->pageTextContains('Change $0.00');
 
     // Set the quantity to 0 to remove the T-Shirt.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][0][quantity]', '0');
     $web_assert->assertWaitOnAjaxRequest();
     $web_assert->pageTextNotContains('T-Shirt');
     $web_assert->pageTextContains('Total $0.00');
-    $web_assert->pageTextNotContains('To Pay $0.00');
+    $web_assert->pageTextContains('To Pay $0.00');
+    $web_assert->pageTextContains('Change $0.00');
 
     // Add a jumper and two t-shirts to test payment totals.
     $autocomplete_field->setValue('Jum');
@@ -209,6 +212,7 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Cash $50.00');
     $web_assert->pageTextContains('Total Paid $50.00');
     $web_assert->pageTextContains('To Pay $46.40');
+    $web_assert->pageTextContains('Change $0.00');
     $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
     $this->assertTrue($button->hasAttribute('disabled'), 'Finish button is disabled');
 
@@ -218,9 +222,43 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Cash $50.00');
     $web_assert->pageTextContains('Cash $46.40');
     $web_assert->pageTextContains('Total Paid $96.40');
-    $web_assert->pageTextNotContains('To Pay');
+    $web_assert->pageTextContains('To Pay $0.00');
+    $web_assert->pageTextContains('Change $0.00');
     $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
     $this->assertFalse($button->hasAttribute('disabled'), 'Finish button is enabled');
+
+    // Clicking back to order will take us to order page.
+    $this->click('input[name="commerce-pos-back-to-order"]');
+    // Add one more T-shirt.
+    $this->getSession()->getPage()->fillField('order_items[target_id][order_items][1][quantity]', '3');
+    $web_assert->assertWaitOnAjaxRequest();
+
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Total Paid $96.40');
+    $web_assert->pageTextContains('To Pay $23.20');
+    $web_assert->pageTextContains('Change $0.00');
+
+    // Go to the payment page.
+    $this->click('.commerce-pos input[name="op"]');
+
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Total Paid $96.40');
+    $web_assert->pageTextContains('To Pay $23.20');
+    $web_assert->pageTextContains('Change $0.00');
+
+    $this->getSession()->getPage()->fillField('keypad[amount]', '30');
+    $this->click('input[name="commerce-pos-pay-keypad-add"]');
+    $web_assert->pageTextContains('Total $119.60');
+    $web_assert->pageTextContains('Cash $50.00');
+    $web_assert->pageTextContains('Cash $46.40');
+    $web_assert->pageTextContains('Cash $30.00');
+    $web_assert->pageTextContains('Total Paid $126.40');
+    $web_assert->pageTextContains('Change $6.80');
+    $web_assert->pageTextContains('To Pay $0.00');
 
     // Clicking finish will bring us back to the order item screen - processing
     // a new order.
@@ -228,7 +266,8 @@ class PosFormTest extends JavascriptTestBase {
     $this->waitForAjaxToFinish();
     $web_assert->pageTextContains('Total $0.00');
     $web_assert->pageTextNotContains('Cash');
-    $web_assert->pageTextNotContains('To Pay');
+    $web_assert->pageTextContains('To Pay $0.00');
+    $web_assert->pageTextContains('Change $0.00');
     $web_assert->pageTextNotContains('Jumper');
   }
 
