@@ -1,0 +1,29 @@
+{#
+/**
+ * @file
+ * Two column template for the pos form.
+ *
+ * Available variables:
+ * - form: The form.
+ *
+ * @ingroup themeable
+ */
+#}
+<div class="layout-pos-form layout-pos-form-payment clearfix">
+    <div class="layout-region-pos-main">
+        <div class="layout-region layout-region-pos-content">
+            {{ form|without('advanced', 'actions', 'totals', 'mail') }}
+        </div>
+    </div>
+    <div class="layout-region-pos-sidebar">
+        <div class="layout-region layout-region-pos-totals">
+            {{  form.totals }}
+        </div>
+        <div class="layout-region layout-region-pos-mail">
+            {{  form.mail }}
+        </div>
+        <div class="layout-region layout-region-pos-footer">
+            {{ form.actions }}
+        </div>
+    </div>
+</div>

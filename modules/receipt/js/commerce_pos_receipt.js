@@ -10,6 +10,21 @@
    * @param {number} [status]
    *   XMLHttpRequest status.
    */
+  Drupal.AjaxCommands.prototype.completeOrder = function (ajax, response, status) {
+    // Just click the button to complete the order.
+    $('.commerce-pos-receipt-button-done').click();
+  };
+
+  /**
+   * Ajax command to set the toolbar subtrees.
+   *
+   * @param {Drupal.Ajax} ajax
+   *   {@link Drupal.Ajax} object created by {@link Drupal.ajax}.
+   * @param {object} response
+   *   JSON response from the Ajax request.
+   * @param {number} [status]
+   *   XMLHttpRequest status.
+   */
   Drupal.AjaxCommands.prototype.printReceipt = function (ajax, response, status) {
     $(response.content).print({
       globalStyles: false,
@@ -25,6 +40,7 @@
    * Catch the submit before it submits, so we can popup the print dialog first,
    * then we trigger the submit for real once we've finished the print.
    */
+  var printed = false;
   Drupal.behaviors.catchSubmits = {
     attach: function (context, settings) {
       $('.commerce-pos-receipt-button', context).click( function (e) {
@@ -37,23 +53,28 @@
 
         e.preventDefault();
 
-        $.ajax(
-            {
-              url: "/admin/commerce/pos/" + drupalSettings.commercePosReceipt.orderId + '/ajax-receipt',
-              success: function (data) {
-                var ajaxObject = Drupal.ajax(
-                    {
-                      url: "",
-                      base: false,
-                      element: false,
-                      progress: false
-                    });
+        // Don't fire this again, if we've already done it.
+        if (printed) return;
 
-                // Then, simulate an AJAX response having arrived, and let the
-                // Ajax system handle it.
-                ajaxObject.success(data, "success");
-              }
-            });
+        $.ajax(
+          {
+            url: "/admin/commerce/pos/" + drupalSettings.commercePosReceipt.orderId + '/ajax-receipt/' + $('input[name="actions[print_email_receipt]"]:checked').val(),
+            success: function (data) {
+              var ajaxObject = Drupal.ajax(
+                {
+                  url: "",
+                  base: false,
+                  element: false,
+                  progress: false
+                });
+
+              // Then, simulate an AJAX response having arrived, and let the
+              // Ajax system handle it.
+              ajaxObject.success(data, "success");
+            }
+          });
+
+          printed = true;
       });
     }
   }

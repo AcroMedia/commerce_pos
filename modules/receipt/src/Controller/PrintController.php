@@ -3,6 +3,7 @@
 namespace Drupal\commerce_pos_receipt\Controller;
 
 use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\commerce_pos_receipt\Ajax\CompleteOrderCommand;
 use Drupal\commerce_pos_receipt\Ajax\PrintReceiptCommand;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\Core\Ajax\AjaxResponse;
@@ -19,24 +20,40 @@ class PrintController extends ControllerBase {
   /**
    * A controller callback.
    */
-  public function ajaxReceipt(OrderInterface $commerce_order) {
+  public function ajaxReceipt(OrderInterface $commerce_order, $print_or_email) {
     $renderer = \Drupal::service('renderer');
 
     $build = $this->showReceipt($commerce_order);
     unset($build['#receipt']['print']);
-    $module_handler = \Drupal::service('module_handler');
-    $module_path = $module_handler->getModule('commerce_pos_receipt')->getPath();
+    $build = $renderer->render($build);
 
     $response = new AjaxResponse();
 
-    // TODO: could this be turned into 1 command, and if so, is that better?
-    $response->addCommand(new HtmlCommand('#commerce-pos-receipt', $renderer->render($build)));
-    $response->addCommand(new SettingsCommand([
-      'commercePosReceipt' => [
-        'cssUrl' => Url::fromUri('base:' . $module_path . '/css/commerce_pos_receipt_print.css', ['absolute' => TRUE])->toString(),
-      ],
-    ], TRUE));
-    $response->addCommand(new PrintReceiptCommand('#commerce-pos-receipt'));
+    // If the user opted to get an email with the receipt.
+    if ($print_or_email != 'print') {
+      $this->sendEmailReceipt($commerce_order, $build);
+
+      // Finally, if the user only wants an email to be sent, we just call the
+      // complete order command which submits the form as usual.
+      if ($print_or_email == 'email') {
+        $response->addCommand(new CompleteOrderCommand());
+      }
+    }
+
+    // If the user opted to print the receipt.
+    if ($print_or_email != 'email') {
+      $module_handler = \Drupal::service('module_handler');
+      $module_path = $module_handler->getModule('commerce_pos_receipt')->getPath();
+
+      // TODO: could this be turned into 1 command, and if so, is that better?
+      $response->addCommand(new HtmlCommand('#commerce-pos-receipt', $build));
+      $response->addCommand(new SettingsCommand([
+        'commercePosReceipt' => [
+          'cssUrl' => Url::fromUri('base:' . $module_path . '/css/commerce_pos_receipt_print.css', ['absolute' => TRUE])->toString(),
+        ],
+      ], TRUE));
+      $response->addCommand(new PrintReceiptCommand('#commerce-pos-receipt'));
+    }
 
     return $response;
   }
@@ -116,6 +133,64 @@ class PrintController extends ControllerBase {
       ],
     ];
     return $build;
+  }
+
+  /**
+   * Sends an email with the order receipt.
+   *
+   * @param object $commerce_order
+   *   The order entity.
+   * @param string $build
+   *   The receipt markup.
+   */
+  public function sendEmailReceipt($commerce_order, $build) {
+    $renderer = \Drupal::service('renderer');
+
+    // Send an email with the receipt.
+    $mail_manager = \Drupal::service('plugin.manager.mail');
+    $module = 'commerce_pos_receipt';
+    $key = 'commerce_pos_order_receipt';
+    $to = $commerce_order->getEmail();
+    $customer = $commerce_order->getCustomer();
+    $themed_email_message = [
+      '#theme' => 'commerce-pos-receipt-email',
+      '#customer_name' => $customer->getAccountName(),
+      '#order_id' => $commerce_order->id(),
+      '#receipt_markup' => $build,
+      '#site_name' => \Drupal::config('system.site')->get('name'),
+    ];
+    $params['message'] = $renderer->render($themed_email_message);
+    $params['order_id'] = $commerce_order->id();
+    $langcode = \Drupal::currentUser()->getPreferredLangcode();
+    $send = TRUE;
+
+    // Officially, send the email.
+    $result = $mail_manager->mail($module, $key, $to, $langcode, $params, NULL, $send);
+
+    $message_type = 'status';
+    // If there was a problem sending the email.
+    if ($result['result'] !== TRUE) {
+      $message = t('There was a problem sending the email to @mail.', [
+        '@mail' => $commerce_order->getEmail(),
+      ]);
+      $message_type = 'error';
+    }
+    // Else, if it was successful.
+    else {
+      $message = $this->t('An email with the receipt has been successfully sent to @mail.', [
+        '@mail' => $commerce_order->getEmail(),
+      ]);
+    }
+
+    // Display a message to the user regarding the result of sending the mail.
+    drupal_set_message($message, $message_type);
+    // Log the result in the watchdog as well.
+    if ($message_type == 'error') {
+      \Drupal::logger('commerce_pos_receipt')->error($message);
+    }
+    else {
+      \Drupal::logger('commerce_pos_receipt')->notice($message);
+    }
   }
 
 }

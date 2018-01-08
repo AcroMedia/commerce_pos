@@ -64,7 +64,7 @@ class RegisterTest extends CommerceBrowserTestBase {
     $this->store->delete();
 
     $this->drupalGet('admin/commerce/config/pos/register/add');
-    $this->assertSession()->pageTextContains(t('Registers can\'t be created until a store has been added'));
+    $this->assertSession()->pageTextContains(t("Registers can't be created until a store has been added"));
   }
 
   /**

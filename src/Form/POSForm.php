@@ -68,7 +68,6 @@ class POSForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
-    $form['#theme'] = 'commerce_pos_form';
     $form['#attached']['library'][] = 'commerce_pos/form';
 
     $step = $form_state->get('step');
@@ -96,6 +95,7 @@ class POSForm extends ContentEntityForm {
     $form_state->set('commerce_pos_order_id', $order->id());
 
     $form = parent::buildForm($form, $form_state);
+    $form['#theme'] = 'commerce_pos_form_order';
 
     $form['customer'] = [
       '#type' => 'container',
@@ -129,9 +129,36 @@ class POSForm extends ContentEntityForm {
     $order = $this->entity;
     $wrapper_id = 'commerce-pos-pay-form-wrapper';
     $form_state->wrapper_id = $wrapper_id;
+
+    $form['#theme'] = 'commerce_pos_form_payment';
     $form['#prefix'] = '<div id="' . $wrapper_id . '" class="sale">';
     $form['#suffix'] = '</div>';
     $form['#validate'][] = '::validatePaymentForm';
+
+    // Is this too clunky?
+    $parent_form = parent::buildForm($form, $form_state);
+    $form['mail'] = $parent_form['mail'];
+
+    // Change the contact email field into an ajax field so that any changes
+    // to the email automatically get saved to the order.
+    $form['mail']['#prefix'] = '<div id="order-mail-wrapper">';
+    $form['mail']['#suffix'] = '</div>';
+    $form['mail']['widget'][0]['value']['#element_key'] = 'order-mail';
+    $form['mail']['widget'][0]['value']['#limit_validation_errors'] = [
+      ['mail'],
+    ];
+    $form['mail']['widget'][0]['value']['#ajax'] = [
+      'wrapper' => 'order-mail-wrapper',
+      'callback' => '::emailAjaxRefresh',
+      'event' => 'change',
+    ];
+
+    // Save the email if it has been changed.
+    $triggering_element = $form_state->getTriggeringElement();
+    if (isset($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'order-mail') {
+      $order->setEmail($form_state->getValue('mail'));
+      $order->save();
+    }
 
     $form['order_id'] = [
       '#type' => 'value',
@@ -175,7 +202,6 @@ class POSForm extends ContentEntityForm {
 
     // If no triggering element is set, grab the default payment method.
     $default_payment_gateway = \Drupal::config('commerce_pos.settings')->get('default_payment_gateway') ?: 'pos_cash';
-    $triggering_element = $form_state->getTriggeringElement();
     if (!empty($default_payment_gateway) && !empty($payment_gateways[$default_payment_gateway]) && empty($triggering_element['#payment_option_id'])) {
       $triggering_element['#payment_option_id'] = $default_payment_gateway;
     }
@@ -188,13 +214,13 @@ class POSForm extends ContentEntityForm {
       $order_balance_amount_format = $number_formatter->formatCurrency($order_balance->getNumber(), Currency::load($order_balance->getCurrencyCode()));
       $keypad_amount = preg_replace('/[^0-9\.,]/', '', $order_balance_amount_format);
       // Fetching fraction digit to set as step.
-      $fractionDigits = $this->currentStore->getStore()->getDefaultCurrency()->getFractionDigits();
+      $fraction_digits = $this->currentStore->getStore()->getDefaultCurrency()->getFractionDigits();
       $form['keypad']['amount'] = [
         '#type' => 'number',
         '#title' => t('Enter @title Amount', [
           '@title' => $payment_gateways[$option_id]->label(),
         ]),
-        '#step' => pow(0.1, $fractionDigits),
+        '#step' => pow(0.1, $fraction_digits),
         '#required' => TRUE,
         '#default_value' => $keypad_amount,
         '#commerce_pos_keypad' => TRUE,
@@ -249,6 +275,13 @@ class POSForm extends ContentEntityForm {
    */
   public function keypadAjaxRefresh($form, &$form_state) {
     return $form['keypad'];
+  }
+
+  /**
+   * AJAX callback for the Pay form keypad.
+   */
+  public function emailAjaxRefresh($form, &$form_state) {
+    return $form['mail'];
   }
 
   /**

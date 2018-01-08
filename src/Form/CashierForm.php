@@ -17,7 +17,6 @@ class CashierForm extends UserLoginForm {
     parent::submitForm($form, $form_state);
 
     $form_state->setRedirect('commerce_pos.main');
-    return;
   }
 
 }

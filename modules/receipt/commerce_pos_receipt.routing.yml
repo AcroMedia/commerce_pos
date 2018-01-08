@@ -1,5 +1,5 @@
 commerce_pos_receipt.ajax:
-  path: '/admin/commerce/pos/{commerce_order}/ajax-receipt'
+  path: '/admin/commerce/pos/{commerce_order}/ajax-receipt/{print_or_email}'
   defaults:
     _controller: '\Drupal\commerce_pos_receipt\Controller\PrintController::ajaxReceipt'
     _title: 'Order Receipt'
@@ -7,6 +7,8 @@ commerce_pos_receipt.ajax:
     parameters:
       commerce_order:
         type: 'entity:commerce_order'
+      print_or_email:
+        type: 'String'
   requirements:
     _permission: 'administer commerce_order'
 

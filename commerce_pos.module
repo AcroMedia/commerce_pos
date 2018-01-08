@@ -29,12 +29,11 @@ function commerce_pos_help($route_name, RouteMatchInterface $route_match) {
  */
 function commerce_pos_theme($existing, $type, $theme, $path) {
   return [
-    'commerce_pos_form' => [
+    'commerce_pos_form_order' => [
       'render element' => 'form',
     ],
-    'commerce_pos_keypad' => [
-      'render element' => 'element',
-      'template' => 'commerce-pos-keypad',
+    'commerce_pos_form_payment' => [
+      'render element' => 'form',
     ],
   ];
 }
