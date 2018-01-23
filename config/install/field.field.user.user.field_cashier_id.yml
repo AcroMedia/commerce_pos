@@ -3,12 +3,11 @@ status: true
 dependencies:
   config:
     - field.storage.user.field_cashier_id
-  module:
-    - user
-    - commerce_pos
   enforced:
     module:
       - commerce_pos
+  module:
+    - user
 id: user.user.field_cashier_id
 field_name: field_cashier_id
 entity_type: user

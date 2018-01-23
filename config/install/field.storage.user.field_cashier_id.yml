@@ -1,12 +1,11 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - user
-    - commerce_pos
   enforced:
     module:
       - commerce_pos
+  module:
+    - user
 id: user.field_cashier_id
 field_name: field_cashier_id
 entity_type: user

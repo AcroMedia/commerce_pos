@@ -1,9 +1,6 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - commerce_store
-    - commerce_pos
   enforced:
     module:
       - commerce_pos
@@ -11,3 +8,4 @@ id: physical
 label: Physical
 description: ''
 traits: {  }
+locked: false

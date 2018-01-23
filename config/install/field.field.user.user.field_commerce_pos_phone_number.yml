@@ -3,13 +3,12 @@ status: true
 dependencies:
   config:
     - field.storage.user.field_commerce_pos_phone_number
-  module:
-    - commerce_pos
-    - telephone
-    - user
   enforced:
       module:
         - commerce_pos
+  module:
+    - telephone
+    - user
 id: user.user.field_commerce_pos_phone_number
 field_name: field_commerce_pos_phone_number
 entity_type: user

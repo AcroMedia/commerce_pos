@@ -10,8 +10,6 @@ dependencies:
     - commerce_order
     - commerce_pos
     - inline_entity_form
-_core:
-  default_config_hash: HhZKA_IA19mJACTv88yTh3eJ7gPY3sMapJ1qYbed0zs
 id: commerce_order.pos.default
 targetEntityType: commerce_order
 bundle: pos

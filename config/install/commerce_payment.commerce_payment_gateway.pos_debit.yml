@@ -1,9 +1,6 @@
 langcode: en
 status: true
 dependencies:
-  module:
-    - commerce_payment
-    - commerce_pos
   enforced:
     module:
       - commerce_pos
@@ -25,3 +22,4 @@ conditions:
     configuration:
       bundles:
         - pos
+conditionOperator: AND

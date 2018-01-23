@@ -4,7 +4,7 @@ dependencies:
   config:
     - commerce_product.commerce_product_variation_type.default
     - core.entity_view_mode.commerce_product_variation.commerce_pos_product_select
-    - field.field.commerce_product_variation.pos.field_upc
+    - field.field.commerce_product_variation.default.field_upc
   module:
     - commerce_price
 id: commerce_product_variation.default.commerce_pos_product_select
