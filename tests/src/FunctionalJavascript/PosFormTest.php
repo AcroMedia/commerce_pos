@@ -81,6 +81,7 @@ class PosFormTest extends JavascriptTestBase {
   public function testCommercePosForm() {
     $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
+
     // There is only one register.
     $web_assert->fieldValueEquals('register', 1);
     $web_assert->pageTextContains('Test register');

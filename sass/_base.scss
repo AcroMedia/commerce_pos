@@ -140,3 +140,16 @@
 .layout-region-pos-totals table tr:hover {
   background-color: #F0F0F0;
 }
+
+.form-item-order-lookup-search-box {
+  width: 200px;
+  display: inline-block;
+}
+
+.order-lookup-search.button {
+  display: inline-block;
+}
+
+#order-lookup-results {
+  clear: both;
+}

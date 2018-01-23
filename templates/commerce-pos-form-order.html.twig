@@ -12,10 +12,7 @@
 <div class="layout-pos-form layout-pos-form-products clearfix">
     <div class="layout-region-pos-main">
         <div class="layout-region layout-region-pos-content">
-            {{ form|without('advanced', 'actions', 'totals', 'list', 'customer') }}
-        </div>
-        <div class="layout-region layout-region-pos-customer">
-            {{ form.customer }}
+            {{ form|without('advanced', 'actions', 'totals', 'list', 'customer', 'adjustments') }}
         </div>
         <div class="layout-region layout-region-pos-list">
             {{ form.list }}
@@ -26,6 +23,8 @@
             {{  form.totals }}
         </div>
         <div class="layout-region layout-region-pos-footer">
+            {{ form.adjustments }}
+            {{ form.customer }}
             {{ form.actions }}
         </div>
     </div>

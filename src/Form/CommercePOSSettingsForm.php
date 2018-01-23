@@ -41,6 +41,13 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       '#options' => $this->getPaymentGatewayOptions(),
     ];
 
+    $form['order_lookup_limit'] = [
+      '#type' => 'textfield',
+      '#title' => $this->t('Order Lookup Limit'),
+      '#description' => t('Select the number of results to display for the POS order lookup. If left empty, defaults to 10.'),
+      '#default_value' => $config->get('order_lookup_limit'),
+    ];
+
     return parent::buildForm($form, $form_state);
   }
 
@@ -52,6 +59,7 @@ class CommercePOSSettingsForm extends ConfigFormBase {
     \Drupal::configFactory()->getEditable('commerce_pos.settings')
       // Set the submitted configuration setting.
       ->set('default_payment_gateway', $form_state->getValue('default_payment_gateway'))
+      ->set('order_lookup_limit', $form_state->getValue('order_lookup_limit'))
 
       /* Need to verify if form values and settings are correct and reflect the nature of how settings will be handled before any save functionality is done. */
       ->save();

@@ -47,3 +47,11 @@ commerce_pos.pos_order_item_widget_autocomplete:
     _title: 'Pos Order Item Autocomplete'
   requirements:
     _permission: 'access content'
+
+commerce_pos.order_lookup:
+  path: '/admin/commerce/pos/orders'
+  defaults:
+    _controller: '\Drupal\commerce_pos\Controller\OrderLookup::content'
+    _title: 'Point of Sale Order Lookup'
+  requirements:
+    _permission: 'access commerce pos order lookup'

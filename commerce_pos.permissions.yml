@@ -2,3 +2,5 @@
   title: 'Use the commerce point of sale administration pages'
 'access commerce pos pages':
   title: 'Use the commerce point of sale standard functionality'
+'access commerce pos order lookup':
+  title: 'Use the commerce point of sale order lookup'

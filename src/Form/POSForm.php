@@ -9,9 +9,12 @@ use Drupal\Core\Entity\ContentEntityForm;
 use Drupal\Core\Entity\EntityManagerInterface;
 use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Element\Form;
 use Drupal\Core\Url;
+use Drupal\Core\Link;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\commerce_order\Entity\Order;
+use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -201,7 +204,8 @@ class POSForm extends ContentEntityForm {
     ];
 
     // If no triggering element is set, grab the default payment method.
-    $default_payment_gateway = \Drupal::config('commerce_pos.settings')->get('default_payment_gateway') ?: 'pos_cash';
+    $default_payment_gateway = \Drupal::config('commerce_pos.settings')
+      ->get('default_payment_gateway') ?: 'pos_cash';
     if (!empty($default_payment_gateway) && !empty($payment_gateways[$default_payment_gateway]) && empty($triggering_element['#payment_option_id'])) {
       $triggering_element['#payment_option_id'] = $default_payment_gateway;
     }
@@ -214,7 +218,9 @@ class POSForm extends ContentEntityForm {
       $order_balance_amount_format = $number_formatter->formatCurrency($order_balance->getNumber(), Currency::load($order_balance->getCurrencyCode()));
       $keypad_amount = preg_replace('/[^0-9\.,]/', '', $order_balance_amount_format);
       // Fetching fraction digit to set as step.
-      $fraction_digits = $this->currentStore->getStore()->getDefaultCurrency()->getFractionDigits();
+      $fraction_digits = $this->currentStore->getStore()
+        ->getDefaultCurrency()
+        ->getFractionDigits();
       $form['keypad']['amount'] = [
         '#type' => 'number',
         '#title' => t('Enter @title Amount', [
@@ -406,12 +412,6 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
     ];
 
-    if (isset($form_state->getUserInput()['keypad'])) {
-      $keypad_amount = $form_state->getUserInput()['keypad']['amount'];
-    }
-    else {
-      $keypad_amount = 0;
-    }
     $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
     $number_formatter = $number_formatter_factory->createInstance();
 
@@ -530,7 +530,9 @@ class POSForm extends ContentEntityForm {
     $payments = $this->getOrderPayments();
     $total_price = $this->entity->getTotalPrice();
     $total_price_amount = !empty($total_price) ? $total_price->getNumber() : 0;
-    $currency_code = !empty($total_price) ? $total_price->getCurrencyCode() : $this->entity->getStore()->getDefaultCurrency()->getCurrencyCode();
+    $currency_code = !empty($total_price) ? $total_price->getCurrencyCode() : $this->entity->getStore()
+      ->getDefaultCurrency()
+      ->getCurrencyCode();
     $balance_paid_amount = 0;
 
     foreach ($payments as $payment) {

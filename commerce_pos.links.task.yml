@@ -1,0 +1,10 @@
+commerce_pos.main:
+  title: 'Point of Sale'
+  route_name: 'commerce_pos.main'
+  base_route: 'commerce_pos.main'
+  description: 'Point of Sale Interface'
+commerce_pos.order_lookup:
+  title: 'Order Lookup'
+  route_name: 'commerce_pos.order_lookup'
+  base_route: 'commerce_pos.main'
+  description: 'Point of Sale Order Lookup'
