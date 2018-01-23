@@ -53,12 +53,16 @@ function commerce_pos_receipt_theme() {
 function commerce_pos_receipt_entity_operation(EntityInterface $entity) {
   $operations = [];
 
+  /** @var $entity \Drupal\commerce_order\Entity\OrderInterface */
   if ($entity->getEntityTypeId() == 'commerce_order') {
-    $operations['show_receipt'] = [
-      'title' => t('Show receipt'),
-      'url' => Url::fromRoute('commerce_pos_receipt.show', ['commerce_order' => $entity->id()]),
-      'weight' => 50,
-    ];
+    // @see \Drupal\commerce_pos_receipt\Controller\PrintController::checkAccess()
+    if ($entity->getPlacedTime() && \Drupal::currentUser()->hasPermission('administer commerce_order')) {
+      $operations['show_receipt'] = [
+        'title' => t('Show receipt'),
+        'url' => Url::fromRoute('commerce_pos_receipt.show', ['commerce_order' => $entity->id()]),
+        'weight' => 50,
+      ];
+    }
   }
 
   return $operations;

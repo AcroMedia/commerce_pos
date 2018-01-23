@@ -26,14 +26,21 @@
    *   XMLHttpRequest status.
    */
   Drupal.AjaxCommands.prototype.printReceipt = function (ajax, response, status) {
-    $(response.content).print({
-      globalStyles: false,
-      stylesheet: drupalSettings.commercePosReceipt.cssUrl,
-      deferred: $.Deferred().done(function(){
-        // Sloppy, should probaby be nice and scalable, but that might never be needed
-        $('.commerce-pos-receipt-button-done').click();
-      })
-    });
+    // If jQuery.print does not exist then this will not be a function. This
+    // can occur if the libraries is not yet downloaded and under test.
+    if (typeof $(response.content).print === "function") {
+      $(response.content).print({
+        globalStyles: false,
+        stylesheet: drupalSettings.commercePosReceipt.cssUrl,
+        deferred: $.Deferred().done(function () {
+          // Sloppy, should probaby be nice and scalable, but that might never be needed
+          $('.commerce-pos-receipt-button-done').click();
+        })
+      });
+    }
+    else {
+      $('.commerce-pos-receipt-button-done').click();
+    }
   };
 
   /**
@@ -43,7 +50,14 @@
   var printed = false;
   Drupal.behaviors.catchSubmits = {
     attach: function (context, settings) {
-      $('.commerce-pos-receipt-button', context).click( function (e) {
+        // If jQuery.print does not exist then this will not be a function. This
+        // can occur if the libraries is not yet downloaded and under test.
+        if (typeof $().print !== "function") {
+          // nothing to do as there is no jQuery.print library.
+          return;
+        }
+
+        $('.commerce-pos-receipt-button', context).click( function (e) {
         // Normally you would use .once() here, but it applies at the end,
         // and because of the chaining nature of our ajax, it doesn't fire until it is too late
         // and we've clicked the button again and we're in a loop

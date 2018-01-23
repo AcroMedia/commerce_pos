@@ -6,6 +6,7 @@ use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_pos_receipt\Ajax\CompleteOrderCommand;
 use Drupal\commerce_pos_receipt\Ajax\PrintReceiptCommand;
 use Drupal\commerce_price\Entity\Currency;
+use Drupal\Core\Access\AccessResult;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Ajax\SettingsCommand;
@@ -191,6 +192,19 @@ class PrintController extends ControllerBase {
     else {
       \Drupal::logger('commerce_pos_receipt')->notice($message);
     }
+  }
+
+  /**
+   * Checks if the receipt should be printable. The order needs to be placed.
+   *
+   * @param \Drupal\commerce_order\Entity\OrderInterface $commerce_order
+   *   The commerce order.
+   *
+   * @return \Drupal\Core\Access\AccessResultInterface
+   *   The access result.
+   */
+  public function checkAccess(OrderInterface $commerce_order) {
+    return AccessResult::allowedIf($this->currentUser()->hasPermission('administer commerce_order') && $commerce_order->getPlacedTime())->cachePerPermissions()->cacheUntilEntityChanges($commerce_order);
   }
 
 }
