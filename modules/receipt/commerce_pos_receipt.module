@@ -71,7 +71,7 @@ function commerce_pos_receipt_form_commerce_pos_alter(&$form, FormStateInterface
   if ($form_state->get('step') == 'payment') {
     // Add a radio button to select whether the user wants to print or email the
     // receipt.
-    $form['actions']['print_email_receipt'] = [
+    $form['totals']['print_email_receipt'] = [
       '#type' => 'radios',
       '#title' => t('Receipt'),
       '#options' => [
@@ -80,7 +80,6 @@ function commerce_pos_receipt_form_commerce_pos_alter(&$form, FormStateInterface
         'print_and_email' => t('Both'),
       ],
       '#default_value' => 'print',
-      '#weight' => -10,
     ];
 
     $form['receipt'] = [

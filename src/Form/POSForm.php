@@ -256,6 +256,10 @@ class POSForm extends ContentEntityForm {
       ];
     }
 
+    $form['actions'] = [
+      '#type' => 'actions',
+    ];
+
     $form['actions']['finish'] = [
       '#type' => 'submit',
       '#value' => t('Complete Order'),
@@ -263,6 +267,7 @@ class POSForm extends ContentEntityForm {
       '#name' => 'commerce-pos-finish',
       '#submit' => ['::submitForm'],
       '#element_key' => 'finish-order',
+      '#button_type' => 'primary',
     ];
 
     $form['actions']['back'] = [
