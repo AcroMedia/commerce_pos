@@ -7,7 +7,7 @@ dependencies:
   - commerce:commerce_order
   - commerce:commerce_payment
   - commerce:commerce_product
-  - telephone:telephone
+  - drupal:telephone
   - inline_entity_form:inline_entity_form
   - commerce_pos:commerce_pos_keypad
 config_devel:

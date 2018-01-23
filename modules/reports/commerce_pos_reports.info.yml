@@ -4,5 +4,5 @@ description: Provides reporting functionality for Commerce POS
 core: 8.x
 package: Commerce (POS)
 dependencies:
-  - commerce_reports
-  - commerce_pos
+  - commerce_reports:commerce_reports
+  - commerce_pos:commerce_pos

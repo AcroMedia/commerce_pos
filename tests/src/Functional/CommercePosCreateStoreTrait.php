@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\commerce_pos\Functional;
 
+use Drupal\commerce_pos\Entity\Register;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_product\Entity\Product;
 use Drupal\commerce_product\Entity\ProductVariation;
@@ -52,6 +53,51 @@ trait CommercePosCreateStoreTrait {
     ]);
     $product->save();
     return $product;
+  }
+
+  /**
+   * Creates a store with some products.
+   */
+  protected function setUpStore() {
+    // Initial store set up.
+    $test_store = $this->createStore('POS test store', 'pos_test_store@example.com', 'physical');
+
+    $register = Register::create([
+      'store_id' => $test_store->id(),
+      'name' => 'Test register',
+      'cash' => new Price('1000.00', 'USD'),
+    ]);
+    $register->save();
+
+    $variations = [
+      $this->createProductionVariation([
+        'title' => 'T-shirt XL',
+        'price' => new Price("23.20", 'USD'),
+      ]),
+      $this->createProductionVariation(['title' => 'T-shirt L']),
+      $this->createProductionVariation(['title' => 'T-shirt M']),
+    ];
+
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'T-shirt',
+      'stores' => [$test_store],
+    ]);
+
+    $variations = [
+      $this->createProductionVariation([
+        'title' => 'Jumper XL',
+        'price' => new Price("50", 'USD'),
+      ]),
+      $this->createProductionVariation(['title' => 'Jumper L']),
+      $this->createProductionVariation(['title' => 'Jumper M']),
+    ];
+
+    $this->createProduct([
+      'variations' => $variations,
+      'title' => 'Jumper',
+      'stores' => [$test_store],
+    ]);
   }
 
 }

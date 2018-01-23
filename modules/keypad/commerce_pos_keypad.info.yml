@@ -4,4 +4,4 @@ type: module
 package: Commerce (POS)
 core: 8.x
 dependencies:
-  - commerce_pos_currency_denominations
+  - commerce_pos:commerce_pos_currency_denominations
