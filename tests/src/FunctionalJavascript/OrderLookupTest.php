@@ -57,6 +57,7 @@ class OrderLookupTest extends JavascriptTestBase {
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = Order::create([
       'type' => 'pos',
+      'state' => 'completed',
       'store_id' => $this->store->id(),
     ]);
     $order->save();
@@ -68,7 +69,7 @@ class OrderLookupTest extends JavascriptTestBase {
     $this->getSession()->getPage()->fillField('search_box', $order->id());
     $this->waitForAjaxToFinish();
     $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(1) > a', $order->id());
-    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(2)', 'Draft');
+    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(2)', 'Completed');
   }
 
   /**

@@ -11,6 +11,9 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
 use Drupal\Core\Url;
 
+/**
+ * Provides an order lookup form to search orders.
+ */
 class OrderLookupForm extends FormBase {
 
   /**
@@ -50,7 +53,7 @@ class OrderLookupForm extends FormBase {
     $form['order_lookup']['results'] = [
       '#type' => 'container',
       '#prefix' => '<div id="order-lookup-results">',
-      '#suffix' => '</div>'
+      '#suffix' => '</div>',
     ];
 
     $triggering_element = $form_state->getTriggeringElement();
@@ -68,8 +71,11 @@ class OrderLookupForm extends FormBase {
     return $form;
   }
 
+  /**
+   * Submit callback for the order lookup form.
+   */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    // No submit actually needed as this form is ajax refresh only
+    // No submit actually needed as this form is ajax refresh only.
   }
 
   /**
@@ -86,8 +92,17 @@ class OrderLookupForm extends FormBase {
     return $response;
   }
 
+  /**
+   * Looks up an order based on a search criteria and returns the results.
+   *
+   * @param string $search_text
+   *   The search criteria. Could be an order ID, customer name, or email.
+   *
+   * @return mixed
+   *   Returns the markup for a themed table with the order results.
+   */
   public function searchOrderResults($search_text) {
-    if($search_text == '') {
+    if ($search_text == '') {
       return $this->recentPosOrders();
     }
 
@@ -95,11 +110,12 @@ class OrderLookupForm extends FormBase {
 
     // Create the query now.
     $query = \Drupal::entityQuery('commerce_order');
+    $query = $query->condition('state', 'draft', '!=');
     $query = $query->condition('type', 'pos');
     $query = $query->sort('order_id', 'DESC')
       ->range(0, !empty($result_limit) ? $result_limit : 10);
 
-    if(is_numeric($search_text)) {
+    if (is_numeric($search_text)) {
       $query->condition('order_id', $search_text);
     }
     else {
@@ -142,6 +158,7 @@ class OrderLookupForm extends FormBase {
     // Let's query the db for the most recent orders.
     $query = \Drupal::entityQuery('commerce_order')
       ->condition('type', 'pos')
+      ->condition('state', 'draft', '!=')
       ->range(0, !empty($result_limit) ? $result_limit : 10)
       ->sort('order_id', 'DESC');
     $result = $query->execute();
