@@ -33,9 +33,9 @@ class OrderLookupForm extends FormBase {
     // The search box to look up by order number, customer name or email.
     $form['order_lookup']['search_box'] = [
       '#type' => 'textfield',
-      '#attributes' => [
-        'placeholder' => $this->t('Search by order number, customer name or customer email'),
-      ],
+      '#maxlength' => 50,
+      '#size' => 25,
+      '#description' => $this->t('Search by order number, customer name or customer email.'),
       '#ajax' => [
         'callback' => '::orderLookupAjaxRefresh',
         'event' => 'input',

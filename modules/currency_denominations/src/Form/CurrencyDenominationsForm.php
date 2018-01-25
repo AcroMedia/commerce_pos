@@ -49,7 +49,8 @@ class CurrencyDenominationsForm extends EntityForm {
     $form['currencyCode'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Currency Code'),
-      '#maxlength' => 255,
+      '#maxlength' => 3,
+      '#size' => 4,
       '#default_value' => $currency_denominations->getCurrencyCode(),
       '#required' => TRUE,
       '#description' => $this->t('Currency code in three Uppercase letters, example: USD.'),
@@ -81,7 +82,8 @@ class CurrencyDenominationsForm extends EntityForm {
       $form['denominations'][$key]['label'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Name'),
-        '#maxlength' => 255,
+        '#maxlength' => 128,
+        '#size' => 30,
         '#default_value' => $default_label,
         '#required' => TRUE,
         '#description' => $this->t('For example Denominations is 1USD, Denomination Name also 1USD'),
@@ -89,7 +91,8 @@ class CurrencyDenominationsForm extends EntityForm {
       $form['denominations'][$key]['amount'] = [
         '#type' => 'textfield',
         '#title' => $this->t('Amount'),
-        '#maxlength' => 255,
+        '#maxlength' => 6,
+        '#size' => 6,
         '#default_value' => $default_amount,
         '#required' => TRUE,
         '#description' => $this->t('For example Denominations is 1USD, Amount is 1.'),
