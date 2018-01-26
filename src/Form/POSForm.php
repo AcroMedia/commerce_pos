@@ -42,6 +42,7 @@ class POSForm extends ContentEntityForm {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
     $this->currentStore = $current_store;
+    $this->logStorage = $entity_manager->getStorage('commerce_log');
   }
 
   /**
@@ -80,6 +81,9 @@ class POSForm extends ContentEntityForm {
     elseif ($step == 'payment') {
       $form = $this->buildPaymentForm($form, $form_state);
     }
+
+    // Add order note form.
+    $form += $this->buildNoteForm($form, $form_state);
 
     $this->addTotalsDisplay($form, $form_state);
 
@@ -276,6 +280,95 @@ class POSForm extends ContentEntityForm {
     ];
 
     return $form;
+  }
+
+  /**
+   * Build the elements for the order note form.
+   */
+  protected function buildNoteForm(array $form, FormStateInterface $form_state) {
+    $form['add_note'] = [
+      '#type' => 'container',
+      '#prefix' => '<div id="commerce-pos-add-note-wrapper">',
+      '#suffix' => '</div>',
+      '#weight' => 100,
+    ];
+
+    $triggering_element = $form_state->getTriggeringElement();
+    // Add note submit was clicked.
+    if ($triggering_element['#element_key'] == 'add-note-submit') {
+      $this->saveOrderComment($this->entity, $form_state->getValue('add_note')['note_text']);
+    }
+
+    // 'Add Note' was clicked.
+    if (!empty($triggering_element) && $triggering_element['#element_key'] == 'add-note') {
+      $form['add_note']['note_text'] = [
+        '#type' => 'textarea',
+        '#title' => t('Add Note'),
+        '#required' => TRUE,
+      ];
+
+      $form['add_note']['submit'] = [
+        '#type' => 'button',
+        '#value' => t('Submit'),
+        '#ajax' => [
+          'wrapper' => 'commerce-pos-add-note-wrapper',
+          'callback' => '::addNoteAjaxRefresh',
+          'effect' => 'fade',
+        ],
+        '#limit_validation_errors' => [['add_note']],
+        '#element_key' => 'add-note-submit',
+      ];
+
+      $form['add_note']['cancel'] = [
+        '#type' => 'button',
+        '#value' => t('Cancel'),
+        '#ajax' => [
+          'wrapper' => 'commerce-pos-add-note-wrapper',
+          'callback' => '::addNoteAjaxRefresh',
+          'effect' => 'fade',
+        ],
+        '#limit_validation_errors' => [],
+        '#element_key' => 'add-note-cancel',
+      ];
+    }
+    else {
+      $form['add_note']['note'] = [
+        '#type' => 'button',
+        '#value' => t('Add Note'),
+        '#name' => 'add-note',
+        '#element_key' => 'add-note',
+        '#ajax' => [
+          'wrapper' => 'commerce-pos-add-note-wrapper',
+          'callback' => '::addNoteAjaxRefresh',
+          'effect' => 'fade',
+        ],
+        '#limit_validation_errors' => [],
+      ];
+    }
+
+    return $form;
+  }
+
+  /**
+   * Adds a commerce log to an order.
+   *
+   * @param object $order
+   *   The order entity.
+   * @param string $comment
+   *   The order comment.
+   */
+  public function saveOrderComment($order, $comment) {
+    $this->logStorage->generate($order, 'order_comment', [
+      'comment' => $comment,
+    ])->save();
+    drupal_set_message($this->t('Successfully saved order comment.'));
+  }
+
+  /**
+   * AJAX callback for the add note form.
+   */
+  public function addNoteAjaxRefresh($form, &$form_state) {
+    return $form['add_note'];
   }
 
   /**

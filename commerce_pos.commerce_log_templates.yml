@@ -1,0 +1,4 @@
+order_comment:
+  category: commerce_order
+  label: 'Order comment'
+  template: '<p>{{ comment }}</p>'
