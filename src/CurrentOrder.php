@@ -37,6 +37,10 @@ class CurrentOrder {
     $this->tempStore->set('order', $order->id());
   }
 
+  public function clear() {
+    $this->tempStore->delete('order');
+  }
+
   /**
    * Gets the active order_id stored in the session and loads it.
    *

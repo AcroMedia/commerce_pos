@@ -83,6 +83,7 @@ class POS extends ControllerBase {
       $order = Order::create([
         'type' => 'pos',
         'field_cashier' => \Drupal::currentUser()->id(),
+        'field_register' => $register->id(),
       ]);
 
       $order->setStoreId($store);

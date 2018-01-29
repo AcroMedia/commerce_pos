@@ -726,18 +726,10 @@ class POSForm extends ContentEntityForm {
   }
 
   /**
-   * Replace the existing order with a new one.
+   * Clear the existing order, so a new one can be created.
    */
   protected function clearOrder() {
-    $order = Order::create([
-      'type' => 'pos',
-      'field_cashier' => \Drupal::currentUser()->id(),
-    ]);
-
-    $order->setStoreId($this->entity->getStoreId());
-    $order->save();
-
-    \Drupal::service('commerce_pos.current_order')->set($order);
+    \Drupal::service('commerce_pos.current_order')->clear();
 
   }
 
