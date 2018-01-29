@@ -31,7 +31,7 @@ class CustomerProfileSubscriber implements EventSubscriberInterface {
     $order_item = $event->getOrderItem();
     $order = $order_item->getOrder();
 
-    if($order->bundle() != 'pos'){
+    if ($order->bundle() != 'pos') {
       return;
     }
     if (!empty($order->getBillingProfile())) {

@@ -187,17 +187,22 @@ class PosFormTest extends JavascriptTestBase {
     $button = $this->getSession()->getPage()->find('css', 'input[name="commerce-pos-finish"]');
     $this->assertFalse($button->hasAttribute('disabled'), 'Finish button is enabled');
 
+    // Void Payment.
+    $void_buttons = $this->getSession()->getPage()->findAll('css', 'input[name="commerce-pos-pay-keypad-remove"]');
+    $void_buttons[0]->click();
+    $web_assert->pageTextContains('Cash VOID');
+    $this->assertTrue($button->hasAttribute('disabled'), 'Finish button is disabled after void');
+
     // Clicking back to order will take us to order page.
     $this->click('input[name="commerce-pos-back-to-order"]');
     // Add one more T-shirt.
     $this->getSession()->getPage()->fillField('order_items[target_id][order_items][1][quantity]', '3');
     $web_assert->assertWaitOnAjaxRequest();
-
     $web_assert->pageTextContains('Total $119.60');
     $web_assert->pageTextContains('Cash $50.00');
-    $web_assert->pageTextContains('Cash $46.40');
-    $web_assert->pageTextContains('Total Paid $96.40');
-    $web_assert->pageTextContains('To Pay $23.20');
+    $web_assert->pageTextContains('Cash VOID');
+    $web_assert->pageTextContains('Total Paid $50.00');
+    $web_assert->pageTextContains('To Pay $69.60');
     $web_assert->pageTextContains('Change $0.00');
 
     // Go to the payment page.
@@ -205,19 +210,19 @@ class PosFormTest extends JavascriptTestBase {
 
     $web_assert->pageTextContains('Total $119.60');
     $web_assert->pageTextContains('Cash $50.00');
-    $web_assert->pageTextContains('Cash $46.40');
-    $web_assert->pageTextContains('Total Paid $96.40');
-    $web_assert->pageTextContains('To Pay $23.20');
+    $web_assert->pageTextContains('Cash VOID');
+    $web_assert->pageTextContains('Total Paid $50.00');
+    $web_assert->pageTextContains('To Pay $69.60');
     $web_assert->pageTextContains('Change $0.00');
 
-    $this->getSession()->getPage()->fillField('keypad[amount]', '30');
+    $this->getSession()->getPage()->fillField('keypad[amount]', '80');
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $web_assert->pageTextContains('Total $119.60');
     $web_assert->pageTextContains('Cash $50.00');
-    $web_assert->pageTextContains('Cash $46.40');
-    $web_assert->pageTextContains('Cash $30.00');
-    $web_assert->pageTextContains('Total Paid $126.40');
-    $web_assert->pageTextContains('Change $6.80');
+    $web_assert->pageTextContains('Cash VOID');
+    $web_assert->pageTextContains('Cash $80.00');
+    $web_assert->pageTextContains('Total Paid $130.00');
+    $web_assert->pageTextContains('Change $10.40');
     $web_assert->pageTextContains('To Pay $0.00');
 
     // Clicking finish will bring us back to the order item screen - processing
@@ -231,6 +236,11 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextNotContains('Jumper');
   }
 
+  /**
+   * Tests a simple POS flow similar to the main test, but with a tax enabled.
+   * Done as a separate test because having taxes make the numbers in the main
+   * tests more confusing.
+   */
   public function testPosFormWithTaxes() {
     // The default store is US-WI, so imagine that the US has VAT.
     TaxType::create([

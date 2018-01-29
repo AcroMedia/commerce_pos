@@ -53,7 +53,7 @@ function commerce_pos_receipt_theme() {
 function commerce_pos_receipt_entity_operation(EntityInterface $entity) {
   $operations = [];
 
-  /** @var $entity \Drupal\commerce_order\Entity\OrderInterface */
+  /* @var $entity \Drupal\commerce_order\Entity\OrderInterface */
   if ($entity->getEntityTypeId() == 'commerce_order') {
     // @see \Drupal\commerce_pos_receipt\Controller\PrintController::checkAccess()
     if ($entity->getPlacedTime() && \Drupal::currentUser()->hasPermission('administer commerce_order')) {

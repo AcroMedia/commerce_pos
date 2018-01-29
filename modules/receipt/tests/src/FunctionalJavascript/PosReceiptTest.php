@@ -59,7 +59,7 @@ class PosReceiptTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Edit');
     $web_assert->pageTextNotContains('Show receipt');
 
-    // Go back to the order
+    // Go back to the order.
     $this->drupalGet('admin/commerce/pos/main');
     // Go to the payment page.
     $this->click('.commerce-pos input[name="op"]');

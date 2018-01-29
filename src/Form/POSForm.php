@@ -420,7 +420,9 @@ class POSForm extends ContentEntityForm {
     if ($step == 'order') {
       parent::submitForm($form, $form_state);
       $this->entity->save();
-      $form_state->set('step', 'payment');
+      if ($triggering_element['#element_key'] !== 'remove-payment') {
+        $form_state->set('step', 'payment');
+      }
       $form_state->setRebuild(TRUE);
     }
 
@@ -438,6 +440,13 @@ class POSForm extends ContentEntityForm {
       elseif ($triggering_element['#element_key'] == 'finish-order') {
         $this->finishOrder($form, $form_state);
       }
+    }
+
+    if ($triggering_element['#element_key'] == 'remove-payment') {
+      $this->voidPayment($form, $form_state);
+      // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
+      // also helps if we're loading it somewhere else, like for the receipt trickyness.
+      $this->entity->save();
     }
 
   }
@@ -461,7 +470,7 @@ class POSForm extends ContentEntityForm {
     $values = [
       'payment_gateway' => $payment_gateway,
       'order_id' => $this->entity->id(),
-      'state' => 'completed',
+      'state' => 'pending',
       'amount' => [
         'number' => $form_state->getValue('keypad')['amount'],
         'currency_code' => $default_currency->getCurrencyCode(),
@@ -471,6 +480,37 @@ class POSForm extends ContentEntityForm {
     $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
     $payment = $payment_storage->create($values);
     $payment->save();
+    $form_state->setRebuild(TRUE);
+  }
+
+  /**
+   * Void a payment to the pos order.
+   *
+   * @param array $form
+   *   An associative array containing the structure of the form.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The current state of the form.
+   */
+  protected function voidPayment(array &$form, FormStateInterface $form_state) {
+    $triggering_element = $form_state->getTriggeringElement();
+
+    $order = $this->entity;
+    /** @var \Drupal\commerce_payment\PaymentStorageInterface $payment_storage */
+    $payment_storage = $this->entityTypeManager->getStorage('commerce_payment');
+    $payments = $payment_storage->loadMultipleByOrder($order);
+
+    // Get the payment id from the triggering element.
+    $payment_id = $triggering_element['#payment_id'];
+    $payment_gateway_id = $triggering_element['#payment_gateway_id'];
+    /** @var \Drupal\commerce_payment\Entity\Payment $payment */
+    $payment = $payments[$payment_id];
+    /** @var \Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\Manual $payment_gateway */
+    $plugin_manager = \Drupal::service('plugin.manager.commerce_payment_gateway');
+    // Right now all the payment methods are manual, we'll have to change this up
+    // once we want to support integrated payment methods.
+    $payment_gateway = $plugin_manager->createInstance('manual');
+    $payment_gateway->voidPayment($payment);
+    drupal_set_message($this->t('Payment Voided'));
     $form_state->setRebuild(TRUE);
   }
 
@@ -555,25 +595,45 @@ class POSForm extends ContentEntityForm {
     ];
 
     // Collect payments.
-    $payments = [];
     $payment_totals = [];
-    foreach ($this->getOrderPayments() as $payment) {
-      $amount = $payment->getAmount();
-      $voided = $payment->getState()->value == 'voided' ? $this->t('(Void)') : '';
-      $payments[] = [
-        $payment->getPaymentGateway()->label() . $voided,
-        $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode())),
-      ];
-      if (!isset($payment_totals[$amount->getCurrencyCode()])) {
-        // Initialise the payment total.
-        $payment_totals[$amount->getCurrencyCode()] = 0;
-      }
-      $payment_totals[$amount->getCurrencyCode()] += $amount->getNumber();
-    }
     $form['totals']['payments'] = [
       '#type' => 'table',
-      '#rows' => $payments,
     ];
+    foreach ($this->getOrderPayments() as $payment) {
+      $amount = $payment->getAmount();
+      $rendered_amount = $payment->getState()->value === 'voided' ? $this->t('VOID') : $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode()));
+      $remove_button = [];
+      if ($payment->getState()->value !== 'voided') {
+        // TODO change to a link.
+        $remove_button = [
+          '#type' => 'submit',
+          '#value' => t('void'),
+          '#name' => 'commerce-pos-pay-keypad-remove',
+          '#submit' => ['::submitForm'],
+          '#payment_id' => $payment->id(),
+          '#payment_gateway_id' => $payment->get('payment_gateway')->target_id,
+          '#element_key' => 'remove-payment',
+          '#attributes' => [
+            'class' => [
+              'commerce-pos-pay-keypad-remove',
+            ],
+          ],
+        ];
+        if (!isset($payment_totals[$amount->getCurrencyCode()])) {
+          // Initialise the payment total.
+          $payment_totals[$amount->getCurrencyCode()] = 0;
+        }
+        $payment_totals[$amount->getCurrencyCode()] += $amount->getNumber();
+      }
+
+      $form['totals']['payments'][$payment->id()] = [
+        'gateway' => ['#plain_text' => $payment->getPaymentGateway()->label()],
+        'amount' => [
+          'amount' => ['#plain_text' => $rendered_amount],
+          'void_link' => $remove_button,
+        ],
+      ];
+    }
 
     // Collect the balances.
     $balances = [];

@@ -2,8 +2,6 @@
 
 namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
-use Drupal\commerce_pos\Entity\Register;
-use Drupal\commerce_price\Price;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
 use Drupal\commerce_order\Entity\Order;

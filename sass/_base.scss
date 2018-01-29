@@ -88,6 +88,25 @@
   margin-right: 0
 }
 
+#commerce-pos,
+#commerce-pos-pay-form-wrapper {
+  input.commerce-pos-pay-keypad-remove {
+    margin: 0;
+    padding: 0 10px;
+    border: none;
+    background: none;
+    color: $primary;
+    cursor: pointer;
+    box-shadow: none;
+    &:hover,
+    &:active,
+    &:focus {
+      box-shadow: none;
+      text-decoration: underline;
+    }
+  }
+}
+
 #commerce-pos-pay-form-wrapper .commerce-pos-keypad-quick-pay input[type="submit"]:hover, #commerce-pos-pay-form-wrapper .commerce-pos-keypad-quick-pay input[type="submit"]:focus {
   background-color: #2e6da4
 }

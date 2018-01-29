@@ -32,8 +32,7 @@ class DefaultConfigTest extends KernelTestBase {
    *
    * @var array
    */
-  public static $skippedConfig = [
-  ];
+  public static $skippedConfig = [];
 
   /**
    * {@inheritdoc}
@@ -51,6 +50,9 @@ class DefaultConfigTest extends KernelTestBase {
     system_rebuild_module_data();
   }
 
+  /**
+   *
+   */
   public function moduleListDataProvider() {
     return [
       ['commerce_pos'],
