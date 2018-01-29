@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
+use Drupal\commerce_tax\Entity\TaxType;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
@@ -228,6 +229,56 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $0.00');
     $web_assert->pageTextContains('Change $0.00');
     $web_assert->pageTextNotContains('Jumper');
+  }
+
+  public function testPosFormWithTaxes() {
+    // The default store is US-WI, so imagine that the US has VAT.
+    TaxType::create([
+      'id' => 'pos_test',
+      'label' => 'POS Tax',
+      'plugin' => 'custom',
+      'configuration' => [
+        'display_inclusive' => FALSE,
+        'rates' => [
+          [
+            'id' => 'standard',
+            'label' => 'Standard',
+            'percentage' => '0.2',
+          ],
+        ],
+        'territories' => [
+          ['country_code' => 'US', 'administrative_area' => 'WI'],
+          ['country_code' => 'US', 'administrative_area' => 'SC'],
+        ],
+      ],
+    ])->save();
+
+    $web_assert = $this->assertSession();
+    $this->drupalGet('admin/commerce/pos/main');
+
+    // There is only one register.
+    $web_assert->fieldValueEquals('register', 1);
+    $web_assert->pageTextContains('Test register');
+    $this->drupalPostForm(NULL, [], 'Select Register');
+
+    // Now we should be able to select order items.
+    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(3, $results);
+    // Click on of the auto-complete.
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+
+    // Assert that the product is listed as expected and tax is applied properly.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->pageTextContains('Tax $10.00');
+    $web_assert->pageTextContains('Total $60.00');
+    $web_assert->pageTextContains('To Pay $60.00');
   }
 
   /**

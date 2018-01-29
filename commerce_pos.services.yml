@@ -13,3 +13,8 @@ services:
   commerce_pos.current_order:
     class: Drupal\commerce_pos\CurrentOrder
     arguments: ['@user.private_tempstore']
+
+  commerce_pos.customer_profile_subscriber:
+    class: Drupal\commerce_pos\EventSubscriber\CustomerProfileSubscriber
+    tags:
+      - { name: event_subscriber }

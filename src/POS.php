@@ -86,7 +86,7 @@ class POS extends ControllerBase {
       ]);
 
       $order->setStoreId($store);
-
+      $order->set('field_register', $register->id());
       $order->save();
 
       $this->currentOrder->set($order);
