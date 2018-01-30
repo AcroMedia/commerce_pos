@@ -51,7 +51,7 @@ class DefaultConfigTest extends KernelTestBase {
   }
 
   /**
-   *
+   * Lists commerce_pos modules to test.
    */
   public function moduleListDataProvider() {
     return [

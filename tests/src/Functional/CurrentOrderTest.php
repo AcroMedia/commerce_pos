@@ -4,9 +4,6 @@ namespace Drupal\Tests\commerce_pos\Functional;
 
 use Drupal\Tests\commerce\Functional\CommerceBrowserTestBase;
 use Drupal\commerce_order\Entity\Order;
-use Drupal\commerce_product\Entity\Product;
-use Drupal\commerce_product\Entity\ProductVariation;
-use Drupal\commerce_price\Price;
 
 /**
  * Tests the CurrentOrder get and set.
