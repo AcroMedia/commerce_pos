@@ -90,13 +90,6 @@ class ParkOrderTest extends JavascriptTestBase {
 
     // Now check if we can see the orders in the list.
     $this->clickLink('Parked Orders');
-
-    $out = $this->getSession()->getPage()->getContent();
-    $html_output = 'GET request to: ' . $this->getSession()->getCurrentUrl();
-    $html_output .= '<hr />' . $out;
-    $html_output .= $this->getHtmlOutputHeaders();
-    $this->htmlOutput($html_output);
-
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[1]/a', 1);
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[3]', 'Parked');
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[7]/a', 'Retrieve');
