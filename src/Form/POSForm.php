@@ -11,7 +11,6 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
-use Drupal\commerce_order\Entity\Order;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -53,7 +52,8 @@ class POSForm extends ContentEntityForm {
       $container->get('entity.manager'),
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
-      $container->get('commerce_store.current_store')
+      $container->get('commerce_store.current_store'),
+      $container->get('commerce_pos.current_order')
     );
   }
 
@@ -121,6 +121,15 @@ class POSForm extends ContentEntityForm {
         ],
       ]);
     }
+
+    $form['actions']['park_order'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Park Order'),
+      '#weight' => 6,
+      '#submit' => ['::parkOrder'],
+      '#validate' => ['::validateParkOrder'],
+      '#disabled' => empty($this->entity->getItems()),
+    ];
 
     return $form;
   }
@@ -271,6 +280,12 @@ class POSForm extends ContentEntityForm {
       '#button_type' => 'primary',
     ];
 
+    $form['actions']['park_order'] = [
+      '#type' => 'submit',
+      '#value' => $this->t('Park Order'),
+      '#submit' => ['::parkOrder'],
+    ];
+
     $form['actions']['back'] = [
       '#type' => 'submit',
       '#value' => t('Back To Order'),
@@ -295,12 +310,12 @@ class POSForm extends ContentEntityForm {
 
     $triggering_element = $form_state->getTriggeringElement();
     // Add note submit was clicked.
-    if ($triggering_element['#element_key'] == 'add-note-submit') {
+    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-note-submit') {
       $this->saveOrderComment($this->entity, $form_state->getValue('add_note')['note_text']);
     }
 
     // 'Add Note' was clicked.
-    if (!empty($triggering_element) && $triggering_element['#element_key'] == 'add-note') {
+    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-note') {
       $form['add_note']['note_text'] = [
         '#type' => 'textarea',
         '#title' => t('Add Note'),
@@ -416,33 +431,34 @@ class POSForm extends ContentEntityForm {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
     $triggering_element = $form_state->getTriggeringElement();
+    $triggering_element_key = !empty($triggering_element['#element_key']) ? $triggering_element['#element_key'] : '';
     $step = $form_state->get('step');
     if ($step == 'order') {
       parent::submitForm($form, $form_state);
       $this->entity->save();
-      if ($triggering_element['#element_key'] !== 'remove-payment') {
+      if ($triggering_element_key !== 'remove-payment') {
         $form_state->set('step', 'payment');
       }
       $form_state->setRebuild(TRUE);
     }
 
     if ($step == 'payment') {
-      if ($triggering_element['#element_key'] == 'add-payment') {
+      if ($triggering_element_key == 'add-payment') {
         $this->submitPayment($form, $form_state);
         // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
         // also helps if we're loading it somewhere else, like for the receipt trickyness.
         $this->entity->save();
       }
-      elseif ($triggering_element['#element_key'] == 'back-to-order') {
+      elseif ($triggering_element_key == 'back-to-order') {
         $form_state->set('step', 'order');
         $form_state->setRebuild(TRUE);
       }
-      elseif ($triggering_element['#element_key'] == 'finish-order') {
+      elseif ($triggering_element_key == 'finish-order') {
         $this->finishOrder($form, $form_state);
       }
     }
 
-    if ($triggering_element['#element_key'] == 'remove-payment') {
+    if ($triggering_element_key == 'remove-payment') {
       $this->voidPayment($form, $form_state);
       // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
       // also helps if we're loading it somewhere else, like for the receipt trickyness.
@@ -542,6 +558,7 @@ class POSForm extends ContentEntityForm {
     $store = $order->getStore();
     $default_currency = $store->getDefaultCurrency();
     $totals = [];
+
     // Collecting the Subtotal.
     $form['totals'] = [
       '#type' => 'container',
@@ -730,7 +747,35 @@ class POSForm extends ContentEntityForm {
    */
   protected function clearOrder() {
     \Drupal::service('commerce_pos.current_order')->clear();
+  }
 
+  /**
+   * Parks current order.
+   */
+  public function parkOrder(array &$form, FormStateInterface $form_state) {
+    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
+    $order = $this->entity;
+
+    $order->set('state', 'parked')
+      ->save();
+
+    $this->clearOrder();
+
+    drupal_set_message($this->t('Order @order_id has been parked', ['@order_id' => $order->id()]));
+  }
+
+  /**
+   * Validation callback called before parking an order.
+   *
+   * @param array $form
+   *   Form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
+   */
+  public function validateParkOrder(array &$form, FormStateInterface $form_state) {
+    if (empty($this->entity->getItems())) {
+      $form_state->setError($form, $this->t('Cannot park an empty order'));
+    }
   }
 
 }

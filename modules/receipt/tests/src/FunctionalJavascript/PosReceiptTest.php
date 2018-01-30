@@ -62,23 +62,15 @@ class PosReceiptTest extends JavascriptTestBase {
     // Go back to the order.
     $this->drupalGet('admin/commerce/pos/main');
     // Go to the payment page.
-    $this->click('.commerce-pos input[name="op"]');
+    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->click('input[name="commerce-pos-finish"]');
-    $this->waitForAjaxToFinish();
+
     // We now have a complete order and new draft order.
     $this->drupalGet('admin/commerce/orders');
     // The first row has a Show receipt action and the second does not.
     $web_assert->elementContains('xpath', '//table[contains(@class, "views-view-table")]/tbody/tr[1]', 'Show receipt');
     $web_assert->elementNotContains('xpath', '//table[contains(@class, "views-view-table")]/tbody/tr[2]', 'Show receipt');
-  }
-
-  /**
-   * Waits for jQuery to become active and animations to complete.
-   */
-  protected function waitForAjaxToFinish() {
-    $condition = "(0 === jQuery.active && 0 === jQuery(':animated').length)";
-    $this->assertJsCondition($condition, 10000);
   }
 
 }

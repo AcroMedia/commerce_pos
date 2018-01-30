@@ -2,28 +2,25 @@
 
 namespace Drupal\commerce_pos\Form;
 
-use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\Core\Ajax\AjaxResponse;
 use Drupal\Core\Ajax\HtmlCommand;
 use Drupal\Core\Datetime\DrupalDateTime;
-use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Link;
-use Drupal\Core\StringTranslation\TranslatableMarkup;
 use Drupal\Core\Url;
 use Drupal\user\Entity\User;
 
 /**
  * Provides an order lookup form to search orders.
  */
-class OrderLookupForm extends FormBase {
+class ParkedOrdersForm extends OrderLookupForm {
 
   /**
    * {@inheritdoc}
    */
   public function getFormId() {
-    return 'commerce_pos_order_lookup';
+    return 'commerce_pos_parked_order_lookup';
   }
 
   /**
@@ -33,7 +30,7 @@ class OrderLookupForm extends FormBase {
     // The order search elements.
     $form['order_lookup'] = [
       '#type' => 'fieldset',
-      '#title' => $this->t('Order Lookup'),
+      '#title' => $this->t('Parked Order Lookup'),
     ];
 
     // The search box to look up by order number, customer name or email.
@@ -41,13 +38,13 @@ class OrderLookupForm extends FormBase {
       '#type' => 'textfield',
       '#maxlength' => 50,
       '#size' => 25,
-      '#description' => $this->t('Search by order number, customer name or customer email.'),
+      '#description' => $this->t('Filter by order number, customer name or customer email.'),
       '#ajax' => [
         'callback' => '::orderLookupAjaxRefresh',
         'event' => 'input',
         'progress' => [
           'type' => 'throbber',
-          'message' => t('Searching orders...'),
+          'message' => t('Searching parked orders...'),
         ],
       ],
     ];
@@ -61,108 +58,21 @@ class OrderLookupForm extends FormBase {
 
     $triggering_element = $form_state->getTriggeringElement();
     if (empty($triggering_element)) {
-      $form['order_lookup']['results']['result'] = $this->searchOrderResults();
+      $lookup_results = $this->searchOrderResults('', 'parked', '=', $this->t('There are currently no parked orders'));
+
+      $form['order_lookup']['results']['result'] = [
+        '#type' => 'item',
+        '#markup' => $lookup_results,
+        '#prefix' => '<div id="order-lookup-results">',
+        '#suffix' => '</div>',
+      ];
     }
 
     return $form;
   }
 
   /**
-   * Submit callback for the order lookup form.
-   */
-  public function submitForm(array &$form, FormStateInterface $form_state) {
-    // No submit actually needed as this form is ajax refresh only.
-  }
-
-  /**
-   * Ajax callback for the order lookup submit button.
-   */
-  public function orderLookupAjaxRefresh(array $form, FormStateInterface &$form_state) {
-    $search_text = $form_state->getValue('search_box');
-
-    $results = $this->searchOrderResults($search_text);
-
-    $response = new AjaxResponse();
-    $response->addCommand(new HtmlCommand('#order-lookup-results', $results));
-
-    return $response;
-  }
-
-  /**
-   * Looks up an order based on a search criteria and returns the results.
-   *
-   * @param string $search_text
-   *   The search criteria. Could be an order ID, customer name, or email.
-   * @param string $state
-   *   (optional) The order state to match. Defaults to 'draft'.
-   * @param string $operator
-   *   (optional) The operator to use when matching on state. Defaults to '!='.
-   * @param \Drupal\Core\StringTranslation\TranslatableMarkup $empty_message
-   *   (optional) A translated search string to display if no results are
-   *   returned.
-   *
-   * @return \Drupal\Core\StringTranslation\TranslatableMarkup|array
-   *   The render array or a translatable string.
-   */
-  public function searchOrderResults($search_text = '', $state = 'draft', $operator = '!=', TranslatableMarkup $empty_message = NULL) {
-    $result_limit = \Drupal::config('commerce_pos.settings')->get('order_lookup_limit');
-
-    // Create the query now.
-    $query = \Drupal::entityQuery('commerce_order');
-    $query = $query->condition('state', $state, $operator);
-    $query = $query->condition('type', 'pos');
-    $query = $query->sort('order_id', 'DESC')
-      ->range(0, !empty($result_limit) ? $result_limit : 10);
-
-    if ($search_text) {
-      if (is_numeric($search_text)) {
-        $query->condition('order_id', $search_text);
-      }
-      else {
-        $conditions = $query->orConditionGroup();
-        // First check if we can find a user by this name.
-        $user = user_load_by_name($search_text);
-        if ($user) {
-          $conditions = $conditions->condition('uid', $user->id());
-        }
-        $conditions = $conditions->condition('mail', $search_text);
-
-        $query->condition($conditions);
-      }
-    }
-
-    $result = $query->execute();
-    if (!empty($result)) {
-      $orders = Order::loadMultiple($result);
-    }
-
-    // If we've got an order, let's output the details in a table.
-    if (!empty($orders)) {
-      $order_markup = $this->buildOrderTable($orders);
-    }
-    else {
-      if ($search_text) {
-        $order_markup = $this->t('The order could not be found or does not exist.');
-      }
-      elseif ($empty_message) {
-        $order_markup = $empty_message;
-      }
-      else {
-        $order_markup = $this->t('There are currently no POS orders.');
-      }
-    }
-
-    return $order_markup;
-  }
-
-  /**
-   * Return a themed table with the order details.
-   *
-   * @param array $orders
-   *   An array of order entities.
-   *
-   * @return string
-   *   The markup for the themed table.
+   * {@inheritdoc}
    */
   public function buildOrderTable(array $orders) {
     $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
@@ -175,10 +85,13 @@ class OrderLookupForm extends FormBase {
       t('Cashier'),
       t('Customer'),
       t('Total'),
+      t('Operations'),
     ];
 
     $rows = [];
     foreach ($orders as $order) {
+
+      $retrieve_url = Url::fromRoute('commerce_pos.parked_order_retrieve', ['commerce_order' => $order->id()]);
 
       /* @var \Drupal\commerce_order\Entity\Order $order */
       // The link to the order.
@@ -227,6 +140,7 @@ class OrderLookupForm extends FormBase {
         Link::fromTextAndUrl($cashier->getDisplayName(), $cashier_url),
         Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
         $formatted_amount,
+        Link::fromTextAndUrl('Retrieve', $retrieve_url),
       ];
     }
 
@@ -239,7 +153,21 @@ class OrderLookupForm extends FormBase {
       '#type' => 'pager',
     ];
 
-    return $output;
+    return \Drupal::service('renderer')->render($output);
+  }
+
+  /**
+   * Ajax callback for the order lookup submit button.
+   */
+  public function orderLookupAjaxRefresh(array $form, FormStateInterface &$form_state) {
+    $search_text = $form_state->getValue('search_box');
+
+    $results = $this->searchOrderResults($search_text, 'parked', '=');
+
+    $response = new AjaxResponse();
+    $response->addCommand(new HtmlCommand('#order-lookup-results', $results));
+
+    return $response;
   }
 
 }

@@ -8,3 +8,8 @@ commerce_pos.order_lookup:
   route_name: 'commerce_pos.order_lookup'
   base_route: 'commerce_pos.main'
   description: 'Point of Sale Order Lookup'
+commerce_pos.parked_order_lookup:
+  title: 'Parked Orders'
+  route_name: 'commerce_pos.parked_order_lookup'
+  base_route: 'commerce_pos.main'
+  description: 'Point of Sale Parked Order Lookup'

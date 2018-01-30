@@ -4,6 +4,9 @@ namespace Drupal\Tests\commerce_pos\Functional;
 
 use Drupal\Tests\commerce\Functional\CommerceBrowserTestBase;
 use Drupal\commerce_order\Entity\Order;
+use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_product\Entity\ProductVariation;
+use Drupal\commerce_price\Price;
 
 /**
  * Tests the CurrentOrder get and set.
@@ -39,7 +42,7 @@ class CurrentOrderTest extends CommerceBrowserTestBase {
 
     $retrieved_order = $this->container->get('commerce_pos.current_order')->get();
 
-    $this->assertEqual($order->id(), $retrieved_order->id());
+    $this->assertEquals($order->id(), $retrieved_order->id());
   }
 
 }

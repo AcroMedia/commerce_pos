@@ -57,6 +57,9 @@ trait CommercePosCreateStoreTrait {
 
   /**
    * Creates a store with some products.
+   *
+   * @return \Drupal\commerce_store\Entity\StoreInterface
+   *   The store.
    */
   protected function setUpStore() {
     // Initial store set up.
@@ -98,6 +101,8 @@ trait CommercePosCreateStoreTrait {
       'title' => 'Jumper',
       'stores' => [$test_store],
     ]);
+
+    return $test_store;
   }
 
 }

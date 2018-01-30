@@ -24,14 +24,20 @@ class OrderLookupTest extends JavascriptTestBase {
   ];
 
   /**
+   * The commerce store.
+   *
+   * @var \Drupal\commerce_store\Entity\StoreInterface
+   */
+  protected $store;
+
+  /**
    * {@inheritdoc}
    */
   protected function setUp() {
     parent::setUp();
 
     // Initial store set up.
-    $test_store = $this->createStore('POS test store', 'pos_test_store@example.com', 'physical');
-    $this->store = $test_store;
+    $this->store = $this->setUpStore();
 
     $this->adminUser = $this->drupalCreateUser(['access commerce pos order lookup', 'access commerce pos pages']);
     $this->drupalLogin($this->adminUser);
@@ -57,6 +63,8 @@ class OrderLookupTest extends JavascriptTestBase {
       'type' => 'pos',
       'state' => 'completed',
       'store_id' => $this->store->id(),
+      'field_cashier' => $this->adminUser->id(),
+      'field_register' => 1,
     ]);
     $order->save();
 
@@ -66,8 +74,9 @@ class OrderLookupTest extends JavascriptTestBase {
     // Lookup the order ID.
     $this->getSession()->getPage()->fillField('search_box', $order->id());
     $this->waitForAjaxToFinish();
+
     $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(1) > a', $order->id());
-    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(2)', 'Completed');
+    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(3)', 'Completed');
   }
 
   /**
