@@ -68,7 +68,7 @@ trait CommercePosCreateStoreTrait {
     $register = Register::create([
       'store_id' => $test_store->id(),
       'name' => 'Test register',
-      'cash' => new Price('1000.00', 'USD'),
+      'default_float' => new Price('1000.00', 'USD'),
     ]);
     $register->save();
 

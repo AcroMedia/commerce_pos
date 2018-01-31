@@ -5,6 +5,8 @@
  * Install, update and uninstall functions for the commerce_pos module.
  */
 
+use Drupal\Core\Field\BaseFieldDefinition;
+
 /**
  * Implements hook_schema().
  */
@@ -50,4 +52,68 @@ function commerce_pos_schema() {
  */
 function commerce_pos_update_8201() {
   drupal_install_schema('commerce_pos');
+}
+
+/**
+ * Update the register fields, removing cash and adding open, opening float and default float.
+ */
+function commerce_pos_update_8202() {
+  $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
+
+  if ($definition_update_manager->getEntityType('commerce_pos_register')) {
+    // Remove the no longer used 'float' field
+    $storage_definition = $definition_update_manager->getFieldStorageDefinition('float', 'commerce_pos_register');
+    if ($storage_definition) {
+      $definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
+    }
+  }
+
+  $storage_definition = BaseFieldDefinition::create('boolean')
+    ->setLabel(t('Open'))
+    ->setDescription(t('If this register is open or closed.'))
+    ->setDefaultValue(0)
+    ->setDisplayOptions('view', [
+      'type' => 'boolean_checkbox',
+      'weight' => 2,
+      'disabled' => TRUE,
+    ])
+    ->setDisplayConfigurable('view', TRUE)
+    ->setDisplayConfigurable('form', FALSE);
+
+  $definition_update_manager->installFieldStorageDefinition('open', 'commerce_pos_register', 'commerce_pos_register', $storage_definition);
+
+  $storage_definition = BaseFieldDefinition::create('commerce_price')
+    ->setLabel(t('Opening Float'))
+    ->setDescription(t('The float amount when this register was opened.'))
+    ->setRequired(FALSE)
+    ->setDefaultValue(0)
+    ->setDisplayOptions('view', [
+      'label' => 'above',
+      'type' => 'commerce_price_default',
+      'weight' => 3,
+    ])
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', FALSE);
+
+  $definition_update_manager->installFieldStorageDefinition('opening_float', 'commerce_pos_register', 'commerce_pos_register', $storage_definition);
+
+  // Some sort of currency or price field maybe?
+  $storage_definition = BaseFieldDefinition::create('commerce_price')
+    ->setLabel(t('Default Float'))
+    ->setDescription(t('The float to recommend when opening this register.'))
+    ->setRequired(TRUE)
+    ->setDefaultValue(0)
+    ->setDisplayOptions('view', [
+      'label' => 'above',
+      'type' => 'commerce_price_default',
+      'weight' => 4,
+    ])
+    ->setDisplayOptions('form', [
+      'type' => 'commerce_price_default',
+      'weight' => 4,
+    ])
+    ->setDisplayConfigurable('form', TRUE)
+    ->setDisplayConfigurable('view', TRUE);
+
+  $definition_update_manager->installFieldStorageDefinition('default_float', 'commerce_pos_register', 'commerce_pos_register', $storage_definition);
 }

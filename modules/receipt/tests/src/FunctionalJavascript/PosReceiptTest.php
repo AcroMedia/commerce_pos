@@ -36,10 +36,10 @@ class PosReceiptTest extends JavascriptTestBase {
   public function testReceipt() {
     $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
-    // There is only one register.
-    $web_assert->fieldValueEquals('register', 1);
-    $web_assert->pageTextContains('Test register');
-    $this->drupalPostForm(NULL, [], 'Select Register');
+
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');

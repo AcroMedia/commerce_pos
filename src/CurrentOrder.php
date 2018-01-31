@@ -6,7 +6,7 @@ use Drupal\commerce_order\Entity\Order;
 use Drupal\user\PrivateTempStoreFactory;
 
 /**
- * Get any product variations with the provided UPC.
+ * Get the current order for the POS.
  */
 class CurrentOrder {
 
@@ -18,7 +18,7 @@ class CurrentOrder {
   protected $tempStore;
 
   /**
-   * Constructs a new POS object.
+   * Constructs a new CurrentOrder object.
    *
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
@@ -37,6 +37,9 @@ class CurrentOrder {
     $this->tempStore->set('order', $order->id());
   }
 
+  /**
+   *
+   */
   public function clear() {
     $this->tempStore->delete('order');
   }

@@ -2,6 +2,8 @@
 
 namespace Drupal\commerce_pos\Form;
 
+use Drupal\commerce_pos\Entity\Register;
+use Drupal\commerce_price\Price;
 use Drupal\Core\Form\FormBase;
 use Drupal\Core\Form\FormInterface;
 use Drupal\Core\Form\FormStateInterface;
@@ -34,20 +36,40 @@ class RegisterSelectForm extends FormBase implements FormInterface {
       return $form;
     }
 
-    $register_options = [];
+    $register_options = ['' => '-'];
     foreach ($registers as $id => $register) {
       $register_options[$id] = $register->getName();
+    }
+
+    if ($form_state->getValue('register') > 0) {
+      $default_register = Register::load($form_state->getValue('register'));
+    }
+    else {
+      $default_register = \Drupal::service('commerce_pos.current_register')
+        ->get();
     }
 
     $form['register'] = [
       '#type' => 'select',
       '#title' => $this->t('Select Register'),
       '#options' => $register_options,
+      '#default_value' => $default_register ? $default_register->id() : 0,
+      '#required' => TRUE,
+    ];
+
+    $form['float'] = [
+      '#type' => 'commerce_price',
+      '#title' => $this->t('Opening Float'),
+      '#required' => TRUE,
+      '#default_value' => $default_register ? $default_register->getDefaultFloat()->toArray() : NULL,
     ];
 
     $form['actions']['submit'] = [
+      // This is a hack because the formatting on price fields is screwy, when that gets fixed
+      // this can be removed.
+      '#prefix' => '<br />',
       '#type' => 'submit',
-      '#value' => $this->t('Select Register'),
+      '#value' => $this->t('Open Register'),
       '#button_type' => 'primary',
     ];
 
@@ -58,15 +80,29 @@ class RegisterSelectForm extends FormBase implements FormInterface {
    * {@inheritdoc}
    */
   public function validateForm(array &$form, FormStateInterface $form_state) {
-    // Required by interface, currently no validation needed.
+    // No custom validation needed.
   }
 
   /**
    * {@inheritdoc}
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
-    $tempstore = \Drupal::service('user.private_tempstore')->get('commerce_pos');
-    $tempstore->set('register', $form_state->getValue('register'));
+    $values = $form_state->getValues();
+
+    $register = Register::load($values['register']);
+    $register->setOpeningFloat(new Price($values['float']['number'], $values['float']['currency_code']));
+    $register->open();
+    $register->save();
+
+    \Drupal::service('commerce_pos.current_register')->set($register);
+  }
+
+  /**
+   * Ajax callback for the order lookup submit button.
+   */
+  public function defaultFloatCallback(array $form, FormStateInterface &$form_state) {
+    // A price element can't currently be return in an ajax form as far as I can tell (it's not super obvious)
+    // TODO Once this is fixed in commerce, we should populate the default float in here when a user selects a register.
   }
 
 }

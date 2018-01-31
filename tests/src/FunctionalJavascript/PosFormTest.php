@@ -29,7 +29,9 @@ class PosFormTest extends JavascriptTestBase {
    */
   protected function setUp() {
     parent::setUp();
+
     $this->setUpStore();
+
     // @todo work out the expected permissions to view products etc...
     $this->drupalLogin($this->rootUser);
   }
@@ -41,10 +43,9 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
 
-    // There is only one register.
-    $web_assert->fieldValueEquals('register', 1);
-    $web_assert->pageTextContains('Test register');
-    $this->drupalPostForm(NULL, [], 'Select Register');
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
@@ -266,10 +267,9 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
 
-    // There is only one register.
-    $web_assert->fieldValueEquals('register', 1);
-    $web_assert->pageTextContains('Test register');
-    $this->drupalPostForm(NULL, [], 'Select Register');
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
@@ -304,8 +304,11 @@ class PosFormTest extends JavascriptTestBase {
     $settings['settings']['placeholder'] = $this->randomString(20);
     $form_display->setComponent('order_items', $settings)->save();
 
-    // Get to the order form.
-    $this->drupalPostForm('admin/commerce/pos/main', [], 'Select Register');
+    $this->drupalGet('admin/commerce/pos/main');
+
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
 
     $autocomplete_field = $this->getSession()
       ->getPage()
@@ -313,7 +316,6 @@ class PosFormTest extends JavascriptTestBase {
     $this->assertEquals($settings['settings']['placeholder'], $autocomplete_field->getAttribute('placeholder'));
 
     // Ensure that the auto-complete only returns 1 value.
-    $this->drupalGet('admin/commerce/pos/main');
     $autocomplete_field->setValue('T');
     $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
     $web_assert->waitOnAutocomplete();

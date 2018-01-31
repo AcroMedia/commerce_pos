@@ -22,7 +22,7 @@ class ParkOrderTest extends JavascriptTestBase {
    */
   public static $modules = [
     'commerce_pos',
-    'block'
+    'block',
   ];
 
   /**
@@ -42,10 +42,10 @@ class ParkOrderTest extends JavascriptTestBase {
   public function testParkOrder() {
     $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
-    // There is only one register.
-    $web_assert->fieldValueEquals('register', 1);
-    $web_assert->pageTextContains('Test register');
-    $this->drupalPostForm(NULL, [], 'Select Register');
+
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
@@ -111,7 +111,7 @@ class ParkOrderTest extends JavascriptTestBase {
     $url = Url::fromRoute('commerce_pos.main');
     $this->assertEquals($this->getAbsoluteUrl($url->toString()), $this->getUrl());
 
-    // Now check if order 2 is still parked
+    // Now check if order 2 is still parked.
     $this->clickLink('Parked Orders');
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[1]/td[1]/a', 2);
 
@@ -120,7 +120,7 @@ class ParkOrderTest extends JavascriptTestBase {
     $this->drupalGet($retrieve_link_href);
     $web_assert->pageTextContains('Access denied');
 
-    // Order 1 has indeed been set back to 'draft'
+    // Order 1 has indeed been set back to 'draft'.
     $order = Order::load(1);
     $this->assertEquals($order->getState()->value, 'draft');
 

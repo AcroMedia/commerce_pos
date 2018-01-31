@@ -84,7 +84,7 @@ class RegisterTest extends CommerceBrowserTestBase {
     // Create Register through the form.
     $edit = [
       'name[0][value]' => 'foo',
-      'cash[0][number]' => 100,
+      'default_float[0][number]' => 100,
     ];
     $this->drupalPostForm("admin/commerce/config/pos/register/add", $edit, 'Save');
     $this->assertSession()->responseContains('Successfully saved register foo.');
@@ -98,14 +98,14 @@ class RegisterTest extends CommerceBrowserTestBase {
     // Create a new Register.
     $register_new = $this->createEntity('commerce_pos_register', [
       'name' => 'foo',
-      'cash' => 100,
+      'default_float' => 100,
     ]);
 
     $this->drupalGet('admin/commerce/config/pos/register/' . $register_new->id() . '/edit');
     // Only name is updated.
     $edit = [
       'name[0][value]' => $this->randomMachineName(8),
-      'cash[0][number]' => 100,
+      'default_float[0][number]' => 100,
     ];
     $this->submitForm($edit, 'Save');
     \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->resetCache([$register_new->id()]);
@@ -120,7 +120,7 @@ class RegisterTest extends CommerceBrowserTestBase {
     // Create a new register.
     $register = $this->createEntity('commerce_pos_register', [
       'name' => 'foo',
-      'cash' => 100,
+      'default_float' => 100,
     ]);
 
     $this->drupalGet('admin/commerce/config/pos/register/' . $register->id() . '/delete');

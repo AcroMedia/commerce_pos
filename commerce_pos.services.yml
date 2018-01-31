@@ -14,6 +14,9 @@ services:
     class: Drupal\commerce_pos\CurrentOrder
     arguments: ['@user.private_tempstore']
 
+  commerce_pos.current_register:
+    class: Drupal\commerce_pos\CurrentRegister
+
   commerce_pos.customer_profile_subscriber:
     class: Drupal\commerce_pos\EventSubscriber\CustomerProfileSubscriber
     tags:

@@ -2,6 +2,7 @@
 
 namespace Drupal\commerce_pos\Entity;
 
+use Drupal\commerce_price\Price;
 use Drupal\Core\Entity\ContentEntityBase;
 use Drupal\Core\Entity\EntityTypeInterface;
 use Drupal\Core\Field\BaseFieldDefinition;
@@ -100,6 +101,60 @@ class Register extends ContentEntityBase implements RegisterInterface {
   /**
    * {@inheritdoc}
    */
+  public function getOpeningFloat() {
+    return $this->get('opening_float')->first()->toPrice();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setOpeningFloat(Price $opening_float) {
+    $this->set('opening_float', $opening_float);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function getDefaultFloat() {
+    return $this->get('default_float')->first()->toPrice();
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function setDefaultFloat(Price $default_float) {
+    $this->set('default_float', $default_float);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function open() {
+    $this->set('open', TRUE);
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function close() {
+    $this->set('open', FALSE);
+
+    return $this;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function isOpen() {
+    return $this->get('open')->value;
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public static function baseFieldDefinitions(EntityTypeInterface $entity_type) {
     $fields = parent::baseFieldDefinitions($entity_type);
 
@@ -139,20 +194,44 @@ class Register extends ContentEntityBase implements RegisterInterface {
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);
 
-    // Some sort of currency or price field maybe?
-    $fields['cash'] = BaseFieldDefinition::create('commerce_price')
-      ->setLabel(t('Cash'))
-      ->setDescription(t('The value of all the cash in the register.'))
+    $fields['open'] = BaseFieldDefinition::create('boolean')
+      ->setLabel(t('Open'))
+      ->setDescription(t('If this register is open or closed.'))
+      ->setDefaultValue(0)
+      ->setDisplayOptions('view', [
+        'type' => 'boolean_checkbox',
+        'weight' => 2,
+        'disabled' => TRUE,
+      ])
+      ->setDisplayConfigurable('view', TRUE)
+      ->setDisplayConfigurable('form', FALSE);
+
+    $fields['opening_float'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Opening Float'))
+      ->setDescription(t('The float amount when this register was opened.'))
+      ->setRequired(FALSE)
+      ->setDefaultValue(0)
+      ->setDisplayOptions('view', [
+        'label' => 'above',
+        'type' => 'commerce_price_default',
+        'weight' => 3,
+      ])
+      ->setDisplayConfigurable('form', TRUE)
+      ->setDisplayConfigurable('view', FALSE);
+
+    $fields['default_float'] = BaseFieldDefinition::create('commerce_price')
+      ->setLabel(t('Default Float'))
+      ->setDescription(t('The float to recommend when opening this register.'))
       ->setRequired(TRUE)
       ->setDefaultValue(0)
       ->setDisplayOptions('view', [
         'label' => 'above',
         'type' => 'commerce_price_default',
-        'weight' => 2,
+        'weight' => 4,
       ])
       ->setDisplayOptions('form', [
         'type' => 'commerce_price_default',
-        'weight' => 2,
+        'weight' => 4,
       ])
       ->setDisplayConfigurable('form', TRUE)
       ->setDisplayConfigurable('view', TRUE);

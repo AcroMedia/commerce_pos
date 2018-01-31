@@ -69,24 +69,25 @@ class POS extends ControllerBase {
    *   A renderable array containing the POS form.
    */
   public function content() {
-    $register = $this->tempStore->get('register');
+    $register = \Drupal::service('commerce_pos.current_register')->get();
 
-    if (empty($register) || !($register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register))) {
+    if (empty($register) || !$register->isOpen()) {
       return \Drupal::formBuilder()->getForm('\Drupal\commerce_pos\Form\RegisterSelectForm');
     }
 
-    $store = $register->getStoreId();
+    $store_id = $register->getStoreId();
 
     $order = $this->currentOrder->get();
 
     if (!$order) {
       $order = Order::create([
         'type' => 'pos',
+        'store_id' => $store_id,
+        'customer_id' => 0,
         'field_cashier' => \Drupal::currentUser()->id(),
         'field_register' => $register->id(),
       ]);
 
-      $order->setStoreId($store);
       $order->save();
 
       $this->currentOrder->set($order);
