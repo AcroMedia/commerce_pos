@@ -81,3 +81,11 @@ commerce_pos.parked_order_retrieve:
     # So we just use the standard permission, we can change this if the need ever arises but I don't
     # want to spam permissions
     _permission: 'access commerce pos pages'
+
+commerce_pos.close_register:
+  path: '/admin/commerce/pos/close-register'
+  defaults:
+    _controller: 'Drupal\commerce_pos\Controller\CloseRegister::content'
+    _title: 'Point of Sale Close Register'
+  requirements:
+    _permission: 'access commerce pos pages'

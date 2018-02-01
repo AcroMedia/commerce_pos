@@ -18,6 +18,6 @@ commerce_pos.parked_order_lookup:
 
 commerce_pos.close_register:
   title: 'Close Register'
-  route_name: 'commerce_pos.parked_order_lookup'
+  route_name: 'commerce_pos.close_register'
   base_route: 'commerce_pos.main'
   description: 'Close Register'

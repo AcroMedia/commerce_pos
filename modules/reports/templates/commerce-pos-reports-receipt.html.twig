@@ -1,0 +1,92 @@
+<div class="pos-report-receipt">
+  <h1>
+    {% trans %}
+      End of Day  {{ date }}
+    {% endtrans %}
+  </h1>
+
+  <h2>
+    {% trans %}
+    Register  {{ register }}
+    {% endtrans %}
+  </h2>
+
+  {% for row in rows %}
+    <h3 class="title">{{ row.title }}</h3>
+
+    <table>
+      <tr>
+        <td class="label">{{ 'Total Transactions:'|t }}</td>
+        <td class="value">{{ row.total_transactions }}</td>
+      </tr>
+      <tr>
+        <td class="label">{{ 'Declared:'|t }}</td>
+        <td class="value">{{ row.declared }}</td>
+      </tr>
+      <tr>
+        <td class="label">{{ 'Expected:'|t }}</td>
+        <td class="value">{{ row.expected }}</td>
+      </tr>
+      <tr>
+        <td class="label">{{ 'Over/Short:'|t }}</td>
+        <td class="value">{{ row.over_short }}</td>
+      </tr>
+      {% if row.cash_deposit %}
+        <tr>
+          <td class="label">{{ 'Cash Deposit:'|t }}</td>
+          <td class="value">{{ row.cash_deposit }}</td>
+        </tr>
+      {% endif %}
+      <tr>
+        <td colspan="2">&nbsp;</td>
+      </tr>
+      <tr>
+        <td colspan="2" align="center">== {{ 'Transaction Summary'|t }} ==</td>
+      </tr>
+      <tr>
+        <td colspan="2">&nbsp;</td>
+      </tr>
+      {% for transaction in row.transaction_summary %}
+        <tr>
+          <td class="label">
+            {{ 'Order ID:'|t }}
+          </td>
+          <td class="value">
+            {{ transaction.order_id }}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">{{ 'Status:'|t }}</td>
+          <td class="value">{{ transaction.status }}</td>
+        </tr>
+        <tr>
+          <td class="label">
+            {{ 'Time:'|t }}
+          </td>
+          <td class="value">
+            {{ transaction.completed_date_formatted }}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">
+            {{ 'Cashier:'|t }}
+          </td>
+          <td class="value">
+            {{ transaction.cashier }}
+          </td>
+        </tr>
+        <tr>
+          <td class="label">
+            {{ 'Amount:'|t }}
+          </td>
+          <td class="value">
+            {{ transaction.amount_currency_formatted }}
+          </td>
+        </tr>
+        <tr>
+          <td colspan="2" align="center">=============================</td>
+        </tr>
+      {% endfor %}
+    </table>
+  {% endfor %}
+</div>

@@ -14,6 +14,7 @@ var config = {
     { src: './modules/label/sass/labels/*.scss', dest: './modules/label/css/labels'},
     { src: './modules/label/sass/*.scss', dest: './modules/label/css'},
     { src: './modules/keypad/sass/**/*.scss', dest: './modules/keypad/css'},
+    { src: './modules/reports/sass/**/*.scss', dest: './modules/reports/css'},
     { src: './sass/**/*.scss', dest: './css' }
   ]
 };

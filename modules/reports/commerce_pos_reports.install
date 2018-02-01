@@ -1,0 +1,52 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the commerce_pos_reports module.
+ */
+
+/**
+ * Implements hook_schema().
+ */
+function commerce_pos_reports_schema() {
+  $schema['commerce_pos_report_declared_data'] = [
+    'description' => 'The base table for POS declared amount information',
+    'fields' => [
+      'id' => [
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+      ],
+      'register_id' => [
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'amount' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'date' => [
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0,
+      ],
+      'data' => [
+        'type' => 'blob',
+        'not null' => FALSE,
+        'size' => 'big',
+        'serialize' => TRUE,
+      ],
+    ],
+    'primary key' => ['id'],
+    'indexes' => [
+      'data_register' => ['register_id'],
+      'data_amount' => ['amount'],
+      'data_date' => ['date'],
+    ],
+  ];
+
+  return $schema;
+}

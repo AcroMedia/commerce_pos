@@ -1,0 +1,4 @@
+access commerce pos reports:
+  title: 'Use the commerce point of sale reports'
+update commerce pos closed reports:
+  title: 'Update EOD declarations that have already been closed'

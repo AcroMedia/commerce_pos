@@ -1,0 +1,5 @@
+commerce_pos_reports.end-of-day:
+  title: 'End of Day'
+  route_name: 'commerce_pos_reports.end-of-day'
+  base_route: 'commerce_pos_reports.base'
+  description: 'Point of Sale Reports - End of Day'

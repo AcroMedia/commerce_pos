@@ -1,0 +1,11 @@
+commerce_pos_reports.base:
+  title: 'Reports'
+  parent: 'commerce_pos.base'
+  description: 'POS Reports'
+  route_name: 'commerce_pos_reports.base'
+
+commerce_pos_reports.end-of-day:
+  title: 'End Of Day'
+  parent: 'commerce_pos_reports.base'
+  description: 'POS End Of Day Report'
+  route_name: 'commerce_pos_reports.end-of-day'

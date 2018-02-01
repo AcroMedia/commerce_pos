@@ -16,6 +16,8 @@ trait CommercePosCreateStoreTrait {
   use RandomGeneratorTrait;
   use StoreCreationTrait;
 
+  public $register;
+
   /**
    * Creates a ProductVariation entity.
    *
@@ -68,7 +70,7 @@ trait CommercePosCreateStoreTrait {
     $register = Register::create([
       'store_id' => $test_store->id(),
       'name' => 'Test register',
-      'default_float' => new Price('1000.00', 'USD'),
+      'default_float' => new Price('100.00', 'USD'),
     ]);
     $register->save();
 
@@ -101,6 +103,9 @@ trait CommercePosCreateStoreTrait {
       'title' => 'Jumper',
       'stores' => [$test_store],
     ]);
+
+    $this->store = $test_store;
+    $this->register = $register;
 
     return $test_store;
   }

@@ -1,0 +1,15 @@
+reports:
+  version: VERSION
+  css:
+    layout:
+      css/commerce_pos_reports.css: {}
+  js:
+    js/commerce_pos_reports.js: {}
+  drupalSettings:
+    commercePosReports:
+      cssUrl: null
+  dependencies:
+    - core/jquery
+    - core/drupal
+    - core/drupalSettings
+    - core/drupal.ajax

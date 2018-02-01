@@ -6,6 +6,12 @@
  */
 
 use Drupal\Core\Routing\RouteMatchInterface;
+use Drupal\commerce_price\Entity\Currency;
+use Drupal\commerce_pos\Entity\Register;
+use Drupal\commerce_store\Entity\Store;
+use Drupal\user\Entity\User;
+
+const COMMERCE_POS_PAYMENT_STATUS_SUCCESS = 'completed';
 
 /**
  * Implements hook_help().
@@ -21,4 +27,230 @@ function commerce_pos_reports_help($route_name, RouteMatchInterface $route_match
 
     default:
   }
+}
+
+/**
+ * Implements hook_theme().
+ */
+function commerce_pos_reports_theme($existing, $type, $theme, $path) {
+  \Drupal::moduleHandler()
+    ->loadInclude('commerce_pos_reports', 'inc', 'commerce_pos_reports.theme');
+
+  $hooks['commerce_pos_reports_end_of_day_result_table'] = [
+    'file' => 'commerce_pos_reports.theme.inc',
+    'render element' => 'form',
+  ];
+
+  $hooks['commerce_pos_reports_receipt'] = [
+    'variables' => [
+      'date' => NULL,
+      'register' => NULL,
+    ],
+    'file' => 'commerce_pos_reports.theme.inc',
+  ];
+
+  return $hooks;
+}
+
+/**
+ * Prepares an array of JavaScript settings.
+ *
+ * Contains instructions on how to format currencies via a JavaScript function
+ * call.
+ *
+ * @param array $currencies
+ *   An array of currency codes to provide formatting settings for.
+ *
+ * @return array
+ *   Formatting settings for any requested currencies, key'd by currency code.
+ */
+function commerce_pos_reports_currency_js(array $currencies) {
+  $settings = [];
+
+  foreach ($currencies as $currency_code) {
+    $currency = Currency::load($currency_code);
+    $settings[$currency_code]['currency'] = $currency;
+    $settings[$currency_code]['divisor'] = pow(10, $currency->getFractionDigits());
+  }
+
+  return $settings;
+}
+
+/**
+ * Retrieves the timestamp for the end of day.
+ *
+ * @return int
+ *   The timestamp for the end of the day.
+ */
+function commerce_pos_reports_end_of_day_timestamp() {
+  // If they're still empty.
+  if (empty($hour)) {
+    $hour = '23';
+  }
+  if (empty($minute)) {
+    $minute = '59';
+  }
+
+  $time = time();
+
+  return strtotime("$hour:$minute", $time);
+}
+
+/**
+ * Loads the EOD report for a specific register and date.
+ *
+ * @param string $date
+ *   A strtotime compatible date, will search this date exactly.
+ * @param int $register_id
+ *   Id of the register to load the report for.
+ *
+ * @return array
+ *   Report metainfo and data.
+ */
+function commerce_pos_reports_get_eod_report($date, $register_id) {
+  $time = strtotime($date);
+
+  $query = \Drupal::database();
+  $result = $query->select('commerce_pos_report_declared_data', 't')
+    ->fields('t')
+    ->condition('register_id', $register_id)
+    ->condition('date', $time, '=')
+    ->execute();
+
+  $report = $result->fetchAssoc();
+
+  if (!empty($report)) {
+    $report['data'] = unserialize($report['data']);
+
+    return $report;
+  }
+
+  return NULL;
+}
+
+/**
+ * Get the reports for the specified day of a single register.
+ *
+ * @param string $date_filter
+ *   The date range to filter by in compatible strtotime format.
+ *   Will search this time +1day.
+ * @param int $register_id
+ *   The id of the register to get totals for.
+ *
+ * @return array
+ *   Total, Count and Summary
+ */
+function commerce_pos_reports_get_totals($date_filter, $register_id) {
+  $query = \Drupal::database();
+  $query = $query->select('commerce_order', 'o');
+  $query->condition('o.type', 'pos');
+
+  $query->fields('o');
+
+  $query->fields('pt', [
+    'amount__number',
+    'amount__currency_code',
+    'payment_gateway',
+    'state',
+  ]);
+
+  $query->join('commerce_payment', 'pt', 'pt.order_id = o.order_id');
+
+  // Date filter.
+  if ($date_filter) {
+    $date_timestamp = strtotime($date_filter);
+    $query->condition('o.completed', $date_timestamp, '>=');
+    $query->condition('o.completed', strtotime('+1 day', $date_timestamp), '<');
+  }
+
+  // Register ID filter.
+  if ($register_id) {
+    $query->join('commerce_order__field_register', 'r', 'r.entity_id = o.order_id');
+    $query->condition('r.field_register_target_id', $register_id);
+  }
+
+  // Get the cashier that ringed up the order.
+  $query->join('commerce_order__field_cashier', 'c', 'c.entity_id = o.order_id');
+  $query->fields('c', ['field_cashier_target_id']);
+
+  $query->orderBy('o.order_id');
+
+  $totals = [];
+  $transaction_counts = [];
+  $transaction_summary = [];
+
+  // Populate the arrays with the POS Payment methods.
+  $pos_methods = commerce_pos_reports_get_payment_gateway_options();
+
+  // Default to a single currency based off of the default store currency.
+  /** @var \Drupal\commerce_pos\Entity\Register $register */
+  $register = Register::load($register_id);
+  /** @var \Drupal\commerce_store\Entity\Store $store */
+  $store = Store::load($register->getStoreId());
+  $currency_code = $store->getDefaultCurrencyCode();
+
+  foreach ($pos_methods as $id => $pos_method_name) {
+    $totals[$currency_code][$id] = 0;
+
+    $transaction_summary[$id] = [];
+    $transaction_counts[$id] = 0;
+  }
+
+  $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
+  $number_formatter = $number_formatter_factory->createInstance();
+  foreach ($query->execute() as $row) {
+    if (!isset($totals[$row->total_price__currency_code][$row->payment_gateway])) {
+      continue;
+    }
+
+    /** @var \Drupal\commerce_price\Entity\Currency $currency */
+    $currency = Currency::load($row->total_price__currency_code);
+
+    if ($row->state == COMMERCE_POS_PAYMENT_STATUS_SUCCESS) {
+      $method = &$totals[$row->total_price__currency_code][$row->payment_gateway];
+      $method += $row->amount__number;
+    }
+
+    if (!isset($transaction_counts[$row->payment_gateway])) {
+      $transaction_counts[$row->payment_gateway] = 0;
+    }
+
+    $transaction_counts[$row->payment_gateway]++;
+
+    if (!isset($transaction_summary[$row->payment_gateway])) {
+      $transaction_summary[$row->payment_gateway] = [];
+    }
+
+    if (!empty($row->field_cashier_target_id) && $cashier = User::load($row->field_cashier_target_id)) {
+      $cashier_name = $cashier->getUsername();
+    }
+    else {
+      $cashier_name = t('Unknown');
+    }
+
+    $transaction_summary[$row->payment_gateway][] = [
+      'order_id' => $row->order_id,
+      'completed' => $row->completed,
+      'completed_date_formatted' => date('g:i:s a', $row->completed),
+      'cashier' => $cashier_name,
+      'amount' => $row->amount__number,
+      'amount_currency_formatted' => $number_formatter->formatCurrency($row->amount__number, $currency),
+      'status' => 'completed',
+    ];
+  }
+
+  return [$totals, $transaction_counts, $transaction_summary];
+}
+
+/**
+ * Get the available payment options. @see CommercePOSSettingsForm.
+ */
+function commerce_pos_reports_get_payment_gateway_options() {
+  // TODO: This should be dynamic.
+  return [
+    'pos_cash' => t('Cash'),
+    'pos_credit' => t('Credit'),
+    'pos_debit' => t('Debit'),
+    'pos_gift_card' => t('Gift Card'),
+  ];
 }
