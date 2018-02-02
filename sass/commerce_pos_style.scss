@@ -1,5 +1,16 @@
 //Commerce POS Styles
-@import 'variables';
 @import 'base';
 
+.form-item-order-lookup-search-box {
+  width: 200px;
+  display: inline-block;
+}
+
+.order-lookup-search.button {
+  display: inline-block;
+}
+
+#order-lookup-results {
+  clear: both;
+}
 
