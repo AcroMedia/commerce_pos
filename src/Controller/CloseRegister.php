@@ -6,13 +6,23 @@ use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 
+/**
+ * This exists primarily as a placeholder for close functionality.
+ *
+ * If you don't have reports install. It is assumed most users will use the EOD
+ * report.
+ *
+ * @package Drupal\commerce_pos\Controller
+ */
 class CloseRegister extends ControllerBase {
 
   /**
-   * Builds the Order Lookup form.
+   * Builds a passthrough page that will redirect based on what is available.
    *
-   * @return array
-   *   A renderable array containing the Order Lookup form.
+   * If the reports module is enabled, the user will be directed there to close
+   * their till and fill out the EOD report. If the report module is not
+   * installed, the register will be closed and the usr redirected back to the
+   * main POS page.
    */
   public function content() {
     $module_handler = \Drupal::service('module_handler');

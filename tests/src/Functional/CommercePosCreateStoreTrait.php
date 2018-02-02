@@ -11,6 +11,8 @@ use Drupal\Tests\RandomGeneratorTrait;
 
 /**
  * Helpers methods for tests to setup a store for commerce_pos testing.
+ *
+ * @var register
  */
 trait CommercePosCreateStoreTrait {
   use RandomGeneratorTrait;

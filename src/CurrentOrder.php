@@ -38,7 +38,7 @@ class CurrentOrder {
   }
 
   /**
-   *
+   * Clear out the current order, like if we want to switch registers.
    */
   public function clear() {
     $this->tempStore->delete('order');

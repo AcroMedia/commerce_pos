@@ -26,15 +26,15 @@ function template_preprocess_commerce_pos_reports_end_of_day_result_table(&$vari
   $header = $form['#header'];
 
   // Setup the structure to be rendered and returned.
-  $content = array(
+  $content = [
     '#theme' => 'table',
     '#header' => $header,
-    '#rows' => array(),
-  );
+    '#rows' => [],
+  ];
 
   // Traverse each row.
   foreach (Element::children($rows) as $row_index) {
-    $row = array();
+    $row = [];
     // Traverse each column in the row.  @see element_children().
     foreach (Element::children($rows[$row_index]) as $col_index) {
       // Render the column form element.
@@ -69,11 +69,11 @@ function template_preprocess_commerce_pos_reports_receipt(&$variables) {
   $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
   $number_formatter = $number_formatter_factory->createInstance();
 
-  $variables['rows'] = array();
+  $variables['rows'] = [];
 
   foreach ($totals as $currency_code => $currency_totals) {
     foreach ($currency_totals as $payment_method_id => $amounts) {
-      $row = array();
+      $row = [];
 
       // Determine if this is a cash payment method.
       $is_cash = $payment_method_id == 'pos_cash';

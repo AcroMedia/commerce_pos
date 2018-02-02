@@ -106,28 +106,28 @@ class PosOrderItemAutoComplete extends ControllerBase {
    */
   public function searchQueryString($string, $count) {
     // Getting the Store ID.
-    $register = $this->tempStore->get('register');
-    if (!empty($register)) {
-      $register = \Drupal::entityTypeManager()->getStorage('commerce_pos_register')->load($register);
+    $register = \Drupal::service('commerce_pos.current_register')->get();
+    if ($register) {
       $store_id = $register->getStoreId();
+
+      // @todo convert to entity query? This might be tricky... need to load all
+      // the products for a store and then all their variations?
+      $connection = \Drupal::service('database');
+      $query = $connection->select('commerce_product_variation_field_data', 'cpvd')
+        ->fields('cpvd', ['variation_id', 'product_id', 'title'])
+        ->range(0, $count);
+      $query->join('commerce_product__stores', 'cps', 'cps.entity_id = cpvd.product_id AND cps.stores_target_id = :store_id
+    AND cpvd.title LIKE :string', [
+      ':store_id' => $store_id,
+      ':string' => '%' . $string . '%',
+    ]);
+
+      $result = $query->execute()->fetchAll();
+
+      return $result;
     }
-    else {
-      $store_storage = \Drupal::entityTypeManager()->getStorage('commerce_store');
-      $store_id = $store_storage->loadDefault()->id();
-    }
 
-    // @todo convert to entity query? This might be tricky... need to load all
-    // the products for a store and then all their variations?
-    $connection = \Drupal::service('database');
-    $query = $connection->select('commerce_product_variation_field_data', 'cpvd')
-      ->fields('cpvd', ['variation_id', 'product_id', 'title'])
-      ->range(0, $count);
-    $query->join('commerce_product__stores', 'cps', 'cps.entity_id = cpvd.product_id AND cps.stores_target_id = :store_id
-    AND cpvd.title LIKE :string', [':store_id' => $store_id, ':string' => '%' . $string . '%']);
-
-    $result = $query->execute()->fetchAll();
-
-    return $result;
+    return NULL;
   }
 
 }

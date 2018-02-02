@@ -22,7 +22,17 @@ class CurrentRegister {
 
     $register_id = $_COOKIE['commerce_pos_register'];
 
-    return Register::load($register_id);
+    $register = Register::load($register_id);
+
+    if (!$register) {
+      // We couldn't load this register, assume it has been removed
+      // somehow and clear our current register.
+      $this->clear();
+
+      return NULL;
+    }
+
+    return $register;
   }
 
   /**

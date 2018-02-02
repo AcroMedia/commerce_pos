@@ -408,7 +408,7 @@ class EndOfDayForm extends FormBase {
     $response = new AjaxResponse();
 
     // Output any status messages first.
-    $status_messages = array('#type' => 'status_messages');
+    $status_messages = ['#type' => 'status_messages'];
     $output = \Drupal::service('renderer')->renderRoot(($status_messages));
     if (!empty($output)) {
       $response->addCommand(new PrependCommand('.page-content', $output));
