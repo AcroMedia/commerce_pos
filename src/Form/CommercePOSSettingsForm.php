@@ -41,13 +41,25 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       '#options' => $this->getPaymentGatewayOptions(),
     ];
 
-    $form['order_lookup_limit'] = [
+    $form['order_lookup'] = [
+      '#type' => 'fieldset',
+      '#title' => $this->t('Order Lookup'),
+    ];
+
+    $form['order_lookup']['order_lookup_limit'] = [
       '#type' => 'textfield',
       '#title' => $this->t('Order Lookup Limit'),
       '#maxlength' => 2,
       '#size' => 2,
       '#description' => t('Select the number of results to display for the POS order lookup. If left empty, defaults to 10.'),
       '#default_value' => $config->get('order_lookup_limit'),
+    ];
+
+    $form['order_lookup']['order_lookup_like_search'] = [
+      '#type' => 'checkbox',
+      '#title' => $this->t('Match results using "like"'),
+      '#description' => t('Match results as user enters the information. This uses a "like" query instead of an exact match. <br>(Not recommended for larger sites).'),
+      '#default_value' => $config->get('order_lookup_like_search'),
     ];
 
     return parent::buildForm($form, $form_state);
@@ -62,6 +74,7 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       // Set the submitted configuration setting.
       ->set('default_payment_gateway', $form_state->getValue('default_payment_gateway'))
       ->set('order_lookup_limit', $form_state->getValue('order_lookup_limit'))
+      ->set('order_lookup_like_search', $form_state->getValue('order_lookup_like_search'))
 
       /* Need to verify if form values and settings are correct and reflect the nature of how settings will be handled before any save functionality is done. */
       ->save();

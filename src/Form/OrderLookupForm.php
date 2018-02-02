@@ -106,38 +106,67 @@ class OrderLookupForm extends FormBase {
    */
   public function searchOrderResults($search_text = '', $state = 'draft', $operator = '!=', TranslatableMarkup $empty_message = NULL) {
     $result_limit = \Drupal::config('commerce_pos.settings')->get('order_lookup_limit');
+    $do_like_search = \Drupal::config('commerce_pos.settings')->get('order_lookup_like_search');
 
     // Create the query now.
-    $query = \Drupal::entityQuery('commerce_order');
-    $query = $query->condition('state', $state, $operator);
-    $query = $query->condition('type', 'pos');
-    $query = $query->sort('order_id', 'DESC')
-      ->range(0, !empty($result_limit) ? $result_limit : 10);
+    // If we're doing a like search, form the query differently.
+    if ($do_like_search) {
+      $query = \Drupal::database();
+      $query = $query->select('commerce_order', 'o')
+        ->condition('type', 'pos')
+        ->condition('state', $state, $operator)
+        ->orderBy('order_id', 'DESC')
+        ->range(0, !empty($result_limit) ? $result_limit : 10)
+        ->fields('o', ['order_id']);
 
-    if ($search_text) {
+      // If the search text was an order ID.
       if (is_numeric($search_text)) {
         $query->condition('order_id', $search_text);
       }
+      // Else, we check if we have a matching customer name or email.
       else {
-        $conditions = $query->orConditionGroup();
-        // First check if we can find a user by this name.
-        $user = user_load_by_name($search_text);
-        if ($user) {
-          $conditions = $conditions->condition('uid', $user->id());
-        }
-        $conditions = $conditions->condition('mail', $search_text);
-
-        $query->condition($conditions);
+        $query->join('users_field_data', 'u', 'u.uid = o.uid');
+        $query->condition($query->orConditionGroup()
+          ->condition('u.name', '%' . $search_text . '%', 'LIKE')
+          ->condition('o.mail', '%' . $search_text . '%', 'LIKE')
+        );
       }
+      // Execute the query.
+      $result = $query->execute()->fetchCol();
+    }
+    // Else, if we're doing an exact match search.
+    else {
+      $query = \Drupal::entityQuery('commerce_order');
+      $query = $query->condition('state', $state, $operator);
+      $query = $query->condition('type', 'pos');
+      $query = $query->sort('order_id', 'DESC')
+        ->range(0, !empty($result_limit) ? $result_limit : 10);
+
+      if ($search_text) {
+        // If the search text was an order ID.
+        if (is_numeric($search_text)) {
+          $query->condition('order_id', $search_text);
+        }
+        // Else, we check if we have a matching customer name or email.
+        else {
+          $conditions = $query->orConditionGroup();
+          // First check if we can find a user by this name.
+          $user = user_load_by_name($search_text);
+          if ($user) {
+            $conditions = $conditions->condition('uid', $user->id());
+          }
+          $conditions = $conditions->condition('mail', $search_text);
+
+          $query->condition($conditions);
+        }
+      }
+
+      $result = $query->execute();
     }
 
-    $result = $query->execute();
+    // If we've got results, let's output the details in a table.
     if (!empty($result)) {
       $orders = Order::loadMultiple($result);
-    }
-
-    // If we've got an order, let's output the details in a table.
-    if (!empty($orders)) {
       $order_markup = $this->buildOrderTable($orders);
     }
     else {

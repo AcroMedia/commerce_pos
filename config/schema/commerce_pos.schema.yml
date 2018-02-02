@@ -14,3 +14,13 @@ field.widget.settings.pos_order_item_widget:
     size:
       type: integer
       label: 'Size'
+commerce_pos.settings:
+  type: config_object
+  label: 'Commerce POS config settings'
+  mapping:
+    order_lookup_limit:
+      type: integer
+      label: 'Commerce POS order lookup limit'
+    order_lookup_like_search:
+      type: boolean
+      label: 'Commerce POS order lookup search using "like"'
