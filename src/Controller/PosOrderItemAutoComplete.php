@@ -85,7 +85,7 @@ class PosOrderItemAutoComplete extends ControllerBase {
         $product_render_array = $view_builder->view($product_variation, $view_mode, $product_variation->language()->getId());
         $results[] = [
           'value' => $product_variation->id(),
-          'label' => $this->renderer->renderPlain($product_render_array),
+          'label' => '<div class="commerce-pos-autocomplete-results">' . $this->renderer->renderPlain($product_render_array) . '</div>',
         ];
       }
     }
