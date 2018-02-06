@@ -26,3 +26,23 @@
     padding-left: 0;
   }
 }
+
+.layout-region-pos-totals table tr td {
+  font-weight: bold;
+}
+.layout-region-pos-totals table tr td:last-child {
+  width: 35%;
+}
+.layout-region-pos-totals table tr {
+  padding: 0;
+  width: 100%;
+  background-color: #F0F0F0;
+  color: #333;
+  border: 0;
+  border-bottom: 1px solid #FFFFFF;
+}
+.layout-region-pos-totals table tr:hover {
+  background-color: #F0F0F0;
+}
+
+

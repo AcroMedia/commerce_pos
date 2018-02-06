@@ -633,6 +633,7 @@ class POSForm extends ContentEntityForm {
           '#attributes' => [
             'class' => [
               'commerce-pos-pay-keypad-remove',
+              'link',
             ],
           ],
         ];
@@ -644,10 +645,16 @@ class POSForm extends ContentEntityForm {
       }
 
       $form['totals']['payments'][$payment->id()] = [
-        'gateway' => ['#plain_text' => $payment->getPaymentGateway()->label()],
-        'amount' => [
-          'amount' => ['#plain_text' => $rendered_amount],
+        'gateway' => [
+          'gateway' => [
+            '#plain_text' => $payment->getPaymentGateway()->label()
+          ],
           'void_link' => $remove_button,
+        ],
+        'amount' => [
+          'amount' => [
+            '#plain_text' => $rendered_amount
+          ],
         ],
       ];
     }
