@@ -6,6 +6,7 @@ use Drupal\commerce_pos\Form\POSForm;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Form\FormState;
 use Drupal\commerce_order\Entity\Order;
+use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\user\PrivateTempStoreFactory;
 
@@ -83,7 +84,7 @@ class POS extends ControllerBase {
       $order = Order::create([
         'type' => 'pos',
         'store_id' => $store_id,
-        'customer_id' => 0,
+        'uid' => User::getAnonymousUser()->id(),
         'field_cashier' => \Drupal::currentUser()->id(),
         'field_register' => $register->id(),
       ]);
