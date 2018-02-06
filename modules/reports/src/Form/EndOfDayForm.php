@@ -269,7 +269,7 @@ class EndOfDayForm extends FormBase {
 
         // The save and print buttons.
         if (!empty($totals)) {
-          if ($can_save) {
+          if ($can_save && !isset($report_history)) {
             $form['results']['actions']['save'] = [
               '#type' => 'submit',
               '#value' => $this->t('Close Register & Save'),
