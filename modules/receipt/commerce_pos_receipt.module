@@ -94,7 +94,7 @@ function commerce_pos_receipt_form_commerce_pos_alter(&$form, FormStateInterface
     $form['#attached']['library'][] = 'commerce_pos_receipt/jQuery.print';
 
     $form['#attached']['drupalSettings']['commercePosReceipt'] = [
-      'orderId' => $form_state->getValue('order_id'),
+      'orderId' => $form_state->getFormObject()->getEntity()->id(),
     ];
 
     $form['receipt']['contents'] = [

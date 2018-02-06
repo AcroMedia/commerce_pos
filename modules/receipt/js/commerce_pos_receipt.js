@@ -72,7 +72,7 @@
 
         $.ajax(
           {
-            url: "/admin/commerce/pos/" + drupalSettings.commercePosReceipt.orderId + '/ajax-receipt/' + $('input[name="actions[print_email_receipt]"]:checked').val(),
+            url: "/admin/commerce/pos/" + drupalSettings.commercePosReceipt.orderId + '/ajax-receipt/' + $('input[name="totals[print_email_receipt]"]:checked').val(),
             success: function (data) {
               var ajaxObject = Drupal.ajax(
                 {
