@@ -116,7 +116,7 @@ class OrderLookupForm extends FormBase {
         ->condition('type', 'pos')
         ->condition('state', $state, $operator)
         ->orderBy('order_id', 'DESC')
-        ->range(0, !empty($result_limit) ? $result_limit : 10)
+        ->range(0, $result_limit)
         ->fields('o', ['order_id']);
 
       // If the search text was an order ID.

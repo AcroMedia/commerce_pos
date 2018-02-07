@@ -51,7 +51,8 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       '#title' => $this->t('Order Lookup Limit'),
       '#maxlength' => 2,
       '#size' => 2,
-      '#description' => t('Select the number of results to display for the POS order lookup. If left empty, defaults to 10.'),
+      '#required' => TRUE,
+      '#description' => t('Select the number of results to display for the POS order lookup.'),
       '#default_value' => $config->get('order_lookup_limit'),
     ];
 
