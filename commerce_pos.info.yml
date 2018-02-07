@@ -16,6 +16,7 @@ config_devel:
   install:
     - commerce_store.commerce_store_type.physical
     - commerce_order.commerce_order_type.pos
+    - commerce_order.commerce_order_item_type.return
     - commerce_payment.commerce_payment_gateway.pos_cash
     - commerce_payment.commerce_payment_gateway.pos_credit
     - commerce_payment.commerce_payment_gateway.pos_debit

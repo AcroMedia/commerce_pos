@@ -72,12 +72,18 @@ class PrintController extends ControllerBase {
     $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
 
     // In the future add a setting to display group or individual for same skus.
+    $has_return_items = FALSE;
     $items = $commerce_order->getItems();
     foreach ($items as $item) {
       $totals[] = [
         $item->getTitle() . ' (' . $item->getQuantity() . ')',
         $number_formatter->formatCurrency($item->getAdjustedTotalPrice()->getNumber(), $currency),
       ];
+
+      // Set a flag if we have return item types.
+      if ($item->type->getValue()[0]['target_id'] == 'return') {
+        $has_return_items = TRUE;
+      }
     }
 
     $totals[] = ['Subtotal', $formatted_amount];
@@ -116,6 +122,7 @@ class PrintController extends ControllerBase {
     $config = \Drupal::config('commerce_pos_receipt.settings');
     $build = ['#theme' => 'commerce_pos_receipt'];
     $build['#receipt'] = [
+      'title' => $has_return_items ? t('Return Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]) : t('Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]),
       'header' => [
         '#markup' => check_markup($config->get('header'), $config->get('header_format')),
       ],

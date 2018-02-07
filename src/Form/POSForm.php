@@ -94,6 +94,8 @@ class POSForm extends ContentEntityForm {
    * Build the POS Order Form.
    */
   protected function buildOrderForm(array $form, FormStateInterface $form_state) {
+    $step = $form_state->get('step');
+
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
     $form_state->set('commerce_pos_order_id', $order->id());
@@ -433,6 +435,7 @@ class POSForm extends ContentEntityForm {
     $triggering_element = $form_state->getTriggeringElement();
     $triggering_element_key = !empty($triggering_element['#element_key']) ? $triggering_element['#element_key'] : '';
     $step = $form_state->get('step');
+
     if ($step == 'order') {
       parent::submitForm($form, $form_state);
       $this->entity->save();
@@ -445,8 +448,9 @@ class POSForm extends ContentEntityForm {
     if ($step == 'payment') {
       if ($triggering_element_key == 'add-payment') {
         $this->submitPayment($form, $form_state);
-        // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
-        // also helps if we're loading it somewhere else, like for the receipt trickyness.
+        // Save the payment, in case we leave and go to another screen. Missing
+        // a payment would be bad also helps if we're loading it somewhere else,
+        // like for the receipt trickyness.
         $this->entity->save();
       }
       elseif ($triggering_element_key == 'back-to-order') {
@@ -455,13 +459,18 @@ class POSForm extends ContentEntityForm {
       }
       elseif ($triggering_element_key == 'finish-order') {
         $this->finishOrder($form, $form_state);
+
+        // Explicitly reroute to the POS page as we might have been editing an
+        // order through POS.
+        $form_state->setRedirect('commerce_pos.main');
       }
     }
 
     if ($triggering_element_key == 'remove-payment') {
       $this->voidPayment($form, $form_state);
-      // Save the payment, in case we leave and go to another screen. Missing a payment would be bad
-      // also helps if we're loading it somewhere else, like for the receipt trickyness.
+      // Save the payment, in case we leave and go to another screen. Missing a
+      // payment would be bad also helps if we're loading it somewhere else,
+      // like for the receipt trickyness.
       $this->entity->save();
     }
 
@@ -480,8 +489,8 @@ class POSForm extends ContentEntityForm {
     $store = $this->entity->getStore();
     $default_currency = $store->getDefaultCurrency();
 
-    // Right now all the payment methods are manual, we'll have to change this up
-    // once we want to support integrated payment methods.
+    // Right now all the payment methods are manual, we'll have to change this
+    // up once we want to support integrated payment methods.
     $payment_gateway = $triggering_element['#payment_gateway_id'];
     $values = [
       'payment_gateway' => $payment_gateway,
@@ -522,8 +531,8 @@ class POSForm extends ContentEntityForm {
     $payment = $payments[$payment_id];
     /** @var \Drupal\commerce_payment\Plugin\Commerce\PaymentGateway\Manual $payment_gateway */
     $plugin_manager = \Drupal::service('plugin.manager.commerce_payment_gateway');
-    // Right now all the payment methods are manual, we'll have to change this up
-    // once we want to support integrated payment methods.
+    // Right now all the payment methods are manual, we'll have to change this
+    // up once we want to support integrated payment methods.
     $payment_gateway = $plugin_manager->createInstance('manual');
     $payment_gateway->voidPayment($payment);
     drupal_set_message($this->t('Payment Voided'));
@@ -647,13 +656,13 @@ class POSForm extends ContentEntityForm {
       $form['totals']['payments'][$payment->id()] = [
         'gateway' => [
           'gateway' => [
-            '#plain_text' => $payment->getPaymentGateway()->label()
+            '#plain_text' => $payment->getPaymentGateway()->label(),
           ],
           'void_link' => $remove_button,
         ],
         'amount' => [
           'amount' => [
-            '#plain_text' => $rendered_amount
+            '#plain_text' => $rendered_amount,
           ],
         ],
       ];

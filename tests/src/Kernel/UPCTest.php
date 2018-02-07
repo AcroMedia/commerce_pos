@@ -28,6 +28,7 @@ class UPCTest extends CommerceKernelTestBase {
     'commerce_payment',
     'commerce_order',
     'commerce_pos',
+    'commerce_tax',
   ];
 
   /**

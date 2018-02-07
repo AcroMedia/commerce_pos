@@ -66,10 +66,13 @@ class POS extends ControllerBase {
   /**
    * Builds the POS form.
    *
+   * @param \Drupal\commerce_order\Entity\Order $commerce_order
+   *   The order to edit.
+   *
    * @return array
    *   A renderable array containing the POS form.
    */
-  public function content() {
+  public function content(Order $commerce_order = NULL) {
     $register = \Drupal::service('commerce_pos.current_register')->get();
 
     if (empty($register) || !$register->isOpen()) {
@@ -78,8 +81,17 @@ class POS extends ControllerBase {
 
     $store_id = $register->getStoreId();
 
-    $order = $this->currentOrder->get();
+    // If an order has been passed through, set that as the current order.
+    if ($commerce_order) {
+      $order = $commerce_order;
+      $this->currentOrder->set($commerce_order);
+    }
+    // If we don't have an order, try to load the current order.
+    else {
+      $order = $this->currentOrder->get();
+    }
 
+    // If we still don't have an order.
     if (!$order) {
       $order = Order::create([
         'type' => 'pos',
@@ -104,6 +116,20 @@ class POS extends ControllerBase {
       ->setEntityManager(\Drupal::entityManager());
 
     $form_state = (new FormState())->setFormState([]);
+
+    // Save the existing order items in the order to the form state so we could
+    // keep track of what changed during this particular transaction.
+    $initial_items_on_order = [];
+    foreach ($order->getItems() as $order_item) {
+      /** @var \Drupal\commerce_order\Entity\OrderItem $order_item */
+      $initial_items_on_order[$order_item->id()] = $order_item->getPurchasedEntityId();
+    }
+    $form_state->set('initial_items_on_order', $initial_items_on_order);
+
+    // Set the step to edit order, if we're editing a completed order.
+    if ($commerce_order || $order->getState()->getValue()['value'] == 'completed') {
+      $form_state->set('is_edit_order', TRUE);
+    }
 
     return \Drupal::formBuilder()->buildForm($form_object, $form_state);
   }

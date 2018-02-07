@@ -166,6 +166,14 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
    * {@inheritdoc}
    */
   public function formElement(FieldItemListInterface $items, $delta, array $element, array &$form, FormStateInterface $form_state) {
+    // Determine which step we're in.
+    $this->is_edit_order = $form_state->get('is_edit_order');
+    // Determine the initial items on the order.
+    $this->initial_items_on_order = $form_state->get('initial_items_on_order');
+    // Set the order_has_return_item flag to FALSE initially. We might need
+    // this flag in the future to structure the form differently.
+    $form_state->set('order_has_return_items', FALSE);
+
     if ($form_state->getTriggeringElement()) {
       $this->processFormSubmission($items, $form, $form_state);
     }
@@ -210,12 +218,19 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         $this->t('Product'),
         $this->t('Unit price'),
         $this->t('Quantity'),
-        '',
+        ['data' => $this->t('Operations'), 'colspan' => 2],
       ],
     ];
+
     /** @var \Drupal\commerce_order\Entity\OrderItem $entity */
     foreach ($referenced_entities as $entity) {
       $element['order_items'][] = $this->orderItemForm($entity, $wrapper_id);
+
+      // Save in the form_state that we have a return item on this order, if the
+      // order item is a 'return' type.
+      if ($entity->type->getValue()[0]['target_id'] == 'return') {
+        $form_state->set('order_has_return_items', TRUE);
+      }
     }
 
     $element['#default_value'] = $items->referencedEntities();
@@ -238,7 +253,8 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     // If we don't render product here the title appears in the wrong place.
     // @todo work out why are fix this.
     $view_builder = $this->entityTypeManager->getViewBuilder($order_item->getEntityTypeId());
-    $product_render = $view_builder->view($product, $this->getSetting('purchasable_entity_view_mode'), $order_item->language()->getId());
+    $product_render = $view_builder->view($product, $this->getSetting('purchasable_entity_view_mode'), $order_item->language()
+      ->getId());
     $form = [
       'purchasable_entity' => [
         '#type' => 'markup',
@@ -281,6 +297,49 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         '#order_item_id' => $order_item->id(),
       ],
     ];
+
+    // If we're adding a new order item, add a checkbox to toggle the item
+    // as a return item, if it's not already a return item.
+    $initial_items_on_order = $this->initial_items_on_order;
+    $order_item_newly_added = !isset($initial_items_on_order[$order_item->id()]) ? TRUE : FALSE;
+    $is_return_for_order_item = $order_item->getData('return_for_order_item');
+
+    if (!$is_return_for_order_item && $order_item_newly_added) {
+      $form['set_order_item_as_return'] = [
+        '#type' => 'checkbox',
+        '#name' => 'set_order_item_as_return_' . $order_item->id(),
+        '#title' => $this->t('Set as Return Item'),
+        '#ajax' => [
+          'callback' => [$this, 'ajaxRefresh'],
+          'wrapper' => $wrapper_id,
+        ],
+        '#order_item_id' => $order_item->id(),
+        '#default_value' => $order_item->type->getValue()[0]['target_id'] == 'return' ? TRUE : FALSE,
+      ];
+    }
+    // If we're editing an order, add a 'return' button next to
+    // each item.
+    elseif ($this->is_edit_order && $order_item->type->getValue()[0]['target_id'] != 'return') {
+      $form['return_order_item'] = [
+        '#type' => 'button',
+        '#name' => 'return_order_item_' . $order_item->id(),
+        '#value' => $this->t('Return'),
+        '#ajax' => [
+          'callback' => [$this, 'ajaxRefresh'],
+          'wrapper' => $wrapper_id,
+        ],
+        '#order_item_id' => $order_item->id(),
+      ];
+    }
+    // Else, we just add an empty row so the rows don't look ugly when the
+    // return buttons are missing.
+    else {
+      $form['empty_row'] = [
+        '#type' => 'item',
+        '#markup' => '',
+      ];
+    }
+
     return $form;
   }
 
@@ -303,12 +362,19 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
    */
   protected function processFormSubmission(FieldItemListInterface $items, array &$form, FormStateInterface $form_state) {
     $trigger_element = $form_state->getTriggeringElement();
+
     $order = FALSE;
     if ($trigger_element['#name'] === 'order_items[target_id][product_selector]') {
       $order = $this->addOrderItem($items, $form, $form_state);
     }
     elseif (strpos($trigger_element['#name'], 'remove_order_item_') === 0) {
       $order = $this->removeOrderItem($items, $form, $form_state);
+    }
+    elseif (strpos($trigger_element['#name'], 'return_order_item_') === 0) {
+      $order = $this->returnOrderItem($items, $form, $form_state);
+    }
+    elseif (strpos($trigger_element['#name'], 'set_order_item_as_return_') === 0) {
+      $order = $this->toggleOrderItemAsReturn($items, $form, $form_state);
     }
     elseif (preg_match('/^order_items\[target_id\]\[order_items\]\[([0-9])*\]\[unit_price\]\[number\]$/', $trigger_element['#name'])) {
       $order = $this->updateUnitPrice($items, $form, $form_state);
@@ -389,6 +455,105 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
   }
 
   /**
+   * Creates a return order item.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   Values for this field.
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return \Drupal\commerce_order\Entity\Order
+   *   The updated commerce order.
+   */
+  protected function returnOrderItem(FieldItemListInterface $items, array &$form, FormStateInterface &$form_state) {
+    $trigger_element = $form_state->getTriggeringElement();
+
+    /** @var \Drupal\commerce_order\Entity\OrderItem $new_order_item */
+    $order_item = OrderItem::load($trigger_element['#order_item_id']);
+
+    /** @var \Drupal\commerce_order\Entity\Order $order */
+    $order = $order_item->getOrder();
+
+    // Loading the product variation object.
+    $product_variation = ProductVariation::load($order_item->getPurchasedEntityId());
+
+    // If we've not loaded a product variation then exit doing nothing.
+    if (!$product_variation) {
+      // There's nothing to do.
+      return FALSE;
+    }
+
+    // Create new order Item for adding into existing order.
+    $new_order_item = OrderItem::create([
+      'type' => 'return',
+      'title' => $product_variation->label(),
+      'purchased_entity' => $product_variation,
+      'quantity' => 1,
+      'unit_price' => [
+        'number' => '-' . $product_variation->get('price')->number,
+        'currency_code' => $order_item->getUnitPrice()->getCurrencyCode(),
+      ],
+      'data' => [
+        'return_for_order_item' => $order_item->id(),
+      ],
+    ]);
+    $new_order_item->save();
+
+    // Add the new item into the order.
+    $order->addItem($new_order_item)->recalculateTotalPrice()->save();
+    $items->appendItem($new_order_item);
+
+    return $order;
+  }
+
+  /**
+   * Toggles an order item as a return item.
+   *
+   * @param \Drupal\Core\Field\FieldItemListInterface $items
+   *   Values for this field.
+   * @param array $form
+   *   The form array.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   The form state.
+   *
+   * @return \Drupal\commerce_order\Entity\Order
+   *   The updated commerce order.
+   */
+  protected function toggleOrderItemAsReturn(FieldItemListInterface $items, array &$form, FormStateInterface &$form_state) {
+    $trigger_element = $form_state->getTriggeringElement();
+
+    /** @var \Drupal\commerce_order\Entity\OrderItem $new_order_item */
+    $order_item = OrderItem::load($trigger_element['#order_item_id']);
+
+    /** @var \Drupal\commerce_order\Entity\Order $order */
+    $order = $order_item->getOrder();
+
+    // Toggles the order item as a return item and change the unit price to a
+    // negative price.
+    // If it is already a return item, set it as a default order item.
+    if ($order_item->type->getValue()[0]['target_id'] == 'return') {
+      $new_price = abs($order_item->getUnitPrice()->getNumber());
+      $order_item->set('type', 'default');
+      $order_item->setUnitPrice(new Price("$new_price", $order_item->getUnitPrice()
+        ->getCurrencyCode()), TRUE)->save();
+    }
+    // Else, we set the order item as a return item.
+    else {
+      $order_item->set('type', 'return');
+      $order_item->setUnitPrice(new Price('-' . $order_item->getUnitPrice()
+        ->getNumber(), $order_item->getUnitPrice()->getCurrencyCode()), TRUE)
+        ->save();
+    }
+
+    // Recalculate the order total price and save.
+    $order->recalculateTotalPrice()->save();
+
+    return $order;
+  }
+
+  /**
    * Updates the unit price for an order item.
    *
    * @param \Drupal\Core\Field\FieldItemListInterface $items
@@ -407,11 +572,13 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     array_pop($value_key);
     $value = $form_state->getValue($value_key);
     // Get the order id from the parent.
-    $order_item = OrderItem::load($items->get($value_key[3])->getValue()['target_id']);
+    $order_item = OrderItem::load($items->get($value_key[3])
+      ->getValue()['target_id']);
     /** @var \Drupal\commerce_order\Entity\Order $order */
     $order = $order_item->getOrder();
 
-    $order_item->setUnitPrice(new Price($value['number'], $value['currency_code']), TRUE)->save();
+    $order_item->setUnitPrice(new Price($value['number'], $value['currency_code']), TRUE)
+      ->save();
     $order->recalculateTotalPrice()->save();
 
     return $order;
@@ -433,7 +600,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
   protected function addOrderItem(FieldItemListInterface $items, array &$form, FormStateInterface &$form_state) {
     // Loading the product variation object.
     $product_variation = ProductVariation::load($form_state->getValue([
-      'order_items', 'target_id', 'product_selector',
+      'order_items',
+      'target_id',
+      'product_selector',
     ]));
     // If we've not loaded a product variation then exit doing nothing.
     if (!$product_variation) {
@@ -449,7 +618,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $order = \Drupal::getContainer()->get('commerce_pos.current_order')->get();
     /** @var \Drupal\commerce_order\Entity\OrderItem $order_item */
     foreach ($order->getItems() as $order_item) {
-      if ($order_item->getPurchasedEntity()->id() === $product_variation->id()) {
+      if ($order_item->getPurchasedEntity()
+        ->id() === $product_variation->id() && $order_item->type->getValue()[0]['target_id'] == 'default'
+      ) {
         $create_new_order_item = FALSE;
         $order_item
           ->setQuantity($order_item->getQuantity() + 1)
@@ -463,6 +634,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       // Create new order Item for adding into existing order.
       $order_item = OrderItem::create([
         'type' => 'default',
+        'title' => $product_variation->label(),
         'purchased_entity' => $product_variation,
         'quantity' => 1,
         'unit_price' => $product_variation->getPrice(),

@@ -5,6 +5,7 @@
  * Install, update and uninstall functions for the commerce_pos module.
  */
 
+use Drupal\Core\Config\FileStorage;
 use Drupal\Core\Field\BaseFieldDefinition;
 
 /**
@@ -61,7 +62,7 @@ function commerce_pos_update_8202() {
   $definition_update_manager = \Drupal::entityDefinitionUpdateManager();
 
   if ($definition_update_manager->getEntityType('commerce_pos_register')) {
-    // Remove the no longer used 'float' field
+    // Remove the no longer used 'float' field.
     $storage_definition = $definition_update_manager->getFieldStorageDefinition('float', 'commerce_pos_register');
     if ($storage_definition) {
       $definition_update_manager->uninstallFieldStorageDefinition($storage_definition);
@@ -116,4 +117,20 @@ function commerce_pos_update_8202() {
     ->setDisplayConfigurable('view', TRUE);
 
   $definition_update_manager->installFieldStorageDefinition('default_float', 'commerce_pos_register', 'commerce_pos_register', $storage_definition);
+}
+
+/**
+ * Install new return configs that are required.
+ */
+function commerce_pos_update_8203() {
+  /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+  $active_storage = \Drupal::service('config.storage');
+
+  $module_handler = Drupal::service('module_handler');
+  $path = $module_handler->getModule('commerce_pos')->getPath();
+
+  $source = new FileStorage($path . '/config/install');
+
+  $active_storage->write('commerce_order.commerce_order_item_type.return', $source->read('commerce_order.commerce_order_item_type.return'));
+  $active_storage->write('core.entity_view_display.commerce_order_item.return.default', $source->read('core.entity_view_display.commerce_order_item.return.default'));
 }

@@ -204,6 +204,7 @@ class OrderLookupForm extends FormBase {
       t('Cashier'),
       t('Customer'),
       t('Total'),
+      t('Operations'),
     ];
 
     $rows = [];
@@ -216,6 +217,7 @@ class OrderLookupForm extends FormBase {
           'target' => '_blank',
         ],
       ]);
+      $edit_url = Url::fromRoute('commerce_pos.edit', ['commerce_order' => $order->id()]);
 
       $cashier = User::load($order->get('field_cashier')->getValue()[0]['target_id']);
 
@@ -248,7 +250,7 @@ class OrderLookupForm extends FormBase {
         $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
       }
 
-      // Add each row to the rows array.
+      // Now, add each row to the rows array.
       $rows[] = [
         Link::fromTextAndUrl($order->id(), $order_url),
         DrupalDateTime::createFromTimestamp($order->getChangedTime())->format('Y-m-d H:i'),
@@ -256,6 +258,7 @@ class OrderLookupForm extends FormBase {
         Link::fromTextAndUrl($cashier->getDisplayName(), $cashier_url),
         Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
         $formatted_amount,
+        Link::fromTextAndUrl(t('edit'), $edit_url),
       ];
     }
 

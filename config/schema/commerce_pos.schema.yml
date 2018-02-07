@@ -24,3 +24,10 @@ commerce_pos.settings:
     order_lookup_like_search:
       type: boolean
       label: 'Commerce POS order lookup search using "like"'
+commerce_order.commerce_order_item_type.return.third_party.commerce_tax:
+  type: mapping
+  label: 'Tax settings'
+  mapping:
+    taxable_type:
+      type: string
+      label: 'Taxable type'
