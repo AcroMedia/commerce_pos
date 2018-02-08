@@ -83,7 +83,7 @@ class POSForm extends ContentEntityForm {
     }
 
     // Add order note form.
-    $form += $this->buildNoteForm($form, $form_state);
+    $form += $this->buildOrderCommentForm($form, $form_state);
 
     $this->addTotalsDisplay($form, $form_state);
 
@@ -300,63 +300,63 @@ class POSForm extends ContentEntityForm {
   }
 
   /**
-   * Build the elements for the order note form.
+   * Build the elements for the order comment form.
    */
-  protected function buildNoteForm(array $form, FormStateInterface $form_state) {
-    $form['add_note'] = [
+  protected function buildOrderCommentForm(array $form, FormStateInterface $form_state) {
+    $form['add_order_comment'] = [
       '#type' => 'container',
-      '#prefix' => '<div id="commerce-pos-add-note-wrapper">',
+      '#prefix' => '<div id="commerce-pos-add-order-comment-wrapper">',
       '#suffix' => '</div>',
       '#weight' => 100,
     ];
 
     $triggering_element = $form_state->getTriggeringElement();
-    // Add note submit was clicked.
-    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-note-submit') {
-      $this->saveOrderComment($this->entity, $form_state->getValue('add_note')['note_text']);
+    // Add order_comment submit was clicked.
+    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-order-comment-submit') {
+      $this->saveOrderComment($this->entity, $form_state->getValue('add_order_comment')['order_comment_text']);
     }
 
-    // 'Add Note' was clicked.
-    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-note') {
-      $form['add_note']['note_text'] = [
+    // 'Add order_comment' was clicked.
+    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-order-comment') {
+      $form['add_order_comment']['order_comment_text'] = [
         '#type' => 'textarea',
-        '#title' => t('Add Note'),
+        '#title' => t('Add Order Comment'),
         '#required' => TRUE,
       ];
 
-      $form['add_note']['submit'] = [
+      $form['add_order_comment']['submit'] = [
         '#type' => 'button',
-        '#value' => t('Submit'),
+        '#value' => t('Save Order Comment'),
         '#ajax' => [
-          'wrapper' => 'commerce-pos-add-note-wrapper',
-          'callback' => '::addNoteAjaxRefresh',
+          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
+          'callback' => '::addOrderCommentAjaxRefresh',
           'effect' => 'fade',
         ],
-        '#limit_validation_errors' => [['add_note']],
-        '#element_key' => 'add-note-submit',
+        '#limit_validation_errors' => [['add_order_comment']],
+        '#element_key' => 'add-order-comment-submit',
       ];
 
-      $form['add_note']['cancel'] = [
+      $form['add_order_comment']['cancel'] = [
         '#type' => 'button',
         '#value' => t('Cancel'),
         '#ajax' => [
-          'wrapper' => 'commerce-pos-add-note-wrapper',
-          'callback' => '::addNoteAjaxRefresh',
+          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
+          'callback' => '::addOrderCommentAjaxRefresh',
           'effect' => 'fade',
         ],
         '#limit_validation_errors' => [],
-        '#element_key' => 'add-note-cancel',
+        '#element_key' => 'add-order-comment-cancel',
       ];
     }
     else {
-      $form['add_note']['note'] = [
+      $form['add_order_comment']['order_comment'] = [
         '#type' => 'button',
-        '#value' => t('Add Note'),
-        '#name' => 'add-note',
-        '#element_key' => 'add-note',
+        '#value' => t('Add Order Comment'),
+        '#name' => 'add-order-comment',
+        '#element_key' => 'add-order-comment',
         '#ajax' => [
-          'wrapper' => 'commerce-pos-add-note-wrapper',
-          'callback' => '::addNoteAjaxRefresh',
+          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
+          'callback' => '::addOrderCommentAjaxRefresh',
           'effect' => 'fade',
         ],
         '#limit_validation_errors' => [],
@@ -382,10 +382,10 @@ class POSForm extends ContentEntityForm {
   }
 
   /**
-   * AJAX callback for the add note form.
+   * AJAX callback for the add order_comment form.
    */
-  public function addNoteAjaxRefresh($form, &$form_state) {
-    return $form['add_note'];
+  public function addOrderCommentAjaxRefresh($form, &$form_state) {
+    return $form['add_order_comment'];
   }
 
   /**
