@@ -4,6 +4,7 @@ namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
 use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_tax\Entity\TaxType;
+use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
@@ -260,29 +261,38 @@ class PosFormTest extends JavascriptTestBase {
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
 
+    // Add a comment.
     $this->click('input[name="add-order-comment"]');
     $web_assert->waitForField('add_order_comment[order_comment_text]');
     $this->getSession()->getPage()->fillField('add_order_comment[order_comment_text]', 'Test comment');
+    $this->click('input[value="Save Order Comment"]');
+    $web_assert->waitForButton('input[name="add-order-comment"]');
 
-    $out = $this->getSession()->getPage()->getContent();
-
-    $html_output = 'GET request to: ' . $this->getSession()->getCurrentUrl();
-    $html_output .= '<hr />' . $out;
-    $html_output .= $this->getHtmlOutputHeaders();
-    $this->htmlOutput($html_output);
-
-
+    // Add another comment with XSS.
+    $this->click('input[name="add-order-comment"]');
+    $web_assert->waitForField('add_order_comment[order_comment_text]');
+    $this->getSession()->getPage()->fillField('add_order_comment[order_comment_text]', "<script>alert('here');</script>");
     $this->click('input[value="Save Order Comment"]');
     $web_assert->waitForButton('input[name="add-order-comment"]');
 
     // Ensure the comment has been logged. Note that at the moment the order
-    // page does not display comments.
+    // page edit .does not display comments.
     $logStorage = $this->container->get('entity_type.manager')->getStorage('commerce_log');
-    $logs = $logStorage->loadMultipleByEntity(Order::load(1));
-    $this->assertEquals(1, count($logs));
+    $order = Order::load(1);
+    $logs = $logStorage->loadMultipleByEntity($order);
+    $this->assertEquals(2, count($logs));
     $logViewBuilder = $this->container->get('entity_type.manager')->getViewBuilder('commerce_log');
     $build = $logViewBuilder->view($logs[1]);
     $this->assertContains('Test comment', (string) $this->container->get('renderer')->renderPlain($build));
+    $build = $logViewBuilder->view($logs[2]);
+    // The script tag should be escaped.
+    $this->assertContains(Html::escape("<script>alert('here');</script>"), (string) $this->container->get('renderer')->renderPlain($build));
+
+    // View the order. The comments will be there.
+    $this->drupalGet($order->toUrl());
+    $web_assert->pageTextContains('Test comment');
+    $web_assert->responseNotContains("<script>alert('here');</script>");
+    $web_assert->pageTextContains("<script>alert('here');</script>");
   }
 
   /**
