@@ -2,6 +2,7 @@
 
 namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
+use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_tax\Entity\TaxType;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
@@ -235,6 +236,53 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $0.00');
     $web_assert->pageTextContains('Change $0.00');
     $web_assert->pageTextNotContains('Jumper');
+  }
+
+  /**
+   * Tests adding and removing products from the POS form.
+   */
+  public function testCommercePosFormNotes() {
+    $web_assert = $this->assertSession();
+    $this->drupalGet('admin/commerce/pos/main');
+
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+
+    // Now we should be able to select order items.
+    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(3, $results);
+    // Click on of the auto-complete.
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+
+    $this->click('input[name="add-order-comment"]');
+    $web_assert->waitForField('add_order_comment[order_comment_text]');
+    $this->getSession()->getPage()->fillField('add_order_comment[order_comment_text]', 'Test comment');
+
+    $out = $this->getSession()->getPage()->getContent();
+
+    $html_output = 'GET request to: ' . $this->getSession()->getCurrentUrl();
+    $html_output .= '<hr />' . $out;
+    $html_output .= $this->getHtmlOutputHeaders();
+    $this->htmlOutput($html_output);
+
+
+    $this->click('input[value="Save Order Comment"]');
+    $web_assert->waitForButton('input[name="add-order-comment"]');
+
+    // Ensure the comment has been logged. Note that at the moment the order
+    // page does not display comments.
+    $logStorage = $this->container->get('entity_type.manager')->getStorage('commerce_log');
+    $logs = $logStorage->loadMultipleByEntity(Order::load(1));
+    $this->assertEquals(1, count($logs));
+    $logViewBuilder = $this->container->get('entity_type.manager')->getViewBuilder('commerce_log');
+    $build = $logViewBuilder->view($logs[1]);
+    $this->assertContains('Test comment', (string) $this->container->get('renderer')->renderPlain($build));
   }
 
   /**
