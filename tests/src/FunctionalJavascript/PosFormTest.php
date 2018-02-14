@@ -231,7 +231,6 @@ class PosFormTest extends JavascriptTestBase {
     // Clicking finish will bring us back to the order item screen - processing
     // a new order.
     $this->click('input[name="commerce-pos-finish"]');
-    $this->waitForAjaxToFinish();
     $web_assert->pageTextContains('Total $0.00');
     $web_assert->pageTextNotContains('Cash');
     $web_assert->pageTextContains('To Pay $0.00');

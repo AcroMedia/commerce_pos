@@ -383,6 +383,8 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       $order = $this->updateQuantity($items, $form, $form_state);
     }
     if ($order) {
+      \Drupal::service('commerce_order.order_refresh')->refresh($order);
+      $order->recalculateTotalPrice();
       // Update the order on the form.
       $form_object = $form_state->getFormObject();
       $form_object->setEntity($order);
@@ -414,7 +416,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $new_quantity = $form_state->getValue($value_key);
 
     /** @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $order_item->getOrder();
+    $order = $form_state->getFormObject()->getEntity();
     if ($new_quantity > 0) {
       $order_item->setQuantity($new_quantity);
       $order_item->save();
@@ -423,8 +425,6 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       $order->removeItem($order_item);
       $order_item->delete();
     }
-    $order->recalculateTotalPrice()->save();
-
     return $order;
   }
 
@@ -446,11 +446,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $order_item = OrderItem::load($trigger_element['#order_item_id']);
 
     /** @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $order_item->getOrder();
+    $order = $form_state->getFormObject()->getEntity();
     $order->removeItem($order_item);
     $order_item->delete();
-    $order->recalculateTotalPrice()->save();
-
     return $order;
   }
 
@@ -474,7 +472,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $order_item = OrderItem::load($trigger_element['#order_item_id']);
 
     /** @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $order_item->getOrder();
+    $order = $form_state->getFormObject()->getEntity();
 
     // Loading the product variation object.
     $product_variation = ProductVariation::load($order_item->getPurchasedEntityId());
@@ -491,20 +489,15 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       'title' => $product_variation->label(),
       'purchased_entity' => $product_variation,
       'quantity' => 1,
-      'unit_price' => [
-        'number' => '-' . $product_variation->get('price')->number,
-        'currency_code' => $order_item->getUnitPrice()->getCurrencyCode(),
-      ],
       'data' => [
         'return_for_order_item' => $order_item->id(),
       ],
     ]);
-    $new_order_item->save();
+    $price = new Price('-' . $product_variation->get('price')->number, $order_item->getUnitPrice()->getCurrencyCode());
+    $new_order_item->setUnitPrice($price, TRUE)->save();
 
     // Add the new item into the order.
-    $order->addItem($new_order_item)->recalculateTotalPrice()->save();
-    $items->appendItem($new_order_item);
-
+    $order->addItem($new_order_item);
     return $order;
   }
 
@@ -528,7 +521,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $order_item = OrderItem::load($trigger_element['#order_item_id']);
 
     /** @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $order_item->getOrder();
+    $order = $form_state->getFormObject()->getEntity();
 
     // Toggles the order item as a return item and change the unit price to a
     // negative price.
@@ -546,10 +539,6 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         ->getNumber(), $order_item->getUnitPrice()->getCurrencyCode()), TRUE)
         ->save();
     }
-
-    // Recalculate the order total price and save.
-    $order->recalculateTotalPrice()->save();
-
     return $order;
   }
 
@@ -575,11 +564,11 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     $order_item = OrderItem::load($items->get($value_key[3])
       ->getValue()['target_id']);
     /** @var \Drupal\commerce_order\Entity\Order $order */
-    $order = $order_item->getOrder();
+    $order = $form_state->getFormObject()->getEntity();
 
-    $order_item->setUnitPrice(new Price($value['number'], $value['currency_code']), TRUE)
+    $order_item
+      ->setUnitPrice(new Price($value['number'], $value['currency_code']), TRUE)
       ->save();
-    $order->recalculateTotalPrice()->save();
 
     return $order;
   }
@@ -613,9 +602,8 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
     // If there is already an order item for this variation add to the quantity.
     $create_new_order_item = TRUE;
     // @todo For some reason the following doesn't work.
-    // $order = $form_state->getFormObject()->getEntity();
+    $order = $form_state->getFormObject()->getEntity();
     // $order = Order::load($order->id());
-    $order = \Drupal::getContainer()->get('commerce_pos.current_order')->get();
     /** @var \Drupal\commerce_order\Entity\OrderItem $order_item */
     foreach ($order->getItems() as $order_item) {
       if ($order_item->getPurchasedEntity()
@@ -625,8 +613,6 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         $order_item
           ->setQuantity($order_item->getQuantity() + 1)
           ->save();
-        $order->recalculateTotalPrice();
-        $order->save();
         break;
       }
     }
@@ -642,8 +628,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       $order_item->save();
 
       // Adding the item into the Order.
-      $order->addItem($order_item)->recalculateTotalPrice()->save();
-      $items->appendItem($order_item);
+      $order->addItem($order_item);
     }
 
     return $order;
