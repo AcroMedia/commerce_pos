@@ -186,9 +186,14 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
 
     // Make a wrapper for the entire form.
     // @todo this feels off. There must be a better way.
-    $wrapper_id = Html::getUniqueId(__CLASS__);
-    $form['#prefix'] = '<div id="' . $wrapper_id . '">';
-    $form['#suffix'] = '</div>';
+    if (empty($form_state->wrapper_id)) {
+      $wrapper_id = Html::getUniqueId(__CLASS__);
+      $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+      $form['#suffix'] = '</div>';
+    }
+    else {
+      $wrapper_id = $form_state->wrapper_id;
+    }
 
     $element['product_selector'] = [
       '#type' => 'textfield',
@@ -295,6 +300,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
           'wrapper' => $wrapper_id,
         ],
         '#order_item_id' => $order_item->id(),
+        '#limit_validation_errors' => [],
       ],
     ];
 
@@ -315,6 +321,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         ],
         '#order_item_id' => $order_item->id(),
         '#default_value' => $order_item->type->getValue()[0]['target_id'] == 'return' ? TRUE : FALSE,
+        '#limit_validation_errors' => [],
       ];
     }
     // If we're editing an order, add a 'return' button next to
@@ -329,6 +336,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
           'wrapper' => $wrapper_id,
         ],
         '#order_item_id' => $order_item->id(),
+        '#limit_validation_errors' => [],
       ];
     }
     // Else, we just add an empty row so the rows don't look ugly when the

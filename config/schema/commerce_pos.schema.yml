@@ -14,6 +14,19 @@ field.widget.settings.pos_order_item_widget:
     size:
       type: integer
       label: 'Size'
+field.widget.settings.pos_customer_widget:
+  type: mapping
+  label: 'Commerce POS Customer widget settings'
+  mapping:
+    num_results:
+      type: integer
+      label: 'Number of results to display'
+    placeholder:
+      type: label
+      label: 'Placeholder'
+    size:
+      type: integer
+      label: 'Size'
 commerce_pos.settings:
   type: config_object
   label: 'Commerce POS config settings'

@@ -134,3 +134,18 @@ function commerce_pos_update_8203() {
   $active_storage->write('commerce_order.commerce_order_item_type.return', $source->read('commerce_order.commerce_order_item_type.return'));
   $active_storage->write('core.entity_view_display.commerce_order_item.return.default', $source->read('core.entity_view_display.commerce_order_item.return.default'));
 }
+
+/**
+ * Install updated configs that are required.
+ */
+function commerce_pos_update_8204() {
+  /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+  $active_storage = \Drupal::service('config.storage');
+
+  $module_handler = Drupal::service('module_handler');
+  $path = $module_handler->getModule('commerce_pos')->getPath();
+
+  $source = new FileStorage($path . '/config/install');
+
+  $active_storage->write('core.entity_form_display.commerce_order.pos.default', $source->read('core.entity_form_display.commerce_order.pos.default'));
+}

@@ -9,7 +9,6 @@ dependencies:
   module:
     - commerce_order
     - commerce_pos
-    - inline_entity_form
 id: commerce_order.pos.default
 targetEntityType: commerce_order
 bundle: pos
@@ -40,18 +39,14 @@ content:
     third_party_settings: {  }
     region: content
   uid:
-    type: inline_entity_form_complex
+    type: pos_customer_widget
     weight: 0
-    region: content
     settings:
-      match_operator: CONTAINS
-      form_mode: default
-      override_labels: false
-      label_singular: ''
-      label_plural: ''
-      allow_new: true
-      allow_existing: false
+      size: 60
+      placeholder: 'Enter an email, username, phone no., billing name or address'
+      num_results: 10
     third_party_settings: {  }
+    region: content
 hidden:
   billing_profile: true
   created: true

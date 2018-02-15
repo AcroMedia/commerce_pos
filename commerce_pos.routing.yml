@@ -94,3 +94,13 @@ commerce_pos.close_register:
     _title: 'Point of Sale Close Register'
   requirements:
     _permission: 'access commerce pos pages'
+
+
+commerce_pos.pos_customer_widget_autocomplete:
+  path: '/commerce_pos/customerAutoCompleteHandler/{count}'
+  defaults:
+    _controller: '\Drupal\commerce_pos\Controller\PosCustomerAutoComplete::customerAutoCompleteHandler'
+    _format: json
+    _title: 'Pos Customer Autocomplete'
+  requirements:
+    _permission: 'access content'

@@ -96,14 +96,18 @@ class POSForm extends ContentEntityForm {
    * Build the POS Order Form.
    */
   protected function buildOrderForm(array $form, FormStateInterface $form_state) {
-    $step = $form_state->get('step');
-
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = $this->entity;
     $form_state->set('commerce_pos_order_id', $order->id());
 
+    $wrapper_id = 'commerce-pos-order-form-wrapper';
+    $form_state->wrapper_id = $wrapper_id;
+
     $form = parent::buildForm($form, $form_state);
+
     $form['#theme'] = 'commerce_pos_form_order';
+    $form['#prefix'] = '<div id="' . $wrapper_id . '">';
+    $form['#suffix'] = '</div>';
 
     $form['customer'] = [
       '#type' => 'container',
@@ -117,6 +121,7 @@ class POSForm extends ContentEntityForm {
     ];
 
     $form['actions']['submit']['#value'] = t('Payments and Completion');
+    $form['actions']['submit']['#limit_validation_errors'] = [['order_items']];
     // Ensure the user is redirected back to this page after deleting an order.
     if (isset($form['actions']['delete']['#url']) && $form['actions']['delete']['#url'] instanceof Url) {
       $form['actions']['delete']['#url']->mergeOptions([
@@ -133,6 +138,7 @@ class POSForm extends ContentEntityForm {
       '#submit' => ['::parkOrder'],
       '#validate' => ['::validateParkOrder'],
       '#disabled' => empty($this->entity->getItems()),
+      '#limit_validation_errors' => [],
     ];
 
     return $form;

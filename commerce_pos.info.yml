@@ -10,7 +10,6 @@ dependencies:
   - commerce:commerce_log
   - commerce:commerce_tax
   - drupal:telephone
-  - inline_entity_form:inline_entity_form
   - commerce_pos:commerce_pos_keypad
 config_devel:
   install:
