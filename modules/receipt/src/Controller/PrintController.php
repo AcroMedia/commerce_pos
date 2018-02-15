@@ -31,18 +31,15 @@ class PrintController extends ControllerBase {
     $response = new AjaxResponse();
 
     // If the user opted to get an email with the receipt.
-    if ($print_or_email != 'print') {
+    if ($print_or_email == 'email' || $print_or_email == 'print_and_email') {
       $this->sendEmailReceipt($commerce_order, $build);
 
       // Finally, if the user only wants an email to be sent, we just call the
       // complete order command which submits the form as usual.
-      if ($print_or_email == 'email') {
-        $response->addCommand(new CompleteOrderCommand());
-      }
     }
 
     // If the user opted to print the receipt.
-    if ($print_or_email != 'email') {
+    if ($print_or_email == 'print' || $print_or_email == 'print_and_email') {
       $module_handler = \Drupal::service('module_handler');
       $module_path = $module_handler->getModule('commerce_pos_receipt')->getPath();
 
@@ -54,6 +51,10 @@ class PrintController extends ControllerBase {
         ],
       ], TRUE));
       $response->addCommand(new PrintReceiptCommand('#commerce-pos-receipt'));
+    }
+
+    if ($print_or_email == 'email' || $print_or_email == 'none') {
+      $response->addCommand(new CompleteOrderCommand());
     }
 
     return $response;

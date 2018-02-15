@@ -20,8 +20,6 @@
     margin: 0;
     float: right;
     padding: 0 10px;
-    //border: none;
-    //background: none;
     cursor: pointer;
     box-shadow: none;
     &:hover,
@@ -30,6 +28,15 @@
       box-shadow: none;
       text-decoration: underline;
     }
+  }
+  .button {
+    margin: 0 8px 10px 0;
+    @media screen and (max-width: 1078px) {
+      margin: 0 8px 15px 0;
+    }
+  }
+  #edit-payment, #edit-notes {
+    padding-top: 40px;
   }
 }
 
@@ -46,3 +53,10 @@
   margin-top: 2em;
 }
 
+#edit-payment-gateway, #commerce-pos-sale-keypad-wrapper {
+  padding: 1em;
+}
+
+.commerce-pos-payment-keypad-amount {
+  margin-bottom: 1em;
+}

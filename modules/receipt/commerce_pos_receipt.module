@@ -82,6 +82,7 @@ function commerce_pos_receipt_form_commerce_pos_alter(&$form, FormStateInterface
         'print' => t('Print'),
         'email' => t('Email'),
         'print_and_email' => t('Both'),
+        'none' => t('No Receipt'),
       ],
       '#default_value' => 'print',
     ];

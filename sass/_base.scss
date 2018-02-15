@@ -12,8 +12,13 @@
   float: right;
   width: 29.33%;
   padding-left: 40px;
+  margin-top: 1em;
 }
-
+@media screen and (max-width: 1078px) {
+  .layout-region-pos-sidebar {
+    width: 27.33%;
+  }
+}
 @media screen and (max-width: 767px) {
   .layout-region-pos-main {
     float: none;
@@ -44,5 +49,3 @@
 .layout-region-pos-totals table tr:hover {
   background-color: #F0F0F0;
 }
-
-

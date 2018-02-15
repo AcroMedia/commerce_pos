@@ -1,5 +1,7 @@
 .commerce-pos-keypad {
-  width: 75%
+  @media screen and (min-width: 1200px) {
+    width: 85%
+  }
 }
 
 .commerce-pos-keypad * {
@@ -20,6 +22,8 @@
 
 .commerce-pos-keypad .commerce-pos-keypad-keys {
   overflow: hidden;
+  padding: 0;
+  margin: 20px 0;
   border-right: 1px solid #D6D6D6
 }
 
