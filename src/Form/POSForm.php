@@ -582,43 +582,34 @@ class POSForm extends ContentEntityForm {
     $number_formatter_factory = \Drupal::service('commerce_price.number_formatter_factory');
     $number_formatter = $number_formatter_factory->createInstance();
 
-    $sub_total_price = $order->getSubtotalPrice();
-    if (!empty($sub_total_price)) {
-      $currency = Currency::load($sub_total_price->getCurrencyCode());
-      $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
+    $order_total_summary = \Drupal::service('commerce_order.order_total_summary');
+    $order_summary = $order_total_summary->buildTotals($order);
+
+    // Commerce sets these to null instead of zero and causes things to blow up
+    // TODO this should probably be backported to commerce.
+    if (empty($order_summary['subtotal'])) {
+      $order_summary['subtotal'] = new Price(0, $default_currency->getCurrencyCode());
     }
-    else {
-      $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
+    if (empty($order_summary['total'])) {
+      $order_summary['total'] = new Price(0, $default_currency->getCurrencyCode());
     }
 
-    $totals[] = [$this->t('Subtotal'), $formatted_amount];
-
-    // Commerce appears to have a bug where if not adjustments exist, it
-    // will return a 0 => null array, which will still trigger a foreach loop.
-    // a foreach loop.
-    foreach ($order->collectAdjustments() as $key => $adjustment) {
-      if (!empty($adjustment)) {
-        $amount = $adjustment->getAmount();
-        $currency = Currency::load($amount->getCurrencyCode());
-        $formatted_amount = $number_formatter->formatCurrency($amount->getNumber(), $currency);
-
-        $totals[] = [
-          $adjustment->getLabel(),
-          $formatted_amount,
-        ];
+    foreach ($order_summary['adjustments'] as $adjustment) {
+      if (!empty($adjustment['total'])) {
+        $currency = Currency::load($adjustment['total']->getCurrencyCode());
+        $formatted_amount = $number_formatter->formatCurrency($adjustment['total']->getNumber(), $currency);
+        $totals[] = [$adjustment['label'], $formatted_amount];
       }
     }
 
-    // Collecting the total price on the cart.
-    $total_price = $order->getTotalPrice();
-    if (!empty($total_price)) {
-      $currency = Currency::load($total_price->getCurrencyCode());
-      $formatted_amount = $number_formatter->formatCurrency($total_price->getNumber(), $currency);
-    }
-    else {
-      $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
-    }
+    $sub_total_price = $order_summary['subtotal'];
+    $currency = Currency::load($sub_total_price->getCurrencyCode());
+    $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
+    $totals[] = [$this->t('Subtotal'), $formatted_amount];
 
+    $total_price = $order_summary['total'];
+    $currency = Currency::load($total_price->getCurrencyCode());
+    $formatted_amount = $number_formatter->formatCurrency($total_price->getNumber(), $currency);
     $totals[] = [$this->t('Total'), $formatted_amount];
 
     $form['totals']['totals'] = [
