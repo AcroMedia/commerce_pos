@@ -68,9 +68,20 @@ function commerce_pos_reports_currency_js(array $currencies) {
   $settings = [];
 
   foreach ($currencies as $currency_code) {
+    /** @var \Drupal\commerce_price\Entity\Currency $currency */
     $currency = Currency::load($currency_code);
-    $settings[$currency_code]['currency'] = $currency;
-    $settings[$currency_code]['divisor'] = pow(10, $currency->getFractionDigits());
+
+    // @TODO: Figure out what the actual divisor, symbol placements are.
+    $currency_array = [];
+    $currency_array['symbol'] = $currency->getSymbol();
+    $currency_array['code'] = $currency->getCurrencyCode();
+    $currency_array['symbol_placement'] = 'before';
+    $currency_array['symbol_spacer'] = '';
+    $currency_array['code_spacer'] = '';
+    $currency_array['decimals'] = $currency->getFractionDigits();
+    $currency_array['rounding_step'] = 0;
+    $settings[$currency_code]['currency'] = $currency_array;
+    $settings[$currency_code]['divisor'] = 100;
   }
 
   return $settings;

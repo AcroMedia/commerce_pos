@@ -19,5 +19,5 @@ commerce_pos_currency_denominations.commerce_pos_currency_denominations.*:
             type: label
             label: 'Label'
           amount:
-            type: amount
+            type: integer
             label: 'Amount'

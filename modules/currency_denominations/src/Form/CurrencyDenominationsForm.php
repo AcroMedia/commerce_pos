@@ -142,7 +142,7 @@ class CurrencyDenominationsForm extends EntityForm {
    */
   public function addOne(array &$form, FormStateInterface $form_state) {
     $denoms = $form_state->get('denoms');
-    array_push($denoms, []);
+    array_push($denoms, ['label' => '', 'amount' => '']);
     $form_state->set('denoms', $denoms);
     $form_state->setRebuild();
   }

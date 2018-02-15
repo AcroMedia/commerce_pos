@@ -12,3 +12,10 @@ commerce_pos_keypad_test.commerce_pos_keypad_text_test:
     _title: 'Keypad text test form'
   requirements:
     _access: 'TRUE'
+commerce_pos_keypad_test.commerce_pos_keypad_input_box_test:
+  path: '/commerce_pos_keypad_input_box_test'
+  defaults:
+    _form: '\Drupal\commerce_pos_keypad_test\Form\InputBoxElementForm'
+    _title: 'Keypad input box test form'
+  requirements:
+    _access: 'TRUE'

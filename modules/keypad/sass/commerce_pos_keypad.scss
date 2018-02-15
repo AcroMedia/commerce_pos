@@ -159,6 +159,7 @@
   border: 1px solid #f5f5f5;
   text-align: right;
   padding-right: 5px;
+  width: 100%;
 }
 
 .commerce-pos-keypad-cash-input-box-content .cancel-total {
@@ -201,6 +202,7 @@
   display: inline-block;
   vertical-align: middle;
   cursor: pointer;
+  margin-left: 10px;
 }
 
 .commerce-pos-keypad-cash-input-icon:hover {

@@ -179,7 +179,7 @@ class EndOfDayForm extends FormBase {
             // Declared amount.
             $declared = [
               '#type' => 'textfield',
-              '#size' => 5,
+              '#size' => 10,
               '#maxlength' => 10,
               '#attributes' => [
                 'class' => ['commerce-pos-report-declared-input'],
@@ -194,6 +194,13 @@ class EndOfDayForm extends FormBase {
               '#field_prefix' => $input_prefix,
               '#field_suffix' => $input_suffix,
             ];
+
+            if ($is_cash) {
+              $declared['#commerce_pos_keypad'] = [
+                'type' => 'cash input',
+                'currency_code' => $currency_code,
+              ];
+            }
 
             // Adding this element with the register_id and date as the keys
             // because this is a known issue w/ Drupal where default values
@@ -228,7 +235,7 @@ class EndOfDayForm extends FormBase {
             if ($is_cash) {
               $row['cash_deposit'][$register_id][$date_filter] = [
                 '#type' => 'textfield',
-                '#size' => 5,
+                '#size' => 10,
                 '#maxlength' => 10,
                 '#title' => $this->t('Cash Deposit'),
                 '#title_display' => 'invisible',
@@ -252,7 +259,7 @@ class EndOfDayForm extends FormBase {
         }
 
         if (!empty($totals)) {
-          $js_settings['currencies'] = commerce_pos_reports_currency_js(array_keys($totals));
+          $js_settings['commercePosReportCurrencies'] = commerce_pos_reports_currency_js(array_keys($totals));
           $form['results']['#attached']['drupalSettings'] = $js_settings;
         }
 
@@ -303,7 +310,6 @@ class EndOfDayForm extends FormBase {
           '#markup' => $this->t('There is no already closed report for this day and this register is not currently open.<br />A register must be open for it to be closed and an EOD report generated.'),
         ];
       }
-
     }
 
     return $form;

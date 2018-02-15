@@ -1,0 +1,72 @@
+<?php
+
+/**
+ * @file
+ * Contains install code for the commerce_pos_currency_denominations module.
+ */
+
+use Drupal\commerce_pos_currency_denominations\Entity\CurrencyDenominations;
+
+/**
+ * Implements hook_install().
+ */
+function commerce_pos_currency_denominations_install() {
+  _commerce_pos_currency_denominations_add_default_denominations();
+}
+
+/**
+ * Add our default US dollar currency denomination type.
+ */
+function _commerce_pos_currency_denominations_add_default_denominations() {
+  // Add all the denominations for the US dollar.
+  $values = [
+    'currencyCode' => 'USD',
+    'denominations' => [
+      [
+        'label' => t('Penny'),
+        'amount' => 1,
+      ],
+      [
+        'label' => t('Nickel'),
+        'amount' => 5,
+      ],
+      [
+        'label' => t('Dime'),
+        'amount' => 10,
+      ],
+      [
+        'label' => t('Quarter'),
+        'amount' => 25,
+      ],
+      [
+        'label' => t('$1'),
+        'amount' => 100,
+      ],
+      [
+        'label' => t('$5'),
+        'amount' => 500,
+      ],
+      [
+        'label' => t('$10'),
+        'amount' => 1000,
+      ],
+      [
+        'label' => t('$20'),
+        'amount' => 2000,
+      ],
+      [
+        'label' => t('$50'),
+        'amount' => 5000,
+      ],
+      [
+        'label' => t('$100'),
+        'amount' => 10000,
+      ],
+    ],
+  ];
+
+  // Now, save the values.
+  /** @var \Drupal\commerce_pos_currency_denominations\Entity\CurrencyDenominations $currency_denominations */
+  $currency_denominations = CurrencyDenominations::create($values);
+  $currency_denominations->save();
+}
