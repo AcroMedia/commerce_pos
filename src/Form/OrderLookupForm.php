@@ -217,7 +217,7 @@ class OrderLookupForm extends FormBase {
           'target' => '_blank',
         ],
       ]);
-      $edit_url = Url::fromRoute('commerce_pos.main', ['commerce_order' => $order->id()]);
+      $edit_url = Url::fromRoute('commerce_pos.edit', ['commerce_order' => $order->id()]);
 
       $cashier = User::load($order->get('field_cashier')->getValue()[0]['target_id']);
 

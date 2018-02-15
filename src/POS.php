@@ -30,16 +30,26 @@ class POS extends ControllerBase {
   protected $tempStore;
 
   /**
+   * The currentOrder object.
+   *
+   * @var \Drupal\commerce_pos\CurrentOrder
+   */
+  protected $currentOrder;
+
+  /**
    * Constructs a new POS object.
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container.
    * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
+   * @param \Drupal\commerce_pos\CurrentOrder $current_order
+   *   The current order service.
    */
-  public function __construct(ContainerInterface $container, PrivateTempStoreFactory $temp_store_factory) {
+  public function __construct(ContainerInterface $container, PrivateTempStoreFactory $temp_store_factory, CurrentOrder $current_order) {
     $this->container = $container;
     $this->tempStore = $temp_store_factory->get('commerce_pos');
+    $this->currentOrder = $current_order;
   }
 
   /**
@@ -48,7 +58,8 @@ class POS extends ControllerBase {
   public static function create(ContainerInterface $container) {
     return new static(
       $container,
-      $container->get('user.private_tempstore')
+      $container->get('user.private_tempstore'),
+      $container->get('commerce_pos.current_order')
     );
   }
 
@@ -73,10 +84,15 @@ class POS extends ControllerBase {
     // If an order has been passed through, set that as the current order.
     if ($commerce_order) {
       $order = $commerce_order;
+      $this->currentOrder->set($commerce_order);
+    }
+    // If we don't have an order, try to load the current order.
+    else {
+      $order = $this->currentOrder->get();
     }
 
     // If we still don't have an order.
-    if (!isset($order)) {
+    if (!$order) {
       $order = Order::create([
         'type' => 'pos',
         'store_id' => $store_id,
@@ -84,6 +100,10 @@ class POS extends ControllerBase {
         'field_cashier' => \Drupal::currentUser()->id(),
         'field_register' => $register->id(),
       ]);
+
+      $order->save();
+
+      $this->currentOrder->set($order);
     }
 
     $form_object = POSForm::create($this->container);

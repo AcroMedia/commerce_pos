@@ -35,7 +35,10 @@ class ParkedOrders extends OrderLookup {
     $commerce_order->set('state', 'draft');
     $commerce_order->save();
 
-    $pos_url = Url::fromRoute('commerce_pos.main', ['commerce_order' => $commerce_order->id()]);
+    \Drupal::service('commerce_pos.current_order')->clear();
+    \Drupal::service('commerce_pos.current_order')->set($commerce_order);
+
+    $pos_url = Url::fromRoute('commerce_pos.main');
 
     $response = new RedirectResponse($pos_url->toString());
     $response->send();

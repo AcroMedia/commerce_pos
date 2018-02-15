@@ -75,13 +75,12 @@ class ParkOrderTest extends JavascriptTestBase {
     $this->assertEquals('disabled', $button->getAttribute('disabled'));
 
     // Check whether an order cannot be retrieved if current order is not empty.
-    // Add a T-Shirt.
-    $autocomplete_field->setValue('T');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
+    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $this->assertCount(3, $results);
-    // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
 
@@ -101,21 +100,9 @@ class ParkOrderTest extends JavascriptTestBase {
     $retrieve_link_href = $retrieve_link->getAttribute('href');
     $retrieve_link->click();
 
-    $out = $this->getSession()->getPage()->getContent();
-    $html_output = 'GET request to: ' . $this->getSession()->getCurrentUrl();
-    $html_output .= '<hr />' . $out;
-    $html_output .= $this->getHtmlOutputHeaders();
-    $this->htmlOutput($html_output);
-
     // Confirm we are redirected back to the POS.
-    $url = Url::fromRoute('commerce_pos.main', ['commerce_order' => 1]);
+    $url = Url::fromRoute('commerce_pos.main');
     $this->assertEquals($this->getAbsoluteUrl($url->toString()), $this->getUrl());
-    // Assert that the product is listed as expected.
-    $web_assert->pageTextContains('Jumper');
-    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
-    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
-    $web_assert->pageTextContains('Total $50.00');
-    $web_assert->pageTextContains('To Pay $50.00');
 
     // Now check if order 2 is still parked.
     $this->clickLink('Parked Orders');
@@ -129,6 +116,11 @@ class ParkOrderTest extends JavascriptTestBase {
     // Order 1 has indeed been set back to 'draft'.
     $order = Order::load(1);
     $this->assertEquals($order->getState()->value, 'draft');
+
+    // And confirm our current order is Order 1 again.
+    $order = \Drupal::service('commerce_pos.current_order')->get();
+    $this->assertEquals($order->id(), 1);
+
   }
 
   /**

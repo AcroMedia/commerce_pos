@@ -4,7 +4,6 @@ namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
 use Drupal\commerce_tax\Entity\TaxType;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
-use Drupal\Core\Url;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
 
@@ -117,8 +116,7 @@ class PosReturnFormTest extends JavascriptTestBase {
     // Click on our newly created order's edit button so we can do a return.
     $web_assert->pageTextContains('edit');
     $this->getSession()->getPage()->clickLink('edit');
-    $url = Url::fromRoute('commerce_pos.main', ['commerce_order' => 1]);
-    $this->assertEquals($this->getAbsoluteUrl($url->toString()), $this->getUrl());
+    $web_assert->addressEquals('admin/commerce/pos/order/1/edit');
 
     // Ensure the totals are correct.
     $web_assert->pageTextContains('Total $100.00');

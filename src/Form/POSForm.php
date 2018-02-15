@@ -2,8 +2,6 @@
 
 namespace Drupal\commerce_pos\Form;
 
-use Drupal\commerce_order\Entity\Order;
-use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_store\CurrentStore;
 use Drupal\Component\Datetime\TimeInterface;
@@ -13,7 +11,6 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
-use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -55,7 +52,8 @@ class POSForm extends ContentEntityForm {
       $container->get('entity.manager'),
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
-      $container->get('commerce_store.current_store')
+      $container->get('commerce_store.current_store'),
+      $container->get('commerce_pos.current_order')
     );
   }
 
@@ -377,16 +375,12 @@ class POSForm extends ContentEntityForm {
   /**
    * Adds a commerce log to an order.
    *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
+   * @param object $order
    *   The order entity.
    * @param string $comment
    *   The order comment.
    */
-  public function saveOrderComment(OrderInterface $order, $comment) {
-    // In oder to add a comment to an order it needs to be saved.
-    if ($order->isNew()) {
-      $order->save();
-    }
+  public function saveOrderComment($order, $comment) {
     $this->logStorage->generate($order, 'order_comment', [
       'comment' => $comment,
     ])->save();
@@ -567,7 +561,7 @@ class POSForm extends ContentEntityForm {
     $order->getState()->applyTransition($transition);
     $order->save();
 
-    $this->clearOrder($form_state);
+    $this->clearOrder();
   }
 
   /**
@@ -773,18 +767,8 @@ class POSForm extends ContentEntityForm {
   /**
    * Clear the existing order, so a new one can be created.
    */
-  protected function clearOrder(FormStateInterface $form_state) {
-    /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
-    $order = $this->entity;
-    // Create a new order.
-    $order = Order::create([
-      'type' => 'pos',
-      'store_id' => $order->getStoreId(),
-      'uid' => User::getAnonymousUser()->id(),
-      'field_cashier' => $order->field_cashier->value,
-      'field_register' => $order->field_register->value,
-    ]);
-    $form_state->getFormObject()->setEntity($order);
+  protected function clearOrder() {
+    \Drupal::service('commerce_pos.current_order')->clear();
   }
 
   /**
@@ -797,7 +781,7 @@ class POSForm extends ContentEntityForm {
     $order->set('state', 'parked')
       ->save();
 
-    $this->clearOrder($form_state);
+    $this->clearOrder();
 
     drupal_set_message($this->t('Order @order_id has been parked', ['@order_id' => $order->id()]));
   }
