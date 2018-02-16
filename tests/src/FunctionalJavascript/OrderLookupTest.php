@@ -50,6 +50,7 @@ class OrderLookupTest extends JavascriptTestBase {
     $web_assert = $this->assertSession();
 
     $this->drupalGet('admin/commerce/pos/orders');
+    $web_assert->pageTextContains('There are currently no POS orders.');
 
     // Test the order lookup error message when we can't find an order.
     $this->getSession()->getPage()->fillField('search_box', '-1');
