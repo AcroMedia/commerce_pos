@@ -136,6 +136,8 @@ class POSForm extends ContentEntityForm {
       '#submit' => ['::parkOrder'],
       '#validate' => ['::validateParkOrder'],
       '#disabled' => empty($this->entity->getItems()),
+      // Only draft orders can be parked.
+      '#access' => $this->entity->get('state')->value === 'draft',
       '#limit_validation_errors' => [],
     ];
 
@@ -768,6 +770,12 @@ class POSForm extends ContentEntityForm {
   public function parkOrder(array &$form, FormStateInterface $form_state) {
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $this->entity;
+    // Defensive code to ensure we never park an order that is not a draft. The
+    // Park button should not be accessible if the order is not a draft but this
+    // is just in case.
+    if ($order->get('state')->value !== 'draft') {
+      throw new \RuntimeException('Cannot park an order that is not in the draft state');
+    }
 
     $order->set('state', 'parked')
       ->save();
