@@ -5,6 +5,7 @@ namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
 use Drupal\commerce_order\Entity\Order;
+use Drupal\user\Entity\User;
 
 /**
  * Tests the Commerce POS form.
@@ -59,6 +60,14 @@ class OrderLookupTest extends JavascriptTestBase {
 
     $web_assert = $this->assertSession();
 
+    // Create our test user.
+    $user = User::create();
+    $user->setPassword('test');
+    $user->enforceIsNew();
+    $user->setEmail('test@test.com');
+    $user->setUsername('test');
+    $user->save();
+
     /* @var \Drupal\commerce_order\Entity\Order $order */
     $order = Order::create([
       'type' => 'pos',
@@ -66,6 +75,8 @@ class OrderLookupTest extends JavascriptTestBase {
       'store_id' => $this->store->id(),
       'field_cashier' => $this->adminUser->id(),
       'field_register' => 1,
+      'uid' => $user->id(),
+      'mail' => 'test2@test.com',
     ]);
     $order->save();
 
@@ -77,6 +88,8 @@ class OrderLookupTest extends JavascriptTestBase {
     $this->waitForAjaxToFinish();
 
     $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(1) > a', $order->id());
+    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr:nth-child(1) > td:nth-child(5) > a', 'test');
+    $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(6)', 'test2@test.com');
     $web_assert->elementContains('css', '#order-lookup-results > div > table > tbody > tr > td:nth-child(3)', 'Completed');
   }
 

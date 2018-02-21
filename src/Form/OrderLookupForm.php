@@ -128,6 +128,7 @@ class OrderLookupForm extends FormBase {
         $query->join('users_field_data', 'u', 'u.uid = o.uid');
         $query->condition($query->orConditionGroup()
           ->condition('u.name', '%' . $search_text . '%', 'LIKE')
+          ->condition('u.mail', '%' . $search_text . '%', 'LIKE')
           ->condition('o.mail', '%' . $search_text . '%', 'LIKE')
         );
       }
@@ -207,6 +208,7 @@ class OrderLookupForm extends FormBase {
       t('Status'),
       t('Cashier'),
       t('Customer'),
+      t('Contact Email'),
       t('Total'),
       t('Operations'),
     ];
@@ -254,13 +256,24 @@ class OrderLookupForm extends FormBase {
         $formatted_amount = $number_formatter->formatCurrency(0, $default_currency);
       }
 
+      // Form the customer link and email.
+      $customer = [
+        '#type' => 'inline_template',
+        '#template' => '{{ user_link }} <br \> {{ user_email }}',
+        '#context' => [
+          'user_link' => Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
+          'user_email' => $order->getCustomer()->getEmail(),
+        ],
+      ];
+
       // Now, add each row to the rows array.
       $rows[] = [
         Link::fromTextAndUrl($order->id(), $order_url),
         DrupalDateTime::createFromTimestamp($order->getChangedTime())->format('Y-m-d H:i'),
         $order->getState()->getLabel(),
         Link::fromTextAndUrl($cashier->getDisplayName(), $cashier_url),
-        Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
+        ['data' => $customer],
+        $order->getEmail(),
         $formatted_amount,
         Link::fromTextAndUrl(t('edit'), $edit_url),
       ];

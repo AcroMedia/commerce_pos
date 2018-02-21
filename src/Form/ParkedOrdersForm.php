@@ -84,6 +84,7 @@ class ParkedOrdersForm extends OrderLookupForm {
       t('Status'),
       t('Cashier'),
       t('Customer'),
+      t('Contact Email'),
       t('Total'),
       t('Operations'),
     ];
@@ -120,6 +121,16 @@ class ParkedOrdersForm extends OrderLookupForm {
         ],
       ]);
 
+      // Form the customer link and email.
+      $customer = [
+        '#type' => 'inline_template',
+        '#template' => '{{ user_link }} <br \> {{ user_email }}',
+        '#context' => [
+          'user_link' => Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
+          'user_email' => $order->getCustomer()->getEmail(),
+        ],
+      ];
+
       // Format the total price of the order.
       $store = $order->getStore();
       $default_currency = $store->getDefaultCurrency();
@@ -138,7 +149,8 @@ class ParkedOrdersForm extends OrderLookupForm {
         DrupalDateTime::createFromTimestamp($order->getChangedTime())->format('Y-m-d H:i'),
         $order->getState()->getLabel(),
         Link::fromTextAndUrl($cashier->getDisplayName(), $cashier_url),
-        Link::fromTextAndUrl($order->getCustomer()->getDisplayName(), $customer_url),
+        ['data' => $customer],
+        $order->getEmail(),
         $formatted_amount,
         Link::fromTextAndUrl('Retrieve', $retrieve_url),
       ];

@@ -87,6 +87,28 @@ class POSForm extends ContentEntityForm {
 
     $this->addTotalsDisplay($form, $form_state);
 
+    // Change the contact email field into an ajax field so that any changes
+    // to the email automatically get saved to the order.
+    $form['mail']['#prefix'] = '<div id="order-mail-wrapper">';
+    $form['mail']['#suffix'] = '</div>';
+    $form['mail']['widget'][0]['value']['#element_key'] = 'order-mail';
+    $form['mail']['widget'][0]['value']['#limit_validation_errors'] = [
+      ['mail'],
+    ];
+    $form['mail']['widget'][0]['value']['#ajax'] = [
+      'wrapper' => 'order-mail-wrapper',
+      'callback' => '::emailAjaxRefresh',
+      'event' => 'change',
+    ];
+
+    // Save the email if it has been changed.
+    $triggering_element = $form_state->getTriggeringElement();
+    if (isset($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'order-mail') {
+      $order = $this->entity;
+      $order->setEmail($form_state->getValue('mail'));
+      $order->save();
+    }
+
     return $form;
   }
 
@@ -161,27 +183,6 @@ class POSForm extends ContentEntityForm {
     // Is this too clunky?
     $parent_form = parent::buildForm($form, $form_state);
     $form['mail'] = $parent_form['mail'];
-
-    // Change the contact email field into an ajax field so that any changes
-    // to the email automatically get saved to the order.
-    $form['mail']['#prefix'] = '<div id="order-mail-wrapper">';
-    $form['mail']['#suffix'] = '</div>';
-    $form['mail']['widget'][0]['value']['#element_key'] = 'order-mail';
-    $form['mail']['widget'][0]['value']['#limit_validation_errors'] = [
-      ['mail'],
-    ];
-    $form['mail']['widget'][0]['value']['#ajax'] = [
-      'wrapper' => 'order-mail-wrapper',
-      'callback' => '::emailAjaxRefresh',
-      'event' => 'change',
-    ];
-
-    // Save the email if it has been changed.
-    $triggering_element = $form_state->getTriggeringElement();
-    if (isset($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'order-mail') {
-      $order->setEmail($form_state->getValue('mail'));
-      $order->save();
-    }
 
     $form['order_id'] = [
       '#type' => 'value',

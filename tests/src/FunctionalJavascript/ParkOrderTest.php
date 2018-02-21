@@ -86,6 +86,11 @@ class ParkOrderTest extends JavascriptTestBase {
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
 
+    // Set the email for the order.
+    $email_field = $this->getSession()->getPage()->findField('mail[0][value]');
+    $email_field->setValue('test@test.com');
+    $web_assert->waitOnAutocomplete();
+
     // Our current order shouldn't be order 1 anymore.
     $this->getSession()->getPage()->findButton('Park Order')->click();
     $this->assertSession()->pageTextContains('Order 2 has been parked');
@@ -93,12 +98,13 @@ class ParkOrderTest extends JavascriptTestBase {
     // Now check if we can see the orders in the list.
     $this->clickLink('Parked Orders');
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[1]/a', 1);
+    $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[1]/td[6]', 'test@test.com');
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[3]', 'Parked');
-    $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[7]/a', 'Retrieve');
+    $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[8]/a', 'Retrieve');
     $web_assert->elementContains('xpath', '//*[@id="edit-result"]/table/tbody/tr[1]/td[1]/a', 2);
 
     // Retrieve order 1.
-    $retrieve_link = $web_assert->elementExists('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[7]/a');
+    $retrieve_link = $web_assert->elementExists('xpath', '//*[@id="edit-result"]/table/tbody/tr[2]/td[8]/a');
     $retrieve_link_href = $retrieve_link->getAttribute('href');
     $retrieve_link->click();
 
