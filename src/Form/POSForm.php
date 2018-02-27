@@ -628,24 +628,25 @@ class POSForm extends ContentEntityForm {
     foreach ($this->getOrderPayments() as $payment) {
       $amount = $payment->getAmount();
       $rendered_amount = $payment->getState()->value === 'voided' ? $this->t('VOID') : $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode()));
-      $remove_button = [];
-      if ($payment->getState()->value !== 'voided') {
-        // TODO change to a link.
-        $remove_button = [
-          '#type' => 'submit',
-          '#value' => t('void'),
-          '#name' => 'commerce-pos-pay-keypad-remove',
-          '#submit' => ['::submitForm'],
-          '#payment_id' => $payment->id(),
-          '#payment_gateway_id' => $payment->get('payment_gateway')->target_id,
-          '#element_key' => 'remove-payment',
-          '#attributes' => [
-            'class' => [
-              'commerce-pos-pay-keypad-remove',
-              'link',
-            ],
+      $remove_button = [
+        '#type' => 'submit',
+        '#value' => t('void'),
+        '#name' => 'commerce-pos-pay-keypad-remove',
+        '#submit' => ['::submitForm'],
+        '#payment_id' => $payment->id(),
+        '#payment_gateway_id' => $payment->get('payment_gateway')->target_id,
+        '#element_key' => 'remove-payment',
+        '#attributes' => [
+          'class' => [
+            'commerce-pos-pay-keypad-remove',
+            'link',
           ],
-        ];
+        ],
+        '#access' => $payment->getState()->value !== 'voided' && $order->getState()->value != 'completed'
+      ];
+
+      // Only add non-voided payments to the order total.
+      if ($payment->getState()->value !== 'voided') {
         if (!isset($payment_totals[$amount->getCurrencyCode()])) {
           // Initialise the payment total.
           $payment_totals[$amount->getCurrencyCode()] = 0;
