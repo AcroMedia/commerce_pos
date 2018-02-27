@@ -1,4 +1,3 @@
-
 commerce_pos.cashier-login-form:
   path: '/cashier-login'
   defaults:
@@ -51,7 +50,7 @@ commerce_pos.pos_order_item_widget_autocomplete:
 commerce_pos.order_lookup:
   path: '/admin/commerce/pos/orders'
   defaults:
-    _controller: '\Drupal\commerce_pos\Controller\OrderLookup::content'
+    _form: '\Drupal\commerce_pos\Form\OrderLookupForm'
     _title: 'Point of Sale Order Lookup'
   requirements:
     _permission: 'access commerce pos order lookup'
@@ -59,7 +58,7 @@ commerce_pos.order_lookup:
 commerce_pos.parked_order_lookup:
   path: '/admin/commerce/pos/orders/parked'
   defaults:
-    _controller: '\Drupal\commerce_pos\Controller\ParkedOrders::content'
+    _form: '\Drupal\commerce_pos\Form\ParkedOrdersForm'
     _title: 'Point of Sale Parked Order Lookup'
   requirements:
     # Parked orders are less dangerous than all orders, and likely to be used by all cashiers.
@@ -101,7 +100,6 @@ commerce_pos.edit:
         type: 'entity:commerce_order'
   requirements:
     _permission: 'access commerce pos pages'
-
 
 commerce_pos.pos_customer_widget_autocomplete:
   path: '/commerce_pos/customerAutoCompleteHandler/{count}'

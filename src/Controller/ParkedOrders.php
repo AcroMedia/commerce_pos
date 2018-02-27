@@ -3,6 +3,7 @@
 namespace Drupal\commerce_pos\Controller;
 
 use Drupal\commerce_order\Entity\Order;
+use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\Url;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
@@ -10,17 +11,7 @@ use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 /**
  * Builds the parked order listing page.
  */
-class ParkedOrders extends OrderLookup {
-
-  /**
-   * Builds the Order Lookup form.
-   *
-   * @return array
-   *   A renderable array containing the Order Lookup form.
-   */
-  public function content() {
-    return \Drupal::formBuilder()->getForm('\Drupal\commerce_pos\Form\ParkedOrdersForm');
-  }
+class ParkedOrders extends ControllerBase {
 
   /**
    * Retrieves a parked order.

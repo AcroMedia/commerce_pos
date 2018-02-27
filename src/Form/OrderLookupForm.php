@@ -47,7 +47,7 @@ class OrderLookupForm extends FormBase {
         'event' => 'input',
         'progress' => [
           'type' => 'throbber',
-          'message' => t('Searching orders...'),
+          'message' => $this->t('Searching orders...'),
         ],
       ],
     ];
@@ -105,8 +105,8 @@ class OrderLookupForm extends FormBase {
    *   The render array or a translatable string.
    */
   public function searchOrderResults($search_text = '', $state = 'draft', $operator = '!=', TranslatableMarkup $empty_message = NULL) {
-    $result_limit = \Drupal::config('commerce_pos.settings')->get('order_lookup_limit');
-    $do_like_search = \Drupal::config('commerce_pos.settings')->get('order_lookup_like_search');
+    $result_limit = $this->config('commerce_pos.settings')->get('order_lookup_limit');
+    $do_like_search = $this->config('commerce_pos.settings')->get('order_lookup_like_search');
 
     // Create the query now.
     // If we're doing a like search, form the query differently.
@@ -203,14 +203,14 @@ class OrderLookupForm extends FormBase {
     $number_formatter = $number_formatter_factory->createInstance();
 
     $header = [
-      t('Order ID'),
-      t('Date'),
-      t('Status'),
-      t('Cashier'),
-      t('Customer'),
-      t('Contact Email'),
-      t('Total'),
-      t('Operations'),
+      $this->t('Order ID'),
+      $this->t('Date'),
+      $this->t('Status'),
+      $this->t('Cashier'),
+      $this->t('Customer'),
+      $this->t('Contact Email'),
+      $this->t('Total'),
+      $this->t('Operations'),
     ];
 
     $rows = [];
@@ -275,7 +275,7 @@ class OrderLookupForm extends FormBase {
         ['data' => $customer],
         $order->getEmail(),
         $formatted_amount,
-        Link::fromTextAndUrl(t('edit'), $edit_url),
+        Link::fromTextAndUrl($this->t('edit'), $edit_url),
       ];
     }
 

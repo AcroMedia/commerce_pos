@@ -56,7 +56,9 @@ function commerce_pos_update_8201() {
 }
 
 /**
- * Update the register fields, removing cash and adding open, opening float and default float.
+ * Update the register entity's fields.
+ *
+ * Removes cash and adds open, opening float and default float.
  */
 function commerce_pos_update_8202() {
   $definition_update_manager = \Drupal::entityDefinitionUpdateManager();

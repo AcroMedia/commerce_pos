@@ -88,26 +88,6 @@ function commerce_pos_reports_currency_js(array $currencies) {
 }
 
 /**
- * Retrieves the timestamp for the end of day.
- *
- * @return int
- *   The timestamp for the end of the day.
- */
-function commerce_pos_reports_end_of_day_timestamp() {
-  // If they're still empty.
-  if (empty($hour)) {
-    $hour = '23';
-  }
-  if (empty($minute)) {
-    $minute = '59';
-  }
-
-  $time = time();
-
-  return strtotime("$hour:$minute", $time);
-}
-
-/**
  * Loads the EOD report for a specific register and date.
  *
  * @param string $date

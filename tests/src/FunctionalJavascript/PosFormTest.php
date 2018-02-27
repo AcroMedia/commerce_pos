@@ -305,6 +305,7 @@ class PosFormTest extends JavascriptTestBase {
 
   /**
    * Tests a simple POS flow similar to the main test, but with a tax enabled.
+   *
    * Done as a separate test because having taxes make the numbers in the main
    * tests more confusing.
    */
@@ -348,7 +349,7 @@ class PosFormTest extends JavascriptTestBase {
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
 
-    // Assert that the product is listed as expected and tax is applied properly.
+    // Assert the product is listed as expected and tax is applied properly.
     $web_assert->pageTextContains('Jumper');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
     $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');

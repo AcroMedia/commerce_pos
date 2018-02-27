@@ -6,6 +6,8 @@ use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
 
 /**
+ * Tests receipt functionality.
+ *
  * @group commerce_pos_receipt
  */
 class PosReceiptTest extends JavascriptTestBase {

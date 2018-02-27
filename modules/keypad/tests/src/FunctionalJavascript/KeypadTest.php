@@ -46,7 +46,8 @@ class KeypadTest extends JavascriptTestBase {
     $this->drupalGet('commerce_pos_keypad_pos_test');
     $web_assert->fieldValueEquals('keypad[amount]', '100');
     $this->getSession()->getPage()->find('xpath', '//*[@id="commerce-pos-sale-keypad-wrapper"]/div/div[2]/div[1]/div[1]');
-    // When the first character is typed, the input is automatically cleared, like placeholder text.
+    // When the first character is typed, the input is automatically cleared,
+    // like placeholder text.
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="7"]')[0]->click();
     $web_assert->fieldValueEquals('keypad[amount]', '7');
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="0"]')[0]->click();
@@ -89,16 +90,19 @@ class KeypadTest extends JavascriptTestBase {
     $web_assert->fieldValueEquals('cashier_id', '1234567890.');
     $this->xpath('//div[@class="commerce-pos-keypad-key" and @data-keybind="1"]')[0]->click();
 
-    // TODO Uncomment once popup and close functionality are added back in, right now keypad is always inline
+    // TODO Uncomment once popup and close functionality are added back in,
+    // right now keypad is always inline
     // $this->click('.commerce-pos-keypad-close');.
   }
 
   /**
    * Tests a keypad input box added to text element.
+   *
+   * @todo Figure out why this is failing.
    */
   public function testInputBoxForm() {
-    // @TODO: Figure out why this is failing in line 110.
-    /*$web_assert = $this->assertSession();
+    $this->markTestSkipped('Figure out why this is failing');
+    $web_assert = $this->assertSession();
     $this->drupalGet('admin/commerce/pos/main');
 
     $this->getSession()->getPage()->fillField('register', '1');
@@ -128,7 +132,7 @@ class KeypadTest extends JavascriptTestBase {
     $this->xpath('//*[@id="commerce-pos-keypad-cash-input-box"]/div/div/div/table/tbody/tr[10]/td[2]/a')[0]->click();
 
     // Make sure the correct value has been inserted into the amount field.
-    $web_assert->fieldValueEquals('amount', '345');*/
+    $web_assert->fieldValueEquals('amount', '345');
   }
 
 }

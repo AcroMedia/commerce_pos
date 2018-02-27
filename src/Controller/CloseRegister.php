@@ -25,9 +25,7 @@ class CloseRegister extends ControllerBase {
    * main POS page.
    */
   public function content() {
-    $module_handler = \Drupal::service('module_handler');
-
-    if ($module_handler->moduleExists('commerce_pos_reports')) {
+    if ($this->moduleHandler()->moduleExists('commerce_pos_reports')) {
       $redirect_url = Url::fromRoute('commerce_pos_reports.end-of-day');
     }
     else {

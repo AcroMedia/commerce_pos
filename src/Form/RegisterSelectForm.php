@@ -65,8 +65,8 @@ class RegisterSelectForm extends FormBase implements FormInterface {
     ];
 
     $form['actions']['submit'] = [
-      // This is a hack because the formatting on price fields is screwy, when that gets fixed
-      // this can be removed.
+      // This is a hack because the formatting on price fields is screwy, when
+      // that gets fixed this can be removed.
       '#prefix' => '<br />',
       '#type' => 'submit',
       '#value' => $this->t('Open Register'),
@@ -101,8 +101,10 @@ class RegisterSelectForm extends FormBase implements FormInterface {
    * Ajax callback for the order lookup submit button.
    */
   public function defaultFloatCallback(array $form, FormStateInterface &$form_state) {
-    // A price element can't currently be return in an ajax form as far as I can tell (it's not super obvious)
-    // TODO Once this is fixed in commerce, we should populate the default float in here when a user selects a register.
+    // A price element can't currently be return in an ajax form as far as I can
+    // tell (it's not super obvious)
+    // @todo Once this is fixed in commerce, we should populate the default
+    //   float in here when a user selects a register.
   }
 
 }

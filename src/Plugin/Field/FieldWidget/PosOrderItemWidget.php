@@ -131,7 +131,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       '#required' => TRUE,
       // @todo use the "Purchasable entity type" from the order item type.
       '#options' => $this->entityDisplayRepository->getViewModeOptions('commerce_product_variation'),
-      '#description' => 'This view mode is used for the list of product variations to select from.',
+      '#description' => $this->t('This view mode is used for the list of product variations to select from.'),
     ];
 
     return $elements;

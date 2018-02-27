@@ -32,7 +32,7 @@ class EndOfDayForm extends FormBase {
     $form['#attached']['library'][] = 'commerce_pos_reports/reports';
     $form['#attached']['library'][] = 'commerce_pos/jQuery.print';
 
-    $can_update = \Drupal::currentUser()->hasPermission('update commerce pos closed reports');
+    $can_update = $this->currentUser()->hasPermission('update commerce pos closed reports');
 
     $handler = \Drupal::service('module_handler');
     $path = $handler->getModule('commerce_pos_reports')->getPath();
