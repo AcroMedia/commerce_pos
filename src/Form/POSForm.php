@@ -227,6 +227,7 @@ class POSForm extends ContentEntityForm {
     // If no triggering element is set, grab the default payment method.
     $default_payment_gateway = $this->config('commerce_pos.settings')
       ->get('default_payment_gateway') ?: 'pos_cash';
+    $triggering_element = $form_state->getTriggeringElement();
     if (!empty($default_payment_gateway) && !empty($payment_gateways[$default_payment_gateway]) && empty($triggering_element['#payment_option_id'])) {
       $triggering_element['#payment_option_id'] = $default_payment_gateway;
     }
