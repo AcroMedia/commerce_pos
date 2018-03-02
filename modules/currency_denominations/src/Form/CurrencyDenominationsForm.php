@@ -99,7 +99,7 @@ class CurrencyDenominationsForm extends EntityForm {
       ];
       $form['denominations'][$key]['remove_denom'] = [
         '#type' => 'submit',
-        '#value' => t('Remove @default_label', ['@default_label' => $default_label]),
+        '#value' => $this->t('Remove @default_label', ['@default_label' => $default_label]),
         '#submit' => ['::removeCallback'],
         '#ajax' => [
           'callback' => '::addmoreCallback',
@@ -114,7 +114,7 @@ class CurrencyDenominationsForm extends EntityForm {
     ];
     $form['denominations']['actions']['add_denom'] = [
       '#type' => 'submit',
-      '#value' => t('Add one more'),
+      '#value' => $this->t('Add one more'),
       '#submit' => ['::addOne'],
       '#ajax' => [
         'callback' => '::addmoreCallback',

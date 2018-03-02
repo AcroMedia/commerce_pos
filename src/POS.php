@@ -76,7 +76,7 @@ class POS extends ControllerBase {
     $register = \Drupal::service('commerce_pos.current_register')->get();
 
     if (empty($register) || !$register->isOpen()) {
-      return \Drupal::formBuilder()->getForm('\Drupal\commerce_pos\Form\RegisterSelectForm');
+      return $this->formBuilder()->getForm('\Drupal\commerce_pos\Form\RegisterSelectForm');
     }
 
     $store_id = $register->getStoreId();
@@ -97,7 +97,7 @@ class POS extends ControllerBase {
         'type' => 'pos',
         'store_id' => $store_id,
         'uid' => User::getAnonymousUser()->id(),
-        'field_cashier' => \Drupal::currentUser()->id(),
+        'field_cashier' => $this->currentUser()->id(),
         'field_register' => $register->id(),
       ]);
 
@@ -110,10 +110,10 @@ class POS extends ControllerBase {
     $form_object->setEntity($order);
 
     $form_object
-      ->setModuleHandler(\Drupal::moduleHandler())
-      ->setEntityTypeManager(\Drupal::entityTypeManager())
+      ->setModuleHandler($this->moduleHandler())
+      ->setEntityTypeManager($this->entityTypeManager())
       ->setOperation('pos')
-      ->setEntityManager(\Drupal::entityManager());
+      ->setEntityManager($this->entityManager());
 
     $form_state = (new FormState())->setFormState([]);
 
@@ -131,7 +131,7 @@ class POS extends ControllerBase {
       $form_state->set('is_edit_order', TRUE);
     }
 
-    return \Drupal::formBuilder()->buildForm($form_object, $form_state);
+    return $this->formBuilder()->buildForm($form_object, $form_state);
   }
 
 }

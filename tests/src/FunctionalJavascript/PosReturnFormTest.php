@@ -2,8 +2,6 @@
 
 namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
-use Drupal\commerce_tax\Entity\TaxType;
-use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
 use Drupal\Tests\commerce_pos\Functional\CommercePosCreateStoreTrait;
 

@@ -28,7 +28,7 @@ class KeypadPosForm extends FormBase {
     ];
     $form['keypad']['amount'] = [
       '#type' => 'textfield',
-      '#title' => t('Enter amount'),
+      '#title' => $this->t('Enter amount'),
       '#required' => TRUE,
       '#default_value' => 100,
       '#commerce_pos_keypad' => TRUE,

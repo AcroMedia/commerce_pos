@@ -152,7 +152,7 @@ class PrintLabelsForm extends FormBase {
     $form['product_search'] = [
       '#type' => 'entity_autocomplete',
       '#target_type' => 'commerce_product_variation',
-      '#title' => t('Product Search'),
+      '#title' => $this->t('Product Search'),
       '#title_display' => 'invisible',
       '#size' => 60,
       '#description' => $this->t('Search by product title.'),

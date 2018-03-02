@@ -165,14 +165,14 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
     else {
       $wrapper_id = $form_state->wrapper_id;
     }
-    
+
     if ($form_state->getTriggeringElement()) {
       $this->processFormSubmission($form, $form_state);
     }
 
     $element['order_customer'] = [
       '#type' => 'fieldset',
-      '#title' => t('Customer'),
+      '#title' => $this->t('Customer'),
     ];
 
     // If the customer for the order is already set.
@@ -187,7 +187,7 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
 
       $element['order_customer']['remove_current_user'] = [
         '#type' => 'button',
-        '#value' => t('Remove'),
+        '#value' => $this->t('Remove'),
         '#name' => 'remove-current-user',
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],
@@ -208,15 +208,15 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
 
       $element['order_customer']['customer_type'] = [
         '#type' => 'radios',
-        '#title' => t('Order for'),
+        '#title' => $this->t('Order for'),
         '#title_display' => 'invisible',
         '#attributes' => [
           'class' => ['container-inline'],
         ],
         '#required' => TRUE,
         '#options' => [
-          'existing' => t('Existing customer'),
-          'new' => t('New customer'),
+          'existing' => $this->t('Existing customer'),
+          'new' => $this->t('New customer'),
         ],
         '#default_value' => $selected_customer_type,
         '#ajax' => [
@@ -252,20 +252,20 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
         ];
         $element['order_customer']['email'] = [
           '#type' => 'email',
-          '#title' => t('Email'),
+          '#title' => $this->t('Email'),
           '#size' => $this->getSetting('size'),
           '#required' => TRUE,
         ];
         $element['order_customer']['pos_phone_number'] = [
           '#type' => 'tel',
-          '#title' => t('Phone'),
+          '#title' => $this->t('Phone'),
           '#size' => $this->getSetting('size'),
         ];
       }
 
       $element['order_customer']['submit'] = [
         '#type' => 'button',
-        '#value' => t('Set Customer'),
+        '#value' => $this->t('Set Customer'),
         '#name' => 'set-order-customer',
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],

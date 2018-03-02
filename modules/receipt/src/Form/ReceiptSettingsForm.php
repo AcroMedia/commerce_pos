@@ -20,16 +20,16 @@ class ReceiptSettingsForm extends ConfigFormBase {
 
     $form['commerce_pos_receipt_header'] = [
       '#type' => 'text_format',
-      '#title' => t('Header text'),
-      '#description' => t('This text will appear at the top of printed receipts.'),
+      '#title' => $this->t('Header text'),
+      '#description' => $this->t('This text will appear at the top of printed receipts.'),
       '#default_value' => $header,
       '#format' => NULL,
     ];
 
     $form['commerce_pos_receipt_footer'] = [
       '#type' => 'text_format',
-      '#title' => t('Footer text'),
-      '#description' => t('This text will appear at the bottom of printed receipts.'),
+      '#title' => $this->t('Footer text'),
+      '#description' => $this->t('This text will appear at the bottom of printed receipts.'),
       '#default_value' => $footer,
       '#format' => NULL,
     ];

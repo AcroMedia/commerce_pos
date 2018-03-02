@@ -6,6 +6,9 @@ use Drupal\commerce_tax\Event\CustomerProfileEvent;
 use Drupal\profile\Entity\Profile;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 
+/**
+ * Supplies a backup customer profile used for calculating tax.
+ */
 class CustomerProfileSubscriber implements EventSubscriberInterface {
 
   /**

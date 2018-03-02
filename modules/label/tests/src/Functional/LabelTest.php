@@ -51,8 +51,10 @@ class LabelTest extends JavascriptTestBase {
   }
 
   /**
-   * Tests that the label interface works and products can be added to print labels. Does NOT test the printing functionality
-   * as that is not possible in our current testing framework.
+   * Tests the label interface works and products can be added to print labels.
+   *
+   * Does NOT test the printing functionality as that is not possible in our
+   * current testing framework.
    */
   public function testLabel() {
     $web_assert = $this->assertSession();
@@ -63,8 +65,15 @@ class LabelTest extends JavascriptTestBase {
     $web_assert->pageTextContains(t('Quantity'));
 
     $test_store = $this->createStore('POS test store', 'pos_test_store@example.com', 'physical');
-    $variation = $this->createProductionVariation(['title' => 'T-shirt XL', 'price' => new Price("23.20", 'USD')]);
-    $this->createProduct(['variations' => [$variation], 'title' => 'T-shirt', 'stores' => [$test_store]]);
+    $variation = $this->createProductionVariation([
+      'title' => 'T-shirt XL',
+      'price' => new Price("23.20", 'USD'),
+    ]);
+    $this->createProduct([
+      'variations' => [$variation],
+      'title' => 'T-shirt',
+      'stores' => [$test_store],
+    ]);
 
     $autocomplete_field = $this->getSession()->getPage()->findField('product_search');
     $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'T');
@@ -79,7 +88,8 @@ class LabelTest extends JavascriptTestBase {
     $web_assert->addressEquals('admin/commerce/pos/labels');
 
     // I don't think it is actually possible to test the print functionality,
-    // since Mink can't test print dialog as far as I know. So this is as far as the test goes.
+    // since Mink can't test print dialog as far as I know. So this is as far as
+    // the test goes.
   }
 
 }

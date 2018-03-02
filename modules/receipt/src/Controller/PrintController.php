@@ -123,7 +123,7 @@ class PrintController extends ControllerBase {
     $config = \Drupal::config('commerce_pos_receipt.settings');
     $build = ['#theme' => 'commerce_pos_receipt'];
     $build['#receipt'] = [
-      'title' => $has_return_items ? t('Return Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]) : t('Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]),
+      'title' => $has_return_items ? $this->t('Return Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]) : $this->t('Receipt for Order #@order_id', ['@order_id' => $commerce_order->id()]),
       'header' => [
         '#markup' => check_markup($config->get('header'), $config->get('header_format')),
       ],
@@ -135,7 +135,7 @@ class PrintController extends ControllerBase {
         '#markup' => check_markup($config->get('footer'), $config->get('footer_format')),
       ],
       'print' => [
-        '#title' => t('Print receipt'),
+        '#title' => $this->t('Print receipt'),
         '#prefix' => '<div id="commerce-pos-receipt"></div>',
         '#type' => 'link',
         '#url' => $ajax_url,
@@ -179,7 +179,7 @@ class PrintController extends ControllerBase {
     $message_type = 'status';
     // If there was a problem sending the email.
     if ($result['result'] !== TRUE) {
-      $message = t('There was a problem sending the email to @mail.', [
+      $message = $this->t('There was a problem sending the email to @mail.', [
         '@mail' => $commerce_order->getEmail(),
       ]);
       $message_type = 'error';

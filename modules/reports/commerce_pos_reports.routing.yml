@@ -9,7 +9,7 @@ commerce_pos_reports.base:
 commerce_pos_reports.end-of-day:
   path: '/admin/commerce/pos/reports/end-of-day'
   defaults:
-    _controller: '\Drupal\commerce_pos_reports\Controller\EndOfDay::content'
+    _form: '\Drupal\commerce_pos_reports\Form\EndOfDayForm'
     _title: 'Reports - End of Day'
   requirements:
     _permission: 'access commerce pos reports'

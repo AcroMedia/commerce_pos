@@ -13,7 +13,8 @@ class CurrentRegister {
    * Gets the active order_id stored in the session and loads it.
    *
    * @return \Drupal\commerce_pos\Entity\Register|null
-   *   An entity object. NULL if no matching entity is found or cookie doesn't exist.
+   *   An entity object. NULL if no matching entity is found or cookie doesn't
+   *   exist.
    */
   public function get() {
     if (empty($_COOKIE['commerce_pos_register'])) {

@@ -140,7 +140,7 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
     ];
 
-    $form['actions']['submit']['#value'] = t('Payments and Completion');
+    $form['actions']['submit']['#value'] = $this->t('Payments and Completion');
     // Ensure the user is redirected back to this page after deleting an order.
     if (isset($form['actions']['delete']['#url']) && $form['actions']['delete']['#url'] instanceof Url) {
       $form['actions']['delete']['#url']->mergeOptions([
@@ -224,8 +224,9 @@ class POSForm extends ContentEntityForm {
     ];
 
     // If no triggering element is set, grab the default payment method.
-    $default_payment_gateway = \Drupal::config('commerce_pos.settings')
+    $default_payment_gateway = $this->config('commerce_pos.settings')
       ->get('default_payment_gateway') ?: 'pos_cash';
+    $triggering_element = $form_state->getTriggeringElement();
     if (!empty($default_payment_gateway) && !empty($payment_gateways[$default_payment_gateway]) && empty($triggering_element['#payment_option_id'])) {
       $triggering_element['#payment_option_id'] = $default_payment_gateway;
     }
@@ -243,7 +244,7 @@ class POSForm extends ContentEntityForm {
         ->getFractionDigits();
       $form['keypad']['amount'] = [
         '#type' => 'number',
-        '#title' => t('Enter @title Amount', [
+        '#title' => $this->t('Enter @title Amount', [
           '@title' => $payment_gateways[$option_id]->label(),
         ]),
         '#step' => pow(0.1, $fraction_digits),
@@ -268,7 +269,7 @@ class POSForm extends ContentEntityForm {
 
       $form['keypad']['add'] = [
         '#type' => 'submit',
-        '#value' => t('Add Payment'),
+        '#value' => $this->t('Add Payment'),
         '#name' => 'commerce-pos-pay-keypad-add',
         '#submit' => ['::submitForm'],
         '#payment_gateway_id' => $option_id,
@@ -282,7 +283,7 @@ class POSForm extends ContentEntityForm {
 
     $form['actions']['finish'] = [
       '#type' => 'submit',
-      '#value' => t('Complete Order'),
+      '#value' => $this->t('Complete Order'),
       '#disabled' => !$balance_paid,
       '#name' => 'commerce-pos-finish',
       '#submit' => ['::submitForm'],
@@ -298,7 +299,7 @@ class POSForm extends ContentEntityForm {
 
     $form['actions']['back'] = [
       '#type' => 'submit',
-      '#value' => t('Back To Order'),
+      '#value' => $this->t('Back To Order'),
       '#name' => 'commerce-pos-back-to-order',
       '#submit' => ['::submitForm'],
       '#element_key' => 'back-to-order',
@@ -328,13 +329,13 @@ class POSForm extends ContentEntityForm {
     if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-order-comment') {
       $form['add_order_comment']['order_comment_text'] = [
         '#type' => 'textarea',
-        '#title' => t('Add Order Comment'),
+        '#title' => $this->t('Add Order Comment'),
         '#required' => TRUE,
       ];
 
       $form['add_order_comment']['submit'] = [
         '#type' => 'button',
-        '#value' => t('Save Order Comment'),
+        '#value' => $this->t('Save Order Comment'),
         '#ajax' => [
           'wrapper' => 'commerce-pos-add-order-comment-wrapper',
           'callback' => '::addOrderCommentAjaxRefresh',
@@ -346,7 +347,7 @@ class POSForm extends ContentEntityForm {
 
       $form['add_order_comment']['cancel'] = [
         '#type' => 'button',
-        '#value' => t('Cancel'),
+        '#value' => $this->t('Cancel'),
         '#ajax' => [
           'wrapper' => 'commerce-pos-add-order-comment-wrapper',
           'callback' => '::addOrderCommentAjaxRefresh',
@@ -359,7 +360,7 @@ class POSForm extends ContentEntityForm {
     else {
       $form['add_order_comment']['order_comment'] = [
         '#type' => 'button',
-        '#value' => t('Add Order Comment'),
+        '#value' => $this->t('Add Order Comment'),
         '#name' => 'add-order-comment',
         '#element_key' => 'add-order-comment',
         '#ajax' => [
@@ -431,7 +432,7 @@ class POSForm extends ContentEntityForm {
       $keypad_amount = $form_state->getValue('keypad')['amount'];
 
       if (!is_numeric($keypad_amount)) {
-        $form_state->setError($form['keypad']['amount'], t('Payment amount must be a number.'));
+        $form_state->setError($form['keypad']['amount'], $this->t('Payment amount must be a number.'));
       }
     }
   }
@@ -629,7 +630,7 @@ class POSForm extends ContentEntityForm {
       $rendered_amount = $payment->getState()->value === 'voided' ? $this->t('VOID') : $number_formatter->formatCurrency($amount->getNumber(), Currency::load($amount->getCurrencyCode()));
       $remove_button = [
         '#type' => 'submit',
-        '#value' => t('void'),
+        '#value' => $this->t('void'),
         '#name' => 'commerce-pos-pay-keypad-remove',
         '#submit' => ['::submitForm'],
         '#payment_id' => $payment->id(),
@@ -641,7 +642,7 @@ class POSForm extends ContentEntityForm {
             'link',
           ],
         ],
-        '#access' => $payment->getState()->value !== 'voided' && $order->getState()->value != 'completed'
+        '#access' => $payment->getState()->value !== 'voided' && $order->getState()->value != 'completed',
       ];
 
       // Only add non-voided payments to the order total.

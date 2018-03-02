@@ -4,6 +4,7 @@ commerce_pos_keypad_test.commerce_pos_keypad_pos_test:
     _form: '\Drupal\commerce_pos_keypad_test\Form\KeypadPosForm'
     _title: 'Keypad POS test form'
   requirements:
+    # Test route therefore no access restrictions
     _access: 'TRUE'
 commerce_pos_keypad_test.commerce_pos_keypad_text_test:
   path: '/commerce_pos_keypad_text_test'
@@ -11,6 +12,7 @@ commerce_pos_keypad_test.commerce_pos_keypad_text_test:
     _form: '\Drupal\commerce_pos_keypad_test\Form\KeypadTextElementForm'
     _title: 'Keypad text test form'
   requirements:
+    # Test route therefore no access restrictions
     _access: 'TRUE'
 commerce_pos_keypad_test.commerce_pos_keypad_input_box_test:
   path: '/commerce_pos_keypad_input_box_test'
@@ -18,4 +20,5 @@ commerce_pos_keypad_test.commerce_pos_keypad_input_box_test:
     _form: '\Drupal\commerce_pos_keypad_test\Form\InputBoxElementForm'
     _title: 'Keypad input box test form'
   requirements:
+    # Test route therefore no access restrictions
     _access: 'TRUE'

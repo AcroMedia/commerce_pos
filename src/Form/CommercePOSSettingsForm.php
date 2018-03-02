@@ -35,8 +35,8 @@ class CommercePOSSettingsForm extends ConfigFormBase {
     $form['payment_settings']['default_payment_gateway'] = [
       '#type' => 'select',
       '#title' => $this->t('Default Payment Gateway'),
-      '#description' => t('Select the default payment method.'),
-      '#empty_option' => t('- None -'),
+      '#description' => $this->t('Select the default payment method.'),
+      '#empty_option' => $this->t('- None -'),
       '#default_value' => $config->get('default_payment_gateway'),
       '#options' => $this->getPaymentGatewayOptions(),
     ];
@@ -52,14 +52,14 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       '#maxlength' => 2,
       '#size' => 2,
       '#required' => TRUE,
-      '#description' => t('Select the number of results to display for the POS order lookup.'),
+      '#description' => $this->t('Select the number of results to display for the POS order lookup.'),
       '#default_value' => $config->get('order_lookup_limit'),
     ];
 
     $form['order_lookup']['order_lookup_like_search'] = [
       '#type' => 'checkbox',
       '#title' => $this->t('Match results using "like"'),
-      '#description' => t('Match results as user enters the information. This uses a "like" query instead of an exact match. <br>(Not recommended for larger sites).'),
+      '#description' => $this->t('Match results as user enters the information. This uses a "like" query instead of an exact match. <br>(Not recommended for larger sites).'),
       '#default_value' => $config->get('order_lookup_like_search'),
     ];
 
@@ -71,7 +71,7 @@ class CommercePOSSettingsForm extends ConfigFormBase {
    */
   public function submitForm(array &$form, FormStateInterface $form_state) {
 
-    \Drupal::configFactory()->getEditable('commerce_pos.settings')
+    $this->configFactory()->getEditable('commerce_pos.settings')
       // Set the submitted configuration setting.
       ->set('default_payment_gateway', $form_state->getValue('default_payment_gateway'))
       ->set('order_lookup_limit', $form_state->getValue('order_lookup_limit'))
@@ -90,10 +90,10 @@ class CommercePOSSettingsForm extends ConfigFormBase {
   protected function getPaymentGatewayOptions() {
     // TODO: This should be dynamic.
     return [
-      'pos_cash' => t('Cash'),
-      'pos_credit' => t('Credit'),
-      'pos_debit' => t('Debit'),
-      'pos_gift_card' => t('Gift Card'),
+      'pos_cash' => $this->t('Cash'),
+      'pos_credit' => $this->t('Credit'),
+      'pos_debit' => $this->t('Debit'),
+      'pos_gift_card' => $this->t('Gift Card'),
     ];
   }
 
