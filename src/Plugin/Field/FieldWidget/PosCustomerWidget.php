@@ -242,7 +242,6 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
             'callback' => [$this, 'ajaxRefresh'],
             'wrapper' => $wrapper_id,
           ],
-          '#required' => TRUE,
         ];
       }
       // Add new customer.
