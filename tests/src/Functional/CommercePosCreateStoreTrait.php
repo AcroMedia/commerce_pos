@@ -18,7 +18,15 @@ trait CommercePosCreateStoreTrait {
   use RandomGeneratorTrait;
   use StoreCreationTrait;
 
-  public $register;
+  /**
+   * @var \Drupal\commerce_store\Entity\StoreInterface
+   */
+  protected $store;
+
+  /**
+   * @var \Drupal\commerce_pos\Entity\RegisterInterface
+   */
+  protected $register;
 
   /**
    * Creates a ProductVariation entity.

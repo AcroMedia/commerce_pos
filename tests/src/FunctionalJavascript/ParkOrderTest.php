@@ -77,12 +77,13 @@ class ParkOrderTest extends JavascriptTestBase {
     $this->assertEquals('disabled', $button->getAttribute('disabled'));
 
     // Check whether an order cannot be retrieved if current order is not empty.
-    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    // Add a T-Shirt.
+    $autocomplete_field->setValue('T');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $this->assertCount(3, $results);
+    // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
 
@@ -109,16 +110,18 @@ class ParkOrderTest extends JavascriptTestBase {
     $retrieve_link->click();
 
     // Confirm we are redirected back to the POS.
-    $url = Url::fromRoute('commerce_pos.main');
+    $url = Url::fromRoute('commerce_pos.main', ['commerce_order' => 1]);
     $this->assertEquals($this->getAbsoluteUrl($url->toString()), $this->getUrl());
+    // Assert that the product is listed as expected.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->pageTextContains('Total $50.00');
+    $web_assert->pageTextContains('To Pay $50.00');
 
     // Order 1 has indeed been set back to 'draft'.
     $order = Order::load(1);
     $this->assertEquals($order->getState()->value, 'draft');
-
-    // And confirm our current order is Order 1 again.
-    $order = \Drupal::service('commerce_pos.current_order')->get();
-    $this->assertEquals($order->id(), 1);
 
     // Complete the order and edit it to ensure we can not park completed
     // orders.
@@ -126,7 +129,7 @@ class ParkOrderTest extends JavascriptTestBase {
     $this->click('#edit-keypad-add');
     $web_assert->waitForButton('commerce-pos-finish');
     $this->click('input[name="commerce-pos-finish"]');
-    $this->drupalGet(Url::fromRoute('commerce_pos.edit', ['commerce_order' => 1]));
+    $this->drupalGet(Url::fromRoute('commerce_pos.main', ['commerce_order' => 1]));
     $web_assert->buttonNotExists('Park Order');
     \Drupal::entityTypeManager()->getStorage('commerce_order')->resetCache([1]);
     $order = Order::load(1);

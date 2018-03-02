@@ -45,8 +45,6 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $this->getSession()->getPage()->fillField('float[number]', '10.00');
     $this->getSession()->getPage()->findButton('Open Register')->click();
 
-    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen.jpg');
-
     // Confirm we have a customer fieldset with radio buttons.
     $web_assert->fieldExists('uid[0][target_id][order_customer][customer_type]');
     $web_assert->pageTextContains('Existing Customer');
@@ -54,7 +52,7 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     // Confirm we see a textfield to enter the username, name, or email.
     $web_assert->fieldExists('uid[0][target_id][order_customer][user]');
 
-    // ---CONFIRM 'ANON' USER BY COMPLETING ORDER WITHOUT SETTING A CUSTOMER---.
+    // Confirm 'Anon' user by completing order without setting a customer.
     // Add an order item to the POS order.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
     $autocomplete_field->setValue('Jum');
@@ -78,7 +76,7 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $this->drupalGet('admin/commerce/pos/orders');
     $web_assert->pageTextContains('Anonymous');
 
-    // ---CONFIRM COMPLETING ORDER BY SETTING A NEW CUSTOMER---.
+    // Confirm completing order by setting a new customer.
     $this->drupalGet('admin/commerce/pos/main');
 
     // Click the 'New Customer' radio button and confirm the different fields.
@@ -116,7 +114,7 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $this->drupalGet('admin/commerce/pos/orders');
     $web_assert->elementTextContains('xpath', '//*[@id="edit-results"]/table/tbody/tr[1]/td[5]/a', 'test@test.com');
 
-    // ---CONFIRM COMPLETING ORDER BY SETTING AN EXISTING CUSTOMER---.
+    // Confirm completing order by setting an existing customer.
     $this->drupalGet('admin/commerce/pos/main');
 
     // Now select an existing user and set that user as the order customer.

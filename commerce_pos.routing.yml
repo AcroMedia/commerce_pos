@@ -31,10 +31,15 @@ commerce_pos.base:
     _permission: 'access commerce pos pages'
 
 commerce_pos.main:
-  path: '/admin/commerce/pos/main'
+  path: '/admin/commerce/pos/main/{commerce_order}'
   defaults:
-    _controller: '\Drupal\commerce_pos\POS::content'
+    _controller: '\Drupal\commerce_pos\Controller\POS::content'
     _title: 'Point of Sale Interface'
+    commerce_order: null
+  options:
+    parameters:
+      commerce_order:
+        type: 'entity:commerce_order'
   requirements:
     _permission: 'access commerce pos pages'
 
@@ -86,18 +91,6 @@ commerce_pos.close_register:
   defaults:
     _controller: 'Drupal\commerce_pos\Controller\CloseRegister::content'
     _title: 'Point of Sale Close Register'
-  requirements:
-    _permission: 'access commerce pos pages'
-
-commerce_pos.edit:
-  path: '/admin/commerce/pos/order/{commerce_order}/edit'
-  defaults:
-    _controller: '\Drupal\commerce_pos\POS::content'
-    _title: 'Point of Sale Edit Order'
-  options:
-    parameters:
-      commerce_order:
-        type: 'entity:commerce_order'
   requirements:
     _permission: 'access commerce pos pages'
 

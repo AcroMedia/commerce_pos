@@ -2,6 +2,8 @@
 
 namespace Drupal\commerce_pos\Form;
 
+use Drupal\commerce_order\Entity\OrderInterface;
+use Drupal\commerce_pos\Controller\POS;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_store\CurrentStore;
 use Drupal\Component\Datetime\TimeInterface;
@@ -11,6 +13,7 @@ use Drupal\Core\Entity\EntityTypeBundleInfoInterface;
 use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
+use Drupal\user\PrivateTempStoreFactory;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -26,6 +29,13 @@ class POSForm extends ContentEntityForm {
   protected $currentStore;
 
   /**
+   * The private temp store.
+   *
+   * @var \Drupal\user\PrivateTempStore
+   */
+  protected $tempStore;
+
+  /**
    * Constructs a new POSForm object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
@@ -37,11 +47,12 @@ class POSForm extends ContentEntityForm {
    * @param \Drupal\commerce_store\CurrentStore $current_store
    *   The current store object.
    */
-  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, CurrentStore $current_store) {
+  public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, CurrentStore $current_store, PrivateTempStoreFactory $temp_store_factory) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
     $this->currentStore = $current_store;
     $this->logStorage = $entity_manager->getStorage('commerce_log');
+    $this->tempStore = $temp_store_factory->get('commerce_pos');
   }
 
   /**
@@ -53,7 +64,7 @@ class POSForm extends ContentEntityForm {
       $container->get('entity_type.bundle.info'),
       $container->get('datetime.time'),
       $container->get('commerce_store.current_store'),
-      $container->get('commerce_pos.current_order')
+      $container->get('user.private_tempstore')
     );
   }
 
@@ -378,12 +389,17 @@ class POSForm extends ContentEntityForm {
   /**
    * Adds a commerce log to an order.
    *
-   * @param object $order
+   * @param \Drupal\commerce_order\Entity\OrderInterface $order
    *   The order entity.
    * @param string $comment
    *   The order comment.
    */
-  public function saveOrderComment($order, $comment) {
+  public function saveOrderComment(OrderInterface $order, $comment) {
+    // In order to add a comment to an order it needs to be saved. This should
+    // never be the case but this is defensive code.
+    if ($order->isNew()) {
+      $order->save();
+    }
     $this->logStorage->generate($order, 'order_comment', [
       'comment' => $comment,
     ])->save();
@@ -564,7 +580,7 @@ class POSForm extends ContentEntityForm {
     $order->getState()->applyTransition($transition);
     $order->save();
 
-    $this->clearOrder();
+    $this->clearOrder($form_state);
   }
 
   /**
@@ -761,13 +777,24 @@ class POSForm extends ContentEntityForm {
 
   /**
    * Clear the existing order, so a new one can be created.
+   *
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
    */
-  protected function clearOrder() {
-    \Drupal::service('commerce_pos.current_order')->clear();
+  protected function clearOrder(FormStateInterface $form_state) {
+    $this->tempStore->delete(POS::CURRENT_ORDER_KEY);
+    // Redirecting back to the main route will create a new draft order.
+    $pos_url = Url::fromRoute('commerce_pos.main');
+    $form_state->setRedirectUrl($pos_url);
   }
 
   /**
    * Parks current order.
+   *
+   * @param array $form
+   *   Form element.
+   * @param \Drupal\Core\Form\FormStateInterface $form_state
+   *   Form state object.
    */
   public function parkOrder(array &$form, FormStateInterface $form_state) {
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
@@ -782,7 +809,7 @@ class POSForm extends ContentEntityForm {
     $order->set('state', 'parked')
       ->save();
 
-    $this->clearOrder();
+    $this->clearOrder($form_state);
 
     drupal_set_message($this->t('Order @order_id has been parked', ['@order_id' => $order->id()]));
   }

@@ -26,10 +26,7 @@ class ParkedOrders extends ControllerBase {
     $commerce_order->set('state', 'draft');
     $commerce_order->save();
 
-    \Drupal::service('commerce_pos.current_order')->clear();
-    \Drupal::service('commerce_pos.current_order')->set($commerce_order);
-
-    $pos_url = Url::fromRoute('commerce_pos.main');
+    $pos_url = Url::fromRoute('commerce_pos.main', ['commerce_order' => $commerce_order->id()]);
 
     $response = new RedirectResponse($pos_url->toString());
     $response->send();

@@ -3,6 +3,8 @@
 namespace Drupal\Tests\commerce_pos\FunctionalJavascript;
 
 use Drupal\commerce_order\Entity\Order;
+use Drupal\commerce_pos\Entity\Register;
+use Drupal\commerce_price\Price;
 use Drupal\commerce_tax\Entity\TaxType;
 use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
@@ -24,6 +26,7 @@ class PosFormTest extends JavascriptTestBase {
    * @var array
    */
   public static $modules = [
+    'block',
     'commerce_pos',
   ];
 
@@ -232,7 +235,6 @@ class PosFormTest extends JavascriptTestBase {
     // Clicking finish will bring us back to the order item screen - processing
     // a new order.
     $this->click('input[name="commerce-pos-finish"]');
-    $this->waitForAjaxToFinish();
     $web_assert->pageTextContains('Total $0.00');
     $web_assert->pageTextNotContains('Cash');
     $web_assert->pageTextContains('To Pay $0.00');
@@ -241,7 +243,7 @@ class PosFormTest extends JavascriptTestBase {
 
     // Ensure the order is completed and that payments can no longer be voided.
     $this->assertEquals('completed', Order::load(1)->getState()->value);
-    $this->drupalGet(Url::fromRoute('commerce_pos.edit', ['commerce_order' => 1]));
+    $this->drupalGet(Url::fromRoute('commerce_pos.main', ['commerce_order' => 1]));
     $web_assert->pageTextContains('Total Paid $130.00');
     $void_buttons = $this->getSession()->getPage()->findAll('css', 'input[name="commerce-pos-pay-keypad-remove"]');
     $this->assertCount(0, $void_buttons);
@@ -388,6 +390,131 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $this->assertCount(1, $results);
+  }
+
+  /**
+   * Tests the current order logic on the POS form.
+   */
+  public function testCommercePosFormCurrentOrder() {
+    $this->drupalPlaceBlock('local_tasks_block');
+    $web_assert = $this->assertSession();
+    $this->drupalGet('admin/commerce/pos/main');
+
+    $this->getSession()->getPage()->fillField('register', '1');
+    $this->getSession()->getPage()->fillField('float[number]', '10.00');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+
+    // Now we should be able to select order items.
+    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(3, $results);
+    // Click on of the auto-complete.
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+
+    // Assert that the product is listed as expected.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->pageTextContains('Total $50.00');
+    $web_assert->pageTextContains('To Pay $50.00');
+
+    // After selecting something from the autocomplete list the value should be
+    // blank again.
+    $web_assert->fieldValueEquals('order_items[target_id][product_selector]', '');
+
+    // Test the current order persistence. We should be able to navigate away
+    // from the page and return to it.
+    $this->drupalGet('');
+    $this->drupalGet('admin/commerce/pos/main');
+
+    // Assert that the product is listed as expected.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][quantity]', '1.00');
+    $web_assert->fieldValueEquals('order_items[target_id][order_items][0][unit_price][number]', '50.00');
+    $web_assert->pageTextContains('Total $50.00');
+    $web_assert->pageTextContains('To Pay $50.00');
+
+    // Close the register and re-open it.
+    $this->clickLink('Close Register');
+    $web_assert->pageTextContains('Register Test register has been closed.');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+
+    // We've opened the register, we should not have the previous order.
+    $web_assert->pageTextNotContains('Jumper');
+    $web_assert->pageTextContains('Total $0.00');
+    $web_assert->pageTextContains('To Pay $0.00');
+
+    // Create a new register and close the current one.
+    $register = Register::create([
+      'store_id' => $this->store->id(),
+      'name' => 'Another register',
+      'default_float' => new Price('100.00', 'USD'),
+    ]);
+    $register->save();
+    $this->clickLink('Close Register');
+
+    $web_assert->pageTextContains('Register Test register has been closed.');
+
+    // Open the new register. The current order will be reset.
+    $this->getSession()->getPage()->fillField('register', $register->id());
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+    $web_assert->pageTextContains('Total $0.00');
+    $web_assert->pageTextNotContains('Cash');
+    $web_assert->pageTextContains('To Pay $0.00');
+    $web_assert->pageTextContains('Change $0.00');
+    $web_assert->pageTextNotContains('Jumper');
+
+    // Now we should be able to select order items.
+    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
+    $autocomplete_field->setValue('Jum');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $web_assert->waitOnAutocomplete();
+    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+    $this->assertCount(3, $results);
+    // Click on of the auto-complete.
+    $results[0]->click();
+    $web_assert->assertWaitOnAjaxRequest();
+
+    // Assert that the product is listed as expected.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->pageTextContains('Total $50.00');
+
+    // Park the order and force the register to change. This should change the
+    // register on the order.
+    $this->getSession()->getPage()->findButton('Park Order')->click();
+    $this->assertEquals(2, Order::load(3)->field_register->entity->id());
+    $this->clickLink('Close Register');
+    $this->clickLink('Parked Orders');
+    $this->clickLink('Retrieve');
+    $this->getSession()->getPage()->selectFieldOption('register', '1');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+
+    // Assert that the product is listed as expected and the order has moved to
+    // the correct register.
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->pageTextContains('Total $50.00');
+    \Drupal::entityTypeManager()->getStorage('commerce_order')->resetCache();
+    $this->assertEquals(1, Order::load(3)->field_register->entity->id());
+
+    // Complete the order, open the other register and ensure that editing the
+    // completed order does not change the register.
+    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->click('input[name="commerce-pos-pay-keypad-add"]');
+    $this->click('input[name="commerce-pos-finish"]');
+    $this->clickLink('Close Register');
+    // Edit the completed order.
+    $this->drupalGet(Url::fromRoute('commerce_pos.main', ['commerce_order' => 3]));
+    $this->getSession()->getPage()->selectFieldOption('register', '2');
+    $this->getSession()->getPage()->findButton('Open Register')->click();
+    $web_assert->pageTextContains('Jumper');
+    $web_assert->pageTextContains('Total $50.00');
+    \Drupal::entityTypeManager()->getStorage('commerce_order')->resetCache();
+    // The register should not have changed for a completed order.
+    $this->assertEquals(1, Order::load(3)->field_register->entity->id());
   }
 
   /**
