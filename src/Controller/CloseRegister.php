@@ -40,8 +40,7 @@ class CloseRegister extends ControllerBase {
       $redirect_url = Url::fromRoute('commerce_pos.main');
     }
 
-    $response = new RedirectResponse($redirect_url->toString());
-    $response->send();
+    return new RedirectResponse($redirect_url->toString());
   }
 
 }
