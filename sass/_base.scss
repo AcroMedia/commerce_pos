@@ -1,5 +1,5 @@
 /* POS side bar styles */
-.layout-pos-form{
+.layout-pos-form {
   box-sizing: border-box;
 }
 
@@ -19,15 +19,25 @@
     width: 27.33%;
   }
 }
+@media screen and (max-width: 980px) {
+  .layout-region-pos-main {
+    width: 100%;
+  }
+
+  .layout-region-pos-sidebar {
+    width: 100%;
+  }
+}
 @media screen and (max-width: 767px) {
   .layout-region-pos-main {
     float: none;
     width: auto;
   }
+
   .layout-region-pos-sidebar {
     float: none;
     width: auto;
-    padding-top:40px;
+    padding-top: 40px;
     padding-left: 0;
   }
 }
@@ -35,9 +45,11 @@
 .layout-region-pos-totals table tr td {
   font-weight: bold;
 }
+
 .layout-region-pos-totals table tr td:last-child {
   width: 35%;
 }
+
 .layout-region-pos-totals table tr {
   padding: 0;
   width: 100%;
@@ -46,6 +58,7 @@
   border: 0;
   border-bottom: 1px solid #FFFFFF;
 }
+
 .layout-region-pos-totals table tr:hover {
   background-color: #F0F0F0;
 }

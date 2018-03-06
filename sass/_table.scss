@@ -1,0 +1,29 @@
+/* POS responsive Table */
+@media screen and (max-width: 1102px) {
+  .layout-region-pos-main {
+    .fieldset-wrapper {
+      overflow: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      border-collapse: collapse;
+      border-spacing: 0;
+      border: 1px solid #ddd;
+    }
+    td {
+      padding: 8px 7px;
+    }
+    input.form-number {
+      width: 100%;
+    }
+    #edit-order-items-target-id-order-items {
+      td:nth-child(3) {
+        width: 20%;
+      }
+    }
+    .form-type-commerce-price input {
+      width: auto;
+    }
+  }
+}
