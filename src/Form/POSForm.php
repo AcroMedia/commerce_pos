@@ -613,6 +613,11 @@ class POSForm extends ContentEntityForm {
       $order_summary['total'] = new Price(0, $default_currency->getCurrencyCode());
     }
 
+    $sub_total_price = $order_summary['subtotal'];
+    $currency = Currency::load($sub_total_price->getCurrencyCode());
+    $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
+    $totals[] = [$this->t('Subtotal'), $formatted_amount];
+
     foreach ($order_summary['adjustments'] as $adjustment) {
       if (!empty($adjustment['total'])) {
         $currency = Currency::load($adjustment['total']->getCurrencyCode());
@@ -620,11 +625,6 @@ class POSForm extends ContentEntityForm {
         $totals[] = [$adjustment['label'], $formatted_amount];
       }
     }
-
-    $sub_total_price = $order_summary['subtotal'];
-    $currency = Currency::load($sub_total_price->getCurrencyCode());
-    $formatted_amount = $number_formatter->formatCurrency($sub_total_price->getNumber(), $currency);
-    $totals[] = [$this->t('Subtotal'), $formatted_amount];
 
     $total_price = $order_summary['total'];
     $currency = Currency::load($total_price->getCurrencyCode());
