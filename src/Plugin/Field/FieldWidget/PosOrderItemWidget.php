@@ -223,7 +223,8 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         $this->t('Product'),
         $this->t('Unit price'),
         $this->t('Quantity'),
-        ['data' => $this->t('Operations'), 'colspan' => 2],
+        $this->t('Operations'),
+        $this->t('Return'),
       ],
     ];
 
@@ -277,6 +278,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
           'event' => 'change',
+          'progress' => [
+            'message' => '',
+          ],
         ],
       ],
       'quantity' => [
@@ -288,6 +292,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
           'event' => 'change',
+          'progress' => [
+            'message' => '',
+          ],
         ],
         '#order_item_id' => $order_item->id(),
       ],
@@ -298,6 +305,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
+          'progress' => [
+            'message' => '',
+          ],
         ],
         '#order_item_id' => $order_item->id(),
         '#limit_validation_errors' => [],
@@ -314,10 +324,13 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       $form['set_order_item_as_return'] = [
         '#type' => 'checkbox',
         '#name' => 'set_order_item_as_return_' . $order_item->id(),
-        '#title' => $this->t('Set as Return Item'),
+        '#title' => $this->t('Set as return item'),
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
+          'progress' => [
+            'message' => '',
+          ],
         ],
         '#order_item_id' => $order_item->id(),
         '#default_value' => $order_item->type->getValue()[0]['target_id'] == 'return' ? TRUE : FALSE,
@@ -334,6 +347,9 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
+          'progress' => [
+            'message' => '',
+          ],
         ],
         '#order_item_id' => $order_item->id(),
         '#limit_validation_errors' => [],
