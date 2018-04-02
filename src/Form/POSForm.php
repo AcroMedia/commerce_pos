@@ -80,6 +80,7 @@ class POSForm extends ContentEntityForm {
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
     $form['#tree'] = TRUE;
+    $form['#attached']['library'][] = 'commerce_pos/global';
     $form['#attached']['library'][] = 'commerce_pos/form';
 
     $step = $form_state->get('step');

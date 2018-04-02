@@ -30,6 +30,8 @@ class OrderLookupForm extends FormBase {
    * Build the order lookup form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['#attached']['library'][] = 'commerce_pos/global';
+    $form['#attached']['library'][] = 'commerce_pos/order_lookup';
     // The order search elements.
     $form['order_lookup'] = [
       '#type' => 'fieldset',
@@ -210,7 +212,7 @@ class OrderLookupForm extends FormBase {
       $this->t('Customer'),
       $this->t('Contact Email'),
       $this->t('Total'),
-      $this->t('Operations'),
+      $this->t('Action'),
     ];
 
     $rows = [];

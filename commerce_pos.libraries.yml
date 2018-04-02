@@ -1,8 +1,18 @@
-form:
+global:
   version: VERSION
   css:
     layout:
       css/commerce_pos_style.css: {}
+order_lookup:
+  version: VERSION
+  css:
+    layout:
+      css/commerce_pos_order_lookup.css: {}
+form:
+  version: VERSION
+  css:
+    layout:
+      css/commerce_pos_form.css: {}
   js:
     js/commerce_pos.js: {}
   dependencies:

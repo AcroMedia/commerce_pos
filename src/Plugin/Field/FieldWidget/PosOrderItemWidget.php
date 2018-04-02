@@ -223,7 +223,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         $this->t('Product'),
         $this->t('Unit price'),
         $this->t('Quantity'),
-        $this->t('Operations'),
+        $this->t('Action'),
         $this->t('Return'),
       ],
     ];

@@ -1,9 +1,56 @@
+// Order Items.
+
+table[id*="edit-order-items-target-id-order-items"] {
+  tbody > tr > td:first-child {
+    // Set a min-width on product cells.
+    min-width: 200px;
+  }
+}
+// POS Main Table styles.
+.layout-region-pos-main table {
+  // Set as return field - Keep on a single line.
+  div[class*="form-item-set-order-item-as-return"] {
+    white-space: nowrap;
+  }
+  // Commerce Number fields.
+  .form-type-commerce-number {
+    input {
+      width: 70px;
+    }
+  }
+  // Prevent currency suffix text from wrapping.
+  .form-type-commerce-number[class*="form-item-order-items-target-id-order-items"] {
+    white-space: nowrap;
+  }
+  // Target ID number fields.
+  .form-type-number[class*="form-item-order-items-target-id-order-items"] {
+    input {
+      width: 70px;
+    }
+  }
+  // Remove vertical margins on remove order item button.
+  input[name^="remove_order_item"] {
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+}
+// Prevent inputs from overflowing their containers.
+table[id*="adjustments-values"],
+table[id*="coupons-values"] {
+  .form-item[class*="-definition-label"],
+  .form-item[class*="form-item-coupons"] {
+    .form-text {
+      width: 100%;
+    }
+  }
+}
 /* POS responsive Table */
 @media screen and (max-width: 1200px) {
   .layout-region-pos-main {
     .fieldset-wrapper {
       overflow: auto;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -11,17 +58,21 @@
       border-spacing: 0;
       border: 1px solid #ddd;
     }
+
     td {
       padding: 8px 7px;
     }
+
     input.form-number {
       width: 100%;
     }
+
     #edit-order-items-target-id-order-items {
       td:nth-child(3) {
         width: 20%;
       }
     }
+
     .form-type-commerce-price input {
       width: auto;
     }

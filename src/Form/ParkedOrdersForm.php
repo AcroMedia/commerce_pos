@@ -27,6 +27,8 @@ class ParkedOrdersForm extends OrderLookupForm {
    * Build the order lookup form.
    */
   public function buildForm(array $form, FormStateInterface $form_state) {
+    $form['#attached']['library'][] = 'commerce_pos/global';
+    $form['#attached']['library'][] = 'commerce_pos/order_lookup';
     // The order search elements.
     $form['order_lookup'] = [
       '#type' => 'fieldset',
@@ -86,7 +88,7 @@ class ParkedOrdersForm extends OrderLookupForm {
       t('Customer'),
       t('Contact Email'),
       t('Total'),
-      t('Operations'),
+      t('Action'),
     ];
 
     $rows = [];
