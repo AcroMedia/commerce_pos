@@ -45,4 +45,5 @@ content:
     region: content
 hidden:
   adjustments: true
+  created: true
   unit_price: true
