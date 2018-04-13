@@ -2,7 +2,6 @@
 
 namespace Drupal\commerce_pos\Form;
 
-use Drupal\commerce_order\Entity\OrderInterface;
 use Drupal\commerce_pos\Controller\POS;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_store\CurrentStore;
@@ -14,6 +13,7 @@ use Drupal\Core\Form\FormStateInterface;
 use Drupal\Core\Url;
 use Drupal\commerce_price\Entity\Currency;
 use Drupal\user\PrivateTempStoreFactory;
+use Drupal\views\Views;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -36,6 +36,13 @@ class POSForm extends ContentEntityForm {
   protected $tempStore;
 
   /**
+   * The commerce log storage.
+   *
+   * @var \Drupal\commerce_log\LogStorage
+   */
+  protected $logStorage;
+
+  /**
    * Constructs a new POSForm object.
    *
    * @param \Drupal\Core\Entity\EntityManagerInterface $entity_manager
@@ -46,12 +53,16 @@ class POSForm extends ContentEntityForm {
    *   The time.
    * @param \Drupal\commerce_store\CurrentStore $current_store
    *   The current store object.
+   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   *   Used for storing the current active order.
    */
   public function __construct(EntityManagerInterface $entity_manager, EntityTypeBundleInfoInterface $entity_type_bundle_info, TimeInterface $time, CurrentStore $current_store, PrivateTempStoreFactory $temp_store_factory) {
     parent::__construct($entity_manager, $entity_type_bundle_info, $time);
 
     $this->currentStore = $current_store;
-    $this->logStorage = $entity_manager->getStorage('commerce_log');
+    // This is a hack around what I think is a php bug, at least in 7.1.15
+    // The logStorage static can lose reference to the entityType object sometimes.
+    $this->logStorage = clone $entity_manager->getStorage('commerce_log');
     $this->tempStore = $temp_store_factory->get('commerce_pos');
   }
 
@@ -95,7 +106,7 @@ class POSForm extends ContentEntityForm {
     }
 
     // Add order note form.
-    $form += $this->buildOrderCommentForm($form, $form_state);
+    $form = $this->buildOrderCommentForm($form, $form_state);
 
     $this->addTotalsDisplay($form, $form_state);
 
@@ -324,94 +335,89 @@ class POSForm extends ContentEntityForm {
    * Build the elements for the order comment form.
    */
   protected function buildOrderCommentForm(array $form, FormStateInterface $form_state) {
-    $form['add_order_comment'] = [
+    $form['order_comments'] = [
+      '#type' => 'container',
+      '#prefix' => '<div id="commerce-pos-order-comments-wrapper">',
+      '#suffix' => '</div>',
+    ];
+
+    $form['order_comments']['add_order_comment'] = [
       '#type' => 'container',
       '#prefix' => '<div id="commerce-pos-add-order-comment-wrapper">',
+      '#suffix' => '</div>',
+      '#weight' => 99,
+    ];
+
+    $form['order_comments']['display_order_comment'] = [
+      '#type' => 'container',
+      '#prefix' => '<div id="commerce-pos-display-order-comment-wrapper">',
       '#suffix' => '</div>',
       '#weight' => 100,
     ];
 
-    $triggering_element = $form_state->getTriggeringElement();
-    // Add order_comment submit was clicked.
-    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-order-comment-submit') {
-      $this->saveOrderComment($this->entity, $form_state->getValue('add_order_comment')['order_comment_text']);
-    }
+    $form['order_comments']['add_order_comment']['order_comment_text'] = [
+      '#type' => 'textarea',
+      '#title' => $this->t('Add Order Comment'),
+    ];
 
-    // 'Add order_comment' was clicked.
-    if (!empty($triggering_element['#element_key']) && $triggering_element['#element_key'] == 'add-order-comment') {
-      $form['add_order_comment']['order_comment_text'] = [
-        '#type' => 'textarea',
-        '#title' => $this->t('Add Order Comment'),
-        '#required' => TRUE,
-      ];
-
-      $form['add_order_comment']['submit'] = [
-        '#type' => 'button',
-        '#value' => $this->t('Save Order Comment'),
-        '#ajax' => [
-          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
-          'callback' => '::addOrderCommentAjaxRefresh',
-          'effect' => 'fade',
-        ],
-        '#limit_validation_errors' => [['add_order_comment']],
-        '#element_key' => 'add-order-comment-submit',
-      ];
-
-      $form['add_order_comment']['cancel'] = [
-        '#type' => 'button',
-        '#value' => $this->t('Cancel'),
-        '#ajax' => [
-          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
-          'callback' => '::addOrderCommentAjaxRefresh',
-          'effect' => 'fade',
-        ],
-        '#limit_validation_errors' => [],
-        '#element_key' => 'add-order-comment-cancel',
-      ];
-    }
-    else {
-      $form['add_order_comment']['order_comment'] = [
-        '#type' => 'button',
-        '#value' => $this->t('Add Order Comment'),
-        '#name' => 'add-order-comment',
-        '#element_key' => 'add-order-comment',
-        '#ajax' => [
-          'wrapper' => 'commerce-pos-add-order-comment-wrapper',
-          'callback' => '::addOrderCommentAjaxRefresh',
-          'effect' => 'fade',
-        ],
-        '#limit_validation_errors' => [],
-      ];
-    }
+    $order_comment = $this->displayOrderComment();
+    $form['order_comments']['display_order_comment']['order_comment'] = $order_comment;
 
     return $form;
   }
 
   /**
    * Adds a commerce log to an order.
-   *
-   * @param \Drupal\commerce_order\Entity\OrderInterface $order
-   *   The order entity.
-   * @param string $comment
-   *   The order comment.
    */
-  public function saveOrderComment(OrderInterface $order, $comment) {
+  public function saveOrderComment(array &$form, FormStateInterface $form_state) {
+    $order = $this->entity;
+
+    $comment = $form_state->getValue([
+      'order_comments',
+      'add_order_comment',
+      'order_comment_text',
+    ]);
+
+    $triggering_element = $form_state->getTriggeringElement();
+    $element_value = $triggering_element["#value"];
+
+    // Adding another check because order comment not saving for park orders.
+    if (empty($comment && $element_value == 'Park Order')) {
+      $order_comment_user_input = $form_state->getUserInput();
+      $comment = $order_comment_user_input['order_comments']['add_order_comment']['order_comment_text'];
+    }
     // In order to add a comment to an order it needs to be saved. This should
     // never be the case but this is defensive code.
-    if ($order->isNew()) {
-      $order->save();
+    if (isset($comment) && $comment != '') {
+      if ($order->isNew()) {
+        $order->save();
+      }
+      $this->logStorage->generate($order, 'order_comment', [
+        'comment' => $comment,
+      ])->save();
+
+      // Remove the user input as we no longer need it.
+      $user_input = $form_state->getUserInput();
+      unset($user_input['order_comments']['add_order_comment']['order_comment_text']);
+      $form_state->setUserInput($user_input);
     }
-    $this->logStorage->generate($order, 'order_comment', [
-      'comment' => $comment,
-    ])->save();
-    drupal_set_message($this->t('Successfully saved order comment.'));
   }
 
   /**
-   * AJAX callback for the add order_comment form.
+   * Defines displayOrderComment helper function.
    */
-  public function addOrderCommentAjaxRefresh($form, &$form_state) {
-    return $form['add_order_comment'];
+  public function displayOrderComment() {
+    // Get the default commerce log view.
+    $view = Views::getView('commerce_activity');
+    /* @var \Drupal\commerce_order\Entity\Order $order */
+    $order = $this->entity;
+    if ($view) {
+      $view->setDisplay('default');
+      $view->setArguments([$order->id(), 'commerce_order']);
+      // Get generated views.
+      $render = $view->render();
+    }
+    return $render;
   }
 
   /**
@@ -500,6 +506,7 @@ class POSForm extends ContentEntityForm {
       $this->entity->save();
     }
 
+    $this->saveOrderComment($form, $form_state);
   }
 
   /**
@@ -577,6 +584,7 @@ class POSForm extends ContentEntityForm {
     $this->completePayments();
 
     $order = $this->entity;
+
     $transition = $order->getState()->getWorkflow()->getTransition('place');
     $order->getState()->applyTransition($transition);
     $order->save();
@@ -798,6 +806,9 @@ class POSForm extends ContentEntityForm {
    *   Form state object.
    */
   public function parkOrder(array &$form, FormStateInterface $form_state) {
+    // If we've got any pending comments, we probably want to save those as well.
+    $this->saveOrderComment($form, $form_state);
+
     /** @var \Drupal\commerce_order\Entity\OrderInterface $order */
     $order = $this->entity;
     // Defensive code to ensure we never park an order that is not a draft. The

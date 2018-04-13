@@ -35,7 +35,7 @@ class PosFormWithPromotionTest extends JavascriptTestBase {
    */
   public static $modules = [
     'commerce_pos',
-    'commerce_promotion'
+    'commerce_promotion',
   ];
 
   /**

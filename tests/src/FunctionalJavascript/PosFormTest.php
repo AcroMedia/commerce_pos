@@ -6,7 +6,6 @@ use Drupal\commerce_order\Entity\Order;
 use Drupal\commerce_pos\Entity\Register;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_tax\Entity\TaxType;
-use Drupal\Component\Utility\Html;
 use Drupal\Core\Entity\Entity\EntityFormDisplay;
 use Drupal\Core\Url;
 use Drupal\FunctionalJavascriptTests\JavascriptTestBase;
@@ -247,62 +246,6 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Total Paid $130.00');
     $void_buttons = $this->getSession()->getPage()->findAll('css', 'input[name="commerce-pos-pay-keypad-remove"]');
     $this->assertCount(0, $void_buttons);
-  }
-
-  /**
-   * Tests adding and removing products from the POS form.
-   */
-  public function testCommercePosFormNotes() {
-    $web_assert = $this->assertSession();
-    $this->drupalGet('admin/commerce/pos/main');
-
-    $this->getSession()->getPage()->fillField('register', '1');
-    $this->getSession()->getPage()->fillField('float[number]', '10.00');
-    $this->getSession()->getPage()->findButton('Open Register')->click();
-
-    // Now we should be able to select order items.
-    $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
-    $web_assert->waitOnAutocomplete();
-    $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
-    // Click on of the auto-complete.
-    $results[0]->click();
-    $web_assert->assertWaitOnAjaxRequest();
-
-    // Add a comment.
-    $this->click('input[name="add-order-comment"]');
-    $web_assert->waitForField('add_order_comment[order_comment_text]');
-    $this->getSession()->getPage()->fillField('add_order_comment[order_comment_text]', 'Test comment');
-    $this->click('input[value="Save Order Comment"]');
-    $web_assert->waitForButton('input[name="add-order-comment"]');
-
-    // Add another comment with XSS.
-    $this->click('input[name="add-order-comment"]');
-    $web_assert->waitForField('add_order_comment[order_comment_text]');
-    $this->getSession()->getPage()->fillField('add_order_comment[order_comment_text]', "<script>alert('here');</script>");
-    $this->click('input[value="Save Order Comment"]');
-    $web_assert->waitForButton('input[name="add-order-comment"]');
-
-    // Ensure the comment has been logged. Note that at the moment the order
-    // page edit .does not display comments.
-    $logStorage = $this->container->get('entity_type.manager')->getStorage('commerce_log');
-    $order = Order::load(1);
-    $logs = $logStorage->loadMultipleByEntity($order);
-    $this->assertEquals(2, count($logs));
-    $logViewBuilder = $this->container->get('entity_type.manager')->getViewBuilder('commerce_log');
-    $build = $logViewBuilder->view($logs[1]);
-    $this->assertContains('Test comment', (string) $this->container->get('renderer')->renderPlain($build));
-    $build = $logViewBuilder->view($logs[2]);
-    // The script tag should be escaped.
-    $this->assertContains(Html::escape("<script>alert('here');</script>"), (string) $this->container->get('renderer')->renderPlain($build));
-
-    // View the order. The comments will be there.
-    $this->drupalGet($order->toUrl());
-    $web_assert->pageTextContains('Test comment');
-    $web_assert->responseNotContains("<script>alert('here');</script>");
-    $web_assert->pageTextContains("<script>alert('here');</script>");
   }
 
   /**
