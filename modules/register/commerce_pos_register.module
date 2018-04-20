@@ -227,8 +227,11 @@ function _commerce_pos_register_check_form_alter(&$form, &$form_state) {
   if (!$current_register) {
     $goto = 'admin/commerce/pos/register-select';
   }
-  elseif (empty(commerce_pos_register_get_floats($current_register))) {
-    $goto = 'admin/commerce/pos/float/' . $current_register . '/select';
+  else {
+    $floats = commerce_pos_register_get_floats($current_register);
+    if (empty($floats)) {
+      $goto = 'admin/commerce/pos/float/' . $current_register . '/select';
+    }
   }
 
   if ($goto) {
