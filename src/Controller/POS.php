@@ -8,7 +8,7 @@ use Drupal\Core\Form\FormState;
 use Drupal\commerce_order\Entity\Order;
 use Drupal\user\Entity\User;
 use Symfony\Component\DependencyInjection\ContainerInterface;
-use Drupal\user\PrivateTempStoreFactory;
+use Drupal\Core\TempStore\PrivateTempStoreFactory;
 
 /**
  * Provides main POS page.
@@ -30,7 +30,7 @@ class POS extends ControllerBase {
   /**
    * The tempstore object.
    *
-   * @var \Drupal\user\PrivateTempStore
+   * @var \Drupal\Core\TempStore\PrivateTempStore
    */
   protected $tempStore;
 
@@ -39,7 +39,7 @@ class POS extends ControllerBase {
    *
    * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The service container.
-   * @param \Drupal\user\PrivateTempStoreFactory $temp_store_factory
+   * @param \Drupal\Core\TempStore\PrivateTempStoreFactory $temp_store_factory
    *   The tempstore factory.
    */
   public function __construct(ContainerInterface $container, PrivateTempStoreFactory $temp_store_factory) {
@@ -67,6 +67,20 @@ class POS extends ControllerBase {
    *   A renderable array containing the POS form.
    */
   public function content(Order $commerce_order = NULL) {
+    if (isset($_COOKIE['commerce_pos_cashiers'])) {
+      $cashiers = unserialize($_COOKIE['commerce_pos_cashiers']);
+    }
+    else {
+      $cashiers = [];
+    }
+
+    $cashiers[$this->currentUser()->id()] = [
+      'name' => $this->currentUser()->getAccountName(),
+      'timestamp' => time(),
+    ];
+
+    setcookie('commerce_pos_cashiers', serialize($cashiers), time() + 31557600, '/');
+
     $register = \Drupal::service('commerce_pos.current_register')->get();
 
     if (empty($register) || !$register->isOpen()) {

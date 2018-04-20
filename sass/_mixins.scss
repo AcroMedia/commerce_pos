@@ -1,0 +1,9 @@
+// Mixins.
+@mixin smooth-transition() {
+  transition: color .2s ease-in-out, opacity .2s ease-in-out, background-color .2s ease-in-out, border-color .2s ease-in-out;
+}
+@mixin box-sizing($boxmodel) {
+  -webkit-box-sizing: $boxmodel;
+  -moz-box-sizing: $boxmodel;
+  box-sizing: $boxmodel;
+}

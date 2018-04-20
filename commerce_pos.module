@@ -35,6 +35,17 @@ function commerce_pos_theme($existing, $type, $theme, $path) {
     'commerce_pos_form_payment' => [
       'render element' => 'form',
     ],
+    'commerce_pos_cashier_login_page' => [
+      'render element' => 'page',
+      'path' => $path . '/templates',
+      'template' => 'commerce-pos-cashier-login',
+      'variables' => [
+        'form' => NULL,
+        'cashiers' => NULL,
+        'messages' => NULL,
+        'store_name' => NULL,
+      ],
+    ],
   ];
 }
 

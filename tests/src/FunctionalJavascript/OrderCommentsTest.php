@@ -73,8 +73,8 @@ class OrderCommentsTest extends JavascriptTestBase {
     $this->getSession()->getPage()->findButton('Payments and Completion')->click();
     $results = $this->getSession()->getPage()->findAll('css', '.view-commerce-activity table tr');
     $this->assertCount(3, $results);
-    $this->assertContains("<script>alert('here');</script>", $results[1]->getText());
-    $this->assertContains('Test comment', $results[2]->getText());
+    $web_assert->pageTextContains("<script>alert('here');</script>");
+    $web_assert->pageTextContains('Test comment');
 
     $this->getSession()->getPage()->fillField('order_comments[add_order_comment][order_comment_text]', "Test parked");
     $this->getSession()->getPage()->findButton('Park Order')->click();

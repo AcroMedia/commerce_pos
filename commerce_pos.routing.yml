@@ -1,10 +1,12 @@
-commerce_pos.cashier-login-form:
-  path: '/cashier-login'
+commerce_pos.login:
+  path: '/commerce_pos/login'
   defaults:
-    _title: 'Cashier Login Form'
-    _form: '\Drupal\commerce_pos\Form\CashierForm'
+    _controller: '\Drupal\commerce_pos\Controller\PosCashierLoginPage::login'
+    _title: 'Cashier Login'
   requirements:
-    _permission: 'access content'
+    _user_is_logged_in: 'FALSE'
+  options:
+    _maintenance_access: TRUE
 
 commerce_pos.configuration:
   path: '/admin/commerce/config/pos'

@@ -1,0 +1,24 @@
+// Variables.
+
+// Fonts.
+$f-primary: Arial, Helvetica, sans-serif;
+
+// Colors.
+$c-login-grey: #333;
+$c-login-link: #00aeef;
+$c-login-link-hover: darken($c-login-link, 10%);
+
+// Responsive Helpers.
+$screen-min: 320px;
+
+// Extra small screen / phone.
+$screen-xs-min: 480px;
+
+// Small screen / tablet.
+$screen-sm-min: 768px;
+
+// Medium screen / desktop.
+$screen-md-min: 992px;
+
+// Large screen / wide desktop.
+$screen-lg-min: 1200px;

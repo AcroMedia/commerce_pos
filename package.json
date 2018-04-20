@@ -6,8 +6,10 @@
     "build": "gulp build"
   },
   "devDependencies": {
+    "autoprefixer": "^8.3.0",
     "gulp": "^3.9.1",
-    "gulp-sass": "^3.1.0",
+    "gulp-postcss": "^7.0.1",
+    "gulp-sass": "^4.0.1",
     "gulp-sourcemaps": "^2.6.4",
     "gulp-util": "^3.0.8"
   }

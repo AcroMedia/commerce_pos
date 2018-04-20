@@ -30,3 +30,10 @@ commerce_pos.main:
   route_name: 'commerce_pos.main'
   parent: 'commerce_pos.base'
   description: 'Point of Sale Interface'
+
+commerce_pos.login:
+  title: 'Cashier Login'
+  route_name: 'commerce_pos.login'
+  parent: 'commerce_pos.base'
+  description: 'Similar functionality to the regular login, but with improvements for a fast cashier login'
+  weight: 1

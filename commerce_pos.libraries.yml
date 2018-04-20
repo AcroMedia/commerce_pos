@@ -18,7 +18,16 @@ form:
   dependencies:
     - core/jquery
     - core/drupal
-
+cashier_login:
+  version: VERSION
+  css:
+    layout:
+      css/commerce_pos_cashier_login.css: {}
+  js:
+    js/commerce_pos_cashier_login.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupal
 jQuery.print:
   remote: https://github.com/DoersGuild/jQuery.print
   version: 1.5.1

@@ -1,0 +1,320 @@
+@import 'mixins';
+@import 'variables';
+
+// Browser & Theme Resets.
+html {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  min-height: 100%;
+}
+.dialog-off-canvas-main-canvas {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  flex-direction: column;
+}
+
+// Commerce POS Cashier Login.
+.commerce-pos-cashier-login {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  font-family: $f-primary;
+  flex-direction: column;
+
+  * {
+    @include box-sizing(border-box);
+  }
+  *:before,
+  *:after {
+    @include box-sizing(border-box);
+  }
+  a,
+  a.link {
+    text-decoration: none;
+    border: none;
+    outline: none;
+
+    &:hover,
+    &:focus {
+      text-decoration: none;
+      border: none;
+      outline: none;
+    }
+  }
+  input {
+    font-family: $f-primary;
+    font-weight: normal;
+  }
+}
+.commerce-pos-login {
+  display: block;
+  margin: 0;
+  padding: 20px;
+  align-items: normal;
+  justify-content: normal;
+  width: 100%;
+  height: 100%;
+  background: #333 url(../images/bg_cashier_login.jpg) no-repeat;
+  background-size: cover;
+
+  @media (min-width: $screen-md-min) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  a,
+  button,
+  input {
+    @include smooth-transition();
+  }
+}
+.commerce-pos-login__container {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  max-width: 814px;
+  border-radius: 12px;
+  background: none;
+  border: 12px solid rgba(#ccc, 0.4);
+}
+.commerce-pos-login__content {
+  display: block;
+  color: #fff;
+
+  @media (min-width: $screen-md-min) {
+    display: flex;
+  }
+}
+
+// Panes.
+.commerce-pos-login__pane__body {
+  display: none;
+  margin: 0;
+  padding: 10px 20px 30px 20px;
+
+  @media (min-width: $screen-md-min) {
+    padding: 36px 30px 30px 126px;
+  }
+}
+.commerce-pos-login__pane--login .commerce-pos-login__pane__body form {
+  label,
+  .description,
+  .help-block,
+  span {
+    display: none;
+  }
+  .form-item,
+  .form-actions {
+    margin: 0;
+    padding: 0;
+  }
+  input[type="text"],
+  input[type="password"] {
+    display: block;
+    margin: 0 0 10px 0;
+    padding: 12px 10px;
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    font-size: 20px;
+    line-height: 1.0;
+    color: #fff;
+    background: $c-login-grey;
+    border: none;
+    border-radius: 0;
+  }
+  input[type="submit"] {
+    display: block;
+    margin: 20px 0 0 0;
+    padding: 5px 10px;
+    width: 100%;
+    height: 60px;
+    font-size: 24px;
+    line-height: 1.0;
+    color: #fff;
+    text-align: center;
+    text-transform: uppercase;
+    background: $c-login-link;
+    border: none;
+    border-radius: 0;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      background: $c-login-link-hover;
+    }
+  }
+}
+.commerce-pos-login__pane {
+  background: rgba(#000, 0.8);
+  border-right: none;
+
+  @media (min-width: $screen-md-min) {
+    border-right: 1px solid #3b424a;
+  }
+  &:last-child {
+    border-right: none;
+  }
+  // Active class for pane.
+  &.is-active {
+    width: 100%;
+    background: rgba(#000, 1);
+
+    .commerce-pos-login__pane__toggle {
+      cursor: auto;
+    }
+    .commerce-pos-login__pane__body {
+      display: block;
+    }
+  }
+}
+.commerce-pos-login__pane__toggle {
+  position: relative;
+  top: 0;
+  left: 0;
+  display: block;
+  margin: 0;
+  padding: 26px 20px 0 90px;
+  width: auto;
+  min-height: 90px;
+  font-size: 24px;
+  color: #fff;
+  text-decoration: none;
+  text-align: left;
+  text-transform: uppercase;
+
+  @media (min-width: $screen-md-min) {
+    position: absolute;
+    padding: 30px 0 30px 0;
+    width: 126px;
+    min-height: auto;
+    font-size: 20px;
+    text-align: center;
+  }
+  // Icon.
+  &:before {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    display: block;
+    margin: 0 auto 10px auto;
+    padding: 0;
+    width: 63px;
+    height: 63px;
+    @include smooth-transition();
+
+    @media (min-width: $screen-md-min) {
+      position: relative;
+      top: 0;
+      left: 0;
+    }
+  }
+  &:hover,
+  &:focus {
+    color: $c-login-link;
+    text-decoration: none;
+
+    // Icon.
+    &:before {
+      opacity: 0.6;
+    }
+  }
+}
+.commerce-pos-login__pane__toggle--login {
+  // Icon.
+  &:before {
+    background: url(../images/ico_user.svg) 0 0 no-repeat;
+    background-size: 63px 63px;
+  }
+}
+.commerce-pos-login__pane__toggle--users {
+  // Icon.
+  &:before {
+    background: url(../images/ico_menu.svg) 0 0 no-repeat;
+    background-size: 63px 63px;
+  }
+}
+.commerce-pos-login__pane__content {
+  position: relative;
+  display: block;
+  min-width: auto;
+  min-height: auto;
+
+  @media (min-width: $screen-md-min) {
+    min-width: 126px;
+    min-height: 200px;
+  }
+}
+
+// User List.
+.commerce-pos-login__users-list {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    float: none;
+    display: block;
+    margin: 0;
+    padding: 0 0 10px 0;
+    width: 100%;
+    background: none;
+
+    @media (min-width: $screen-sm-min) {
+      padding: 0 10px 10px 0;
+      width: 50%;
+    }
+  }
+  a {
+    display: block;
+    margin: 0;
+    padding: 13px 20px;
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    line-height: 1.2;
+    color: #fff;
+    text-decoration: none;
+    background: $c-login-link;
+
+    &:hover,
+    &:focus {
+      color: #fff;
+      text-decoration: none;
+      background: $c-login-link-hover;
+    }
+  }
+}
+
+// Login Bar.
+.commerce-pos-login-bar {
+  position: relative;
+  margin: 0;
+  padding: 4px 20px 4px 20px;
+  height: 44px;
+  background: #000;
+}
+.commerce-pos-login-bar__logo {
+  position: relative;
+  display: block;
+  color: #fff;
+  margin: 0;
+  padding: 0;
+  height: 36px;
+  text-align: left;
+  outline: none;
+  overflow: hidden;
+  font-family: $f-primary;
+  font-size: 24px;
+}
+

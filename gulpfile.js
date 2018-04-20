@@ -6,6 +6,8 @@
 
 var gulp = require('gulp');
 var sass = require('gulp-sass');
+var postcss = require('gulp-postcss');
+var autoprefixer = require('autoprefixer');
 var sourcemaps = require('gulp-sourcemaps');
 var gutil = require('gulp-util');
 
@@ -24,6 +26,11 @@ gulp.task('sass', function () {
     gulp.src(dirInfo.src)
       .pipe(sourcemaps.init())
       .pipe(sass({ outputStyle: 'compressed' }).on('error', sass.logError))
+      .pipe(postcss([
+        autoprefixer({
+          browsers: ['> 5%']
+        }),
+      ]))
       .pipe(sourcemaps.write('./'))
       .pipe(gulp.dest(dirInfo.dest))
   });
