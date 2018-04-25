@@ -114,13 +114,6 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       '#default_value' => $config->get('order_lookup_limit'),
     ];
 
-    $form['order_lookup']['order_lookup_like_search'] = [
-      '#type' => 'checkbox',
-      '#title' => $this->t('Match results using "like"'),
-      '#description' => $this->t('Match results as user enters the information. This uses a "like" query instead of an exact match. <br>(Not recommended for larger sites).'),
-      '#default_value' => $config->get('order_lookup_like_search'),
-    ];
-
     return parent::buildForm($form, $form_state);
   }
 
@@ -133,7 +126,6 @@ class CommercePOSSettingsForm extends ConfigFormBase {
       // Set the submitted configuration setting.
       ->set('default_payment_gateway', $form_state->getValue('default_payment_gateway'))
       ->set('order_lookup_limit', $form_state->getValue('order_lookup_limit'))
-      ->set('order_lookup_like_search', $form_state->getValue('order_lookup_like_search'))
       ->set('product_search_server', $form_state->getValue('server'))
       ->set('product_search_index', $form_state->getValue('index'))
 

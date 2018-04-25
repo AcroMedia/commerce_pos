@@ -1,4 +1,3 @@
 order_lookup_limit: 10
-order_lookup_like_search: true
 product_search_server: database
 product_search_index: commerce_pos

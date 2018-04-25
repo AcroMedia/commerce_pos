@@ -100,6 +100,11 @@ class POS extends ControllerBase {
       $commerce_order = Order::load($current_order_id);
     }
 
+    if ($commerce_order && !$commerce_order->hasField('field_cashier') && !$commerce_order->hasField('field_register')) {
+      \Drupal::messenger()->addError($this->t('The order you tried to load is not compatible with the POS, 
+      it must have a cashier and a register field'));
+    }
+
     // Create a new draft order if we still don't have an order.
     if (!$commerce_order) {
       $commerce_order = Order::create([

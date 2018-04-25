@@ -34,9 +34,6 @@ commerce_pos.settings:
     order_lookup_limit:
       type: integer
       label: 'Commerce POS order lookup limit'
-    order_lookup_like_search:
-      type: boolean
-      label: 'Commerce POS order lookup search using "like"'
     product_search_server:
       type: string
       label: 'Commerce POS product search api server'
