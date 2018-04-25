@@ -151,3 +151,18 @@ function commerce_pos_update_8204() {
 
   $active_storage->write('core.entity_form_display.commerce_order.pos.default', $source->read('core.entity_form_display.commerce_order.pos.default'));
 }
+
+/**
+ * Install updated configs that are required.
+ */
+function commerce_pos_update_8205() {
+  /** @var \Drupal\Core\Config\StorageInterface $active_storage */
+  $active_storage = \Drupal::service('config.storage');
+
+  $module_handler = Drupal::service('module_handler');
+  $path = $module_handler->getModule('commerce_pos')->getPath();
+
+  $source = new FileStorage($path . '/config/install');
+
+  $active_storage->write('field.storage.commerce_order.field_register', $source->read('field.storage.commerce_order.field_register'));
+}

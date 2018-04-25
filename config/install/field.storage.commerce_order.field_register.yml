@@ -11,7 +11,7 @@ type: entity_reference
 settings:
   target_type: commerce_pos_register
 module: core
-locked: true
+locked: false
 cardinality: 1
 translatable: false
 indexes: {  }
