@@ -5,8 +5,11 @@ namespace Drupal\Tests\commerce_pos\Functional;
 use Drupal\commerce_pos\Entity\Register;
 use Drupal\commerce_price\Price;
 use Drupal\commerce_product\Entity\Product;
+use Drupal\commerce_product\Entity\ProductAttribute;
+use Drupal\commerce_product\Entity\ProductAttributeValue;
 use Drupal\commerce_product\Entity\ProductVariation;
 use Drupal\commerce_store\StoreCreationTrait;
+use Drupal\search_api\Entity\Index;
 use Drupal\Tests\RandomGeneratorTrait;
 
 /**
@@ -41,7 +44,6 @@ trait CommercePosCreateStoreTrait {
     $variation = ProductVariation::create($values + [
       'type' => 'default',
       'sku' => strtolower($this->randomMachineName()),
-      'title' => $this->randomMachineName(),
       'status' => 1,
       'price' => new Price(mt_rand(10, 100), 'USD'),
     ]);
@@ -84,13 +86,48 @@ trait CommercePosCreateStoreTrait {
     ]);
     $register->save();
 
+    $attribute = ProductAttribute::create([
+      'id' => 'size',
+      'label' => 'Size',
+    ]);
+    $attribute->save();
+    $this->container->get('commerce_product.attribute_field_manager')->createField($attribute, 'default');
+
+    $attribute_values = [
+      's' => ProductAttributeValue::create([
+        'attribute' => $attribute->id(),
+        'name' => 'S',
+      ]),
+      'm' => ProductAttributeValue::create([
+        'attribute' => $attribute->id(),
+        'name' => 'M',
+      ]),
+      'l' => ProductAttributeValue::create([
+        'attribute' => $attribute->id(),
+        'name' => 'L',
+      ]),
+      'xl' => ProductAttributeValue::create([
+        'attribute' => $attribute->id(),
+        'name' => 'XL',
+      ]),
+    ];
+
+    $attribute_values['s']->save();
+    $attribute_values['m']->save();
+    $attribute_values['l']->save();
+    $attribute_values['xl']->save();
+
     $variations = [
       $this->createProductionVariation([
-        'title' => 'T-shirt XL',
         'price' => new Price("23.20", 'USD'),
+        'attribute_size' => $attribute_values['xl'],
       ]),
-      $this->createProductionVariation(['title' => 'T-shirt L']),
-      $this->createProductionVariation(['title' => 'T-shirt M']),
+      $this->createProductionVariation([
+        'attribute_size' => $attribute_values['m'],
+      ]),
+      $this->createProductionVariation([
+        'attribute_size' => $attribute_values['l'],
+      ]),
     ];
 
     $this->createProduct([
@@ -101,11 +138,15 @@ trait CommercePosCreateStoreTrait {
 
     $variations = [
       $this->createProductionVariation([
-        'title' => 'Jumper XL',
         'price' => new Price("50", 'USD'),
+        'attribute_size' => $attribute_values['xl'],
       ]),
-      $this->createProductionVariation(['title' => 'Jumper L']),
-      $this->createProductionVariation(['title' => 'Jumper M']),
+      $this->createProductionVariation([
+        'attribute_size' => $attribute_values['m'],
+      ]),
+      $this->createProductionVariation([
+        'attribute_size' => $attribute_values['l'],
+      ]),
     ];
 
     $this->createProduct([
@@ -116,6 +157,10 @@ trait CommercePosCreateStoreTrait {
 
     $this->store = $test_store;
     $this->register = $register;
+
+    // We need to run the index so these items can be searched.
+    $index = Index::load('commerce_pos');
+    $index->indexItems();
 
     return $test_store;
   }

@@ -11,6 +11,7 @@ dependencies:
   - commerce:commerce_tax
   - drupal:telephone
   - commerce_pos:commerce_pos_keypad
+  - search_api
 config_devel:
   install:
     - commerce_store.commerce_store_type.physical

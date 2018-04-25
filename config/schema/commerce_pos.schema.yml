@@ -37,6 +37,12 @@ commerce_pos.settings:
     order_lookup_like_search:
       type: boolean
       label: 'Commerce POS order lookup search using "like"'
+    product_search_server:
+      type: string
+      label: 'Commerce POS product search api server'
+    product_search_index:
+      type: string
+      label: 'Commerce POS product search api index'
 commerce_order.commerce_order_item_type.return.third_party.commerce_tax:
   type: mapping
   label: 'Tax settings'

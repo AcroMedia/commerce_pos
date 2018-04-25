@@ -40,6 +40,7 @@ class EndOfDayTest extends JavascriptTestBase {
    * @var array
    */
   public static $modules = [
+    'search_api_db',
     'commerce_price',
     'commerce_pos',
     'commerce_pos_reports',

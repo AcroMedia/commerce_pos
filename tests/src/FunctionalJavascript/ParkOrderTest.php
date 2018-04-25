@@ -21,6 +21,7 @@ class ParkOrderTest extends JavascriptTestBase {
    * @var array
    */
   public static $modules = [
+    'search_api_db',
     'commerce_pos',
     'commerce_pos_keypad',
     'block',
@@ -50,12 +51,12 @@ class ParkOrderTest extends JavascriptTestBase {
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
 
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -78,11 +79,13 @@ class ParkOrderTest extends JavascriptTestBase {
 
     // Check whether an order cannot be retrieved if current order is not empty.
     // Add a T-Shirt.
-    $autocomplete_field->setValue('T');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
+    $autocomplete_field->setValue('T-shirt X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->createScreenshot(\Drupal::root() . '/sites/default/files/simpletest/screen.jpg');
+
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();

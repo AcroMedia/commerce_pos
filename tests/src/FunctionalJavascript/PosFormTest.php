@@ -26,6 +26,7 @@ class PosFormTest extends JavascriptTestBase {
    */
   public static $modules = [
     'block',
+    'search_api_db',
     'commerce_pos',
   ];
 
@@ -54,11 +55,11 @@ class PosFormTest extends JavascriptTestBase {
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -75,11 +76,11 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->fieldValueEquals('order_items[target_id][product_selector]', '');
 
     // Add another of the same Jumper.
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -91,11 +92,11 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $100.00');
 
     // Add a T-Shirt.
-    $autocomplete_field->setValue('T');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
+    $autocomplete_field->setValue('T-Shirt X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -150,14 +151,14 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Change $0.00');
 
     // Add a jumper and two t-shirts to test payment totals.
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
-    $autocomplete_field->setValue('T');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), '-');
+    $autocomplete_field->setValue('T-Shirt X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
     $results[0]->click();
@@ -285,11 +286,11 @@ class PosFormTest extends JavascriptTestBase {
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -349,11 +350,11 @@ class PosFormTest extends JavascriptTestBase {
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();
@@ -413,11 +414,11 @@ class PosFormTest extends JavascriptTestBase {
 
     // Now we should be able to select order items.
     $autocomplete_field = $this->getSession()->getPage()->findField('order_items[target_id][product_selector]');
-    $autocomplete_field->setValue('Jum');
-    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'p');
+    $autocomplete_field->setValue('Jumper X');
+    $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'L');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
-    $this->assertCount(3, $results);
+    $this->assertCount(1, $results);
     // Click on of the auto-complete.
     $results[0]->click();
     $web_assert->assertWaitOnAjaxRequest();

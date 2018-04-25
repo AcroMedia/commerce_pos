@@ -10,6 +10,7 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Drupal\commerce_product\Entity\ProductVariation;
+use Drupal\search_api\Entity\Index;
 
 /**
  * Class PosOrderItemAutoComplete.
@@ -80,8 +81,10 @@ class PosOrderItemAutoComplete extends ControllerBase {
     if ($input = $request->query->get('q')) {
       $suggestions = $this->searchQueryString($input, $count);
       $view_builder = $this->entityTypeManager->getViewBuilder($entity_type);
-      foreach ($suggestions as $key) {
-        $product_variation = ProductVariation::load($key->variation_id);
+      foreach ($suggestions->getResultItems() as $item) {
+        $data = explode(':', $item->getId());
+        $data = explode('/', $data[1]);
+        $product_variation = ProductVariation::load($data[1]);
         $product_render_array = $view_builder->view($product_variation, $view_mode, $product_variation->language()->getId());
         $results[] = [
           'value' => $product_variation->id(),
@@ -105,26 +108,30 @@ class PosOrderItemAutoComplete extends ControllerBase {
    *   The query search result.
    */
   public function searchQueryString($string, $count) {
-    // Getting the Store ID.
     $register = \Drupal::service('commerce_pos.current_register')->get();
     if ($register) {
       $store_id = $register->getStoreId();
 
-      // @todo convert to entity query? This might be tricky... need to load all
-      // the products for a store and then all their variations?
-      $connection = \Drupal::service('database');
-      $query = $connection->select('commerce_product_variation_field_data', 'cpvd')
-        ->fields('cpvd', ['variation_id', 'product_id', 'title'])
-        ->range(0, $count);
-      $query->join('commerce_product__stores', 'cps', 'cps.entity_id = cpvd.product_id AND cps.stores_target_id = :store_id
-    AND cpvd.title LIKE :string', [
-      ':store_id' => $store_id,
-      ':string' => '%' . $string . '%',
-    ]);
+      $config = $this->config('commerce_pos.settings');
 
-      $result = $query->execute()->fetchAll();
+      $index = Index::load($config->get('product_search_index'));
 
-      return $result;
+      $query = $index->query();
+
+      $parse_mode = \Drupal::service('plugin.manager.search_api.parse_mode')
+        ->createInstance('direct');
+      $parse_mode->setConjunction('OR');
+      $query->setParseMode($parse_mode);
+
+      // Set fulltext search keywords and fields.
+      $query->keys($string);
+
+      $query->addCondition('stores', $store_id);
+      $query->range(0, $count);
+
+      $results = $query->execute();
+
+      return $results;
     }
 
     return NULL;

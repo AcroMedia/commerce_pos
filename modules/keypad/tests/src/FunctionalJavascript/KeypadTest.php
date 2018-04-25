@@ -19,6 +19,7 @@ class KeypadTest extends JavascriptTestBase {
    * @var array
    */
   public static $modules = [
+    'search_api_db',
     'commerce_pos_keypad_test',
     'commerce_pos',
     'commerce_pos_keypad',

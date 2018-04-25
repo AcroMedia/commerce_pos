@@ -1,0 +1,154 @@
+langcode: en
+status: true
+dependencies:
+  config:
+    - field.storage.commerce_product_variation.field_upc
+    - field.storage.commerce_product.body
+    - field.storage.commerce_product.stores
+    - search_api.server.pos_server
+  module:
+    - commerce_product
+    - search_api_db
+id: commerce_pos
+name: 'Commerce POS'
+description: 'Basic POS index created by the Commerce POS module'
+read_only: false
+field_settings:
+  sku:
+    label: SKU
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: sku
+    type: text
+    boost: !!float 2
+  title:
+    label: Title
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: title
+    type: text
+  field_upc:
+    label: UPC
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: field_upc
+    type: text
+    dependencies:
+      config:
+        - field.storage.commerce_product_variation.field_upc
+  body:
+    label: 'Product » Product » Body'
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: 'product_id:entity:body'
+    type: text
+    boost: 0.5
+    dependencies:
+      module:
+        - commerce_product
+      config:
+        - field.storage.commerce_product.body
+  title_1:
+    label: 'Product » Product » Title'
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: 'product_id:entity:title'
+    type: text
+    dependencies:
+      module:
+        - commerce_product
+  stores:
+    label: 'Product » Product » Stores'
+    datasource_id: 'entity:commerce_product_variation'
+    property_path: 'product_id:entity:stores'
+    type: integer
+    dependencies:
+      module:
+        - commerce_product
+      config:
+        - field.storage.commerce_product.stores
+datasource_settings:
+  'entity:commerce_product_variation':
+    bundles:
+      default: true
+      selected: {  }
+    languages:
+      default: true
+      selected: {  }
+processor_settings:
+  aggregated_field: {  }
+  rendered_item: {  }
+  add_url: {  }
+  ignorecase:
+    all_fields: true
+    fields:
+      - sku
+      - title
+      - field_upc
+      - body
+      - title_1
+    weights:
+      preprocess_index: -49
+      preprocess_query: -49
+  html_filter:
+    all_fields: true
+    fields:
+      - sku
+      - title
+      - field_upc
+      - body
+      - title_1
+    title: true
+    alt: true
+    tags:
+      h1: 5
+      h2: 3
+      h3: 2
+      strong: 2
+      b: 2
+      em: 1
+      u: 1
+    weights:
+      preprocess_index: -50
+      preprocess_query: -50
+  transliteration:
+    all_fields: true
+    fields:
+      - sku
+      - title
+      - field_upc
+      - body
+      - title_1
+    weights:
+      preprocess_index: -48
+      preprocess_query: -48
+  stemmer:
+    all_fields: true
+    fields:
+      - sku
+      - title
+      - field_upc
+      - body
+      - title_1
+    exceptions:
+      texan: texa
+      mexican: mexic
+    weights:
+      preprocess_index: -46
+      preprocess_query: -44
+  tokenizer:
+    all_fields: true
+    fields:
+      - sku
+      - title
+      - field_upc
+      - body
+      - title_1
+    spaces: ''
+    overlap_cjk: 1
+    minimum_word_size: '1'
+    weights:
+      preprocess_index: -47
+      preprocess_query: -46
+tracker_settings:
+  default:
+    indexing_order: fifo
+options:
+  index_directly: true
+  cron_limit: 50
+server: database

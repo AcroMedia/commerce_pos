@@ -19,6 +19,7 @@ class PosReceiptTest extends JavascriptTestBase {
    * @var array
    */
   public static $modules = [
+    'search_api_db',
     'commerce_pos_receipt',
   ];
 

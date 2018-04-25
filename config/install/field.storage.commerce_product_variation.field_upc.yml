@@ -12,7 +12,7 @@ field_name: field_upc
 entity_type: commerce_product_variation
 type: text
 settings:
-  max_length: 255
+  max_length: 13
 module: text
 locked: false
 cardinality: 1

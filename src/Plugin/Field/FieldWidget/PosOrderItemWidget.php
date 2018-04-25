@@ -617,6 +617,18 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
       'target_id',
       'product_selector',
     ]));
+
+    if (!$product_variation) {
+      $variation = \Drupal::entityQuery('commerce_product_variation')
+        ->condition('sku', $form_state->getValue([
+          'order_items', 'target_id', 'product_selector',
+        ]))
+        ->range(0, 1)
+        ->execute();
+
+      $product_variation = ProductVariation::load(current($variation));
+    }
+
     // If we've not loaded a product variation then exit doing nothing.
     if (!$product_variation) {
       // There's nothing to do.
