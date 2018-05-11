@@ -288,6 +288,11 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
         '#title_display' => 'invisible',
         '#type' => 'number',
         '#default_value' => $order_item->getQuantity(),
+        '#attributes' => [
+          'class' => [
+            'commerce-pos-order-item-quantity',
+          ],
+        ],
         '#ajax' => [
           'callback' => [$this, 'ajaxRefresh'],
           'wrapper' => $wrapper_id,
