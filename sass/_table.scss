@@ -1,9 +1,22 @@
 // Order Items.
-
 table[id*="edit-order-items-target-id-order-items"] {
+  margin: 30px 0 0;
+
   tbody > tr > td:first-child {
     // Set a min-width on product cells.
     min-width: 200px;
+  }
+  tbody > tr > td {
+    .field {
+      font-size: 14px;
+    }
+    .field--name-title {
+      font-size: 16px;
+      font-weight: bold;
+    }
+    .field--name-sku {
+      font-size: 12px;
+    }
   }
 }
 // POS Main Table styles.

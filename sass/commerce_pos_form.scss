@@ -1,3 +1,5 @@
+@import 'variables';
+
 /* Commerce POS Form */
 .button {
   margin: 10px 8px 10px 0;
@@ -10,8 +12,8 @@
 #edit-payment {
   padding-top: 40px;
 }
-// Temporary until better widgets are available from commerce
 
+// Temporary until better widgets are available from commerce.
 .tabledrag-toggle-weight-wrapper {
   display: none;
 }
@@ -20,11 +22,10 @@
   display: none;
 }
 
-#edit-actions,
+div[class^="edit-actions"],
 #edit-adjustments-wrapper,
 #edit-coupons-wrapper,
-#edit-mail-wrapper,
-#edit-uid-wrapper {
+#edit-mail-wrapper {
   margin-top: 2em;
 }
 
@@ -67,6 +68,197 @@
     &:hover {
       box-shadow: none;
       text-decoration: underline;
+    }
+  }
+  .layout-region-pos-footer {
+    input[id*="edit-actions-submit"] {
+      display: inline-block;
+    }
+  }
+}
+
+// To Pay.
+.commerce-pos--totals--to-pay.odd,
+.commerce-pos--totals--to-pay.odd:hover {
+  background: #2d2d2d;
+  color: #fff;
+  text-transform: uppercase;
+}
+.layout-region-pos-totals table tr.commerce-pos--totals--to-pay.odd td {
+  padding: 12px 12px;
+  font-size: 16px;
+  line-height: 1.0;
+}
+.layout-region-pos-totals table tr.commerce-pos--totals--to-pay--change.even td {
+  color: #a7a4af;
+}
+
+.layout-region-pos-footer {
+  // Customer.
+  details[id^="edit-customer"] {
+    div[id^="edit-uid-wrapper"] {
+      margin-top: 0;
+    }
+  }
+
+  // Adjustments.
+  #edit-adjustments-wrapper {
+    margin-top: 0;
+  }
+  div[id^="adjustments-add-more-wrapper"] {
+    > .form-item:first-child {
+      margin-top: 0;
+    }
+    table[id^="adjustments-values"] {
+      > thead {
+        display: none;
+      }
+    }
+  }
+
+  // Coupons.
+  #edit-coupons-wrapper {
+    margin-top: 0;
+  }
+  div[id^="coupons-add-more-wrapper"] {
+    > .form-item:first-child {
+      margin-top: 0;
+    }
+    table[id^="coupons-values"] {
+      > thead {
+        display: none;
+      }
+    }
+  }
+
+  // Details.
+  .pos-details {
+    border: 1px solid #ccc;
+    margin-top: 28px;
+  }
+  details {
+    border-style: solid;
+    border-width: 0 0 1px 0;
+    border-color: #ccc;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  details:last-child {
+    border-width: 0;
+  }
+
+  summary {
+    padding: 12px 19px;
+    color: #1a7ab5;
+    text-decoration: none;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+    }
+    &:focus {
+      text-decoration: none;
+    }
+  }
+
+  // Buttons.
+  .form-actions {
+    text-align: right;
+
+    input,
+    a {
+      float: none;
+      display: block;
+      width: auto;
+      align-items: center;
+
+      @media (min-width: $screen-sm-xs-min) {
+        display: inline-flex;
+        width: auto;
+        align-items: center;
+      }
+    }
+  }
+  input[id*="edit-actions-submit"] {
+    float: none;
+    display: block;
+    min-height: 31px;
+
+    @media (min-width: $screen-sm-xs-min) {
+      float: left;
+      display: inline-block;
+    }
+  }
+  input[id*="edit-actions-park-order"] {
+    display: block;
+    padding: 0;
+    min-height: 31px;
+    color: #1a7ab5;
+    font-weight: normal;
+    text-decoration: underline;
+    text-transform: lowercase;
+    background: none;
+    border: 0;
+
+    @media (min-width: $screen-sm-xs-min) {
+      display: inline-block;
+    }
+    &:hover {
+      box-shadow: none;
+    }
+  }
+  a[id*="edit-actions-delete"] {
+    display: block;
+    min-height: 31px;
+    text-align: center;
+    text-transform: lowercase;
+
+    @media (min-width: $screen-sm-xs-min) {
+      display: inline-block;
+    }
+  }
+  input[id*="edit-actions-back"] {
+    display: block;
+    padding: 0;
+    min-height: 31px;
+    color: #1a7ab5;
+    font-weight: normal;
+    text-decoration: underline;
+    text-transform: lowercase;
+    background: none;
+    border: 0;
+
+    @media (min-width: $screen-sm-xs-min) {
+      display: inline-block;
+    }
+    &:hover {
+      box-shadow: none;
+    }
+  }
+  input[id*="edit-actions-finish"] {
+    float: none;
+    display: block;
+    min-height: 31px;
+
+    @media (min-width: $screen-sm-xs-min) {
+      float: left;
+      display: inline-block;
+    }
+  }
+}
+#commerce-pos-add-order-comment-wrapper {
+  margin-top: 30px;
+
+  input {
+    background: none;
+    border: none;
+    color: #1a7ab5;
+    font-weight: normal;
+    text-decoration: underline;
+    padding: 0;
+
+    &:hover {
+      box-shadow: none;
     }
   }
 }

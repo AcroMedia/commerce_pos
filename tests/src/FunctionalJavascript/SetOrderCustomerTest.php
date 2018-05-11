@@ -66,7 +66,7 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $web_assert->assertWaitOnAjaxRequest();
 
     // Finish checkout.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->getSession()->getPage()->fillField('keypad[amount]', '50');
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->waitForAjaxToFinish();
@@ -100,11 +100,12 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     // Now create a new user and set that user as the order customer.
     $user_email_field = $this->getSession()->getPage()->findField('uid[0][target_id][order_customer][email]');
     $user_email_field->setValue('test@test.com');
+    $this->getSession()->getPage()->findButton('Customer')->click();
     $this->getSession()->getPage()->findButton('Set Customer')->click();
     $this->waitForAjaxToFinish();
 
     // Finish checkout.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->getSession()->getPage()->fillField('keypad[amount]', '50');
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->waitForAjaxToFinish();
@@ -119,13 +120,16 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $this->drupalGet('admin/commerce/pos/main');
 
     // Now select an existing user and set that user as the order customer.
+    $this->getSession()->getPage()->findButton('Customer')->click();
     $autocomplete_field = $this->getSession()->getPage()->findField('uid[0][target_id][order_customer][user]');
     $autocomplete_field->setValue('t');
     $this->getSession()->getDriver()->keyDown($autocomplete_field->getXpath(), 'e');
     $web_assert->waitOnAutocomplete();
     $results = $this->getSession()->getPage()->findAll('css', '.ui-autocomplete li');
+
     // Click on the auto-complete.
     $results[0]->click();
+
     $web_assert->assertWaitOnAjaxRequest();
     $this->getSession()->getPage()->findButton('Set Customer')->click();
     $this->waitForAjaxToFinish();
@@ -142,7 +146,7 @@ class SetOrderCustomerTest extends JavascriptTestBase {
     $web_assert->assertWaitOnAjaxRequest();
 
     // Finish checkout.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->getSession()->getPage()->fillField('keypad[amount]', '50');
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->waitForAjaxToFinish();

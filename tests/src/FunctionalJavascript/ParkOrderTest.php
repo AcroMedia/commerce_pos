@@ -128,7 +128,7 @@ class ParkOrderTest extends JavascriptTestBase {
 
     // Complete the order and edit it to ensure we can not park completed
     // orders.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->click('#edit-keypad-add');
     $web_assert->waitForButton('commerce-pos-finish');
     $this->click('input[name="commerce-pos-finish"]');

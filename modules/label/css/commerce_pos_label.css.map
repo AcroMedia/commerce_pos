@@ -1,1 +1,1 @@
-{"version":3,"sources":["commerce_pos_label.scss"],"names":[],"mappings":"AAAA,+DACE,iBAAkB,CACnB","file":"commerce_pos_label.css","sourcesContent":["#commerce-pos-label-form-container .commerce-pos-label-btn-add {\n  margin-bottom: 1em;\n}\n"]}
+{"version":3,"sources":["commerce_pos_label.scss"],"names":[],"mappings":"AAAA,+DACE,iBAAkB,CACnB","file":"commerce_pos_label.css","sourcesContent":["#commerce-pos-label-form-container .commerce-pos-label-btn-add {\r\n  margin-bottom: 1em;\r\n}\r\n"]}

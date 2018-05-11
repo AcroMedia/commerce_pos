@@ -155,24 +155,16 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
     /** @var \Drupal\commerce_order\Entity\Order $order */
     $order = $form_state->getFormObject()->getEntity();
 
-    // Make a wrapper for the entire form.
-    // @todo this feels off. There must be a better way.
-    if (empty($form_state->wrapper_id)) {
-      $wrapper_id = Html::getUniqueId(__CLASS__);
-      $form['#prefix'] = '<div id="' . $wrapper_id . '">';
-      $form['#suffix'] = '</div>';
-    }
-    else {
-      $wrapper_id = $form_state->wrapper_id;
-    }
-
     if ($form_state->getTriggeringElement()) {
       $this->processFormSubmission($form, $form_state);
     }
 
+    $wrapper_id = Html::getUniqueId(__CLASS__);
     $element['order_customer'] = [
       '#type' => 'fieldset',
       '#title' => $this->t('Customer'),
+      '#prefix' => '<div id="' . $wrapper_id . '">',
+      '#suffix' => '</div>',
     ];
 
     // If the customer for the order is already set.
@@ -357,7 +349,7 @@ class PosCustomerWidget extends WidgetBase implements WidgetInterface, Container
   public static function ajaxRefresh(&$form, FormStateInterface $form_state) {
     // Anything on the form might have changed, including the order total based
     // on who the order user is.
-    return $form;
+    return $form['uid']['widget'];
   }
 
 }

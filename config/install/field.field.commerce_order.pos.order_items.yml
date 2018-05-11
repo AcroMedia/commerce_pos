@@ -8,7 +8,7 @@ id: commerce_order.pos.order_items
 field_name: order_items
 entity_type: commerce_order
 bundle: pos
-label: 'Order items'
+label: 'Product Search'
 description: ''
 required: true
 translatable: false

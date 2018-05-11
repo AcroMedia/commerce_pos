@@ -91,7 +91,7 @@ class PosOrderItemWidget extends WidgetBase implements WidgetInterface, Containe
   public static function defaultSettings() {
     return [
       'size' => 60,
-      'placeholder' => 'Enter a product name',
+      'placeholder' => 'Scan or enter product name or SKU',
       'num_results' => 10,
       'purchasable_entity_view_mode' => 'commerce_pos_product_select',
     ] + parent::defaultSettings();

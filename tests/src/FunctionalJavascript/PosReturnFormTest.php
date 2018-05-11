@@ -87,7 +87,7 @@ class PosReturnFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $100.00');
 
     // Go to the payment page.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
 
     $web_assert->pageTextContains('Total $100.00');
     $web_assert->pageTextContains('To Pay $100.00');
@@ -150,7 +150,7 @@ class PosReturnFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Change $50.00');
 
     // Go to the payment page.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
 
     // Ensure we don't have to pay anything and the totals are correct.
     $web_assert->pageTextNotContains('Enter Cash Amount');

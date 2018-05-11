@@ -171,7 +171,7 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('To Pay $96.40');
 
     // Go to the payment page.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
 
     $this->getSession()->getPage()->fillField('keypad[amount]', '50');
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
@@ -213,7 +213,7 @@ class PosFormTest extends JavascriptTestBase {
     $web_assert->pageTextContains('Change $0.00');
 
     // Go to the payment page.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
 
     $web_assert->pageTextContains('Total $119.60');
     $web_assert->pageTextContains('Cash $50.00');
@@ -446,7 +446,7 @@ class PosFormTest extends JavascriptTestBase {
 
     // Complete the order, open the other register and ensure that editing the
     // completed order does not change the register.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->click('input[name="commerce-pos-finish"]');
     $this->clickLink('Close Register');

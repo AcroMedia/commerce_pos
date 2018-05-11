@@ -36,7 +36,7 @@ commerce_pos.main:
   path: '/admin/commerce/pos/main/{commerce_order}'
   defaults:
     _controller: '\Drupal\commerce_pos\Controller\POS::content'
-    _title: 'Point of Sale Interface'
+    _title: 'Point of Sale'
     commerce_order: null
   options:
     parameters:

@@ -63,7 +63,7 @@ class OrderCommentsTest extends JavascriptTestBase {
 
     // Add a comment.
     $this->getSession()->getPage()->fillField('order_comments[add_order_comment][order_comment_text]', 'Test comment');
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $results = $this->getSession()->getPage()->findAll('css', '.view-commerce-activity table tr');
     $this->assertCount(2, $results);
     $this->assertContains('Test comment', $results[1]->getText());
@@ -71,7 +71,7 @@ class OrderCommentsTest extends JavascriptTestBase {
     // Add another comment with XSS.
     $this->getSession()->getPage()->findButton('Back To Order')->click();
     $this->getSession()->getPage()->fillField('order_comments[add_order_comment][order_comment_text]', "<script>alert('here');</script>");
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $results = $this->getSession()->getPage()->findAll('css', '.view-commerce-activity table tr');
     $this->assertCount(3, $results);
     $web_assert->pageTextContains("<script>alert('here');</script>");

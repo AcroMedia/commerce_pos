@@ -153,8 +153,14 @@ class POSForm extends ContentEntityForm {
     $form['#suffix'] = '</div>';
 
     $form['customer'] = [
-      '#type' => 'container',
+      '#type' => 'details',
+      '#title' => t('Customer'),
     ];
+
+    $form['adjustments']['#type'] = 'details';
+    $form['adjustments']['#title'] = t('Adjustments');
+    $form['coupons']['#type'] = 'details';
+    $form['coupons']['#title'] = t('Coupons');
 
     $form['uid']['#group'] = 'customer';
     $form['mail']['#group'] = 'customer';
@@ -163,7 +169,11 @@ class POSForm extends ContentEntityForm {
       '#type' => 'container',
     ];
 
-    $form['actions']['submit']['#value'] = $this->t('Payments and Completion');
+    $form['actions']['submit']['#value'] = $this->t('Pay Now');
+
+    // Modify the delete label.
+    $form['actions']['delete']['#title'] = $this->t('Void Order');
+
     // Ensure the user is redirected back to this page after deleting an order.
     if (isset($form['actions']['delete']['#url']) && $form['actions']['delete']['#url'] instanceof Url) {
       $form['actions']['delete']['#url']->mergeOptions([
@@ -176,7 +186,7 @@ class POSForm extends ContentEntityForm {
     $form['actions']['park_order'] = [
       '#type' => 'submit',
       '#value' => $this->t('Park Order'),
-      '#weight' => 6,
+      '#weight' => 99,
       '#submit' => ['::parkOrder'],
       '#validate' => ['::validateParkOrder'],
       '#disabled' => empty($this->entity->getItems()),
@@ -721,7 +731,10 @@ class POSForm extends ContentEntityForm {
     }
     $formatted_change_amount = $number_formatter->formatCurrency($change, $currency);
     $balances[] = [
-      'class' => 'commerce-pos--totals--to-pay',
+      'class' => [
+        'commerce-pos--totals--to-pay',
+        'commerce-pos--totals--to-pay--change',
+      ],
       'data' => [$this->t('Change'), $formatted_change_amount],
     ];
 

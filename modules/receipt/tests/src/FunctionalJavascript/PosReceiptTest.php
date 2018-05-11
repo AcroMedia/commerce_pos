@@ -65,7 +65,7 @@ class PosReceiptTest extends JavascriptTestBase {
     // Go back to the order.
     $this->drupalGet('admin/commerce/pos/main');
     // Go to the payment page.
-    $this->getSession()->getPage()->findButton('Payments and Completion')->click();
+    $this->getSession()->getPage()->findButton('Pay Now')->click();
     $this->click('input[name="commerce-pos-pay-keypad-add"]');
     $this->click('input[name="commerce-pos-finish"]');
 
