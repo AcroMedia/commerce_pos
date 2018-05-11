@@ -200,6 +200,8 @@ class EndOfDayForm extends FormBase {
                 'type' => 'cash input',
                 'currency_code' => $currency_code,
               ];
+
+              $declared['#attributes']['data-default-float'] = $register->getDefaultFloat()->getNumber();
             }
 
             // Adding this element with the register_id and date as the keys
@@ -237,6 +239,9 @@ class EndOfDayForm extends FormBase {
                 '#type' => 'textfield',
                 '#size' => 10,
                 '#maxlength' => 10,
+                '#attributes' => [
+                  'class' => ['commerce-pos-report-deposit'],
+                ],
                 '#title' => $this->t('Cash Deposit'),
                 '#title_display' => 'invisible',
                 '#field_prefix' => $input_prefix,

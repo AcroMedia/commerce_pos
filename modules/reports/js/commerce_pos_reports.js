@@ -1,7 +1,13 @@
 (function ($) {
   Drupal.behaviors.commercePosReport = {
     attach: function (context, settings) {
-
+      $(context).find('input.commerce-pos-report-declared-input').once('addOnChange').each(function () {
+        var _this = $(this);
+        _this.on('change', function () {
+          Drupal.CommercePosReport.calculateCashDeposit(_this);
+          Drupal.CommercePosReport.calculateReportBalance(_this);
+        });
+      });
     }
   };
 
@@ -34,7 +40,18 @@
     }
   };
 
-  Drupal.CommercePosReport.currencyFormat = function (amount, currencyCode, convert) {
+  Drupal.CommercePosReport.calculateCashDeposit = function (element) {
+    var depositArea = element.closest('tr').find('.commerce-pos-report-deposit');
+    var value = (element.val() * 100 - element.data('default-float') * 100) / 100;
+
+    if (value < 0) {
+      value = 0;
+    }
+
+    depositArea.val(value.toFixed(2));
+  };
+
+  Drupal.CommercePosReport.currencyFormat = function (amount, currencyCode, convert, numberOnly) {
     var currency_array = drupalSettings.commercePosReportCurrencies[currencyCode];
     var currency = currency_array['currency'];
 

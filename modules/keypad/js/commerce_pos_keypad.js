@@ -212,6 +212,7 @@
       }
 
       this.textInput.val(total);
+      this.textInput.trigger('change');
     }
     this.hide();
   };
