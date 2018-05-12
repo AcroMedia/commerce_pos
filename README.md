@@ -20,12 +20,20 @@ POS interface.
 
 ### Search
 
-Commerce POS uses Search API for it's searching,
+Commerce POS uses Search API for product search,
 since it has to do lots of searching and it has to do it fast.
-We do provide some default configs to work with, but if you have
-additional fields or purchaseable entities you might need to customize it.
+
+* Set the server and index in the Commerce POS settings.
+* Search index should be of product_variations.
+* Search index must index the commerce_store field for store filtering.
+
+The config/optional has example setups for server and index,
+based on the search_api_db server. If you enable the search_api_db module these
+will be installed automatically.
 
 ## Contributing
+
 ### Naming Conventions
+
 Submodule names should be prefixed with "Commerce POS" to keep things
 organized and tidy.
