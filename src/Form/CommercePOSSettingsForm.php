@@ -55,8 +55,8 @@ class CommercePOSSettingsForm extends ConfigFormBase {
     $servers = $server_storage->loadMultiple();
 
     $server_options = [];
-    foreach ($servers as $server) {
-      $server_options[$server->id()] = $server->get('name');
+    foreach ($servers as $server_item) {
+      $server_options[$server_item->id()] = $server_item->get('name');
     }
 
     $form['product_search']['server'] = [
