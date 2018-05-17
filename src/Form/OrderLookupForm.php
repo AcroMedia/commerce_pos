@@ -152,11 +152,11 @@ class OrderLookupForm extends FormBase {
       }
       else {
         $order_markup = $this->t('There are currently no POS orders.');
+        // Convert into something renderable.
+        $order_markup = [
+          '#markup' => $order_markup,
+        ];
       }
-      // Convert into something renderable.
-      $order_markup = [
-        '#markup' => $order_markup,
-      ];
     }
 
     return $order_markup;
