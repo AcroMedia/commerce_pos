@@ -29,7 +29,7 @@ class ParkedOrders extends ControllerBase {
     $pos_url = Url::fromRoute('commerce_pos.main', ['commerce_order' => $commerce_order->id()]);
 
     $response = new RedirectResponse($pos_url->toString());
-    $response->send();
+    return $response->send();
   }
 
 }
